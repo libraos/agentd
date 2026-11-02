@@ -1,0 +1,32 @@
+agentd License
+
+Copyright (c) 2026 Nebula Nova Inc. All rights reserved.
+
+This license covers the agentd binaries, installer, Skills and documentation
+published in this repository ("the Software"). It does not give you the source
+code.
+
+You may, free of charge:
+
+- download, install and run the Software, including for commercial work and
+  within your organization;
+- copy it onto machines that you or your organization use.
+
+You may not:
+
+- sell, resell, rent or sublicense the Software, or charge for access to it;
+- offer the Software to others as a hosted or managed service;
+- redistribute the Software, modified or not, other than as allowed above.
+
+You keep what you make with the Software. Model usage is between you and your
+model provider, under your own account and terms.
+
+Third-party components keep their own licenses; see THIRD_PARTY_NOTICES.
+
+These rights end automatically if you break these terms. Nebula Nova Inc. may offer new
+versions under different terms.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NON-INFRINGEMENT. TO THE EXTENT THE LAW ALLOWS, NEBULA NOVA INC. IS NOT LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
