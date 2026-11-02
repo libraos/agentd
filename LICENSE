@@ -1,6 +1,6 @@
 agentd License
 
-Copyright (c) 2026 Libra OS. All rights reserved.
+Copyright (c) 2026 Nebula Nova Inc. All rights reserved.
 
 This license covers the agentd binaries, installer, Skills and documentation
 published in this repository ("the Software"). It does not give you the source
@@ -23,10 +23,10 @@ model provider, under your own account and terms.
 
 Third-party components keep their own licenses; see THIRD_PARTY_NOTICES.
 
-These rights end automatically if you break these terms. Libra OS may offer new
+These rights end automatically if you break these terms. Nebula Nova Inc. may offer new
 versions under different terms.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NON-INFRINGEMENT. TO THE EXTENT THE LAW ALLOWS, LIBRA OS IS NOT LIABLE FOR ANY
+NON-INFRINGEMENT. TO THE EXTENT THE LAW ALLOWS, NEBULA NOVA INC. IS NOT LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE SOFTWARE OR ITS USE.
