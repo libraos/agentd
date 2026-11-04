@@ -1,5 +1,9 @@
 # agentd
 
+[![Measured on 2026-11-03: 8 screens in 3.8 min with agentd (4 Claude + 4 Codex workers) vs 9.5 min in one Claude session, 2.5x faster, 8 of 8 checked](docs/before-after.png)](https://libraos.com/docs/agentd/)
+
+Measured on 2026-11-03: 8 screens in 3.8 min with 4 Claude + 4 Codex workers, against 9.5 min in one session: 2.5× faster, 8 of 8 results checked. [Watch the video](https://libraos.com/docs/agentd/).
+
 agentd runs Claude Code and Codex as a team on your development machine. You describe the work in a chat, a planner splits it into tasks, workers build them in parallel in their own git worktrees, and you review every change before you merge it.
 
 - **Your agents, connected.** agentd adds an MCP server, hooks and two skills to Claude Code and Codex, so every session shares one task ledger: who is working on what, handoffs, checks and results.
