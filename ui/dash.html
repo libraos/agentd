@@ -2187,11 +2187,12 @@ function rateCoverageNote(r,what){const c=r.coverage||{};return 'coverage '+c.de
 function rateTile(big,label,notes,rule){const none=big===null;return el('div',{class:'mtile'},el('b',{class:none?'mnone':null},none?'not enough data':big),el('div',{},label),el('div',{class:'mute'},notes.filter(Boolean).join('; ')),el('details',{class:'mrule'},el('summary',{},'Rule'),el('div',{class:'mute'},rule)))}
 function ratePct(r){return r.not_enough_data||r.pct===undefined?null:Number(r.pct).toFixed(1)+'%'}
 function metricsGroup(title,note,tiles){if(title==='Outcomes'&&tiles.every(n=>n.querySelector('b.mnone')))return [el('div',{class:'mgroup'},el('h3',{},title)),el('div',{class:'msub'},'Not enough data yet. '+note),el('details',{class:'mrule'},el('summary',{},'Coverage and rules'),el('div',{class:'mtiles'},tiles))];return [el('div',{class:'mgroup'},el('h3',{},title),note?el('span',{class:'mute'},note):null),el('div',{class:'mtiles'},tiles)]}
-function metricsGroups(m){const ts=m.tasks,o=m.outcomes,wf=m.workflow,ref=m.reference,cy=wf.latency,nr=wf.merged_without_review,au=ref.ai_only_commit_rate,inf=ref.infra_failure_rate,co=o.cost_per_accepted_task;
+function metricsGroups(m){const ts=m.tasks,o=m.outcomes,wf=m.workflow,ref=m.reference,cy=wf.latency,et=wf.task_execution_time,au=ref.ai_only_commit_rate,inf=ref.infra_failure_rate,co=o.cost_per_accepted_task;
   const rate=(r,label,extra)=>rateTile(ratePct(r),label,[r.n+' of '+r.of+' tasks',rateCoverageNote(r,'tasks'),extra],r.rule);
   const undecided=[ts.undecided_running?ts.undecided_running+' running':'',ts.undecided_infra_only?ts.undecided_infra_only+' infra failures only':'',ts.undecided_no_acceptance?ts.undecided_no_acceptance+' ended with nothing accepted':''].filter(Boolean).join(', ');
   const hum=Object.entries(au.human_authors||{}).map(([k,v])=>k+' '+v).join(', '),reasons=Object.entries(inf.reasons||{}).map(([k,v])=>k.replace(/_/g,' ')+' '+v).join(', ');
-  const repos=(nr.repos||[]).map(r=>r.repo+' '+r.count+' of '+r.of).join(', ');
+  // Minutes under 2 h, else hours, one decimal.
+  const dur=v=>Number(v)<120?Number(v).toFixed(1)+' min':(Number(v)/60).toFixed(1)+' h';
   return [...metricsGroup('Outcomes',ts.all+' tasks: '+ts.accepted+' accepted, '+ts.failed+' failed, '+ts.undecided+' undecided'+(undecided?' ('+undecided+')':''),[
       rate(o.autonomous_task_success_rate,'Autonomous success'),
       rate(o.first_pass_acceptance_rate,'First-pass acceptance'),
@@ -2199,7 +2200,7 @@ function metricsGroups(m){const ts=m.tasks,o=m.outcomes,wf=m.workflow,ref=m.refe
       rateTile(co.not_enough_data?null:'~$'+Number(co.usd_per_task).toFixed(2),'Cost per accepted task',[co.n?'estimate, ~$'+Number(co.usd).toFixed(2)+' over '+co.n+' priced of '+co.of+' accepted':'no priced spend on '+co.of+' accepted',co.unpriced_or_missing?co.unpriced_or_missing+' with unpriced or missing usage':'',rateCoverageNote(co,'tasks')],co.rule)]),
     ...metricsGroup('Workflow','',[
       rateTile(hours(cy.open_to_merge),'Workflow Latency: median open to merge',['open to first review '+hours(cy.open_to_first_review)+' ('+cy.open_to_first_review.n+')','first review to merge '+hours(cy.first_review_to_merge)+' ('+cy.first_review_to_merge.n+')'],'Open to merge is median hours over PRs merged in this range. A review after the merge counts as none.'),
-      rateTile(ratePct(nr),'Merged without Review (approval policy, not autonomy)',[nr.count+' of '+nr.of+' merged PRs with details read',rateCoverageNote(nr,'merged PRs'),repos],nr.rule)]),
+      rateTile(et.not_enough_data?null:dur(et.mean_minutes),'Average task execution time',[et.not_enough_data?'':'median '+dur(et.median_minutes)+', p90 '+dur(et.p90_minutes),et.n+' of '+et.of+' tasks',et.running?et.running+' running left out':''],et.rule)]),
     ...metricsGroup('Reference','',[
       rateTile(ratePct(au),'AI-only Commit Rate',[au.n+' of '+au.of+' with no human commit author',rateCoverageNote(au,'merged PRs'),au.cannot_tell_workers_from_people?'cannot tell workers from people: every known PR has a person\'s commit author':'',au.unknown?au.unknown+' with no commit data left out'+(au.details_failed?' ('+au.details_failed+' gh pr view failed)':''):'',hum?'human: '+hum:''],au.rule),
       rateTile(ratePct(inf),'Infra Failure Rate',[inf.n+' of '+inf.of+' worker results',rateCoverageNote(inf,'worker results'),reasons],inf.rule)])]}
