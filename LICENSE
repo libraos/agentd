@@ -12,6 +12,8 @@ Releases published before agentd asked for that acceptance (v0.1.3-rc.1 and
 earlier) remain under the license they were published with, kept in
 LICENSE-before-activation.
 
-The source code of agentd is not published and is not licensed to you.
+The source code of agentd is not published and is not licensed to you, except
+the dashboard front end in the ui/ directory, which is available under the
+Elastic License 2.0 in ui/LICENSE.
 
 Third-party components keep their own licenses; see THIRD_PARTY_NOTICES.

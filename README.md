@@ -105,4 +105,4 @@ Open an issue here with what you ran, what you expected and the output of `agent
 
 ## License
 
-Licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you activate agentd with `agentd init`. Releases before activation (v0.1.3-rc.1 and earlier) keep their original terms. See [LICENSE](LICENSE).
+Licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you activate agentd with `agentd init`. Releases before activation (v0.1.3-rc.1 and earlier) keep their original terms. See [LICENSE](LICENSE). The dashboard front end in [ui/](ui/) is source-available under the Elastic License 2.0.
