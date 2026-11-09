@@ -170,4 +170,4 @@ Version 3.3 of November 7, 2026.
 
 ## 14. Contact
 
-Nebula Nova Inc., a Delaware corporation, Attn: Legal. Legal notices: [legal notices email]. Security reports: [security email]. Support and review: [support email].
+Nebula Nova Inc., a Delaware corporation, Attn: Legal. Legal notices: contact@libraos.com. Security reports: contact@libraos.com. Support and review: contact@libraos.com.
