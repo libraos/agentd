@@ -106,11 +106,46 @@ With reporting on, the default in the beta, agentd registers the machine once an
 DO_NOT_TRACK=1    # or: agentd config set telemetry.enabled false
 ```
 
+## For Advanced Users
+
+### Search and Memory with a LibraOS Runtime
+
+Everything above works with the agentd binary alone. A LibraOS Runtime on your machine turns the ledger into knowledge your agents can query:
+
+- **Search past work.** `agentd search` finds earlier handoffs, runs and results, with citations, so a new session looks up what happened instead of rereading logs.
+- **Ask in plain language.** `agentd ask "which tasks failed and why?"` answers from the ledger and cites the records it used.
+- **Daily reports.** A model writes a short status of the day's work.
+- **Copilots for workers.** A dispatched worker can consult reviewer, tester or security agents that run on the Runtime.
+
+It needs Docker and a model key. `agentd runtime up` runs it in Docker on `127.0.0.1:8900` only:
+
+```sh
+agentd runtime up --model anthropic/claude-sonnet-5
+agentd search "parser"
+agentd ask "which tasks failed and why?"
+```
+
+`agentd runtime down` stops it and keeps the data. See [Add a Runtime](https://libraos.com/docs/agentd-runtime/).
+
+### Cloud Workers (beta)
+
+A Cloud Worker runs one task on LibraOS infrastructure instead of your machine. Use one when your machine is busy or off. Keep a local worker when the task must reach services, files or hardware on your machine.
+
+- Each job runs in its own isolated virtual machine, with repository and model access for that job only, revoked when it ends.
+- The worker pushes an `agentd/…` branch to your repository. Nothing is merged; you review it as usual.
+- A job holds its dollar budget from your Console credits and is charged for what it uses: US$0.04 per active minute plus model use at list price.
+
+```sh
+agentd handoff offer --cloud --budget '$10' --goal 'Fix the failing checkout test' --project OWNER/REPO
+```
+
+It needs beta access, a cloud key from the Console and the LibraOS GitHub App on the repository. See [Cloud Workers](https://libraos.com/docs/cloud-workers/).
+
 ## Upgrade and Uninstall
 
 **Upgrade:** run the installer again, then restart the notifier (`systemctl --user restart agentd-notify.service` on Linux). Replacing the binary does not restart what runs the old one.
 
-**Uninstall:** on macOS and Windows, `agentd uninstall` removes the services. On Linux, disable and delete the `agentd-*` units in `~/.config/systemd/user`. Then remove the `agentd` MCP server and hooks from `~/.claude.json`, `~/.claude/settings.json` and `~/.codex/config.toml`, and delete the binary, the two Skills and the data directory, which holds your ledger (`~/.local/share/agentd` on Linux and macOS).
+**Uninstall:** on macOS and Windows, `agentd uninstall` removes the services. On Linux, disable and delete the `agentd-*` units in `~/.config/systemd/user`. Then remove the `agentd` MCP server and hooks from `~/.claude.json`, `~/.claude/settings.json` and `~/.codex/config.toml`, and delete the binary, the two Skills and the data directory, which holds your ledger (`~/.local/share/agentd` on Linux and macOS). If you started a Runtime, `agentd runtime down` stops it; see [Uninstall](https://libraos.com/docs/agentd/#uninstall) to remove its containers and data.
 
 ## Report a Problem
 
