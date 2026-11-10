@@ -118,4 +118,4 @@ DO_NOT_TRACK=1    # or: agentd config set telemetry.enabled false
 
 ## License
 
-agentd is licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you activate it with `agentd init`. Releases before activation (v0.1.3-rc.1 and earlier) keep their original terms ([LICENSE-before-activation](LICENSE-before-activation)). See [LICENSE](LICENSE). The dashboard front end in [ui/](ui/) is source-available under the Elastic License 2.0. The agentd source is private.
+agentd is licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you activate it with `agentd init`. See [LICENSE](LICENSE). The dashboard front end in [ui/](ui/) is source-available under the Elastic License 2.0. The agentd source is private.
