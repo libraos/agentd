@@ -1,108 +1,121 @@
 # agentd
 
+<div align="center">
+
+[Docs](https://libraos.com/docs/agentd/) · [Get an activation code](https://console.libraos.com/agentd) · [Releases](https://github.com/libraos/agentd/releases/latest) · [Report a problem](https://github.com/libraos/agentd/issues)
+
+<br />
+
+[![Latest release](https://img.shields.io/github/v/release/libraos/agentd?labelColor=333333&color=666666)](https://github.com/libraos/agentd/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/libraos/agentd/total?labelColor=333333&color=666666)](https://github.com/libraos/agentd/releases)
+[![Last commit](https://img.shields.io/github/last-commit/libraos/agentd?labelColor=333333&color=666666)](https://github.com/libraos/agentd/commits/main)
+
+</div>
+
+agentd runs Claude Code and Codex as a team on your development machine. Describe the work, and workers build it in parallel, each in its own git worktree with a budget and a test command. You review every change before it reaches GitHub.
+
+It works with the coding agents you already use and the logins you already have. Everything runs on your machine.
+
 [![Measured on 2026-11-03: 8 screens in 3.8 min with agentd (4 Claude + 4 Codex workers) vs 9.5 min in one Claude session, 2.5x faster, 8 of 8 checked](docs/before-after.png)](https://libraos.com/docs/agentd/)
 
-Measured on 2026-11-03: 8 screens in 3.8 min with 4 Claude + 4 Codex workers, against 9.5 min in one session: 2.5× faster, 8 of 8 results checked. [Watch the video](https://libraos.com/docs/agentd/).
+## What You Can Do
 
-agentd runs Claude Code and Codex as a team on your development machine. You describe the work in a chat, a planner splits it into tasks, workers build them in parallel in their own git worktrees, and you review every change before you merge it.
+- Run several Claude Code and Codex workers at once from one terminal, without juggling sessions.
+- Give each task a budget and a check. agentd runs the check itself and records the result.
+- Read a result card for every task: check, changed files, minutes and dollars.
+- Open a draft pull request only when you say so. Workers never push, and agentd never merges.
+- Plan work in the dashboard's Chat, watch each worker live, and answer approvals from the Inbox.
+- Let every agent session on the machine share one task ledger: who is working on what, handoffs and results.
 
-- **Your agents, connected.** agentd adds an MCP server, hooks and two skills to Claude Code and Codex, so every session shares one task ledger: who is working on what, handoffs, checks and results.
-- **A local dashboard.** `agentd dash` opens Chat, Issues, Team and Insights: plan a request, watch each worker live, and merge its pull request.
-- **Workers you can trust with a branch.** Each worker has a budget and a check command, commits on an `agentd/…` branch, and never pushes or merges.
+## Installation
 
-Everything runs on your machine. This repository holds releases only: static binaries, the installer, the skills and their checksums.
+| Platform | Install |
+| --- | --- |
+| Linux, macOS | `curl -fsSL https://console.libraos.com/agentd/install.sh \| sh` |
+| Windows | `irm https://console.libraos.com/agentd/install.ps1 \| iex` (PowerShell) |
 
-**Documentation:** [libraos.com/docs/agentd](https://libraos.com/docs/agentd/) · **Setup in the LibraOS Console:** [console.libraos.com/agentd](https://console.libraos.com/agentd)
+The installer needs no login. It checks every file against the release's `SHA256SUMS`, then installs `agentd` and two Skills, `agentd` and `agentd-setup`. It changes no client configuration. To pin a version, set `AGENTD_VERSION` to its tag first. You can also download the binaries and both installers from the [latest release](https://github.com/libraos/agentd/releases/latest) and read the script before running it.
 
-## Requirements
+**Requirements:**
 
-- Linux with systemd user services (tested). The macOS binaries are built and untested.
-- git 2.25 or newer, with `user.name` and `user.email` set (workers commit).
-- Claude Code or Codex, installed and signed in. One is enough. Codex workers also need `bwrap` (bubblewrap).
+- Linux with systemd user services is the tested platform. On macOS, services are LaunchAgents, and the macOS build has not yet been tested on a Mac. Windows is new in v0.1.7: services are Task Scheduler tasks, and agentd needs [Git for Windows](https://git-scm.com/download/win) for its shell.
+- git 2.25 or newer, with `user.name` and `user.email` set, because workers commit.
+- Claude Code or Codex, installed and signed in. One is enough. On Linux, Codex workers also need `bwrap` (bubblewrap).
 - Optional: `gh`, to sync pull requests and issues.
 
-## Install
+## Get Started
 
-No GitHub login is needed. Download the installer, read it, then run it:
+1. **Get an activation code.** Redeem your invite at [console.libraos.com/agentd](https://console.libraos.com/agentd) and copy the code.
+2. **Set up your repository.** Start a Claude Code or Codex session in it and paste:
 
-```sh
-d="$(mktemp -d)"
-curl -fsSL -o "$d/install.sh" https://github.com/libraos/agentd/releases/latest/download/install.sh
-less "$d/install.sh"
-sh "$d/install.sh"
-agentd version
-```
+   > Set up AgentD for this repository. Connect my coding agents, initialize shared project knowledge, and help me run my first verified development task.
 
-The installer checks the release's checksums and installs `agentd` to `~/.local/bin` with the `agentd` and `agentd-setup` skills. It changes no client configuration. To install a specific version, set `AGENTD_VERSION` to its tag first.
+   The setup Skill runs the steps below and asks before it starts a paid worker. By hand:
 
-## Set up a repository
+   ```sh
+   cd /path/to/your/repo
+   agentd init      # asks for the activation code and EULA once, then sets up the ledger, services and your agents
+   agentd doctor    # each failure prints the command that fixes it
+   ```
 
-The quick way: start a new Claude Code or Codex session in your repository and paste:
+   `init` connects every installed client, trusts the repository for Claude Code and adds you as its owner. It is safe to run again, and `--dry-run` shows what it would change. `agentd connect --repo-rule` optionally adds an untracked rule telling your sessions to send implementation work through agentd.
 
-> Set up AgentD for this repository. Connect my coding agents, initialize shared project knowledge, and help me run my first verified development task.
+3. **Run a task:**
 
-The setup skill runs the steps below and asks before it starts a paid worker. By hand:
+   ```sh
+   agentd run "Add a test for the parser" --budget 30m --check "go test ./..."
+   ```
 
-```sh
-cd /path/to/your/repo
-agentd init      # the local ledger and systemd user services
-agentd connect   # the agentd MCP server and hooks in Claude Code and Codex
-agentd doctor    # each failure prints the command that fixes it
-```
+   The worker commits on its own `agentd/…` branch and prints a result card. When you are happy with it, `agentd handoff pr ID` pushes the branch and opens a draft pull request. You can also ask for work in any connected Claude Code or Codex session.
 
-`init` and `connect` are safe to run again, and `--dry-run` shows what they would change. `agentd connect --repo-rule` optionally adds an untracked rule telling your sessions to send implementation work through agentd. For Claude workers, run `claude` in the repository once and trust it.
-
-## Run work
-
-From a terminal:
-
-```sh
-agentd user add YOUR_NAME --role owner   # once
-export AGENTD_USER=YOUR_NAME             # who starts, and pays for, the workers
-agentd run "Add a test for the parser" --budget 30m --check "go test ./..."
-```
-
-The worker commits on its own branch and prints a result card with the check, the changed files, time and cost. Or ask for the work in any Claude Code or Codex session in the repository.
-
-From the dashboard:
+## Dashboard
 
 ```sh
 agentd dash --serve 127.0.0.1:21480
 agentd dash link --user YOUR_NAME        # open the printed link to sign in
 ```
 
-Chat needs a model on an OpenAI-compatible gateway, set under `[gateway]` in `~/.local/share/agentd/config.toml`. To let Chat start workers, set `dispatch = true` under `[dash]`. A planner proposes one task per worker; nothing starts until you choose **Review and start**, then **Confirm and start**.
+The dashboard has Inbox, Issues, Team, Chat and Insights. Chat needs a model on an OpenAI-compatible gateway, set under `[gateway]` in `config.toml`. To let Chat start workers, set `dispatch = true` under `[dash]`. Nothing starts until a person presses **Start** on the proposed task.
 
-## Models and billing
+## Agents
+
+- **Claude Code and Codex** connect as sessions and run as workers.
+- **opencode** connects as a session, and runs as a worker once `[dispatch] opencode_model` names its model.
+
+`agentd init` and `agentd connect` add the agentd MCP server, hooks and Skills to each installed client. They back up every file they change, and `agentd uninstall` and the steps below undo them.
+
+## Models and Billing
 
 agentd brings no model access of its own. Each worker uses its client's own Claude or ChatGPT login or API key, billed by that provider.
 
-Or use one [LibraOS](https://console.libraos.com) model API key for both clients and the dashboard's Chat, billed in LibraOS credits or a Token Plan. Save the key alone in a file only you can read (`chmod 600`), then add to `config.toml`:
+Or use one [LibraOS](https://console.libraos.com) model API key for both clients and the dashboard's Chat, billed in LibraOS credits or a Token Plan. Save the key alone in a file only you can read, then let `init` write the settings:
 
-```toml
-[gateway]                                    # the dashboard's Chat
-url = "https://api.libraos.com/v1"
-key_file = "~/.config/agentd/libraos.key"
-
-[dispatch]                                   # Claude and Codex workers
-claude_base_url = "https://api.libraos.com"
-claude_key_file = "~/.config/agentd/libraos.key"
-codex_base_url = "https://api.libraos.com/v1"
-codex_key_file = "~/.config/agentd/libraos.key"
+```sh
+agentd init --model-key ~/.config/agentd/libraos.key
 ```
 
-`agentd doctor` reports the gateway each worker uses. See [Models and billing](https://libraos.com/docs/agentd-models/) for the details.
+`agentd doctor` reports the gateway each worker uses. See [Models and billing](https://libraos.com/docs/agentd-models/) for details.
 
-## Upgrade and uninstall
+## Privacy
 
-**Upgrade:** run the installer again, then `systemctl --user restart agentd-notify.service`.
+agentd is local-first. Your ledger, transcripts and worker output stay on your machine. Code and prompts go only to the model provider you choose: your coding agents' own, or LibraOS if you use a LibraOS model key. `agentd feedback` sends only the text you give it.
 
-**Uninstall:** there is no command for this yet. Disable and delete the `agentd-*` units in `~/.config/systemd/user`, remove the `agentd` MCP server and hooks from `~/.claude.json`, `~/.claude/settings.json` and `~/.codex/config.toml`, then delete `~/.local/bin/agentd`, the two skills and `~/.local/share/agentd`, which holds your ledger.
+With reporting on, the default in the beta, agentd registers the machine once and sends a daily report: install id, version, platform, and counts of tasks, workers, sessions and users. It never sends code, prompts, paths, repository names or emails. To turn it off:
 
-## Report a problem
+```sh
+DO_NOT_TRACK=1    # or: agentd config set telemetry.enabled false
+```
 
-Open an issue here with what you ran, what you expected and the output of `agentd doctor`. Never paste keys or tokens.
+## Upgrade and Uninstall
+
+**Upgrade:** run the installer again, then restart the notifier (`systemctl --user restart agentd-notify.service` on Linux). Replacing the binary does not restart what runs the old one.
+
+**Uninstall:** on macOS and Windows, `agentd uninstall` removes the services. On Linux, disable and delete the `agentd-*` units in `~/.config/systemd/user`. Then remove the `agentd` MCP server and hooks from `~/.claude.json`, `~/.claude/settings.json` and `~/.codex/config.toml`, and delete the binary, the two Skills and the data directory, which holds your ledger (`~/.local/share/agentd` on Linux and macOS).
+
+## Report a Problem
+
+[Open an issue](https://github.com/libraos/agentd/issues) with what you ran, what you expected and the output of `agentd doctor`. Never paste keys or tokens.
 
 ## License
 
-Licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you activate agentd with `agentd init`. Releases before activation (v0.1.3-rc.1 and earlier) keep their original terms. See [LICENSE](LICENSE). The dashboard front end in [ui/](ui/) is source-available under the Elastic License 2.0.
+agentd is licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you activate it with `agentd init`. Releases before activation (v0.1.3-rc.1 and earlier) keep their original terms ([LICENSE-before-activation](LICENSE-before-activation)). See [LICENSE](LICENSE). The dashboard front end in [ui/](ui/) is source-available under the Elastic License 2.0. The agentd source is private.
