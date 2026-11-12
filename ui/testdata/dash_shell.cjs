@@ -64,9 +64,9 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  assert.equal(row('s-solo').getAttribute('href'),'#team/session/s-solo');assert(row('s-solo').textContent.includes('Exploring the gamma repo'));
  assert.equal(doc.querySelector('#agents-add').getAttribute('href'),'#team/repositories','Add a repository does not lead to Team');
  assert.equal(doc.querySelector('#agents-new').textContent,'New task');
- // Shown on the four pages, collapsed on Insights, Team and Settings (desktop); the toggle says which.
- if(!phone){for(const h of ['#inbox','#issues','#chat','#triggers']){await go(h);assert(!collapsed(),'the list is not shown on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'true');assert(!doc.querySelector('#agents-list').inert)}
-  for(const h of ['#insights/metrics','#team','#settings']){await go(h);assert(collapsed(),'the list is not collapsed on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'false');assert(doc.querySelector('#agents-list').inert)}
+ // Shown on Inbox, Tasks and Triggers, collapsed on Chat (its conversation list takes the list's place, #483), Insights, Team and Settings (desktop); the toggle says which.
+ if(!phone){for(const h of ['#inbox','#issues','#triggers']){await go(h);assert(!collapsed(),'the list is not shown on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'true');assert(!doc.querySelector('#agents-list').inert)}
+  for(const h of ['#chat','#insights/metrics','#team','#settings']){await go(h);assert(collapsed(),'the list is not collapsed on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'false');assert(doc.querySelector('#agents-list').inert)}
   // Hide it on Inbox and show it on Team: remembered for this browser, page by page.
   await go('#inbox');doc.querySelector('#agents-toggle').click();await tick();assert(collapsed());await go('#team');doc.querySelector('#agents-toggle').click();await tick();assert(!collapsed());
   assert.deepEqual(JSON.parse(w.localStorage.getItem('dash-agents')),{inbox:false,team:true});await go('#issues');assert(!collapsed(),'hiding on Inbox hid it on Tasks');
