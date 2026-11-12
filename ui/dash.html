@@ -630,11 +630,18 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 @media(max-width:1100px){.nt-form{grid-template-columns:minmax(0,1fr);grid-template-areas:"main" "side" "end"}}
 @media(max-width:860px){.nt-foot button{min-height:44px;flex:1 1 40%}.nt-grow{display:none}}
 /* end:css-new */
-/* region:css-triggers: the Triggers page for owners (#460) */
-.trig-tpl{display:grid;gap:8px;padding:12px;margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}.trig-tpl>*{min-width:0}.trig-tpl h3,.trig-tpl p{margin:0}
+/* region:css-triggers: the Triggers page for owners (#460), with improve and signals beside it (#484) */
+#page-triggers{max-width:1100px}#page-triggers code{overflow-wrap:anywhere}.trig-meta{margin-left:auto;margin-right:12px}
+.trig-card{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);min-width:0}.trig-card>*{min-width:0}.trig-card h3,.trig-card p{margin:0}
+.trig-state{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px}.trig-dot{width:10px;height:10px;border-radius:50%;background:var(--mute)}.trig-dot.on{background:var(--green,var(--fg))}.trig-dot.bad{background:var(--red)}
+.trig-cols{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}.trig-col{display:grid;gap:12px;min-width:0}.trig-col>h3{margin:4px 0 0}
+.trig-kind{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}.trig-small{font-size:var(--fs-s);color:var(--mute)}
+.trig-card dl{display:grid;grid-template-columns:minmax(90px,max-content) minmax(0,1fr);gap:6px 12px;margin:0}.trig-card dd{margin:0;overflow-wrap:anywhere}.trig-card td{overflow-wrap:anywhere}
+.trig-tpl{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}.trig-tpl>*{min-width:0}.trig-tpl h3,.trig-tpl p{margin:0}
 .trig-tpl pre{margin:0;padding:8px;overflow-x:auto;white-space:pre;font:12px/1.5 ui-monospace,monospace;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--fg)}
 .trig-actions,.trig-fill{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trig-fill label{display:grid;gap:4px;flex:1 1 180px;min-width:0}.trig-fill input{min-width:0}
-.trig-problem{color:var(--red);overflow-wrap:anywhere}.trig-ok{color:var(--green,var(--fg))}#page-triggers code{overflow-wrap:anywhere}
+.trig-problem{color:var(--red);overflow-wrap:anywhere}.trig-ok{color:var(--green,var(--fg))}
+@media(max-width:860px){.trig-cols{grid-template-columns:minmax(0,1fr)}.trig-state{grid-template-columns:auto minmax(0,1fr)}.trig-state>button{grid-column:1/-1;justify-self:start}}
 /* end:css-triggers */
 /* region:css-connect: agentd connect from Settings > Diagnostics, owners only (#466) */
 .set-connect-out{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--sunk);min-width:0}.set-connect-out h4{margin:0}
@@ -852,11 +859,11 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 </div>
 <!-- end:page-settings -->
 <!-- region:page-triggers -->
-<div id="page-triggers" class="page textpage" hidden><a class="page-back" href="#settings">← Settings</a>
-  <div class="set-toolbar"><h2>Triggers</h2><button type="button" id="trig-refresh">Refresh</button></div>
-  <p class="mute">What <code>agentd trigger status</code> prints, and templates for <code>[triggers]</code> in config.toml. Triggers start workers on their own, so they are off by default and only an owner sees this page.</p>
+<div id="page-triggers" class="page textpage" hidden>
+  <div class="set-toolbar"><h2>Triggers</h2><span class="mute trig-meta" id="trig-meta"></span><button type="button" id="trig-refresh">Refresh</button></div>
+  <p class="mute">What starts work on its own: <code>[triggers]</code> (what <code>agentd trigger status</code> prints, and templates for it), and beside it <code>[improve]</code> and <code>[signals]</code>. All three are off by default, only an owner sees this page, and nothing here turns any of them on: that is a terminal step.</p>
   <p id="trig-error" role="alert" hidden></p><p id="trig-status" class="mute" role="status"></p>
-  <div id="trig-body"></div>
+  <div id="trig-body" class="trig-col"></div>
 </div>
 <!-- end:page-triggers -->
 <div id="page-notfound" class="page textpage" hidden><h2>This page could not be found</h2><p>The address may be old or incomplete. <a href="#inbox">Go to Inbox</a>.</p></div>
@@ -3464,31 +3471,57 @@ for(const [k,[hash]] of Object.entries(KEYS_GO))for(const a of document.querySel
 // ready-to-copy [triggers] config; Write puts one in config.toml through the
 // Settings route (settingsAPI, action trigger_template). Nothing here turns
 // triggers on: that stays a terminal step, and the server refuses a template
-// while they are on.
+// while they are on. #484: the page's layout (a state card, templates first,
+// settings and latest runs beside them) and two read-only cards, [improve] and
+// [signals], from the same GET: state, settings, latest offers and the terminal
+// command that turns each on. They have no control at all.
 const TRIG={data:null,request:0,repo:'',author:''};
 async function trigLoad(){const seq=++TRIG.request,q=new URLSearchParams();if(TRIG.repo)q.set('repo',TRIG.repo);if(TRIG.author)q.set('author',TRIG.author);
   $('trig-error').hidden=true;$('trig-status').textContent='Loading triggers…';
   try{const r=await fetch('/api/triggers'+(q.toString()?'?'+q:''),{cache:'no-store',headers:auth()});let d={};try{d=await r.json()}catch(e){}if(seq!==TRIG.request)return;
     if(!r.ok)throw new Error(d.error||'Could not read triggers (HTTP '+r.status+').');TRIG.data=d;trigRender();$('trig-status').textContent=''}
-  catch(e){if(seq!==TRIG.request)return;TRIG.data=null;$('trig-body').replaceChildren();$('trig-error').textContent=errorText(e);$('trig-error').hidden=false;$('trig-status').textContent=''}}
+  catch(e){if(seq!==TRIG.request)return;TRIG.data=null;$('trig-body').replaceChildren();$('trig-meta').textContent='';$('trig-error').textContent=errorText(e);$('trig-error').hidden=false;$('trig-status').textContent=''}}
 function trigList(v){return Array.isArray(v)&&v.length?v.join(', '):''}
 function trigWrite(t){const d=TRIG.data;return sheet({title:'Write “'+t.title+'”',description:'Writes repos, authors, label, budget, max_per_day and the checkout under [triggers] in config.toml, with a backup and a history entry. enabled is not written: nothing fires until someone runs '+d.enable+' in a terminal.',action:'Write to config.toml',
   onSubmit:async()=>{await settingsAPI({action:'trigger_template',template:t.name,repo:d.repo,author:d.author});toast('Template written. Triggers are still off.',true);trigLoad()}})}
+// trigState is a mechanism's one line: on, on but cannot act (problem), or off
+// with the terminal command that turns it on and what would still stop it.
+function trigState(name,on,problem,later,enable,verb){
+  if(on)return problem?el('span',{class:'trig-problem','data-trig':'problem'},'On, but cannot '+verb+': '+problem):el('span',{class:'trig-ok','data-trig':'problem'},'On and able to '+verb);
+  return el('span',{'data-trig':'problem'},'Off. Turned on from a terminal: ',el('code',{},enable),'.',later?[' Would still not '+verb+': ',el('span',{class:'trig-problem','data-trig':'later'},later)]:'')}
+function trigTask(id){return id?el('a',{href:'#issues/'+encodeURIComponent(id)},id):''}
+function trigCard(name,title,about,...body){return el('section',{class:'trig-card','data-trig':name,'aria-label':title},el('h3',{},title),about?el('p',{class:'trig-small'},about):null,...body)}
+// trigImprove and trigSignals are read-only: their settings and latest offers, no
+// control. They are turned on from a terminal (agentd config set ….enabled true).
+function trigImprove(d){const m=d.improve;if(!m)return null;
+  const pending=(m.pending||[]).map(p=>el('div',{},p.scorer+' · '+p.role+': '+p.failures+' of '+p.needed+' failures',p.open_offer?' (offer '+p.open_offer+' open)':''));
+  return trigCard('improve','Improve','Repeated scorer failures offer a worker to propose a change to prompts, roles or config. It commits and stops; a person publishes it.',
+    el('p',{},trigState('improve',m.enabled===true,m.problem,m.enabled?'':m.problem,d.improve_enable,'offer')),
+    settingsPairs([['Repository',m.repo],['Checkout',m.dir?el('code',{},m.dir):''],['Budget',m.budget],['Failures before an offer',m.failed_run_threshold],['Counted over',m.window_days?m.window_days+' days':''],['Most a day',m.max_per_day],['Counting now',pending.length?pending:'Nothing']]),
+    el('h4',{},'Latest offers'),(m.offers||[]).length?settingsTable(['When','Scorer','Role','State','Task','PR','Error'],m.offers.map(o=>[whenText(o.created),o.scorer,o.role,word(o.state),trigTask(o.handoff),o.pr||'',o.error||''])):el('p',{class:'mute','data-trig':'empty'},'Nothing offered yet.'))}
+function trigSignals(d){const m=d.signals;if(!m)return null;
+  return trigCard('signals','Signals','A status flag no task covers, or a fix whose signal did not drop after its merge, offers a task. No worker starts until someone takes it.',
+    el('p',{},trigState('signals',m.enabled===true,'','',d.signals_enable,'offer')),
+    settingsPairs([['Most a day',m.max_per_day],['Offered in 24 hours',String(m.offered_today??0)]]),
+    el('h4',{},'Latest offers'),(m.offers||[]).length?settingsTable(['When','Signal','Task','State','Result'],m.offers.map(o=>[whenText(o.created),o.signal,el('span',{},trigTask(o.id),o.goal?el('small',{class:'tm-why'},o.goal):null),word(o.state),o.signal_result||''])):el('p',{class:'mute','data-trig':'empty'},'Nothing offered yet.'))}
 function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st.enabled===true,dirs=Object.entries(st.dirs||{});
-  const state=on?(st.problem?el('span',{class:'trig-problem','data-trig':'problem'},'On, but cannot fire: '+st.problem):el('span',{class:'trig-ok','data-trig':'problem'},'On and able to fire')):
-    el('span',{'data-trig':'problem'},'Off. Nothing fires until it is turned on from a terminal: ',el('code',{},d.enable),'.');
-  const later=on?null:st.problem_when_enabled?el('span',{class:'trig-problem','data-trig':'later'},st.problem_when_enabled):el('span',{'data-trig':'later'},'Nothing');
-  const settings=settingsSection('Settings',settingsPairs([['State',state],...(on?[]:[['Would stop it once on',later]]),['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most offers a day',st.max_per_day],
-    ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])]));
-  settings.dataset.trig='settings';
-  const offers=settingsSection('Latest offers',settingsTable(['When','Kind','For','Commit','Task','Error'],(st.offers||[]).map(o=>[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',o.handoff?el('a',{href:'#issues/'+encodeURIComponent(o.handoff)},o.handoff):'',o.error||''])));
-  offers.dataset.trig='offers';
+  $('trig-meta').textContent=(on?'On':'Off')+' · owners only';
+  const head=on?st.problem?'On, but cannot fire: '+st.problem:'On. A red PR or a labelled issue starts a worker.':'Off. Nothing starts a worker on its own.';
+  const runs=el('section',{class:'trig-col','data-trig':'offers','aria-label':'Latest runs',tabindex:'-1'},el('h3',{},'Latest runs'),(st.offers||[]).length?
+    el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task','Error'],st.offers.map(o=>[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),o.error||'']))):
+    el('div',{class:'trig-card'},el('p',{class:'mute','data-trig':'empty'},'Nothing recorded yet. Each run links to the task it started.')));
+  const state=el('div',{class:'trig-card trig-state','data-trig':'state'},el('i',{class:'trig-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),
+    el('div',{},el('strong',{class:on&&st.problem?'trig-problem':''},head),el('div',{class:'trig-small'},on?['Turned off from a terminal: ',el('code',{},'agentd config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire'))),
+    el('button',{type:'button',onclick:()=>{runs.scrollIntoView({block:'start'});runs.focus()}},'Runs'));
+  const settings=el('section',{class:'trig-col','data-trig':'settings','aria-label':'Settings now'},el('h3',{},'Settings now'),el('div',{class:'trig-card'},settingsPairs([['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most a day',st.max_per_day],
+    ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])])));
   const repo=el('input',{type:'text',id:'trig-repo',value:d.repo||'',placeholder:'OWNER/NAME',autocomplete:'off'}),author=el('input',{type:'text',id:'trig-author',value:d.author||'',placeholder:'GitHub login',autocomplete:'off'});
   const fill=el('form',{class:'trig-fill',onsubmit:e=>{e.preventDefault();TRIG.repo=repo.value.trim();TRIG.author=author.value.trim();trigLoad()}},el('label',{for:'trig-repo'},'Repository',repo),el('label',{for:'trig-author'},'Author whose PRs and issues fire',author),el('button',{type:'submit'},'Fill in'));
   const why=on?'Triggers are on. Turn them off from a terminal before writing a template.':!d.repo||!d.author?'Fill in the repository and author first.':'';
-  const tpls=(d.templates||[]).map(t=>el('div',{class:'trig-tpl','data-template':t.name},el('h3',{},t.title),el('p',{},t.about),el('pre',{},el('code',{},t.toml)),
-    el('div',{class:'trig-actions'},el('button',{type:'button',onclick:()=>chatCopy(t.toml)},'Copy'),el('button',{type:'button',class:'primary','data-write':'','data-disabled-reason':why||null,onclick:()=>trigWrite(t)},'Write to config.toml'))));
-  $('trig-body').replaceChildren(settings,offers,settingsSection('Templates',el('p',{class:'mute'},'Copy one into config.toml, or write it there from here. Either way triggers stay off until you turn them on.'),fill,...tpls));
+  const tpls=(d.templates||[]).map(t=>el('div',{class:'trig-tpl','data-template':t.name},el('span',{class:'trig-kind'},t.label?'Issues':'Pull requests'),el('h3',{},t.title),el('p',{},t.about),el('pre',{},el('code',{},t.toml)),
+    el('div',{class:'trig-actions'},el('button',{type:'button',onclick:()=>chatCopy(t.toml)},'Copy config'),el('button',{type:'button',class:'primary','data-write':'','data-disabled-reason':why||null,onclick:()=>trigWrite(t)},'Write to config.toml'))));
+  const left=el('section',{class:'trig-col','data-trig':'templates','aria-label':'Start from a template'},el('h3',{},'Start from a template'),el('p',{class:'mute'},'Copy one into config.toml, or write it there from here. Either way triggers stay off until you turn them on.'),fill,...tpls);
+  $('trig-body').replaceChildren(state,el('div',{class:'trig-cols'},left,el('div',{class:'trig-col'},settings,runs,trigImprove(d),trigSignals(d))));
   lockState()}
 $('trig-refresh').onclick=()=>trigLoad();
 dashPage('triggers',{title:'Triggers',panel:false,enter(){trigLoad()},unlock(){trigLoad()},leave(){TRIG.request++}});
