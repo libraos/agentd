@@ -482,6 +482,17 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .chat-role-hint{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;max-width:720px;margin:4px auto 0;padding:0 14px;color:var(--mute);font-size:var(--fs-s);overflow-wrap:anywhere}.chat-role-hint[hidden]{display:none}.chat-role-hint button{color:var(--accent);font-size:inherit}
 @media(max-width:860px){.chat-role-hint{margin:4px 0 0;padding:0 4px}}@media(max-width:860px),(pointer:coarse){.chat-role-hint button{min-height:44px}}
 /* end:css-chat-refinements */
+/* region:css-search: one search box over tasks, PRs, issues, runs and messages (Ctrl+K / Cmd+K) */
+.search-open{display:inline-flex;align-items:center;gap:8px;flex:none;color:var(--mute);background:var(--sunk);border:1px solid var(--line);border-radius:var(--r-m);padding:3px 8px;min-width:180px;font-weight:400;box-shadow:none}.search-open:hover{color:var(--fg)}.search-open kbd{margin-left:auto;font:inherit;font-size:11px;padding:0 4px;border:1px solid var(--line);border-radius:4px}
+.search-box{position:fixed;inset:64px 0 auto;margin:0 auto;width:min(640px,calc(100vw - 32px));max-height:calc(100dvh - 96px);padding:0;border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 80px #0006;background:var(--raised);color:var(--fg);overflow:hidden;flex-direction:column}.search-box[open]{display:flex}.search-box::backdrop{background:var(--scrim)}
+.search-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line)}.search-head input{flex:1;min-width:0;border:0;background:transparent;font-size:15px;padding:8px 4px;box-shadow:none}.search-head input:focus{outline:none}
+.search-status{padding:8px 16px;color:var(--mute);font-size:12px}.search-status:empty{display:none}
+.search-list{overflow-y:auto;min-height:0;padding:4px 8px 8px}.search-group-name{font-size:12px;color:var(--mute);padding:8px 8px 4px}
+.search-opt{display:grid;gap:2px;padding:6px 8px;border-radius:var(--r-s);cursor:pointer;min-width:0}.search-opt:hover{background:var(--hover)}.search-opt[aria-selected="true"]{background:var(--sel)}.search-opt.no-page{cursor:default;opacity:.85}
+.search-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.search-meta,.search-snip{font-size:12px;color:var(--mute);overflow-wrap:anywhere}.search-snip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:860px){.search-open{min-width:44px;padding:0 10px;justify-content:center}.search-open .search-open-label,.search-open kbd{display:none}.search-box{inset:0;width:100%;max-width:none;height:100dvh;max-height:none;border:0;border-radius:0}.search-head input{font-size:16px}.search-opt{min-height:44px}}
+@media(pointer:coarse){.search-open kbd{display:none}}
+/* end:css-search */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -563,6 +574,7 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   <button type="button" class="panel-toggle" id="panel-toggle" aria-controls="side" aria-expanded="false" aria-label="Open this page's panel"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13"/></svg></button>
   <h1 id="page-title">Issues</h1>
   <div class="stats" id="stats"></div>
+  <button type="button" class="search-open" id="search-open" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" title="Search tasks, PRs, issues and runs"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5"/><path d="m12.5 12.5 4 4"/></svg><span class="search-open-label">Search</span><kbd id="search-key">Ctrl K</kbd></button>
   <span id="now">Loading…</span>
   <details class="row-more account" id="account"><summary aria-label="Account and settings">Account</summary><div class="menu-items">
     <div class="tokenbox"><span id="userstate"></span><span id="tokstate">Read-only</span><button id="tokset">Unlock</button><button id="tokclear" hidden>Sign out</button></div>
@@ -2559,6 +2571,47 @@ $('h-filters').addEventListener('submit',e=>{e.preventDefault();histRestart()});
 $('h-failed').onclick=()=>{HIST.failed=!HIST.failed;$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));histRestart()};
 $('h-clear').onclick=()=>{for(const id of Object.values(HFIELDS))$(id).value='';$('h-q').value='';HIST.failed=false;$('h-failed').setAttribute('aria-pressed','false');$('h-failed').setAttribute('aria-checked','false');histRestart()};
 // end:insights
+// region:search: one box over the find index (GET /api/search), opened from the
+// top bar or with Ctrl+K / Cmd+K. Results come grouped by kind and limited by the
+// server to what this person may open; arrows move, Enter opens, Escape closes.
+const SEARCH={box:null,input:null,list:null,status:null,items:[],at:-1,request:0,timer:0,opener:null};
+const SEARCH_KINDS=[['handoff','Tasks'],['pr','Pull requests'],['issue','Issues'],['run','Runs'],['msg','Messages'],['compaction','Session summaries']];
+// searchHref is where a hit opens: a task, PR or issue on its Issues page; a run has no page here.
+function searchHref(x){return x.kind==='handoff'?itemHash('',x.ref):x.kind==='pr'||x.kind==='issue'?itemHash(x.ref):''}
+function searchBuild(){if(SEARCH.box)return SEARCH.box;
+  const input=el('input',{type:'search',id:'search-input',role:'combobox','aria-label':'Search tasks, PRs, issues, runs and messages','aria-expanded':'false','aria-controls':'search-list','aria-autocomplete':'list',placeholder:'Search tasks, PRs, issues, runs…',autocomplete:'off',spellcheck:'false',maxlength:'200'});
+  const box=el('dialog',{class:'search-box',id:'search-box','aria-label':'Search'},el('div',{class:'search-head'},input,el('button',{type:'button',class:'quiet',onclick:()=>searchClose()},'Close')),el('div',{class:'search-status',id:'search-status',role:'status','aria-live':'polite'}),el('div',{class:'search-list',id:'search-list',role:'listbox','aria-label':'Results'}));
+  input.addEventListener('input',()=>{clearTimeout(SEARCH.timer);SEARCH.timer=setTimeout(searchRun,150)});
+  box.addEventListener('keydown',e=>{e.stopPropagation();const n=SEARCH.items.length;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(n)searchMark((SEARCH.at+(e.key==='ArrowDown'?1:n-1)+n)%n)}
+    else if(e.key==='Enter'&&!e.isComposing&&e.target===input){e.preventDefault();clearTimeout(SEARCH.timer);if(SEARCH.items[SEARCH.at])searchOpen(SEARCH.items[SEARCH.at]);else searchRun()}
+    else if(e.key==='Escape'){e.preventDefault();searchClose()}});
+  box.addEventListener('cancel',e=>{e.preventDefault();searchClose()});
+  box.addEventListener('click',e=>{if(e.target===box)searchClose()});
+  Object.assign(SEARCH,{box,input,list:box.querySelector('#search-list'),status:box.querySelector('#search-status')});document.body.append(box);return box}
+function searchOpenBox(){if(activeSheet)return;const box=searchBuild();if(box.open){SEARCH.input.focus();SEARCH.input.select();return}SEARCH.opener=document.activeElement;box.showModal();SEARCH.input.focus();SEARCH.input.select()}
+function searchClose(back=true){const box=SEARCH.box;if(!box||!box.open)return;clearTimeout(SEARCH.timer);SEARCH.request++;box.close();if(back)focusBack(SEARCH.opener&&SEARCH.opener.isConnected?SEARCH.opener:$('search-open'));SEARCH.opener=null}
+function searchMark(i){SEARCH.at=i;SEARCH.items.forEach((x,j)=>x.node.setAttribute('aria-selected',String(j===i)));const x=SEARCH.items[i];if(x){SEARCH.input.setAttribute('aria-activedescendant',x.node.id);x.node.scrollIntoView({block:'nearest'})}else SEARCH.input.removeAttribute('aria-activedescendant')}
+function searchOpen(x){searchClose(false);if(x.kind==='msg'||x.kind==='compaction'){if(x.session)showHistory(x.session,'');return}const href=searchHref(x);if(href)location.hash=href}
+async function searchRun(){const q=SEARCH.input.value.trim(),request=++SEARCH.request;
+  if(!q){SEARCH.items=[];SEARCH.list.replaceChildren();SEARCH.status.textContent='';SEARCH.input.setAttribute('aria-expanded','false');searchMark(-1);return}
+  SEARCH.status.textContent='Searching…';
+  try{const r=await fetch('/api/search?q='+encodeURIComponent(q),{cache:'no-store',headers:auth()});if(!r.ok)throw new Error(r.status===401?'Sign in to search this dash.':(await r.text()).trim()||'HTTP '+r.status);const d=await r.json();if(request!==SEARCH.request)return;searchDraw(d.results||[])}
+  catch(e){if(request!==SEARCH.request)return;SEARCH.items=[];SEARCH.list.replaceChildren();SEARCH.input.setAttribute('aria-expanded','false');searchMark(-1);SEARCH.status.textContent=errorText(e)}}
+function searchDraw(results){const items=[],groups=[];let n=0;
+  for(const [kind,label] of SEARCH_KINDS){const rows=results.filter(x=>x.kind===kind);if(!rows.length)continue;const gid='search-group-'+kind;
+    groups.push(el('div',{role:'group','aria-labelledby':gid},el('div',{class:'search-group-name',id:gid,role:'presentation'},label+' · '+rows.length),rows.map(x=>{
+      const opens=kind==='msg'||kind==='compaction'?!!x.session:!!searchHref(x),title=x.title||(kind==='msg'?'Message':kind==='compaction'?'Session summary':x.ref);
+      const meta=[x.ref!==title?x.ref:'',x.state?word(x.state):'',opens?'':'no page in the dash'].filter(Boolean).join(' · ');
+      const node=el('div',{class:'search-opt'+(opens?'':' no-page'),role:'option',id:'search-opt-'+(n++),'aria-selected':'false','aria-disabled':opens?null:'true','data-kind':kind,'data-ref':x.ref},el('span',{class:'search-title'},title),meta?el('span',{class:'search-meta'},meta):null,x.snippet?el('span',{class:'search-snip'},x.snippet):null);
+      if(opens){const item={...x,node};items.push(item);node.addEventListener('click',()=>searchOpen(item));node.addEventListener('mousemove',()=>{const i=items.indexOf(item);if(i!==SEARCH.at)searchMark(i)})}
+      return node}))) }
+  SEARCH.items=items;SEARCH.list.replaceChildren(...groups);SEARCH.input.setAttribute('aria-expanded',String(results.length>0));
+  SEARCH.status.textContent=results.length?results.length+(results.length===1?' result':' results'):'Nothing found. Try one distinctive word, an id, or other words.';searchMark(items.length?0:-1)}
+$('search-open').addEventListener('click',searchOpenBox);
+if(/Mac|iPhone|iPad/.test(navigator.platform||''))$('search-key').textContent='⌘K';
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&String(e.key).toLowerCase()==='k'){if(activeSheet)return;e.preventDefault();searchOpenBox()}});
+// end:search
 function labelTables(){for(const table of document.querySelectorAll('.phone-rows table')){const heads=[...table.querySelectorAll('thead th')].map(h=>h.textContent);for(const row of table.querySelectorAll('tbody tr'))[...row.children].forEach((td,i)=>td.dataset.label=heads[i]||'Detail')}}
 new MutationObserver(labelTables).observe(document.querySelector('main'),{childList:true,subtree:true});
 // region:refresh
