@@ -118,6 +118,16 @@ details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:a
 .wlog-lines{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;max-height:360px;overflow:auto;font-size:12px;margin:4px 0;padding:6px 8px;border:1px solid var(--line,#ddd);border-radius:6px;box-sizing:border-box}
 @media(max-width:860px){.wlog-lines{max-height:50vh;font-size:11px}}
 /* end:css-worker-log */
+/* region:css-files: a task's worker directory, read only (GET /api/files, #455); the list and view reuse css-changes */
+.tfiles{margin:8px 0;min-width:0;max-width:100%;box-sizing:border-box}.tfiles>summary{cursor:pointer;font-weight:600}.tfiles-status{margin:4px 0;overflow-wrap:anywhere}
+.tfiles-filter{width:100%;box-sizing:border-box;margin:0 0 4px;min-height:32px}
+.tfiles-mark{flex:none;font-size:var(--fs-s);font-weight:600}.tfiles-mark.is-added,.tfiles-mark.is-untracked{color:var(--green)}.tfiles-mark.is-modified{color:var(--amber)}.tfiles-mark.is-deleted{color:var(--red)}
+.changes-file.is-gone{cursor:default;color:var(--mute)}.changes-file.is-gone code{text-decoration:line-through}
+.tfiles-text{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;max-height:480px;overflow:auto;font-size:12px;margin:4px 0;box-sizing:border-box}
+.tfiles-md{max-height:480px;overflow:auto;overflow-wrap:anywhere;min-width:0}.tfiles-md pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}.tfiles-md blockquote{margin:4px 0;padding-left:8px;border-left:3px solid var(--line);color:var(--mute)}
+.tfiles-md h1,.tfiles-md h2,.tfiles-md h3,.tfiles-md h4,.tfiles-md h5,.tfiles-md h6{margin:8px 0 4px;font-size:1em}.tfiles-md h1{font-size:1.25em}.tfiles-md h2{font-size:1.12em}
+@media(max-width:860px){.tfiles-text,.tfiles-md{max-height:60vh}.tfiles-filter{min-height:44px}}
+/* end:css-files */
 /* region:css-team */
 #page-team{container-type:inline-size;min-width:0}
 #team-open{display:none;margin-top:10px}#team-open[hidden]{display:none}#team-view>.tm-sec:first-child{margin-top:0}
@@ -1320,6 +1330,68 @@ function wlogPanel(hid){const c=WLOG[hid]||(WLOG[hid]={}),body=el('div',{class:'
   det.addEventListener('toggle',()=>{if(c.body!==body)return;c.open=det.open;if(det.open)wlogTick(hid);else if(c.timer){clearTimeout(c.timer);c.timer=0}});
   return det}
 // end:worker-log
+// region:files: a task's worker directory, read only (GET /api/files, #455): the tree git lists (tracked
+// and not ignored), changed ones marked, and the chosen file as text. The server decides who may read,
+// which paths, and redacts; a file is the worker's text, so it goes in as text, and Markdown is
+// rendered by filesMd from that text into elements, never as HTML from the file.
+const FILES={};
+const FILES_MARK={added:'A',modified:'M',deleted:'D',untracked:'U'};
+function filesFetch(url){return fetch(url,{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(r.status===404&&!/[?&]path=/.test(url))throw new Error('You cannot see this task’s files.');if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);return r.json()})}
+function filesLoad(hid){const c=FILES[hid]||(FILES[hid]={});if(c.loading)return c.loading;
+  c.loading=filesFetch('/api/files?id='+encodeURIComponent(hid)).then(d=>{c.data=d;c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.loading=null;return c});return c.loading}
+// filesInline is one line of Markdown's inline marks: `code`, **bold**, *em*, [text](http(s) link).
+function filesInline(t){return String(t).split(/(`[^`]+`|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|\[[^\]]+\]\(https?:\/\/[^)\s]+\))/).map(p=>{let m;
+  if(/^`[^`]+`$/.test(p))return el('code',{},p.slice(1,-1));
+  if(/^\*\*[^*]+\*\*$/.test(p))return el('strong',{},p.slice(2,-2));
+  if(/^\*[^*\s][^*]*\*$/.test(p))return el('em',{},p.slice(1,-1));
+  if((m=/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/.exec(p)))return el('a',{href:m[2],target:'_blank',rel:'noopener noreferrer'},m[1]);
+  return p})}
+// filesMd renders Markdown text as elements: headings, paragraphs, lists, quotes and fences.
+function filesMd(text){const out=[],lines=String(text).replace(/\r\n/g,'\n').split('\n');let para=[],list=null;
+  const flush=()=>{if(para.length){out.push(el('p',{},filesInline(para.join(' '))));para=[]}list=null};
+  for(let i=0;i<lines.length;i++){const l=lines[i];let m;
+    if(/^\s*```/.test(l)){flush();const code=[];for(i++;i<lines.length&&!/^\s*```/.test(lines[i]);i++)code.push(lines[i]);out.push(el('pre',{},el('code',{},code.join('\n'))));continue}
+    if(!l.trim()){flush();continue}
+    if((m=/^(#{1,6})\s+(.*)$/.exec(l))){flush();out.push(el('h'+m[1].length,{},filesInline(m[2])));continue}
+    if((m=/^>\s?(.*)$/.exec(l))){flush();out.push(el('blockquote',{},filesInline(m[1])));continue}
+    if((m=/^\s*([-*+]|\d+[.)])\s+(.*)$/.exec(l))){if(para.length){out.push(el('p',{},filesInline(para.join(' '))));para=[]}
+      const tag=/\d/.test(m[1])?'ol':'ul';if(!list||list.tagName.toLowerCase()!==tag){list=el(tag,{});out.push(list)}list.append(el('li',{},filesInline(m[2])));continue}
+    list=null;para.push(l.trim())}
+  flush();return out}
+function filesSize(n){return n<1024?n+' B':n<1048576?Math.round(n/1024)+' KB':(n/1048576).toFixed(1)+' MB'}
+// filesShow reads file p into view: Markdown rendered, any other text as text; binary or too large named only.
+// The last file read is kept per task, so a redraw of the page does not read it again.
+function filesDraw(view,p,f){const head=el('h6',{},el('code',{},p),' ',el('span',{class:'mute'},filesSize(f.size||0)));
+  const body=f.binary?el('p',{class:'mute'},'Binary file: not shown.'):f.too_large?el('p',{class:'mute'},'Over '+filesSize(f.limit||0)+': not shown here.'):
+    f.kind==='markdown'?el('div',{class:'tfiles-md'},filesMd(f.text||'')):el('pre',{class:'tfiles-text'},f.text||'');
+  view.replaceChildren(head,f.redacted?el('p',{class:'field-hint'},f.redacted+(f.redacted===1?' secret':' secrets')+' hidden.'):null,body)}
+function filesShow(view,hid,p,c){if(c.shown&&c.shown.path===p){filesDraw(view,p,c.shown.f);return}
+  view.replaceChildren(el('h6',{},el('code',{},p)),el('p',{class:'mute'},'Loading…'));
+  filesFetch('/api/files?id='+encodeURIComponent(hid)+'&path='+encodeURIComponent(p)).then(f=>{c.shown={path:p,f};if(view.dataset.path===p)filesDraw(view,p,f)})
+  .catch(e=>{if(view.dataset.path===p)view.replaceChildren(el('h6',{},el('code',{},p)),el('p',{class:'mute'},'Not shown: '+errorText(e)))})}
+function filesFill(c,hid){const b=c.body;if(!b)return;if(c.error){b.replaceChildren(el('p',{class:'mute'},'The files could not be read: '+c.error));return}const d=c.data;if(!d)return;
+  const files=d.files||[];if(!files.length){b.replaceChildren(el('p',{class:'mute tfiles-status'},d.note||'No files.'));return}
+  const view=el('div',{class:'changes-view','aria-live':'polite'},el('p',{class:'mute'},'Choose a file to read it.'));
+  const pick=(btn,p)=>{c.file=p;view.dataset.path=p;nav.querySelectorAll('[aria-current]').forEach(n=>n.removeAttribute('aria-current'));btn.setAttribute('aria-current','true');filesShow(view,hid,p,c)};
+  const items=files.map(f=>{const mark=f.changed?el('span',{class:'tfiles-mark is-'+f.changed,title:word(f.changed)},FILES_MARK[f.changed]||'•'):null;
+    return f.changed==='deleted'?el('span',{class:'changes-file is-gone','data-path':f.path,title:f.path+' (deleted)'},el('code',{},f.path),mark):
+      el('button',{type:'button',class:'changes-file','data-path':f.path,title:f.path,onclick:e=>pick(e.currentTarget,f.path)},el('code',{},f.path),mark)});
+  const nav=el('nav',{class:'changes-files','aria-label':'Files in the worker directory'},items);
+  const filter=el('input',{type:'search',class:'tfiles-filter',placeholder:'Filter files','aria-label':'Filter files',value:c.filter||'',oninput:e=>{c.filter=e.target.value;const q=c.filter.toLowerCase();items.forEach(n=>{n.hidden=!!q&&!n.dataset.path.toLowerCase().includes(q)})}});
+  b.replaceChildren(el('p',{class:'mute tfiles-status'},files.length+(files.length===1?' file':' files')+', '+(d.changed||0)+' changed'+(d.truncated?'; the list is cut, changed files kept.':'.')+' Read only.'),
+    el('div',{class:'changes'},el('div',{},filter,nav),view));
+  if(c.filter)filter.dispatchEvent(new Event('input'));
+  const again=c.file&&items.find(n=>n.dataset.path===c.file&&n.tagName==='BUTTON');if(again)pick(again,c.file)}
+// filesPanel is the Files section of task hid; it opens closed, reads on opening, and stays open across redraws.
+function filesPanel(hid){const c=FILES[hid]||(FILES[hid]={}),body=el('div',{class:'tfiles-body'},el('p',{class:'mute'},'Loading the files…')),
+    det=el('details',{class:'tfiles','data-files':hid},el('summary',{},'Files'),body);
+  c.body=body;if(c.data||c.error)filesFill(c,hid);
+  const load=()=>filesLoad(hid).then(()=>{if(c.body===body)filesFill(c,hid)});
+  if(c.open){det.open=true;if(!c.data)load()}
+  // A person opening it reads the tree afresh; a redraw reopening it (toggle fires then too) does not.
+  det.addEventListener('toggle',()=>{if(c.body!==body)return;const was=c.open;c.open=det.open;if(det.open&&!was){delete c.data;delete c.shown;load()}});
+  return det}
+// end:files
 // region:marks: one mark per task (#454). The server decides it (taskMark) and
 // sends it as mark on every task, so the board, Chat and Team read the same:
 // the same word, glyph and colour, never colour alone. The strip over the board
@@ -1865,7 +1937,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
     ['Cost',d.cost?costText(d.cost):null],
     ['Latest result',done&&done.result?words(done.result):null],
     ['Actions',h&&handoffActions(dash,h).length?el('span',{class:'kact',style:'margin:0'},handoffActions(dash,h)):null]])));
-  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref));
+  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref),filesPanel(ref));
   const reply=blockedWorkerReply(h,who);if(reply)box.append(sec('Waiting for your reply'),reply);
   if(d.kind==='pr'&&!tree.length)box.append(el('p',{class:'mute'},'No handoff is linked to this PR. A dispatched worker\'s PR links by its branch on pr sync-gh; otherwise use handoff link.'));
   // Sub-handoffs: the tree rows under the focused one.
@@ -2021,7 +2093,7 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
     x.env?el('div',{class:'kmeta'},workerEnvLine(x.env)):null,
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
-    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,
+    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,worked?filesPanel(x.id):null,
     log.length?el('details',{'data-log':x.id,open:openIds.has(x.id)||null},el('summary',{},'History, '+log.length),el('ol',{class:'ilog'},log.map(l=>el('li',{},el('span',{class:'when'},l.ago+' ago '),l.actor?nameOf(l.actor)+': ':'',l.note||l.state)))):null)}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
   keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#');
