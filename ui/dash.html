@@ -299,6 +299,26 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 @container (max-width:600px){.kboard{grid-auto-columns:minmax(250px,1fr)}}
 .cards .ktitle{-webkit-line-clamp:2}.cards .kcard{position:relative;gap:2px}.cards .kcard:hover,.ib-row:hover{background:var(--hover)}.cards .kmeta{gap:4px 12px}.kmeta .kproj{overflow:hidden;text-overflow:ellipsis;max-width:100%;white-space:nowrap}.kcard .krow{font-size:12px}.kcard .krow .why{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.kcard .krow .why.full{display:block;overflow:visible}.kcol .ktitle{-webkit-line-clamp:3}.filter-note{font-size:12px;color:var(--mute);margin-bottom:12px}.board-pick{display:none}.board-more{margin:0 8px}.ib-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ib-title a{color:var(--fg)}.ib-goal{font-size:12px}.ib-sub{gap:2px 8px}.kcol .kcard>.kmeta{font-size:11px}.kcol .kcard .age{margin-left:auto}.kcol .kcard .status{display:none}
 @media(max-width:860px){.board-pick{display:grid;gap:4px;margin-bottom:12px;font-size:12px;color:var(--mute)}.kboard{display:block;overflow:visible}.kcol{display:none}.kcol.picked{display:block}.kcol .kcard{margin:0 8px 8px}.kcol .ktop .status{display:none}.ib-title{-webkit-line-clamp:2}.ib-row{gap:4px;padding:12px}.ib-tag{font-size:11px}.ib-row .kact{flex-direction:row}.wfilter .filters{flex-wrap:wrap}.wfilter{gap:8px}.ktitle{-webkit-line-clamp:2}.idetail{grid-template-columns:minmax(0,1fr)}}
+/* the task workspace (#480): a top bar, then Session | Log | Terminal beside Changes | Files | Checks | Details */
+.idetail.tw{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.tw-top{display:grid;gap:6px;min-width:0}.tw-top .ititle{margin-bottom:0}
+.tw-bar{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;min-width:0;padding-bottom:10px;border-bottom:1px solid var(--line)}.tw-bar .tw-status{flex:1 1 320px}.tw-bar .tw-acts{margin-left:auto;flex-wrap:wrap}
+.tw-pick{display:flex;gap:6px;align-items:center;font-size:var(--fs-s)}.tw-pick select{max-width:280px;font-size:var(--fs-s)}
+.tw-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,420px);gap:20px;align-items:start}
+.tw-main{max-width:none}
+.tw-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px;overflow-x:auto}
+.tw-tab{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--mute);padding:6px 10px;white-space:nowrap}
+.tw-tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}.tw-tab .n{color:var(--mute);font-variant-numeric:tabular-nums}
+.tw-more{display:none}.tw-panel[hidden]{display:none}
+.tw-panel>details.wlog>summary,.tw-panel>details.tfiles>summary,.tw-panel>details.tterm>summary,.tw-changes details.openpr-changes>summary{display:none}
+.tw-side.iprops{padding:8px 14px 14px}.tw-side .tw-tabs{margin:0 -14px 8px;padding:0 8px}
+.tw-conv{gap:6px}.tw-msg{background:var(--sunk);border-radius:var(--r-m);padding:6px 10px;color:var(--fg)}.tw-msg.tw-me{background:var(--hover);margin-left:24px}.tw-msg b{font-weight:600}.tw-text{white-space:pre-wrap;overflow-wrap:anywhere;margin-top:2px}
+.tw-msgbox{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:end;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}.tw-msgbox[hidden]{display:none}.tw-msgbox .field-hint,.tw-msgbox .tw-gone{grid-column:1/-1;margin:0}
+.tw-field{display:grid;gap:4px;font-size:var(--fs-s)}.tw-input{width:100%;resize:vertical;min-height:44px;font:inherit}
+.tw-kids{list-style:none;margin:4px 0;padding:0;display:grid;gap:4px;font-size:var(--fs-s);overflow-wrap:anywhere}
+@container (max-width:860px){.tw-body{grid-template-columns:minmax(0,1fr)}.tw-more{display:inline-block}.tw-side>.tw-tabs{display:none}
+  .idetail.tw:not([data-phone]) .tw-side{display:none}.idetail.tw[data-phone] .tw-main>.tw-panel{display:none}.idetail.tw[data-phone] .tw-main .tw-tab:not(.tw-more)[aria-selected="true"]{color:var(--mute);border-bottom-color:transparent}
+  .idetail.tw[data-phone] .tw-main .tw-tabs{margin-bottom:0}.tw-side.iprops{border-top-left-radius:0;border-top-right-radius:0}}
 /* end:css-issues */
 /* region:css-insights */
 .runs{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px 8px;margin-bottom:12px;min-width:0}
@@ -2293,6 +2313,8 @@ function issueSpend(d,tree){const as=tree.flatMap(x=>x.attempts||[]),out=[],done
   if(missing)out.push(el('div',{class:'inote'},missing+' of '+done.length+' finished run'+(done.length>1?'s':'')+' not priced: not in the dollars.'));
   else if(strip&&d.cost&&d.cost.partial)out.push(el('div',{class:'inote'},'Some usage logs or prices are missing, so this is a floor.'));
   return out}
+// detailEvent is one handoff of the item in Session: its header, report, questions and result, and
+// its history as a conversation (#480). Its change, log, files and terminal are tabs of their own.
 function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x,worked=!!(x.dispatched||x.branch||h.dispatched||h.state==='done'),needs=ctx.rows.get(x.id)||[],status=statusOf({...h,prs:x.prs},needs,ctx.openPR),who=h.state==='held'?h.from:h.claimer||x.claimer,now=liveOf(who,h),acts=(dash.handoff_list||[]).some(y=>y.id===x.id)?handoffActions(dash,h):[],log=x.log||[];
   const sp=x.spend;
   return el('article',{class:'iev','data-ref':x.id,style:x.depth?'margin-left:'+Math.min(x.depth,4)*14+'px':null},
@@ -2301,9 +2323,65 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
     x.env?el('div',{class:'kmeta'},workerEnvLine(x.env)):null,
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
-    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,worked?filesPanel(x.id):null,worked?termPanels(x.id):null,
-    log.length?el('details',{'data-log':x.id,open:openIds.has(x.id)||null},el('summary',{},'History, '+log.length),el('ol',{class:'ilog'},log.map(l=>el('li',{},el('span',{class:'when'},l.ago+' ago '),l.actor?nameOf(l.actor)+': ':'',l.note||l.state)))):null)}
+    worked?resultPanel(x.id):null,
+    twConv(x.id,log,openIds))}
+// twConv is a handoff's history as a conversation, oldest first: a report or a person's message
+// is a message, any other step a line. The newest TW_CONV show; the rest fold, open kept per task.
+const TW_CONV=8;
+function twLine(l){const n=String(l.note||''),rep=/^report: /.test(n),m=/^message \S+ from user (\S+) to its worker \S+: ([\s\S]*)$/.exec(n),when=el('span',{class:'when'},l.ago+' ago');
+  if(rep)return el('li',{class:'tw-msg'},el('b',{},'Report'),' ',when,el('div',{class:'tw-text'},n.slice(8)));
+  if(m)return el('li',{class:'tw-msg tw-me'},el('b',{},m[1]===USER?'You':m[1]),' ',when,el('div',{class:'tw-text'},m[2]));
+  return el('li',{class:'tw-step'},when,' ',l.actor?nameOf(l.actor)+': ':'',l.note||l.state)}
+function twConv(hid,log,openIds){if(!log.length)return null;const old=log.slice(0,-TW_CONV),last=log.slice(-TW_CONV);
+  return el('div',{class:'tw-conv-box'},el('div',{class:'sec'},'History',el('span',{class:'n'},log.length)),
+    old.length?el('details',{'data-log':hid,open:openIds.has(hid)||null},el('summary',{},old.length+' earlier'),el('ol',{class:'ilog tw-conv'},old.map(twLine))):null,
+    el('ol',{class:'ilog tw-conv'},last.map(twLine)))}
+// The task workspace (#480): an open task is two panes. Centre: Session, Log and Terminal
+// (Terminal only where the dash offers one); right: Changes, Files, Checks and Details. The tabs are
+// remembered per browser; on a phone the right pane's tabs join the centre's. The tabs show one
+// handoff of the item, picked at the top when more than one has had a worker.
+const TW_MAIN=[['session','Session'],['log','Log'],['terminal','Terminal']],TW_SIDE=[['changes','Changes'],['files','Files'],['checks','Checks'],['details','Details']];
+const TW={main:'session',side:'changes',phone:'',sel:{},msg:{},draft:{},input:null};
+try{const t=JSON.parse(localStorage.getItem('dash-task-tabs')||'{}');if(TW_MAIN.some(x=>x[0]===t.main))TW.main=t.main;if(TW_SIDE.some(x=>x[0]===t.side))TW.side=t.side;if(TW_SIDE.some(x=>x[0]===t.phone))TW.phone=t.phone}catch(e){}
+function twSave(){try{localStorage.setItem('dash-task-tabs',JSON.stringify({main:TW.main,side:TW.side,phone:TW.phone}))}catch(e){}}
+function twPick(pane,name){if(pane==='phone'){TW.phone=name;TW.side=name}else{TW[pane]=name;if(pane==='main')TW.phone=''}twSave();drawDetail()}
+function twTabs(label,pane,tabs,cur,more){const tab=(k,t,n,p,on,cls)=>el('button',{type:'button',role:'tab',class:cls,'data-tab':k,'aria-selected':on?'true':'false',onclick:()=>twPick(p,k)},t,n?el('span',{class:'n'},' '+n):null);
+  return el('div',{class:'tw-tabs',role:'tablist','aria-label':label,'data-ref':'tw-tabs-'+pane},tabs.map(([k,t,n])=>tab(k,t,n,pane,k===cur,'tw-tab')),(more||[]).map(([k,t,n])=>tab(k,t,n,'phone',k===TW.phone,'tw-tab tw-more')))}
+function twPanel(k,cur,...kids){return el('div',{class:'tw-panel',role:'tabpanel','data-tab':k,hidden:k!==cur||null},...kids)}
+// twActions are the selected handoff's actions for the top: Stop and the others it has, then Push
+// branch and Open a draft PR once its change is ready, from the cached review and filled when it loads.
+function twActions(dash,h,hid){const box=el('span',{class:'kact tw-acts'}),fixed=h&&(dash.handoff_list||[]).some(y=>y.id===h.id)?handoffActions(dash,h):[];
+  const fill=c=>{const d=c&&c.data,ask=d&&d.proposed&&!d.pr&&(d.files||[]).length;box.replaceChildren(...fixed,...(ask?openPRButtons(d):[]));if(typeof lockState==='function')try{lockState()}catch(e){}};
+  fill(OPENPR[hid]);if(hid)openPRLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
+// twChanges is Changes: the worker branch's diff and file list from GET /api/review, there as soon as
+// the worker has commits, running or not; the pull request when one is linked.
+function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-label':'Changes'});
+  const fill=c=>{const d=c&&c.data;if(c&&c.error&&!d){box.replaceChildren(el('p',{class:'mute'},'The change could not be read: '+c.error));return}
+    if(!d){box.replaceChildren(el('p',{class:'mute'},'Loading the change…'));return}
+    const link=d.pr?el('p',{},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():''):null;
+    if(!d.branch||!(d.files||[]).length){box.replaceChildren(link||'',el('p',{class:'mute tw-none'},d.why_not?'No change to show: '+d.why_not+'.':'No change yet: the worker has not committed anything on its branch.'));return}
+    const ask=d.proposed&&!d.pr,o=(OPENPR[hid]||(OPENPR[hid]={})).open||(OPENPR[hid].open=new Set());o.add('changes');
+    box.replaceChildren(ask&&!d.dismissed?el('h5',{},'Ready for review: open a pull request?'):null,d.deliverables_only&&!d.pr?el('p',{class:'field-hint'},'This task only produced deliverables in out/, so there is nothing to publish to the repository. Read them under Result in Session.'):null,link,
+      el('p',{class:'mute'},[openPRSummaryText(openPRSummaryOf(d)),'branch '+d.branch,/^(claimed|offered)$/.test(d.state||'')&&!d.proposed?'the worker is still on it':''].filter(Boolean).join(' · ')),
+      ask?el('p',{class:'field-hint'},'Push branch and Open a draft PR are at the top. AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
+      openPRKeep(hid,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),changesView(d))))};
+  fill(OPENPR[hid]);openPRLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
+// The message box under Session: GET /api/taskmsg says whether this person may (Stop's rule) and
+// whether a worker is there; the send is the task_msg action. The box and what is typed in it
+// survive the page's redraws.
+function twMsgLoad(hid,force){const c=TW.msg[hid]||(TW.msg[hid]={});if(c.loading)return c.loading;if(!force&&c.data&&Date.now()-c.at<15000)return Promise.resolve(c);
+  c.loading=fetch('/api/taskmsg?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.data=null;c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+async function twSend(hid,input,btn){const body=input.value.trim();if(!body||btn.getAttribute('aria-disabled')==='true')return;btn.setAttribute('aria-disabled','true');btn.textContent='Sending…';
+  try{await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast('Sent to the worker’s inbox',true);loadDetail(DET.ref,false)}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent='Send'}}
+function twMsgFill(box,hid,c){const d=c&&c.data;box.dataset.at=String(c&&c.at||'');if(!d||!d.may){box.hidden=true;box.replaceChildren();return}box.hidden=false;
+  if(!d.live){box.replaceChildren(el('p',{class:'mute tw-gone',role:'note'},d.gone||'The worker has gone, so a message would not be read.'));return}
+  const input=el('textarea',{class:'tw-input',rows:'2',maxlength:'4000','aria-label':'Message this worker',placeholder:'Ask for a change, or answer its question',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();twSend(hid,input,btn)}}});
+  input.value=TW.draft[hid]||'';const btn=el('button',{type:'button',class:'primary','data-write':true,onclick:()=>twSend(hid,input,btn)},'Send');
+  box.replaceChildren(el('label',{class:'tw-field'},el('span',{class:'mute'},'Message this worker'),input),btn,el('p',{class:'field-hint'},'It goes to the worker’s inbox and into the task’s history. Ctrl+Enter sends.'));TW.input=input}
+function twMsgBox(hid){if(!hid)return null;const box=el('div',{class:'tw-msgbox',hidden:true}),c=TW.msg[hid];if(c&&c.data)twMsgFill(box,hid,c);
+  twMsgLoad(hid).then(c=>{if(box.isConnected&&box.dataset.at!==String(c.at)){const a=document.activeElement===TW.input,at=a&&[TW.input.selectionStart,TW.input.selectionEnd];twMsgFill(box,hid,c);if(a&&TW.input&&box.contains(TW.input)){TW.input.focus({preventScroll:true});TW.input.setSelectionRange(at[0],at[1])}}});return box}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
+  const typing=TW.input&&document.activeElement===TW.input&&box.contains(TW.input),at=typing&&[TW.input.selectionStart,TW.input.selectionEnd];
   keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#')||isLinearRef(ref);
     const from=(ROUTE.params&&ROUTE.params.get('from'))||'',backChat=from.startsWith('chat-')?from.slice(5):'';
     const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All tasks'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On '+trackerName(ref)):null);
@@ -2329,20 +2407,46 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
       ['Waiting on',issue&&issue.waiting_on?(issue.waiting_on==='user'?'you':issue.waiting_on):null],
       ['Note',issue&&issue.note?issue.note:null],
       ['Updated',issue&&issue.updated_ago?issue.updated_ago+' ago':focus.updated_ago?focus.updated_ago+' ago':null]]);
-    const prs=d.prs||[],open=prs.some(p=>p.state==='OPEN');
-    box.replaceChildren(el('div',{class:'idetail'},
-      el('div',{class:'idoc'},crumb,el('h2',{class:'ititle'},title),text,
-        el('div',{class:'sec'},'Activity',el('span',{class:'n'},tree.length)),
-        tree.length?tree.map(x=>detailEvent(x,ctx,dash,openIds,title)):el('div',{class:'state'},d.kind==='issue'?'No handoff has worked on this yet.':'No handoff is linked to this.')),
-      el('aside',{class:'iprops','aria-label':'Properties and runs'},
-        el('div',{class:'sec'},'Properties'),el('div',{class:'props'},...props),
-        el('div',{class:'sec'},'Pull requests',el('span',{class:'n'},prs.length)),
-        prs.length?prs.map(p=>el('div',{class:'ipr'},el('a',{href:ghHref(p.ref,'PR'),target:'_blank',rel:'noopener'},'#'+p.ref.split('#')[1]+(p.title?' '+p.title:'')),el('div',{class:'kmeta'},p.state==='OPEN'&&p.draft?'draft':(p.state||'not synced yet').toLowerCase()),p.state==='OPEN'?el('div',{class:'kact'},prActions(dash,{...p,state:''})):null,p.state==='OPEN'&&prDisabledReason(dash,p)?el('div',{class:'inote'},prDisabledReason(dash,p)):null)):el('div',{class:'mute'},'None linked.'),
-
-        el('div',{class:'sec'},'Spend, tokens and agent time'),...issueSpend(d,tree),
-        el('div',{class:'sec'},'Runs',el('span',{class:'n'},tree.reduce((n,x)=>n+(x.attempts||[]).length,0))),
-        ...tree.flatMap(x=>(x.attempts||[]).map(a=>runRow(a,tree.length>1?x.id:''))),
-        d.kind==='handoff'&&focus.id?checksPanel(focus.id):null)))});
+    const prs=d.prs||[];
+    // The handoff the tabs show: the one picked, else the one a worker is on, else the newest that had one.
+    const worked=tree.filter(x=>{const h=ctx.live.get(x.id)||x;return x.dispatched||x.branch||h.dispatched||h.state==='done'});
+    const sel=worked.find(x=>x.id===TW.sel[ref])||worked.filter(x=>going.includes(x)).pop()||worked[worked.length-1]||null,hid=sel?sel.id:'',sh=sel?ctx.live.get(sel.id)||sel:null;
+    const term=!!(hid&&termOffered()),main=TW.main==='terminal'&&!term?'session':TW.main,side=TW.side;
+    if(hid){const w=WLOG[hid]||(WLOG[hid]={});w.open=main==='log';const f=FILES[hid]||(FILES[hid]={});if(side==='files')f.open=true;if(term){const t=TERM[hid]||(TERM[hid]={});t.open=main==='terminal'||!!t.ws}}
+    const nChange=sel&&(sel.change||sh&&sh.change),nRuns=tree.reduce((n,x)=>n+(x.attempts||[]).length,0);
+    const sideTabs=[['changes','Changes',nChange?nChange.files:0],['files','Files'],['checks','Checks'],['details','Details']];
+    const who=sh?(sh.state==='held'?sh.from:sh.claimer||sel.claimer):onWho||lastWho,sp=sel&&sel.spend,tool=sh&&toolName(sh.worker_tool||sh.worker);
+    const stEl=status?d.kind==='issue'||d.kind==='pr'?statusEl(status):taskStatus(hLive&&hLive.mark?hLive:focus,status):null;
+    const statusLine=el('div',{class:'kmeta tw-status'},stEl,el('span',{},isIssue?ref:projectOf(hLive||focus)||''),tool?el('span',{},tool):null,who?whoLink(who):null,sel&&sel.branch?el('code',{},sel.branch):null,sel?changeEl(sel.change?sel:sh):null,
+      sp?el('span',{title:'Spend so far'},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,(sel||focus).updated_ago?el('span',{class:'age'},'Updated '+(sel||focus).updated_ago+' ago'):null);
+    const pick=worked.length>1?el('label',{class:'tw-pick'},el('span',{class:'mute'},'Tabs show '),el('select',{'aria-label':'Which handoff the tabs show',onchange:e=>{TW.sel[ref]=e.target.value;drawDetail()}},worked.map(x=>el('option',{value:x.id,selected:x.id===hid||null},(x.goal||x.id).slice(0,60)+' · '+x.id)))):null;
+    const noWorker=el('p',{class:'mute tw-none'},'No worker has run on this yet.');
+    box.replaceChildren(el('div',{class:'idetail tw','data-phone':TW.phone||null},
+      el('header',{class:'tw-top'},crumb,el('h2',{class:'ititle'},title),el('div',{class:'tw-bar'},statusLine,pick,twActions(dash,sh,hid))),
+      el('div',{class:'tw-body'},
+        el('section',{class:'idoc tw-main','aria-label':'Session'},
+          twTabs('Task','main',term?TW_MAIN:TW_MAIN.slice(0,2),main,sideTabs),
+          twPanel('session',main,text,
+            el('div',{class:'sec'},'Activity',el('span',{class:'n'},tree.length)),
+            tree.length?tree.map(x=>detailEvent(x,ctx,dash,openIds,title)):el('div',{class:'state'},d.kind==='issue'?'No handoff has worked on this yet.':'No handoff is linked to this.'),
+            twMsgBox(hid)),
+          twPanel('log',main,hid?wlogPanel(hid):noWorker),
+          term?twPanel('terminal',main,termPanels(hid)):null),
+        el('aside',{class:'iprops tw-side','aria-label':'Task detail'},
+          twTabs('Task detail','side',sideTabs,side),
+          twPanel('changes',side,hid?twChanges(hid):noWorker.cloneNode(true)),
+          twPanel('files',side,hid?filesPanel(hid):noWorker.cloneNode(true)),
+          twPanel('checks',side,hid?checksPanel(hid):d.kind==='handoff'&&focus.id?checksPanel(focus.id):el('p',{class:'mute'},'No check: no handoff is on this.')),
+          twPanel('details',side,
+            el('div',{class:'sec'},'Properties'),el('div',{class:'props'},...props),
+            sel&&sel.env?el('div',{class:'kmeta'},workerEnvLine(sel.env)):null,
+            el('div',{class:'sec'},'Pull requests',el('span',{class:'n'},prs.length)),
+            prs.length?prs.map(p=>el('div',{class:'ipr'},el('a',{href:ghHref(p.ref,'PR'),target:'_blank',rel:'noopener'},'#'+p.ref.split('#')[1]+(p.title?' '+p.title:'')),el('div',{class:'kmeta'},p.state==='OPEN'&&p.draft?'draft':(p.state||'not synced yet').toLowerCase()),p.state==='OPEN'?el('div',{class:'kact'},prActions(dash,{...p,state:''})):null,p.state==='OPEN'&&prDisabledReason(dash,p)?el('div',{class:'inote'},prDisabledReason(dash,p)):null)):el('div',{class:'mute'},'None linked.'),
+            tree.length>1?[el('div',{class:'sec'},'Handoffs',el('span',{class:'n'},tree.length)),el('ul',{class:'tw-kids'},tree.map(x=>el('li',{style:x.depth?'margin-left:'+Math.min(x.depth,4)*12+'px':null},wkLink(x.id),' ',x.goal||'')))]:null,
+            el('div',{class:'sec'},'Spend, tokens and agent time'),...issueSpend(d,tree),
+            el('div',{class:'sec'},'Runs',el('span',{class:'n'},nRuns)),
+            ...tree.flatMap(x=>(x.attempts||[]).map(a=>runRow(a,tree.length>1?x.id:''))))))))});
+  if(typing&&TW.input&&box.contains(TW.input)){TW.input.focus({preventScroll:true});TW.input.setSelectionRange(at[0],at[1])}
   lockState()}
 function issuesEnter(r){readIssueRoute(r);const ref=routeItem(r),page=$('page-work');page.classList.toggle('in-detail',!!ref);
   if(ref){if(ref!==DET.ref||!DET.d)loadDetail(ref,true);else drawDetail()}else{DET.ref='';DET.d=null;DET.request++;$('issue-detail').replaceChildren();if(r.rest.length){$('page-work').classList.add('in-detail');$('issue-detail').append(el('div',{class:'state'},'This work item address is not valid. ',el('a',{href:'#issues'},'Back to Tasks')))}else loadIssues()}}
