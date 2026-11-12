@@ -3,6 +3,17 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>agentd dash</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%230a66d6%22/%3E%3Cpath d=%22M9 22V13a7 7 0 0114 0v9M9 16h14%22 fill=%22none%22 stroke=%22white%22 stroke-width=%223%22/%3E%3C/svg%3E">
+<!-- region:install-head: the dash as an installable app (#465): its manifest and icons are served by agentd -->
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="application-name" content="agentd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="agentd">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1e1e20" media="(prefers-color-scheme: dark)">
+<!-- end:install-head -->
 <script>try{const t=localStorage.getItem('dash-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 /* Shared surfaces, type and controls. Status always pairs a glyph with a word. */
@@ -128,6 +139,13 @@ details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:a
 .tfiles-md h1,.tfiles-md h2,.tfiles-md h3,.tfiles-md h4,.tfiles-md h5,.tfiles-md h6{margin:8px 0 4px;font-size:1em}.tfiles-md h1{font-size:1.25em}.tfiles-md h2{font-size:1.12em}
 @media(max-width:860px){.tfiles-text,.tfiles-md{max-height:60vh}.tfiles-filter{min-height:44px}}
 /* end:css-files */
+/* region:css-terminal: an owner's shell on a task (GET /api/terminal, #463), off unless [dash] terminal is set */
+.tterm{margin:8px 0;min-width:0;max-width:100%;box-sizing:border-box}.tterm>summary{cursor:pointer;font-weight:600}
+.tterm-status{margin:4px 0;overflow-wrap:anywhere}.tterm-warn{margin:4px 0;color:var(--amber);overflow-wrap:anywhere}
+.tterm-screen{height:360px;max-width:100%;min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:var(--sunk);padding:4px;box-sizing:border-box}
+.tterm-actions{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
+@media(max-width:860px){.tterm-screen{height:50vh}.tterm-actions button{min-height:44px}}
+/* end:css-terminal */
 /* region:css-team */
 #page-team{container-type:inline-size;min-width:0}
 #team-open{display:none;margin-top:10px}#team-open[hidden]{display:none}#team-view>.tm-sec:first-child{margin-top:0}
@@ -532,6 +550,17 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .tpl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.tpl-row select,.tpl-row input[type=text]{flex:1 1 180px;min-width:0}
 .tpl-row label{display:inline-flex;align-items:center;gap:6px}.tpl-status{font-size:12px;color:var(--mute);overflow-wrap:anywhere}.tpl-status.bad{color:var(--red)}
 /* end:css-templates */
+/* region:css-triggers: the Triggers page for owners (#460) */
+.trig-tpl{display:grid;gap:8px;padding:12px;margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}.trig-tpl>*{min-width:0}.trig-tpl h3,.trig-tpl p{margin:0}
+.trig-tpl pre{margin:0;padding:8px;overflow-x:auto;white-space:pre;font:12px/1.5 ui-monospace,monospace;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--fg)}
+.trig-actions,.trig-fill{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trig-fill label{display:grid;gap:4px;flex:1 1 180px;min-width:0}.trig-fill input{min-width:0}
+.trig-problem{color:var(--red);overflow-wrap:anywhere}.trig-ok{color:var(--green,var(--fg))}#page-triggers code{overflow-wrap:anywhere}
+/* end:css-triggers */
+/* region:css-connect: agentd connect from Settings > Diagnostics, owners only (#466) */
+.set-connect-out{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--sunk);min-width:0}.set-connect-out h4{margin:0}
+.set-connect-log{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto;font:12px/1.5 ui-monospace,monospace;color:var(--fg)}
+.set-connect-out ul{margin:0;padding-left:18px}.set-connect-out code{overflow-wrap:anywhere}
+/* end:css-connect */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -718,11 +747,19 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
     <h3>Sign-in</h3><div id="set-access"></div><h3>Notifications</h3><div id="set-personal-body"></div>
   </section>
   <section class="runs set-group" id="set-team" aria-label="Team" hidden><div id="set-team-body"></div><div id="set-invite-once" hidden></div></section>
-  <section class="runs set-group" id="set-workers" aria-label="Workers" hidden><div id="set-workers-body"></div><p class="mute" id="set-dispatch"></p></section>
+  <section class="runs set-group" id="set-workers" aria-label="Workers" hidden><div id="set-workers-body"></div><p class="mute" id="set-dispatch"></p><p class="mute" id="set-triggers"><a href="#triggers">Triggers</a>: what starts a worker on its own (off by default), and templates for it. Owners only.</p></section>
   <section class="runs set-group" id="set-connections" aria-label="Connections" hidden><div id="set-connections-body"></div></section>
   <section class="runs set-group" id="set-diagnostics" aria-label="Diagnostics" hidden><div id="set-diagnostics-body"></div></section>
 </div>
 <!-- end:page-settings -->
+<!-- region:page-triggers -->
+<div id="page-triggers" class="page textpage" hidden><a class="page-back" href="#settings">← Settings</a>
+  <div class="set-toolbar"><h2>Triggers</h2><button type="button" id="trig-refresh">Refresh</button></div>
+  <p class="mute">What <code>agentd trigger status</code> prints, and templates for <code>[triggers]</code> in config.toml. Triggers start workers on their own, so they are off by default and only an owner sees this page.</p>
+  <p id="trig-error" role="alert" hidden></p><p id="trig-status" class="mute" role="status"></p>
+  <div id="trig-body"></div>
+</div>
+<!-- end:page-triggers -->
 <div id="page-notfound" class="page textpage" hidden><h2>This page could not be found</h2><p>The address may be old or incomplete. <a href="#inbox">Go to Inbox</a>.</p></div>
 <!-- region:page-help -->
 <div id="page-help" class="page textpage" hidden><a class="page-back" href="#inbox">← Inbox</a>
@@ -979,7 +1016,7 @@ function settingsInviteResult(r){if(ROUTE.item!=='settings'){toast('Invitation c
 function settingsInvite(){let result;return sheet({title:'Invite member',description:'They need VPN access before signing in. A link lasts 24 hours and works once.',action:'Create invitation',fields:[{name:'name',label:'Name',required:true},{name:'email',label:'Email',type:'email',required:true},{name:'role',label:'Role',value:'dev',options:[{value:'dev',label:'Developer'},{value:'viewer',label:'Viewer'},{value:'owner',label:'Owner'}],required:true}],onSubmit:async v=>{result=await settingsAPI({action:'invite',...v});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsResend(i){let result;return sheet({title:'Resend invitation',description:'Replace the previous link for '+i.user+'. The old link will stop working.',action:'Resend',onSubmit:async()=>{result=await settingsAPI({action:'resend',id:i.id});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsRevoke(i){return sheet({title:'Revoke invitation',description:'The sign-in link for '+i.user+' will stop working.',action:'Revoke',danger:true,onSubmit:async()=>{await settingsAPI({action:'revoke',id:i.id});await settingsLoad();toast('Invitation revoked',true)}})}
-async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.tab!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
+async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.tab!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),settingsConnect(d.connect),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
 $('set-tabs').replaceChildren(...SET_GROUPS.map(g=>el('button',{type:'button','data-group':g,'aria-pressed':String(g==='models'),onclick:()=>settingsTab(g)},g[0].toUpperCase()+g.slice(1))));
 $('set-refresh').onclick=settingsLoad;
 dashPage('settings',{title:'Settings',panel:false,enter(){const t=document.documentElement.dataset.theme||'system';for(const n of document.querySelectorAll('[name=theme]'))n.checked=n.value===t;settingsAccess();settingsTab(SETTINGS.tab);if(!SETTINGS.loading)settingsLoad()},unlock(){settingsAccess();if(!SETTINGS.loading)settingsLoad()},render(){settingsAccess()},leave(){SETTINGS.request++;SETTINGS.loading=false;$('set-invite-once').replaceChildren();$('set-invite-once').hidden=true}});
@@ -1203,7 +1240,7 @@ function openPRConfirm(d){const fact=(k,v)=>[el('dt',{},k),el('dd',{},v)];
 async function openPRStart(hid){const c=await openPRLoad(hid,true);if(c.error){toast(c.error,false);return}const why=openPRWhy(c.data);if(why){toast(why,false);return}return openPRConfirm(c.data)}
 function openPRNotNow(id,hid){return pending(id,'Dismissing…',{action:'inbox_mark',id,mark:'resolved'},'Dismissed. Open a draft PR stays on the task.').then(()=>{delete OPENPR[hid]})}
 function openPRButtons(d){if(PENDING[d.inbox_id])return [el('span',{class:'mute',role:'status'},PENDING[d.inbox_id])];const why=openPRWhy(d);
-  return [el('button',{type:'button',class:'primary','data-write':true,'data-disabled-reason':why||null,title:why||null,onclick:()=>openPRConfirm(d)},'Open a draft PR'),d.inbox_id&&!d.dismissed?el('button',{type:'button','data-write':true,onclick:()=>openPRNotNow(d.inbox_id,d.handoff)},'Not now'):null].filter(Boolean)}
+  return [el('button',{type:'button',class:'primary','data-write':true,'data-disabled-reason':why||null,title:why||null,onclick:()=>openPRConfirm(d)},'Open a draft PR'),...(typeof pushButtons==='function'?pushButtons(d):[]),d.inbox_id&&!d.dismissed?el('button',{type:'button','data-write':true,onclick:()=>openPRNotNow(d.inbox_id,d.handoff)},'Not now'):null].filter(Boolean)}
 // openPRFill draws a loaded review into box: the proposal, the PR if one is linked, and the diff.
 function openPRFill(box,d){if(!d||!d.branch||!(d.files||[]).length&&!d.pr){box.hidden=true;box.replaceChildren();return}box.hidden=false;
   const ask=d.proposed&&!d.pr,link=d.pr?el('p',{},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():''):null;
@@ -1259,6 +1296,19 @@ function resultInboxLine(x){const d=x.deliverables||[];if(!d.length)return null;
   return el('div',{class:'ib-goal',title:d.join('\n')},'Report: '+name+(more?' and '+more+' more file'+(more>1?'s':''):''))}
 function resultInboxActs(x){return [el('button',{type:'button',class:'primary',onclick:()=>resultSheet(x.handoff,x.title)},'View')]}
 // end:openpr
+// region:push: Push branch beside Open a draft PR (#461). It pushes the finished worker's own
+// branch to origin and nothing else: no commit, no pull request, no merge. The click is the
+// person's word; the server refuses a worker and a viewer and records who clicked.
+function pushWhy(d){return d.may_push?'':d.may_push_why||openPRWhy(d)||'This branch cannot be pushed.'}
+function pushConfirm(d){const fact=(k,v)=>[el('dt',{},k),el('dd',{},v)];
+  return sheet({title:'Push this branch?',description:'AgentD pushes this branch to origin and nothing else. No pull request is opened and nothing is merged.',action:'Push branch',pending:'Pushing…',caution:true,
+    content:el('div',{class:'openpr-confirm'},el('dl',{},fact('Branch',el('code',{},d.branch)),fact('Remote and repository',[el('code',{},d.remote||'origin'),' → ',d.repo||'']),fact('Commit',el('code',{},d.head||''))),
+      d.warning?el('p',{class:'field-error',role:'note'},'Check before you push: '+d.warning):null,el('p',{},'Your name goes into the task’s history. AgentD never force-pushes: if origin already has this branch at another commit, nothing is pushed.')),
+    onSubmit:async()=>{const j=await act({action:'push_branch',id:d.handoff,head:d.head});delete OPENPR[d.handoff];toast(j.pushed?'Pushed '+j.branch+' to origin':'Already on origin: '+j.branch,true);refresh()}})}
+// Pushed: the history line says by whom; the button goes, Open a draft PR stays.
+function pushButtons(d){if(d.pushed)return [el('span',{class:'mute push-done',role:'status',title:d.pushed.note||null},'Branch pushed to origin')];const why=pushWhy(d);
+  return [el('button',{type:'button','data-write':true,'data-disabled-reason':why||null,title:why||null,onclick:()=>pushConfirm(d)},'Push branch')]}
+// end:push
 // region:changes: how big a worker's change is, and Changes as a file list beside one diff (#449).
 // change is {files,added,deleted} from the server's diff stat of the task's
 // worker branch, the figures handoff show has; a task with no branch has none.
@@ -1392,6 +1442,49 @@ function filesPanel(hid){const c=FILES[hid]||(FILES[hid]={}),body=el('div',{clas
   det.addEventListener('toggle',()=>{if(c.body!==body)return;const was=c.open;c.open=det.open;if(det.open&&!was){delete c.data;delete c.shown;load()}});
   return det}
 // end:files
+// region:terminal: an owner's interactive shell on a task (GET /api/terminal, a WebSocket, #463). Shown only
+// when /api/dash says terminal (the server's [dash] terminal is on, its listening rule allows it, and this
+// person is an owner signed in as themselves); the server checks all of that again on the socket. The
+// widget is the vendored xterm.js at /vendor/ (served by the binary, never a CDN), loaded on first open.
+// Keystrokes go as binary messages, the size as a text {cols,rows}; the shell's bytes are drawn by xterm,
+// and the close reason goes in as text. Closing the section, leaving the task or the page closes the socket,
+// and the server ends the shell; one shell per task.
+const TERM={};let TERM_LOADING=null,TERM_WATCH=2000;
+function termOffered(){return !!(lastDash&&lastDash.terminal)}
+function termLoad(){if(window.Terminal)return Promise.resolve(window.Terminal);if(TERM_LOADING)return TERM_LOADING;
+  TERM_LOADING=new Promise((ok,fail)=>{if(!document.querySelector('link[data-xterm]'))document.head.append(el('link',{rel:'stylesheet',href:'/vendor/xterm.css','data-xterm':''}));
+    const sc=el('script',{src:'/vendor/xterm.js','data-xterm':''});sc.addEventListener('load',()=>window.Terminal?ok(window.Terminal):fail(new Error('the terminal widget did not load')));
+    sc.addEventListener('error',()=>{TERM_LOADING=null;fail(new Error('the terminal widget did not load'))});document.head.append(sc)});return TERM_LOADING}
+function termColors(){const cs=getComputedStyle(document.documentElement),v=n=>(cs.getPropertyValue(n)||'').trim();return {background:v('--sunk')||'#ebebee',foreground:v('--fg')||'#1d1d1f',cursor:v('--fg')||'#1d1d1f'}}
+// termSize is the columns and rows the screen element holds at the widget's 13px font.
+function termSize(box){const w=box&&box.clientWidth||640,h=box&&box.clientHeight||360;return {cols:Math.max(20,Math.min(400,Math.floor((w-8)/7.8))),rows:Math.max(5,Math.min(200,Math.floor((h-8)/17)))}}
+function termSay(c,text,warn){if(c.status){c.status.textContent=text;c.status.className=warn?'tterm-warn':'mute tterm-status'}}
+function termButtons(c,hid){if(!c.actions)return;c.actions.replaceChildren(c.ws?el('button',{type:'button',onclick:()=>termClose(hid,'You closed the terminal.')},'Close terminal'):el('button',{type:'button',onclick:()=>termOpen(hid)},c.used?'Open again':'Open a shell'))}
+function termClose(hid,why){const c=TERM[hid];if(!c)return;if(c.watch){clearInterval(c.watch);c.watch=0}const ws=c.ws;c.ws=null;if(ws&&ws.readyState<2)ws.close(1000);if(why)termSay(c,why);termButtons(c,hid)}
+function termOpen(hid){const c=TERM[hid]||(TERM[hid]={});if(c.ws)return;c.used=true;termSay(c,'Starting the shell…');termButtons(c,hid);
+  termLoad().then(T=>{if(!c.screen||!c.screen.isConnected){termSay(c,'');return}
+    if(!c.term){c.term=new T({fontSize:13,cursorBlink:true,convertEol:false,scrollback:2000,theme:termColors()});c.term.open(c.screen);c.term.onData(d=>{if(c.ws&&c.ws.readyState===1)c.ws.send(new TextEncoder().encode(d))})}
+    const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/api/terminal?id='+encodeURIComponent(hid));ws.binaryType='arraybuffer';c.ws=ws;termButtons(c,hid);
+    const fit=()=>{const z=termSize(c.screen);c.term.resize(z.cols,z.rows);if(ws.readyState===1)ws.send(JSON.stringify(z))};
+    ws.onopen=()=>{fit();termSay(c,'Connected: a shell that starts in the task’s worker directory, as the dash’s own user on this host. What you type runs there, with everything that user can reach, not only this directory. It closes after 15 minutes with nothing typed; a process you detach may keep running.');if(c.term.focus)c.term.focus()};
+    ws.onmessage=e=>{if(e.data&&typeof e.data!=='string')c.term.write(new Uint8Array(e.data))};
+    ws.onclose=e=>{if(c.ws!==ws)return;c.ws=null;if(c.watch){clearInterval(c.watch);c.watch=0}
+      termSay(c,e.reason?'Closed: '+e.reason+'.':e.code===1006?'The terminal was refused or lost. Only an owner may open one, from the dash itself (over HTTPS when the dash is reachable beyond this machine), on a task with a worker directory, one at a time.':'Closed.',!e.reason);termButtons(c,hid)};
+    c.onresize=c.onresize||(()=>{if(c.ws&&c.ws.readyState===1)fit()});window.addEventListener('resize',c.onresize);
+    // Leaving the task (its section no longer on the page) closes the shell too.
+    c.watch=setInterval(()=>{if(!c.screen||!c.screen.isConnected)termClose(hid,'')},TERM_WATCH)})
+  .catch(e=>{c.ws=null;termSay(c,'The terminal could not start: '+errorText(e),true);termButtons(c,hid)})}
+// termPanels is [] or the Terminal section of task hid; a redraw moves the open screen into the new section.
+function termPanels(hid){if(!termOffered()||!hid)return [];const c=TERM[hid]||(TERM[hid]={});
+  const screen=c.screen||el('div',{class:'tterm-screen','aria-label':'Terminal'});c.screen=screen;
+  c.status=el('p',{class:'mute tterm-status',role:'status'},c.ws?'Connected.':'Opens an interactive shell that starts in this task’s worker directory, as the dash’s own user, with that user’s whole access to this host. Owners only.');
+  c.actions=el('div',{class:'tterm-actions'});termButtons(c,hid);
+  const det=el('details',{class:'tterm','data-terminal':hid},el('summary',{},'Terminal'),c.status,c.actions,screen);
+  if(c.open)det.open=true;
+  det.addEventListener('toggle',()=>{if(c.screen!==screen||!det.isConnected)return;c.open=det.open;if(!det.open&&c.ws)termClose(hid,'You closed the terminal.')});
+  return [det]}
+window.addEventListener('pagehide',()=>{for(const hid of Object.keys(TERM))termClose(hid,'')});
+// end:terminal
 // region:marks: one mark per task (#454). The server decides it (taskMark) and
 // sends it as mark on every task, so the board, Chat and Team read the same:
 // the same word, glyph and colour, never colour alone. The strip over the board
@@ -1422,6 +1515,15 @@ function drawMarks(tasks){const box=$('mark-strip-box');if(box)keepFocus(box,()=
   const xs=tasks.filter(i=>i.mark===MARK_PICK);
   $('board').replaceChildren(xs.length?el('div',{class:'cards mark-list','data-marked':MARK_PICK},xs.map(i=>i.node)):el('div',{class:'empty'},'No task here reads '+markOf(MARK_PICK).word+'.'));return true}
 // end:marks
+// region:linear: a Linear issue synced by agentd issue sync-linear (#464). Its ref is
+// linear:TEAM-N and its link the url the sync stored (https only); it has no GitHub
+// page, and agentd does not read its text.
+const LINEAR_RE=/^linear:[A-Za-z][A-Za-z0-9]*-[1-9]\d*$/,linearURLs=new Map();
+function isLinearRef(ref){return LINEAR_RE.test(String(ref||''))}
+function noteLinearURLs(items){for(const x of items||[])if(x&&isLinearRef(x.ref)&&/^https:\/\//.test(x.url||''))linearURLs.set(x.ref,x.url)}
+function linearHref(ref){return linearURLs.get(ref)||null}
+function trackerName(ref){return isLinearRef(ref)?'Linear':'GitHub'}
+function linearTextNode(ref){const href=linearHref(ref);return el('div',{class:'itext mute linear-text'},'This issue is in Linear; agentd keeps its title and state, not its text. ',href?el('a',{href,target:'_blank',rel:'noopener'},'Open it in Linear'):null)}
 // region:shared-work: what Inbox, Issues and Team all draw with
 /* Projects and status: the board's two axes. A card's project is its
    handoff's project, else the checkout its session works in (last path
@@ -1510,7 +1612,7 @@ function runStrip(x){const as=x.attempts||[];if(!as.length)return null;
     title:[a.tool+(a.model?' '+a.model:''),a.running?'Running':word(a.end_reason)||'Unknown',fmtMin(a.minutes),a.tokens!==undefined?fmtTok(a.tokens)+' tokens':'usage not reported',a.usd!==undefined?'$'+a.usd.toFixed(2):null].filter(Boolean).join(', ')})));
   return el('div',{class:'cost'},anyTok?fig([ge(),fmtTok(tok)],'tokens'):null,fig(fmtMin(min),'agent time'),anyUsd?fig([ge(),'$'+usd.toFixed(2)],as.length>1?'over '+as.length+' runs':'est.'):null,
     !anyTok&&!anyUsd?el('span',{class:'fig',title:'no run reported tokens or dollars yet'},as.some(a=>a.running)?'usage not reported yet':'usage not reported'):null,bars)}
-function ghHref(ref,what){const [repo,num]=ref.split('#');return 'https://github.com/'+repo+'/'+(what==='PR'?'pull':'issues')+'/'+num}
+function ghHref(ref,what){if(isLinearRef(ref))return linearHref(ref);const [repo,num]=ref.split('#');return 'https://github.com/'+repo+'/'+(what==='PR'?'pull':'issues')+'/'+num}
 // end:shared-work
 // region:inbox
 /* Needs you: everything that waits for a person (approvals, issues, the
@@ -1630,8 +1732,8 @@ const INBOX_NAMES={needs:'Needs you',approvals:'Approvals',blocked:'Blocked',fai
 let inboxFilter='needs';
 function inboxRow(raw){
   if(raw.what==='issue')return el('article',{class:'ib-row','data-id':raw.ref},el('span',{class:'ib-tag'},'Issue'),
-    el('div',{class:'ib-main'},el('div',{class:'ib-title'},raw.title),el('div',{class:'ib-sub'},el('span',{},raw.ref),el('span',{},raw.age+' ago'),el('span',{},'reply on GitHub'))),
-    el('div',{class:'kact'},el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open on GitHub')));
+    el('div',{class:'ib-main'},el('div',{class:'ib-title'},raw.title),el('div',{class:'ib-sub'},el('span',{},raw.ref),el('span',{},raw.age+' ago'),el('span',{},'reply on '+trackerName(raw.ref)))),
+    el('div',{class:'kact'},el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open on '+trackerName(raw.ref))));
   const x=needNorm(raw),tag=x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind],path=x.transcript||x.log,stale=x.kind==='stale';
   // The tag says what kind of item it is, so the title names the task: its goal, else the item's own words.
   const full=words(x.goal&&(stale||/^(failed|review|result)$/.test(x.kind))?x.goal:x.title),short=cardTitle(full);
@@ -1937,7 +2039,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
     ['Cost',d.cost?costText(d.cost):null],
     ['Latest result',done&&done.result?words(done.result):null],
     ['Actions',h&&handoffActions(dash,h).length?el('span',{class:'kact',style:'margin:0'},handoffActions(dash,h)):null]])));
-  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref),filesPanel(ref));
+  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref),filesPanel(ref),...termPanels(ref));
   const reply=blockedWorkerReply(h,who);if(reply)box.append(sec('Waiting for your reply'),reply);
   if(d.kind==='pr'&&!tree.length)box.append(el('p',{class:'mute'},'No handoff is linked to this PR. A dispatched worker\'s PR links by its branch on pr sync-gh; otherwise use handoff link.'));
   // Sub-handoffs: the tree rows under the focused one.
@@ -2018,7 +2120,7 @@ function keepFocus(box,draw){const a=document.activeElement,c=box.contains(a)&&a
   if(!ref)return;const n=[...box.querySelectorAll('[data-ref]')].find(x=>x.dataset.ref===ref),t=n&&n.querySelectorAll('a,button,summary')[at];if(t)t.focus({preventScroll:true})}
 // itemHash: an item's page. An issue is #issues/OWNER/REPO/N, a handoff with no issue #issues/ID.
 function itemHash(issue,hid){return '#issues/'+(issue?issue.replace('#','/'):hid)}
-function routeItem(r){const x=r.rest||[];return x.length===1&&/^hof-/.test(x[0])?x[0]:x.length===3&&/^\d+$/.test(x[2])?x[0]+'/'+x[1]+'#'+x[2]:''}
+function routeItem(r){const x=r.rest||[];return x.length===1&&/^hof-/.test(x[0])?x[0]:x.length===1&&isLinearRef(x[0])?x[0]:x.length===3&&/^\d+$/.test(x[2])?x[0]+'/'+x[1]+'#'+x[2]:''}
 const isClosed=it=>/^closed$/i.test(it.state||'');
 function issueStatusCtx(d){const {rows}=needItems(d);return {live:new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,{...x,id:x.ref}])]),rows,openPR:new Set((d.waiting||[]).filter(x=>x.what==='PR').map(x=>x.ref)),user:d.user||'',my:mySession()}}
 // issueStatus: the status words again, for the work item as a whole, from each
@@ -2032,7 +2134,7 @@ function issueStatus(it,ctx){const hs=(it.handoffs||[]).map(h=>ctx.live.get(h.id
   return isClosed(it)?'done':'todo'}
 function issueItem(it,ctx,needRows){
   const hs=(it.handoffs||[]).map(h=>ctx.live.get(h.id)||h),status=issueStatus(it,ctx),needs=hs.flatMap(h=>ctx.rows.get(h.id)||[]),on=hs.filter(h=>/^(claimed|held)$/.test(h.state||'')||h.state==='offered'&&h.dispatched),now=on[on.length-1],last=hs[hs.length-1];
-  const who=now&&(now.state==='held'?now.from:now.claimer),live=now?liveOf(who,now):null,num='#'+(it.ref.split('#')[1]||''),worker=hs.some(h=>h.worker||h.dispatched);
+  const who=now&&(now.state==='held'?now.from:now.claimer),live=now?liveOf(who,now):null,num=isLinearRef(it.ref)?it.ref.slice(7):'#'+(it.ref.split('#')[1]||''),worker=hs.some(h=>h.worker||h.dispatched);
   const ended=!now&&last&&status==='todo'?(statusOf(last,[],ctx.openPR)==='failed'?'last run failed':last.state==='done'?'last run done':last.state==='cancelled'?'last run cancelled':last.state==='declined'?'last run declined':null):null;
   const waiting=!isClosed(it)&&it.waiting_on?(it.waiting_on==='user'?'waiting on you':'waiting on '+it.waiting_on):null;
   const node=el('article',{class:'kcard icard','data-ref':it.ref},
@@ -2053,7 +2155,7 @@ async function loadIssues(){if(ISS.busy)return;ISS.busy=true;
   let changed=false;
   try{const r=await fetch('/api/issues',{cache:'no-store',headers:auth()});
     if(!r.ok)throw new Error(r.status===401?'this dash needs the token':'HTTP '+r.status);
-    const text=await r.text();changed=text!==ISS.key||!!ISS.error;ISS.key=text;ISS.d=JSON.parse(text);ISS.error=''}
+    const text=await r.text();changed=text!==ISS.key||!!ISS.error;ISS.key=text;ISS.d=JSON.parse(text);noteLinearURLs(ISS.d.issues);ISS.error=''}
   catch(e){changed=ISS.error!==e.message;ISS.error=e.message}
   finally{ISS.busy=false}
   if(changed&&lastDash){board(lastDash);lockState()}}
@@ -2062,11 +2164,11 @@ async function loadDetail(ref,fresh){if(fresh){DET.ref=ref;DET.d=null;DET.error=
   const request=++DET.request;DET.at=Date.now();
   try{const r=await fetch('/api/issue?ref='+encodeURIComponent(ref),{cache:'no-store',headers:auth()});
     if(!r.ok)throw new Error(r.status===401?'this dash needs the token':(await r.text()).trim()||'HTTP '+r.status);
-    const d=await r.json();if(request!==DET.request||DET.ref!==ref)return;DET.d=d;DET.error='';
+    const d=await r.json();if(request!==DET.request||DET.ref!==ref)return;DET.d=d;DET.error='';noteLinearURLs([d.issue,...(d.issues||[])]);
     if(d.kind==='issue'&&!DET.text)loadIssueText(ref)}
   catch(e){if(request!==DET.request||DET.ref!==ref)return;DET.error=e.message}
   drawDetail()}
-async function loadIssueText(ref){DET.text=el('div',{class:'itext mute'},'Loading the text from GitHub…');
+async function loadIssueText(ref){if(isLinearRef(ref)){DET.text=linearTextNode(ref);return}DET.text=el('div',{class:'itext mute'},'Loading the text from GitHub…');
   let node;
   try{const r=await fetch('/api/issuetext?ref='+encodeURIComponent(ref),{cache:'no-store',headers:auth()});
     if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();
@@ -2093,12 +2195,12 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
     x.env?el('div',{class:'kmeta'},workerEnvLine(x.env)):null,
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
-    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,worked?filesPanel(x.id):null,
+    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,worked?filesPanel(x.id):null,worked?termPanels(x.id):null,
     log.length?el('details',{'data-log':x.id,open:openIds.has(x.id)||null},el('summary',{},'History, '+log.length),el('ol',{class:'ilog'},log.map(l=>el('li',{},el('span',{class:'when'},l.ago+' ago '),l.actor?nameOf(l.actor)+': ':'',l.note||l.state)))):null)}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
-  keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#');
+  keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#')||isLinearRef(ref);
     const from=(ROUTE.params&&ROUTE.params.get('from'))||'',backChat=from.startsWith('chat-')?from.slice(5):'';
-    const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All issues'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On GitHub'):null);
+    const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All issues'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On '+trackerName(ref)):null);
     if(DET.error){box.replaceChildren(crumb,el('div',{class:'state error',role:'alert'},'Could not load this: '+DET.error));return}
     if(!DET.d){box.replaceChildren(crumb,el('div',{class:'state'},'Loading…'));return}
     const d=DET.d,dash=lastDash||{},ctx=issueStatusCtx(dash),tree=d.tree||[],issue=d.issue||null,focus=tree.find(x=>x.focus)||tree[0]||{},hLive=ctx.live.get(focus.id),body=d.body||{};
@@ -2111,7 +2213,7 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
       ['Status',status?d.kind==='issue'||d.kind==='pr'?statusEl(status):taskStatus(hLive&&hLive.mark?hLive:focus,status):null],
       ['On GitHub',ghState||(d.kind==='issue'?'not synced yet':null)],
       [on?'Assignee':'Last on it',onWho?whoLink(onWho):lastWho?whoLink(lastWho):null],
-      ['Project',d.kind==='issue'||d.kind==='pr'?ref.split('#')[0]:projectOf(hLive||focus)||null],
+      ['Project',d.kind==='issue'||d.kind==='pr'?(isLinearRef(ref)?ref.replace(/-\d+$/,''):ref.split('#')[0]):projectOf(hLive||focus)||null],
       ['Stage',(s=>s?word(s):null)(d.kind==='handoff'?focus.stage:on?on.stage:null)],
       ['Source',d.kind==='handoff'&&focus.source?word(focus.source):null],
       ['Branch',d.kind==='handoff'&&focus.branch?el('code',{},focus.branch):null],
@@ -2974,6 +3076,58 @@ document.addEventListener('keydown',e=>{
 $('keys-open').addEventListener('click',()=>{$('account').open=false;keysSheet()});
 for(const [k,[hash]] of Object.entries(KEYS_GO))for(const a of document.querySelectorAll('.rail a[href="'+hash.split('/')[0]+'"].rail-item'))a.setAttribute('aria-keyshortcuts','G '+k.toUpperCase());
 // end:keys
+// region:triggers: the Triggers page for owners (#460). GET /api/triggers is what
+// `agentd trigger status` prints (the same function) and the templates as
+// ready-to-copy [triggers] config; Write puts one in config.toml through the
+// Settings route (settingsAPI, action trigger_template). Nothing here turns
+// triggers on: that stays a terminal step, and the server refuses a template
+// while they are on.
+const TRIG={data:null,request:0,repo:'',author:''};
+async function trigLoad(){const seq=++TRIG.request,q=new URLSearchParams();if(TRIG.repo)q.set('repo',TRIG.repo);if(TRIG.author)q.set('author',TRIG.author);
+  $('trig-error').hidden=true;$('trig-status').textContent='Loading triggers…';
+  try{const r=await fetch('/api/triggers'+(q.toString()?'?'+q:''),{cache:'no-store',headers:auth()});let d={};try{d=await r.json()}catch(e){}if(seq!==TRIG.request)return;
+    if(!r.ok)throw new Error(d.error||'Could not read triggers (HTTP '+r.status+').');TRIG.data=d;trigRender();$('trig-status').textContent=''}
+  catch(e){if(seq!==TRIG.request)return;TRIG.data=null;$('trig-body').replaceChildren();$('trig-error').textContent=errorText(e);$('trig-error').hidden=false;$('trig-status').textContent=''}}
+function trigList(v){return Array.isArray(v)&&v.length?v.join(', '):''}
+function trigWrite(t){const d=TRIG.data;return sheet({title:'Write “'+t.title+'”',description:'Writes repos, authors, label, budget, max_per_day and the checkout under [triggers] in config.toml, with a backup and a history entry. enabled is not written: nothing fires until someone runs '+d.enable+' in a terminal.',action:'Write to config.toml',
+  onSubmit:async()=>{await settingsAPI({action:'trigger_template',template:t.name,repo:d.repo,author:d.author});toast('Template written. Triggers are still off.',true);trigLoad()}})}
+function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st.enabled===true,dirs=Object.entries(st.dirs||{});
+  const state=on?(st.problem?el('span',{class:'trig-problem','data-trig':'problem'},'On, but cannot fire: '+st.problem):el('span',{class:'trig-ok','data-trig':'problem'},'On and able to fire')):
+    el('span',{'data-trig':'problem'},'Off. Nothing fires until it is turned on from a terminal: ',el('code',{},d.enable),'.');
+  const later=on?null:st.problem_when_enabled?el('span',{class:'trig-problem','data-trig':'later'},st.problem_when_enabled):el('span',{'data-trig':'later'},'Nothing');
+  const settings=settingsSection('Settings',settingsPairs([['State',state],...(on?[]:[['Would stop it once on',later]]),['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most offers a day',st.max_per_day],
+    ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])]));
+  settings.dataset.trig='settings';
+  const offers=settingsSection('Latest offers',settingsTable(['When','Kind','For','Commit','Task','Error'],(st.offers||[]).map(o=>[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',o.handoff?el('a',{href:'#issues/'+encodeURIComponent(o.handoff)},o.handoff):'',o.error||''])));
+  offers.dataset.trig='offers';
+  const repo=el('input',{type:'text',id:'trig-repo',value:d.repo||'',placeholder:'OWNER/NAME',autocomplete:'off'}),author=el('input',{type:'text',id:'trig-author',value:d.author||'',placeholder:'GitHub login',autocomplete:'off'});
+  const fill=el('form',{class:'trig-fill',onsubmit:e=>{e.preventDefault();TRIG.repo=repo.value.trim();TRIG.author=author.value.trim();trigLoad()}},el('label',{for:'trig-repo'},'Repository',repo),el('label',{for:'trig-author'},'Author whose PRs and issues fire',author),el('button',{type:'submit'},'Fill in'));
+  const why=on?'Triggers are on. Turn them off from a terminal before writing a template.':!d.repo||!d.author?'Fill in the repository and author first.':'';
+  const tpls=(d.templates||[]).map(t=>el('div',{class:'trig-tpl','data-template':t.name},el('h3',{},t.title),el('p',{},t.about),el('pre',{},el('code',{},t.toml)),
+    el('div',{class:'trig-actions'},el('button',{type:'button',onclick:()=>chatCopy(t.toml)},'Copy'),el('button',{type:'button',class:'primary','data-write':'','data-disabled-reason':why||null,onclick:()=>trigWrite(t)},'Write to config.toml'))));
+  $('trig-body').replaceChildren(settings,offers,settingsSection('Templates',el('p',{class:'mute'},'Copy one into config.toml, or write it there from here. Either way triggers stay off until you turn them on.'),fill,...tpls));
+  lockState()}
+$('trig-refresh').onclick=()=>trigLoad();
+dashPage('triggers',{title:'Triggers',panel:false,enter(){trigLoad()},unlock(){trigLoad()},leave(){TRIG.request++}});
+// end:triggers
+// region:connect: agentd connect from Settings > Diagnostics, owners only (#466). Preview is
+// agentd connect TOOL --dry-run and changes nothing; Connect (offered after a clean preview) runs it,
+// with the backups connect makes, and names them. Only a tool name the server listed is sent.
+const CONNECT={busy:false};
+function settingsConnect(list){const box=el('div',{id:'set-connect-result',class:'set-connect-out',hidden:true});
+  const rows=(list||[]).map(c=>[c.tool,c.found?'Installed':'Not installed',c.found?el('span',{class:'set-actions'},el('button',{type:'button','data-connect-preview':c.tool,onclick:()=>connectRun(c.tool,true,box)},'Preview')):'—']);
+  return settingsSection('Connect agents',el('p',{class:'mute'},'Register agentd with an agent (its MCP server, hooks and Skills), as agentd connect does in the terminal. Preview shows what would change and changes nothing; Connect makes the change and keeps a backup of every file it edits.'),settingsTable(['Agent','Status','Actions'],rows),box)}
+function connectButtons(off){for(const b of document.querySelectorAll('[data-connect-preview],[data-connect-apply]'))b.disabled=off}
+async function connectRun(tool,dry,box){if(CONNECT.busy)return;CONNECT.busy=true;const identity=settingsIdentity();connectButtons(true);box.hidden=false;box.replaceChildren(el('p',{role:'status'},(dry?'Previewing ':'Connecting ')+tool+'…'));
+  try{const r=await settingsAPI({action:'connect',tool,dry_run:dry});if(identity!==settingsIdentity())return;
+    const head=dry?(r.ok?'Preview for '+tool+': nothing has changed yet':'Preview for '+tool+' found a problem'):(r.ok?'Connected '+tool:'Connect for '+tool+' did not finish'),backups=r.backups||[];
+    box.replaceChildren(el('h4',{'data-connect-head':dry?'preview':'connect'},head),el('pre',{class:'set-connect-log'},(r.output||[]).join('\n')||'Nothing to change.'),
+      dry?null:el('div',{'data-connect-backups':''},el('h4',{},'Backups'),backups.length?el('ul',{},backups.map(p=>el('li',{},el('code',{},p)))):el('p',{class:'mute'},'No file needed a backup.')),
+      dry&&r.ok?el('div',{class:'set-actions'},el('button',{type:'button',class:'primary','data-connect-apply':tool,onclick:()=>connectRun(tool,false,box)},'Connect '+tool)):null);
+    if(!dry)toast(head,r.ok)}
+  catch(e){if(identity===settingsIdentity())box.replaceChildren(el('p',{role:'alert'},errorText(e)))}
+  finally{CONNECT.busy=false;connectButtons(false)}}
+// end:connect
 // region:refresh
 function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);lockState();notifyCheck(d)}
 let dashRequest=0;
@@ -3363,5 +3517,14 @@ document.addEventListener('click',e=>{if(CHAT.menu&&!e.target.closest('.chat-row
 function chatRouted(r){let want='';try{want=decodeURIComponent(r.rest[0]||'')}catch(e){want=r.rest[0]}return want}
 dashPage('chat',{title:'Chat',leave(){chatVoiceCancel()},render(){if(ROUTE.item==='chat'){chatComposerState();chatRenderCards()}},enter(r){const want=chatRouted(r);if(r.params&&r.params.get('role')&&!CHAT.id){CHAT.draft=r.params.get('role');CHAT.chat={role:CHAT.draft,title:'New conversation'}}chatRenderThread();chatHint();chatLoad();if(want){if(!(CHAT.live&&CHAT.id===want))chatOpen(want,CHAT.id===want);return}if(CHAT.id)history.replaceState(null,'','#chat/'+encodeURIComponent(CHAT.id));else if(CHAT.missing){CHAT.missing=false;chatRenderThread()}},unlock(r){chatLoad();const want=chatRouted(r)||CHAT.id;if(want)chatOpen(want,true)}});
 // end:chat
+// region:install: an installed dash's window bar follows the page's theme (#465). The
+// two theme-color tags in region:install-head follow the system; a theme chosen in
+// Settings (data-theme) sets both to that theme's background.
+const INSTALL_BAR={light:'#f5f5f7',dark:'#1e1e20'};
+function installThemeBar(){const t=document.documentElement.dataset.theme;
+  for(const m of document.querySelectorAll('meta[name="theme-color"]')){const own=/dark/.test(m.getAttribute('media')||'')?'dark':'light';m.content=INSTALL_BAR[t==='light'||t==='dark'?t:own]}}
+installThemeBar();
+new MutationObserver(installThemeBar).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+// end:install
 </script>
 </body></html>
