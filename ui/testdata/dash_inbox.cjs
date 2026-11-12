@@ -66,7 +66,8 @@ const submitSheet=async(note)=>{const dlg=d.querySelector('dialog');assert(dlg,'
  const counts=Object.fromEntries(Object.entries(tabs).map(([k,a])=>[k,a.querySelector('.n').textContent]));
  assert.deepEqual(counts,{needs:'11',approvals:'2',blocked:'1',failed:'1',mine:'11',expired:'1'},JSON.stringify(counts));
  assert.equal(tabs.needs.getAttribute('aria-current'),'page');
- assert.equal($('panel-inbox').querySelector('[data-n="needs"]').textContent,'11','the side filters lost their counts');
+ // The side filters are gone (the design has none beside the Agents list): the tabs above are the filters, with the same counts.
+ assert(d.body.classList.contains('no-panel')&&!$('panel-inbox').children.length,'the Inbox still has a second panel');
  const needs=rows();
  for(const id of ['blocked:hof-ask:1','failed:res-1','apr-1','spec:hof-misc','validator:hof-misc','linked:hof-misc','improve:1','review:hof-misc:abc','result:hof-misc','answered:1','acme/repo#7'])assert(needs.includes(id),'Needs you lacks '+id+': '+needs);
  assert(!needs.includes('apr-2'),'an approval the person cannot answer is in Needs you');

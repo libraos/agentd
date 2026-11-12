@@ -1,6 +1,6 @@
 // The shell (#479): the rail's eight items, with Tasks where Issues was; the
 // persistent Agents list (Needs you first, then open tasks by repository, counts,
-// New task, Add a repository) shown on Inbox, Tasks, Chat and Triggers and
+// New task, Add a repository) shown on Inbox, Tasks and Triggers (Chat has its conversations) and
 // collapsed elsewhere, the choice remembered; a row opens its task in place, the
 // address naming it, so reload and back keep it; Team's Working now gone with
 // nothing lost; on a phone the list is a drawer. Run in every mode:

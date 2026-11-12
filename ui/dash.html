@@ -733,18 +733,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 <aside class="side" id="side" aria-labelledby="side-title" tabindex="-1">
   <div class="side-head"><h2 id="side-title"></h2><button type="button" class="side-close" id="side-close" aria-label="Close this panel">Close</button></div>
   <!-- region:panel-inbox -->
-  <div class="panel-body" id="panel-inbox" hidden>
-    <nav class="pgroup" aria-label="Inbox filters">
-      <a class="pitem" href="#inbox" data-filter="needs">Needs you<span class="n" data-n="needs"></span></a>
-      <a class="pitem" href="#inbox/approvals" data-filter="approvals">Approvals<span class="n" data-n="approvals"></span></a>
-      <a class="pitem" href="#inbox/blocked" data-filter="blocked">Blocked<span class="n" data-n="blocked"></span></a>
-      <a class="pitem" href="#inbox/failed" data-filter="failed">Failed<span class="n" data-n="failed"></span></a>
-      <a class="pitem" href="#inbox/mine" data-filter="mine" title="Items waiting on you about work you started or took">My work<span class="n" data-n="mine"></span></a>
-    </nav>
-    <nav class="pgroup" aria-label="Expired items">
-      <a class="pitem" href="#inbox/expired" data-filter="expired" title="Offers nobody took in time, and mail that expired unread">Expired<span class="n" data-n="expired"></span></a>
-    </nav>
-  </div>
+  <!-- The Inbox has no second panel (dashPage panel:false): its filters are the tabs on its page (#inbox-tabs), with the same counts; the element stays, empty, as every page's does -->
+  <div class="panel-body" id="panel-inbox" hidden></div>
   <!-- end:panel-inbox -->
   <!-- region:panel-issues -->
   <div class="panel-body" id="panel-issues" hidden>
@@ -1111,7 +1101,7 @@ function hostOf(id){const s=((lastDash||{}).sessions||[]).find(x=>x.id===id);ret
 //   render(d)      every /api/dash snapshot, whatever page is showing
 //   unlock(route)  the token changed while this page shows
 //   agents   true or false: the Agents list shown on this page by default (see
-//            region:agents-list; default: Inbox, Tasks, Chat and Triggers)
+//            region:agents-list; default: Inbox, Tasks and Triggers; Chat shows its conversations instead)
 //   agentsSelected(route)  the data-agent-id of the Agents list row this route
 //            shows, when the page shows a task under its own address
 // Its panel is #panel-NAME, its rail link data-rail="NAME" in region:rail, and a
@@ -1269,14 +1259,14 @@ dashPage('notfound',{title:'Page not found',panel:false});
 // so the address names it and reload and back keep it; that row is marked
 // aria-current. A session working with no task (Team's Working now listed it) is a
 // row of its repository linking to its session page.
-// Shown by default on Inbox, Tasks, Chat and Triggers, collapsed elsewhere; Hide and
+// Shown by default on Inbox, Tasks and Triggers, collapsed elsewhere; Hide and
 // Show (#agents-toggle) are remembered per page in this browser (localStorage
 // dash-agents). On a phone the list is a drawer, like the second panel.
 // A page hooks in from its dashPage() without touching this region: agents (shown by
 // default or not) and agentsSelected(route) (which row its route shows). A row is
 // <a class="ag-row" data-agent-id=ID href=...>; agentsSet(true|false) shows or hides
 // the list for the current page, agentsDraw(lastDash) redraws it.
-const AGENTS_PAGES=['inbox','issues','chat','triggers'],AGENTS={open:{},drawer:false,opener:null};
+const AGENTS_PAGES=['inbox','issues','triggers'],AGENTS={open:{},drawer:false,opener:null};
 try{const v=JSON.parse(localStorage.getItem('dash-agents')||'{}');if(v&&typeof v==='object')AGENTS.open=v}catch(e){}
 function agentsShown(item){item=item||ROUTE.item;const v=AGENTS.open[item],def=PAGES[item];return typeof v==='boolean'?v:def&&typeof def.agents==='boolean'?def.agents:AGENTS_PAGES.includes(item)}
 function agentsSet(open){if(PHONE.matches){agentsDrawer(open);return}AGENTS.open[ROUTE.item]=!!open;try{localStorage.setItem('dash-agents',JSON.stringify(AGENTS.open))}catch(e){}agentsApply();if(open&&lastDash)agentsDraw(lastDash)}
@@ -2140,8 +2130,6 @@ function inboxDetailDraw(d){
 // A refresh replaces the rows every 10 s: the focused control comes back, by row and name.
 function inboxDraw(d){
   const sets=inboxSets(d),box=$('inbox-rows'),a=document.activeElement,row=box.contains(a)&&a.closest('[data-id]'),id=row&&row.dataset.id,name=row&&a.textContent;
-  for(const n of document.querySelectorAll('#panel-inbox [data-n]'))n.textContent=sets[n.dataset.n].length;
-  for(const n of document.querySelectorAll('#panel-inbox [data-filter]')){if(n.dataset.filter===inboxFilter)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
   $('inbox-tabs').replaceChildren(...Object.keys(INBOX_NAMES).map(f=>el('a',{href:inboxHref(f),'data-tab':f,'aria-current':f===inboxFilter?'page':null},INBOX_NAMES[f],el('span',{class:'n'},sets[f].length))));
   const list=sets[inboxFilter],open=list.length,unread=list.filter(inboxUnreadDot).length,more=inboxFilter==='needs'?sets.expired.length:0;
   $('inbox-title').textContent=INBOX_NAMES[inboxFilter];$('inbox-count').textContent=open?open+' open'+(inboxFilter!=='expired'&&unread?', '+unread+' unread':''):'';
@@ -2151,7 +2139,7 @@ function inboxDraw(d){
   if(id){const n=[...box.querySelectorAll('[data-id]')].find(n=>n.dataset.id===id),target=n&&[...n.querySelectorAll('button,a,summary')].find(c=>c.textContent===name&&!c.disabled);focusBack(target||n&&n.querySelector('button,a,summary'))}}
 // agentsSelected: the Agents list marks the task the open item is about.
 function inboxAgentsSelected(r){const id=r.params.get('item');if(!id||!lastDash)return '';const x=inboxSets(lastDash).needs.concat(inboxSets(lastDash).expired).find(y=>inboxKey(y)===id);return x&&x.handoff||''}
-dashPage('inbox',{title:'Inbox',agentsSelected:inboxAgentsSelected,enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter,item=r.params.get('item')||'';inboxFilter=f;inboxPicked=!!item;const opened=item&&item!==inboxSel;inboxSel=item;if(lastDash){inboxDraw(lastDash);lockState()}
+dashPage('inbox',{title:'Inbox',panel:false,agentsSelected:inboxAgentsSelected,enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter,item=r.params.get('item')||'';inboxFilter=f;inboxPicked=!!item;const opened=item&&item!==inboxSel;inboxSel=item;if(lastDash){inboxDraw(lastDash);lockState()}
   if(opened&&PHONE.matches){const t=$('inbox-detail').querySelector('h3');if(t)focusBack(t)}if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}},render(d){inboxBadge(d);inboxDraw(d)}});
 // end:inbox
 // region:newtask: the new task sheet's two kinds (Implement, Review a PR), its
