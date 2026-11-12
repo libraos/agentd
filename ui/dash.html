@@ -504,6 +504,9 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .mark-legend dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 12px;margin:4px 0 0}.mark-legend dd{margin:0;color:var(--mute)}
 @media(max-width:860px),(pointer:coarse){.mark-strip>a,.mark-strip>button,.mark-legend>summary{min-height:44px;display:inline-flex;align-items:center}}
 /* end:css-marks */
+/* region:css-worker-env: where a task's worker runs, in its header (#459) */
+.wenv{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;min-width:0}.wenv code{overflow-wrap:anywhere}.wenv .wenv-off{color:var(--amber)}
+/* end:css-worker-env */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -1798,6 +1801,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
     ['Parent',h&&h.parent?wkLink(h.parent):null],
     ['Source',focus.source||(h&&h.source)?word(focus.source||h.source):null],
     ['Chat',focus.chat?el('a',{href:'#chat/'+encodeURIComponent(focus.chat),onclick:closeHistory},el('code',{},focus.chat)):null],
+    ['Runs in',d.env?workerEnvLine(d.env):null],
     ['Worker',focus.worker?toolName(focus.worker)+(h&&h.worker_state?', '+h.worker_state:''):null],
     ['Branch',focus.branch?el('code',{},focus.branch):null],
     ['Started by',teamMode(dash)&&live&&live.from_user?el('span',{},live.from_user+': ',whoLink(live.from)):h?whoLink(h.from):done?whoLink(done.from):focus.from?whoLink(focus.from):null],
@@ -1960,6 +1964,7 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
   return el('article',{class:'iev','data-ref':x.id,style:x.depth?'margin-left:'+Math.min(x.depth,4)*14+'px':null},
     el('div',{class:'ktop'},String(x.goal||'').trim()===String(pageTitle||'').trim()?null:el('div',{class:'ktitle'},el('button',{class:'linkish',title:'Open its work item and run viewer',onclick:()=>showWorkItem(x.id)},x.goal||x.id)),taskStatus(x.mark?x:h,status,now&&now.key==='working',now&&now.text)),
     el('div',{class:'kmeta'},el('code',{},x.id),who?whoLink(who):x.from?['from ',whoLink(x.from)]:null,x.stage?el('span',{},x.stage):null,now?el('span',{},now.text):null,changeEl(x.change?x:h),sp?el('span',{},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,...(x.prs||[]).map(p=>el('span',{},'PR ',wkLink(p,'#'+p.split('#')[1]))),x.updated_ago?el('span',{class:'age'},'Updated '+x.updated_ago+' ago'):null,acts.length?el('span',{class:'kact'},acts):null),
+    x.env?el('div',{class:'kmeta'},workerEnvLine(x.env)):null,
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
     worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,
@@ -2696,6 +2701,21 @@ $('search-open').addEventListener('click',searchOpenBox);
 if(/Mac|iPhone|iPad/.test(navigator.platform||''))$('search-key').textContent='⌘K';
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&String(e.key).toLowerCase()==='k'){if(activeSheet)return;e.preventDefault();searchOpenBox()}});
 // end:search
+// region:worker-env: where a task's worker runs (#459), the work item's env
+// (GET /api/workitem): tool, model, sandbox, network, directory and branch of its
+// latest worker, as dispatch started it and handoff show lists it. A task never
+// dispatched has no env and shows none of it. A value dispatch did not record
+// says so; nothing is guessed.
+function workerEnvLine(e){
+  const sb=e.sandbox==='none'?'No OS sandbox':e.sandbox?'Sandbox: yes, '+e.sandbox:'Sandbox not recorded';
+  const net=e.network==='on'?'Network on':e.network==='off'?'Network off':'Network not recorded';
+  return el('span',{class:'wenv','data-env':''},
+    el('span',{'data-env-k':'tool'},toolName(e.tool)+' · '+(e.model||'model not known yet')),
+    el('span',{'data-env-k':'sandbox',class:e.sandbox==='none'?'wenv-off':''},sb),
+    el('span',{'data-env-k':'network'},net),
+    e.dir?el('code',{'data-env-k':'dir',title:'Directory'},e.dir):null,
+    e.branch?el('code',{'data-env-k':'branch',title:'Branch'},e.branch):null)}
+// end:worker-env
 function labelTables(){for(const table of document.querySelectorAll('.phone-rows table')){const heads=[...table.querySelectorAll('thead th')].map(h=>h.textContent);for(const row of table.querySelectorAll('tbody tr'))[...row.children].forEach((td,i)=>td.dataset.label=heads[i]||'Detail')}}
 new MutationObserver(labelTables).observe(document.querySelector('main'),{childList:true,subtree:true});
 // region:notify: a browser notification for a new Inbox item of the signed-in person (#452).
