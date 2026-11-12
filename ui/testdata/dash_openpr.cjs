@@ -16,6 +16,7 @@ ctx.document.activeElement=new N('button');vm.createContext(ctx);
 let core=page.split('// region:core\n')[1].split('function meter(')[0];
 vm.runInContext(core,ctx);
 vm.runInContext(page.split('// region:openpr')[1].split('// end:openpr')[0].replace(/^/,'//'),ctx);
+vm.runInContext(page.split('// region:changes')[1].split('// end:changes')[0].replace(/^/,'//'),ctx);
 vm.runInContext(page.split('function prDisabledReason(')[1].split('/* The board')[0].replace(/^/,'function prDisabledReason('),ctx);
 const run=s=>vm.runInContext(s,ctx),event={preventDefault(){},stopPropagation(){}};
 run("lockState=function(){};ghHref=(r,k)=>'https://github.com/'+r;fmtMin=m=>Math.round(m)+' min';toast=function(m,g){toast.last=m}");
@@ -32,7 +33,8 @@ const button=(n,text)=>all(n).find(b=>b.tagName==='BUTTON'&&b.textContent===text
  run("TOKEN='test';CONNECTED=true");
  const box=run('el("section",{})');ctx.box=box;run('openPRFill(box,'+JSON.stringify(review)+')');
  const text=box.textContent;
- for(const want of ['Ready for review: open a pull request?','2 files changed','+3 −1','check passed','12 min','$0.40','branch agentd/hof-1','README.md','too large — see the terminal command',review.terminal,'over 200 KB','only after you confirm; it never merges'])assert(text.includes(want),'panel lacks '+want);
+ for(const want of ['Ready for review: open a pull request?','2 files changed','+3 −1','check passed','12 min','$0.40','branch agentd/hof-1','README.md','big.txt','over 200 KB',review.terminal,'only after you confirm; it never merges'])assert(text.includes(want),'panel lacks '+want);
+ assert(!text.includes('too large — see the terminal command'),'a file other than the first is open');button(box,'big.txt+9000 −0').listeners.click[0]();assert(box.textContent.includes('too large — see the terminal command'),'the picked file shows no fallback');run('delete OPENPR["hof-1"]');run('openPRFill(box,'+JSON.stringify(review)+')');
  assert(!all(box).some(n=>n.tagName==='IMG'),'diff text became markup');assert(all(box).some(n=>n.tagName==='PRE'&&n.textContent.includes(evil)),'diff not shown as text');
  assert(button(box,'Open a draft PR')&&button(box,'Not now'),'proposal buttons missing');
  // The confirm sheet says exactly what is pushed, and Cancel writes nothing.

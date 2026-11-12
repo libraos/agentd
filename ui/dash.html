@@ -96,6 +96,28 @@ details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:a
 .result{margin:8px 0}.result h5{margin:4px 0}.result-summary,.result-report-old{margin:4px 0;min-width:0;overflow-wrap:anywhere}.result-text-inline{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;min-width:0}.result-files .result-file{max-width:100%;overflow-wrap:anywhere;white-space:normal;text-align:left}.result-text{white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%;overflow:auto;max-height:420px;font-size:12px;margin:4px 0}.result-files{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}.result-view{border:1px solid var(--line,#ddd);border-radius:6px;padding:6px 8px;margin:6px 0}.result-img{max-width:100%;height:auto}.openpr-out ul{margin:4px 0 0 18px;padding:0}
 .openpr-confirm dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 12px}.openpr-confirm dd{margin:0}
 /* end:css-openpr */
+/* region:css-changes: a task's change size on its card and header, and Changes as a file list beside one diff (#449) */
+.kchange{white-space:nowrap}.kchange .add{color:var(--green)}.kchange .del{color:var(--red)}
+.changes{display:grid;grid-template-columns:minmax(140px,240px) minmax(0,1fr);gap:8px;align-items:start;min-width:0;max-width:100%;margin:4px 0}
+.changes-files{display:flex;flex-direction:column;gap:2px;min-width:0;max-height:420px;overflow:auto}
+.changes-file{display:flex;justify-content:space-between;gap:8px;align-items:baseline;text-align:left;min-width:0;min-height:32px;padding:4px 8px;border:1px solid transparent;border-radius:var(--r-s);background:none;color:var(--fg);font:inherit;font-size:var(--fs-s);cursor:pointer}
+.changes-file:hover{background:var(--hover)}.changes-file[aria-current="true"]{background:var(--sel);border-color:var(--line)}
+.changes-file code{overflow-wrap:anywhere;min-width:0}.changes-n{white-space:nowrap;flex:none}.changes-n .add{color:var(--green)}.changes-n .del{color:var(--red)}
+.changes-view{min-width:0;border:1px solid var(--line);border-radius:var(--r-s);padding:4px 8px}.changes-view h6{margin:2px 0;font-size:var(--fs-s);overflow-wrap:anywhere}
+@media(max-width:860px){.changes{grid-template-columns:minmax(0,1fr)}.changes-files{max-height:180px}.changes-file{min-height:44px}}
+/* end:css-changes */
+/* region:css-checks: a task's check runs (GET /api/checks) */
+.checks{margin:8px 0;min-width:0;max-width:100%;box-sizing:border-box}.checks h5{margin:4px 0}.checks-cmd{display:block;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;margin:2px 0 6px}
+.check-run{border-top:1px solid var(--line);padding:6px 0;min-width:0;overflow-wrap:anywhere}.check-run .kmeta{flex-wrap:wrap;gap:4px 10px}
+.check-result{font-weight:600}.check-result.is-passed{color:var(--green)}.check-result.is-failed,.check-result.is-timed_out{color:var(--red)}.check-result.is-no_tests{color:var(--amber)}
+.check-noev{color:var(--amber);border:1px solid currentColor;border-radius:4px;padding:0 4px;font-size:var(--fs-s)}.check-note{font-size:var(--fs-s);color:var(--mute);margin:2px 0}
+.check-tail{white-space:pre-wrap;overflow:auto;max-width:100%;max-height:260px;font-size:12px;margin:4px 0;box-sizing:border-box}
+/* end:css-checks */
+/* region:css-worker-log: a worker's log, read only, on its task */
+.wlog{margin:8px 0;min-width:0;max-width:100%;box-sizing:border-box}.wlog>summary{cursor:pointer;font-weight:600}.wlog-status{margin:4px 0;overflow-wrap:anywhere}
+.wlog-lines{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;max-height:360px;overflow:auto;font-size:12px;margin:4px 0;padding:6px 8px;border:1px solid var(--line,#ddd);border-radius:6px;box-sizing:border-box}
+@media(max-width:860px){.wlog-lines{max-height:50vh;font-size:11px}}
+/* end:css-worker-log */
 /* region:css-team */
 #page-team{container-type:inline-size;min-width:0}
 #team-open{display:none;margin-top:10px}#team-open[hidden]{display:none}#team-view>.tm-sec:first-child{margin-top:0}
@@ -460,6 +482,17 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .chat-role-hint{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;max-width:720px;margin:4px auto 0;padding:0 14px;color:var(--mute);font-size:var(--fs-s);overflow-wrap:anywhere}.chat-role-hint[hidden]{display:none}.chat-role-hint button{color:var(--accent);font-size:inherit}
 @media(max-width:860px){.chat-role-hint{margin:4px 0 0;padding:0 4px}}@media(max-width:860px),(pointer:coarse){.chat-role-hint button{min-height:44px}}
 /* end:css-chat-refinements */
+/* region:css-search: one search box over tasks, PRs, issues, runs and messages (Ctrl+K / Cmd+K) */
+.search-open{display:inline-flex;align-items:center;gap:8px;flex:none;color:var(--mute);background:var(--sunk);border:1px solid var(--line);border-radius:var(--r-m);padding:3px 8px;min-width:180px;font-weight:400;box-shadow:none}.search-open:hover{color:var(--fg)}.search-open kbd{margin-left:auto;font:inherit;font-size:11px;padding:0 4px;border:1px solid var(--line);border-radius:4px}
+.search-box{position:fixed;inset:64px 0 auto;margin:0 auto;width:min(640px,calc(100vw - 32px));max-height:calc(100dvh - 96px);padding:0;border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 80px #0006;background:var(--raised);color:var(--fg);overflow:hidden;flex-direction:column}.search-box[open]{display:flex}.search-box::backdrop{background:var(--scrim)}
+.search-head{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line)}.search-head input{flex:1;min-width:0;border:0;background:transparent;font-size:15px;padding:8px 4px;box-shadow:none}.search-head input:focus{outline:none}
+.search-status{padding:8px 16px;color:var(--mute);font-size:12px}.search-status:empty{display:none}
+.search-list{overflow-y:auto;min-height:0;padding:4px 8px 8px}.search-group-name{font-size:12px;color:var(--mute);padding:8px 8px 4px}
+.search-opt{display:grid;gap:2px;padding:6px 8px;border-radius:var(--r-s);cursor:pointer;min-width:0}.search-opt:hover{background:var(--hover)}.search-opt[aria-selected="true"]{background:var(--sel)}.search-opt.no-page{cursor:default;opacity:.85}
+.search-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.search-meta,.search-snip{font-size:12px;color:var(--mute);overflow-wrap:anywhere}.search-snip{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media(max-width:860px){.search-open{min-width:44px;padding:0 10px;justify-content:center}.search-open .search-open-label,.search-open kbd{display:none}.search-box{inset:0;width:100%;max-width:none;height:100dvh;max-height:none;border:0;border-radius:0}.search-head input{font-size:16px}.search-opt{min-height:44px}}
+@media(pointer:coarse){.search-open kbd{display:none}}
+/* end:css-search */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -541,6 +574,7 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   <button type="button" class="panel-toggle" id="panel-toggle" aria-controls="side" aria-expanded="false" aria-label="Open this page's panel"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13"/></svg></button>
   <h1 id="page-title">Issues</h1>
   <div class="stats" id="stats"></div>
+  <button type="button" class="search-open" id="search-open" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" title="Search tasks, PRs, issues and runs"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5"/><path d="m12.5 12.5 4 4"/></svg><span class="search-open-label">Search</span><kbd id="search-key">Ctrl K</kbd></button>
   <span id="now">Loading…</span>
   <details class="row-more account" id="account"><summary aria-label="Account and settings">Account</summary><div class="menu-items">
     <div class="tokenbox"><span id="userstate"></span><span id="tokstate">Read-only</span><button id="tokset">Unlock</button><button id="tokclear" hidden>Sign out</button></div>
@@ -1119,10 +1153,6 @@ function openPRSummaryText(s){if(!s)return '';const n=s.files||0;return [n+(n===
 function openPRSummaryOf(d){return {files:(d.files||[]).length,added:d.added,deleted:d.deleted,check:d.check,minutes:d.minutes,dollars:d.dollars}}
 // What a person opened stays open across the redraws, per handoff.
 function openPRKeep(hid,key,n){const c=OPENPR[hid]||(OPENPR[hid]={}),o=c.open||(c.open=new Set());if(o.has(key))n.open=true;n.addEventListener('toggle',()=>{if(n.open)o.add(key);else o.delete(key)});return n}
-function openPRDiff(d){const files=d.files||[];if(!files.length)return el('p',{class:'mute'},'No changed files.');
-  return el('div',{class:'openpr-diff'},files.map(f=>openPRKeep(d.handoff,'file:'+f.path,el('details',{class:'openpr-file'},el('summary',{},el('code',{},f.path),' ',f.binary?el('span',{class:'mute'},'binary'):[el('span',{class:'openpr-add'},'+'+f.added),' ',el('span',{class:'openpr-del'},'−'+f.deleted)]),
-    f.diff?el('pre',{class:'openpr-patch'},f.diff):null,f.too_large?el('p',{class:'mute'},(f.truncated?'Cut here: ':'')+'too large — see the terminal command: ',el('code',{},d.terminal||'')):!f.diff?el('p',{class:'mute'},'No text diff.'):null))),
-    d.too_large?el('p',{class:'field-hint'},'The diff is over 200 KB, so only part of it is shown. The whole change: ',el('code',{},d.terminal||'')):null)}
 function openPRWhy(d){return !d.enabled?'Opening pull requests from agentd is off ([dash] open_pr = false).':d.may?'':d.may_why||d.why_not||'This change cannot be opened as a pull request.'}
 function openPRConfirm(d){const fact=(k,v)=>[el('dt',{},k),el('dd',{},v)];
   return sheet({title:'Open a draft pull request?',description:'AgentD pushes this branch and opens a draft pull request on GitHub. Nothing is merged.',action:'Push and open draft PR',pending:'Opening…',caution:true,
@@ -1140,7 +1170,7 @@ function openPRFill(box,d){if(!d||!d.branch||!(d.files||[]).length&&!d.pr){box.h
   box.replaceChildren(ask&&!d.dismissed?el('h5',{},'Ready for review: open a pull request?'):null,d.deliverables_only&&!d.pr?el('h5',{},'Report ready'):null,d.deliverables_only&&!d.pr?el('p',{class:'field-hint'},'This task only produced deliverables in out/, so there is nothing to publish to the repository. Read them under Result.'):null,link,
     el('p',{class:'mute'},[openPRSummaryText(openPRSummaryOf(d)),'branch '+d.branch].filter(Boolean).join(' · ')),
     ask?el('div',{class:'openpr-actions kact'},openPRButtons(d)):null,ask?el('p',{class:'field-hint'},'AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
-    openPRKeep(d.handoff,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),openPRDiff(d))));
+    openPRKeep(d.handoff,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),changesView(d))));
   if(typeof lockState==='function'&&typeof CAN==='function')try{lockState()}catch(e){}}
 // openPRPanel draws what is cached at once, so a redraw does not flicker, and fills in what loads.
 function openPRPanel(hid){const box=el('section',{class:'openpr','aria-label':'Worker change',hidden:true}),c=OPENPR[hid];if(c&&c.data)openPRFill(box,c.data);
@@ -1189,6 +1219,77 @@ function resultInboxLine(x){const d=x.deliverables||[];if(!d.length)return null;
   return el('div',{class:'ib-goal',title:d.join('\n')},'Report: '+name+(more?' and '+more+' more file'+(more>1?'s':''):''))}
 function resultInboxActs(x){return [el('button',{type:'button',class:'primary',onclick:()=>resultSheet(x.handoff,x.title)},'View')]}
 // end:openpr
+// region:changes: how big a worker's change is, and Changes as a file list beside one diff (#449).
+// change is {files,added,deleted} from the server's diff stat of the task's
+// worker branch, the figures handoff show has; a task with no branch has none.
+function changeText(c){return c?c.files+(c.files===1?' file':' files')+' +'+(c.added||0)+' −'+(c.deleted||0):''}
+function changeEl(x){const c=x&&x.change;if(!c)return null;
+  return el('span',{class:'kchange',title:'Changed on the worker branch: '+changeText(c)},c.files+(c.files===1?' file ':' files '),el('span',{class:'add'},'+'+(c.added||0)),' ',el('span',{class:'del'},'−'+(c.deleted||0)))}
+function changesCount(f){return el('span',{class:'changes-n'},f.binary?el('span',{class:'mute'},'binary'):[el('span',{class:'add'},'+'+f.added),' ',el('span',{class:'del'},'−'+f.deleted)])}
+// changesFile is one file's diff, as text; too large, the terminal command instead.
+function changesFile(d,f){return [el('h6',{},el('code',{},f.path)),f.diff?el('pre',{class:'openpr-patch'},f.diff):null,
+  f.too_large?el('p',{class:'mute'},(f.truncated?'Cut here: ':'')+'too large — see the terminal command: ',el('code',{},d.terminal||'')):!f.diff?el('p',{class:'mute'},f.binary?'Binary file: no text diff.':'No text diff.'):null]}
+// changesView lists the changed files at the side; the chosen one's diff is
+// beside it, the first file until a person picks another (kept across redraws).
+function changesView(d){const files=d.files||[];if(!files.length)return el('p',{class:'mute'},'No changed files.');
+  const c=OPENPR[d.handoff]||(OPENPR[d.handoff]={});let at=Math.max(0,files.findIndex(f=>f.path===c.file));
+  const view=el('div',{class:'changes-view','aria-live':'polite'},changesFile(d,files[at]));
+  const pick=i=>{at=i;c.file=files[i].path;buttons.forEach((b,j)=>j===i?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'));view.replaceChildren(...changesFile(d,files[i]).filter(Boolean))};
+  const buttons=files.map((f,i)=>el('button',{type:'button',class:'changes-file',title:f.path,'aria-current':i===at?'true':null,onclick:()=>pick(i)},el('code',{},f.path),changesCount(f)));
+  return el('div',{class:'openpr-diff'},el('div',{class:'changes'},el('nav',{class:'changes-files','aria-label':'Changed files'},buttons),view),
+    d.too_large?el('p',{class:'field-hint'},'The diff is over 200 KB, so only part of it is shown. The whole change: ',el('code',{},d.terminal||'')):null)}
+// end:changes
+// region:checks: a task's check command and its runs, newest first, as handoff show
+// lists them (GET /api/checks). It reads only; nothing here runs a check.
+const CHECKS={};
+const CHECK_RESULT={passed:'passed',failed:'failed',timed_out:'timeout',no_tests:'no tests'};
+function checksLoad(hid){const c=CHECKS[hid]||(CHECKS[hid]={});if(c.loading)return c.loading;if(c.data&&Date.now()-c.at<15000)return Promise.resolve(c);
+  c.loading=fetch('/api/checks?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.data=null;c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+function checkWhen(t){const d=new Date(t);return isNaN(d)?String(t||''):d.toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+function checkRunRow(v){const res=String(v.result||''),rv=String(v.revert_test||''),noev=/^not evidence/.test(rv);
+  return el('div',{class:'check-run','data-result':res},
+    el('div',{class:'kmeta'},el('span',{class:'check-result is-'+res},CHECK_RESULT[res]||word(res)),
+      el('span',{},v.user?v.user+' · '+v.actor:v.actor||'unknown'),el('time',{datetime:v.at||null,title:v.at||null},checkWhen(v.at)),
+      v.wall_s!=null?el('span',{title:'wall time'},fmtMin(v.wall_s/60)):null,el('span',{},v.tests||'tests not counted'),
+      noev?el('span',{class:'check-noev',title:rv},'not evidence'):null),
+    rv?el('p',{class:'check-note'},'Revert test: '+rv):null,
+    v.failure?el('p',{class:'check-note'},'Failing: '+v.failure):null,
+    v.tail?el('details',{class:'check-tail-box'},el('summary',{},'Output tail'),el('pre',{class:'check-tail'},v.tail)):null)}
+function checksFill(box,c){if(c.error){box.replaceChildren(el('h5',{},'Checks'),el('p',{class:'mute'},'The check runs could not be read: '+c.error));return}
+  const d=c.data;if(!d)return;const runs=d.runs||[];
+  if(d.none){box.replaceChildren(el('h5',{},'Checks'),el('p',{class:'mute checks-none'},d.none));return}
+  box.replaceChildren(el('h5',{},'Checks',el('span',{class:'n'},' '+runs.length)),d.check?el('code',{class:'checks-cmd'},d.check):el('p',{class:'mute'},'The check was waived or removed; its earlier runs are below.'),
+    runs.length?runs.map(checkRunRow):el('p',{class:'mute'},'Not run yet.'))}
+// checksPanel draws what is cached at once, so a redraw does not flicker, and fills in what loads.
+function checksPanel(hid){const box=el('section',{class:'checks','aria-label':'Checks'}),c=CHECKS[hid];if(c&&(c.data||c.error))checksFill(box,c);else box.append(el('h5',{},'Checks'),el('p',{class:'mute'},'Loading…'));
+  checksLoad(hid).then(c=>checksFill(box,c));return box}
+// end:checks
+// region:worker-log: the tail of a dispatched worker's log on its task (GET /api/log), read only:
+// nothing typed here reaches the worker. The server redacts secrets and decides who may read it;
+// the lines are the worker's text, so they go in as text. While the section is open and the
+// worker runs it asks again every WLOG_EVERY ms; it stops when the worker ends or the section closes.
+const WLOG={};let WLOG_EVERY=3000;
+function wlogLoad(hid){const c=WLOG[hid]||(WLOG[hid]={});if(c.loading)return c.loading;
+  c.loading=fetch('/api/log?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(r.status===404)throw new Error('You cannot see this task’s log.');if(!r.ok)throw new Error((await r.text())||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+function wlogStatus(d){const n=(d.lines||[]).length;
+  return [d.running?'Live: new lines appear while the worker runs.':d.lines&&n?'The worker is not running; this is the end of its log.':'',
+    n?(d.truncated?'Last '+n+' lines.':n+(n===1?' line.':' lines.')):'',d.redacted?d.redacted+(d.redacted===1?' secret':' secrets')+' hidden.':''].filter(Boolean).join(' ')}
+// wlogFill draws what is loaded into the open panel, keeping the view at the bottom if it was there.
+function wlogFill(c){const b=c.body;if(!b)return;if(c.error&&!c.data){b.replaceChildren(el('p',{class:'mute'},'The log could not be read: '+c.error));return}const d=c.data;if(!d)return;
+  const old=b.querySelector('.wlog-lines'),stick=!old||old.scrollTop+old.clientHeight>=old.scrollHeight-8,lines=d.lines||[];
+  const pre=lines.length?el('pre',{class:'wlog-lines','aria-label':'Worker log','aria-live':d.running?'polite':null},lines.join('\n')):null;
+  b.replaceChildren(el('p',{class:'mute wlog-status',role:'status'},[d.note,wlogStatus(d)].filter(Boolean).join(' ')),pre,c.error?el('p',{class:'mute'},'The last refresh failed: '+c.error):null);
+  if(pre&&stick)pre.scrollTop=pre.scrollHeight}
+function wlogTick(hid){const c=WLOG[hid];if(!c||c.timer||c.loading)return;
+  wlogLoad(hid).then(()=>{wlogFill(c);if(c.open&&c.data&&c.data.running&&c.body&&c.body.isConnected)c.timer=setTimeout(()=>{c.timer=0;wlogTick(hid)},WLOG_EVERY)})}
+// wlogPanel is the Log section of task hid; it stays open across redraws, per task.
+function wlogPanel(hid){const c=WLOG[hid]||(WLOG[hid]={}),body=el('div',{class:'wlog-body'},el('p',{class:'mute'},'Loading the log…')),
+    det=el('details',{class:'wlog','data-wlog':hid},el('summary',{},'Log'),body);
+  c.body=body;if(c.data||c.error)wlogFill(c);
+  if(c.open){det.open=true;if(!c.data||c.data.running)wlogTick(hid)}
+  det.addEventListener('toggle',()=>{if(c.body!==body)return;c.open=det.open;if(det.open)wlogTick(hid);else if(c.timer){clearTimeout(c.timer);c.timer=0}});
+  return det}
+// end:worker-log
 // region:shared-work: what Inbox, Issues and Team all draw with
 /* Projects and status: the board's two axes. A card's project is its
    handoff's project, else the checkout its session works in (last path
@@ -1485,7 +1586,7 @@ function issueItems(d,unfiltered){
   for(const h of (d.handoff_list||[]).filter(wf)){
     const needs=rows.get(h.id)||[],status=statusOf(h,needs,openPR),who=h.state==='held'?h.from:h.claimer,live=liveOf(who,h),acts=handoffActions(d,h),wacts=handoffWorkerActions(d,h);
     const person=team?(h.state==='held'?h.from_user:h.claimer_user):null;
-    const meta=[person?el('span',{},person):who?whoLink(who):el('span',{},h.to_user?'For '+h.to_user:h.worker?toolName(h.worker)+' worker':'Unassigned'),live?el('span',{title:live.text},live.key==='wait'?'Waiting on you':live.text):cardStage(h.stage)];
+    const meta=[person?el('span',{},person):who?whoLink(who):el('span',{},h.to_user?'For '+h.to_user:h.worker?toolName(h.worker)+' worker':'Unassigned'),live?el('span',{title:live.text},live.key==='wait'?'Waiting on you':live.text):cardStage(h.stage),changeEl(h)];
     // One menu per card: with a need row, the card's actions join that row's.
     const merge=needs.length>0&&needs[0].what!=='issue',rws=needs.length?needRows(needs,merge?{visible:wacts,more:acts.slice(wacts.length)}:null):[];
     if(acts.length&&!merge)meta.push(moreMenu(acts));
@@ -1495,7 +1596,7 @@ function issueItems(d,unfiltered){
     const status=statusOf(x,[],openPR),who=x.by||x.from,why=status==='failed'?failedWhy(x):'';
     items.push({project:projectOf(x),status,sid:who,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
       node:card({status,title:cardTitle(x.title),full:x.title,link:itemHash(x.issue,x.ref),ref:x.ref,age:x.age,
-        meta:[x.worker&&who===x.by&&/ session$/.test(sessLabel(who))?el('span',{class:'who'},sessLink(who,toolName(x.worker)+' worker')):whoLink(who),cardStage(x.stage)],rows:why?[el('div',{class:'krow'},el('span',{class:'why full'},el('span',{class:'k'},'Could not finish: '),why))]:[]})})}
+        meta:[x.worker&&who===x.by&&/ session$/.test(sessLabel(who))?el('span',{class:'who'},sessLink(who,toolName(x.worker)+' worker')):whoLink(who),cardStage(x.stage),changeEl(x)],rows:why?[el('div',{class:'krow'},el('span',{class:'why full'},el('span',{class:'k'},'Could not finish: '),why))]:[]})})}
   for(const x of [...(d.waiting||[]).filter(x=>x.what==='PR'),...(d.done||[]).filter(x=>x.what==='PR')]){
     if(filt)continue;
     const acts=prActions(d,x);
@@ -1622,7 +1723,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
     ['Cost',d.cost?costText(d.cost):null],
     ['Latest result',done&&done.result?words(done.result):null],
     ['Actions',h&&handoffActions(dash,h).length?el('span',{class:'kact',style:'margin:0'},handoffActions(dash,h)):null]])));
-  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref));
+  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref));
   const reply=blockedWorkerReply(h,who);if(reply)box.append(sec('Waiting for your reply'),reply);
   if(d.kind==='pr'&&!tree.length)box.append(el('p',{class:'mute'},'No handoff is linked to this PR. A dispatched worker\'s PR links by its branch on pr sync-gh; otherwise use handoff link.'));
   // Sub-handoffs: the tree rows under the focused one.
@@ -1637,6 +1738,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
   const as=(live&&live.attempts)||[];
   if(live&&(as.length||live.worker)){box.append(sec('Runs',as.length),runStrip(live)||el('div',{class:'mute'},'No run yet.'));
     for(const a of as)box.append(runRow(a))}
+  if(d.kind==='handoff'&&ref)box.append(checksPanel(ref));
   const scored=d.kind==='handoff'?(focus.scores?[focus]:[]):tree.filter(x=>x.scores);
   if(scored.length){box.append(sec('Scores',scored.reduce((n,x)=>n+x.scores.length,0)));for(const x of scored)for(const r of x.scores)box.append(scoreRow(r,d.kind==='handoff'?'':x.id))}
   // Execution: the run viewer of the session on it, when there is one.
@@ -1721,7 +1823,7 @@ function issueItem(it,ctx,needRows){
   const waiting=!isClosed(it)&&it.waiting_on?(it.waiting_on==='user'?'waiting on you':'waiting on '+it.waiting_on):null;
   const node=el('article',{class:'kcard icard','data-ref':it.ref},
     el('div',{class:'ktop'},el('div',{class:'ktitle',title:it.title||it.ref},el('a',{href:itemHash(it.ref)},shortTitle(it.title||it.ref))),statusEl(status,live&&live.key==='working',live&&live.text)),
-    el('div',{class:'kmeta'},el('code',{class:'kref',title:it.ref},num),who?whoLink(who):el('span',{},'Unassigned'),ended?el('span',{},ended):null,it.updated_ago?el('span',{class:'age'},it.updated_ago+' ago'):null),
+    el('div',{class:'kmeta'},el('code',{class:'kref',title:it.ref},num),who?whoLink(who):el('span',{},'Unassigned'),ended?el('span',{},ended):null,changeEl(hs.filter(h=>h.change).pop()),it.updated_ago?el('span',{class:'age'},it.updated_ago+' ago'):null),
     ...(needs.length?needRows(needs):[]));
   return {project:it.repo,status,sid:who||'',mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
 function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ='';VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
@@ -1773,10 +1875,10 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
   const sp=x.spend;
   return el('article',{class:'iev','data-ref':x.id,style:x.depth?'margin-left:'+Math.min(x.depth,4)*14+'px':null},
     el('div',{class:'ktop'},String(x.goal||'').trim()===String(pageTitle||'').trim()?null:el('div',{class:'ktitle'},el('button',{class:'linkish',title:'Open its work item and run viewer',onclick:()=>showWorkItem(x.id)},x.goal||x.id)),statusEl(status,now&&now.key==='working',now&&now.text)),
-    el('div',{class:'kmeta'},el('code',{},x.id),who?whoLink(who):x.from?['from ',whoLink(x.from)]:null,x.stage?el('span',{},x.stage):null,now?el('span',{},now.text):null,sp?el('span',{},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,...(x.prs||[]).map(p=>el('span',{},'PR ',wkLink(p,'#'+p.split('#')[1]))),x.updated_ago?el('span',{class:'age'},'Updated '+x.updated_ago+' ago'):null,acts.length?el('span',{class:'kact'},acts):null),
+    el('div',{class:'kmeta'},el('code',{},x.id),who?whoLink(who):x.from?['from ',whoLink(x.from)]:null,x.stage?el('span',{},x.stage):null,now?el('span',{},now.text):null,changeEl(x.change?x:h),sp?el('span',{},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,...(x.prs||[]).map(p=>el('span',{},'PR ',wkLink(p,'#'+p.split('#')[1]))),x.updated_ago?el('span',{class:'age'},'Updated '+x.updated_ago+' ago'):null,acts.length?el('span',{class:'kact'},acts):null),
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
-    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,
+    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,
     log.length?el('details',{'data-log':x.id,open:openIds.has(x.id)||null},el('summary',{},'History, '+log.length),el('ol',{class:'ilog'},log.map(l=>el('li',{},el('span',{class:'when'},l.ago+' ago '),l.actor?nameOf(l.actor)+': ':'',l.note||l.state)))):null)}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
   keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#');
@@ -1816,7 +1918,8 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
 
         el('div',{class:'sec'},'Spend, tokens and agent time'),...issueSpend(d,tree),
         el('div',{class:'sec'},'Runs',el('span',{class:'n'},tree.reduce((n,x)=>n+(x.attempts||[]).length,0))),
-        ...tree.flatMap(x=>(x.attempts||[]).map(a=>runRow(a,tree.length>1?x.id:''))))))});
+        ...tree.flatMap(x=>(x.attempts||[]).map(a=>runRow(a,tree.length>1?x.id:''))),
+        d.kind==='handoff'&&focus.id?checksPanel(focus.id):null)))});
   lockState()}
 function issuesEnter(r){readIssueRoute(r);const ref=routeItem(r),page=$('page-work');page.classList.toggle('in-detail',!!ref);
   if(ref){if(ref!==DET.ref||!DET.d)loadDetail(ref,true);else drawDetail()}else{DET.ref='';DET.d=null;DET.request++;$('issue-detail').replaceChildren();if(r.rest.length){$('page-work').classList.add('in-detail');$('issue-detail').append(el('div',{class:'state'},'This work item address is not valid. ',el('a',{href:'#issues'},'Back to Issues')))}else loadIssues()}}
@@ -2468,6 +2571,47 @@ $('h-filters').addEventListener('submit',e=>{e.preventDefault();histRestart()});
 $('h-failed').onclick=()=>{HIST.failed=!HIST.failed;$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));histRestart()};
 $('h-clear').onclick=()=>{for(const id of Object.values(HFIELDS))$(id).value='';$('h-q').value='';HIST.failed=false;$('h-failed').setAttribute('aria-pressed','false');$('h-failed').setAttribute('aria-checked','false');histRestart()};
 // end:insights
+// region:search: one box over the find index (GET /api/search), opened from the
+// top bar or with Ctrl+K / Cmd+K. Results come grouped by kind and limited by the
+// server to what this person may open; arrows move, Enter opens, Escape closes.
+const SEARCH={box:null,input:null,list:null,status:null,items:[],at:-1,request:0,timer:0,opener:null};
+const SEARCH_KINDS=[['handoff','Tasks'],['pr','Pull requests'],['issue','Issues'],['run','Runs'],['msg','Messages'],['compaction','Session summaries']];
+// searchHref is where a hit opens: a task, PR or issue on its Issues page; a run has no page here.
+function searchHref(x){return x.kind==='handoff'?itemHash('',x.ref):x.kind==='pr'||x.kind==='issue'?itemHash(x.ref):''}
+function searchBuild(){if(SEARCH.box)return SEARCH.box;
+  const input=el('input',{type:'search',id:'search-input',role:'combobox','aria-label':'Search tasks, PRs, issues, runs and messages','aria-expanded':'false','aria-controls':'search-list','aria-autocomplete':'list',placeholder:'Search tasks, PRs, issues, runs…',autocomplete:'off',spellcheck:'false',maxlength:'200'});
+  const box=el('dialog',{class:'search-box',id:'search-box','aria-label':'Search'},el('div',{class:'search-head'},input,el('button',{type:'button',class:'quiet',onclick:()=>searchClose()},'Close')),el('div',{class:'search-status',id:'search-status',role:'status','aria-live':'polite'}),el('div',{class:'search-list',id:'search-list',role:'listbox','aria-label':'Results'}));
+  input.addEventListener('input',()=>{clearTimeout(SEARCH.timer);SEARCH.timer=setTimeout(searchRun,150)});
+  box.addEventListener('keydown',e=>{e.stopPropagation();const n=SEARCH.items.length;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(n)searchMark((SEARCH.at+(e.key==='ArrowDown'?1:n-1)+n)%n)}
+    else if(e.key==='Enter'&&!e.isComposing&&e.target===input){e.preventDefault();clearTimeout(SEARCH.timer);if(SEARCH.items[SEARCH.at])searchOpen(SEARCH.items[SEARCH.at]);else searchRun()}
+    else if(e.key==='Escape'){e.preventDefault();searchClose()}});
+  box.addEventListener('cancel',e=>{e.preventDefault();searchClose()});
+  box.addEventListener('click',e=>{if(e.target===box)searchClose()});
+  Object.assign(SEARCH,{box,input,list:box.querySelector('#search-list'),status:box.querySelector('#search-status')});document.body.append(box);return box}
+function searchOpenBox(){if(activeSheet)return;const box=searchBuild();if(box.open){SEARCH.input.focus();SEARCH.input.select();return}SEARCH.opener=document.activeElement;box.showModal();SEARCH.input.focus();SEARCH.input.select()}
+function searchClose(back=true){const box=SEARCH.box;if(!box||!box.open)return;clearTimeout(SEARCH.timer);SEARCH.request++;box.close();if(back)focusBack(SEARCH.opener&&SEARCH.opener.isConnected?SEARCH.opener:$('search-open'));SEARCH.opener=null}
+function searchMark(i){SEARCH.at=i;SEARCH.items.forEach((x,j)=>x.node.setAttribute('aria-selected',String(j===i)));const x=SEARCH.items[i];if(x){SEARCH.input.setAttribute('aria-activedescendant',x.node.id);x.node.scrollIntoView({block:'nearest'})}else SEARCH.input.removeAttribute('aria-activedescendant')}
+function searchOpen(x){searchClose(false);if(x.kind==='msg'||x.kind==='compaction'){if(x.session)showHistory(x.session,'');return}const href=searchHref(x);if(href)location.hash=href}
+async function searchRun(){const q=SEARCH.input.value.trim(),request=++SEARCH.request;
+  if(!q){SEARCH.items=[];SEARCH.list.replaceChildren();SEARCH.status.textContent='';SEARCH.input.setAttribute('aria-expanded','false');searchMark(-1);return}
+  SEARCH.status.textContent='Searching…';
+  try{const r=await fetch('/api/search?q='+encodeURIComponent(q),{cache:'no-store',headers:auth()});if(!r.ok)throw new Error(r.status===401?'Sign in to search this dash.':(await r.text()).trim()||'HTTP '+r.status);const d=await r.json();if(request!==SEARCH.request)return;searchDraw(d.results||[])}
+  catch(e){if(request!==SEARCH.request)return;SEARCH.items=[];SEARCH.list.replaceChildren();SEARCH.input.setAttribute('aria-expanded','false');searchMark(-1);SEARCH.status.textContent=errorText(e)}}
+function searchDraw(results){const items=[],groups=[];let n=0;
+  for(const [kind,label] of SEARCH_KINDS){const rows=results.filter(x=>x.kind===kind);if(!rows.length)continue;const gid='search-group-'+kind;
+    groups.push(el('div',{role:'group','aria-labelledby':gid},el('div',{class:'search-group-name',id:gid,role:'presentation'},label+' · '+rows.length),rows.map(x=>{
+      const opens=kind==='msg'||kind==='compaction'?!!x.session:!!searchHref(x),title=x.title||(kind==='msg'?'Message':kind==='compaction'?'Session summary':x.ref);
+      const meta=[x.ref!==title?x.ref:'',x.state?word(x.state):'',opens?'':'no page in the dash'].filter(Boolean).join(' · ');
+      const node=el('div',{class:'search-opt'+(opens?'':' no-page'),role:'option',id:'search-opt-'+(n++),'aria-selected':'false','aria-disabled':opens?null:'true','data-kind':kind,'data-ref':x.ref},el('span',{class:'search-title'},title),meta?el('span',{class:'search-meta'},meta):null,x.snippet?el('span',{class:'search-snip'},x.snippet):null);
+      if(opens){const item={...x,node};items.push(item);node.addEventListener('click',()=>searchOpen(item));node.addEventListener('mousemove',()=>{const i=items.indexOf(item);if(i!==SEARCH.at)searchMark(i)})}
+      return node}))) }
+  SEARCH.items=items;SEARCH.list.replaceChildren(...groups);SEARCH.input.setAttribute('aria-expanded',String(results.length>0));
+  SEARCH.status.textContent=results.length?results.length+(results.length===1?' result':' results'):'Nothing found. Try one distinctive word, an id, or other words.';searchMark(items.length?0:-1)}
+$('search-open').addEventListener('click',searchOpenBox);
+if(/Mac|iPhone|iPad/.test(navigator.platform||''))$('search-key').textContent='⌘K';
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&String(e.key).toLowerCase()==='k'){if(activeSheet)return;e.preventDefault();searchOpenBox()}});
+// end:search
 function labelTables(){for(const table of document.querySelectorAll('.phone-rows table')){const heads=[...table.querySelectorAll('thead th')].map(h=>h.textContent);for(const row of table.querySelectorAll('tbody tr'))[...row.children].forEach((td,i)=>td.dataset.label=heads[i]||'Detail')}}
 new MutationObserver(labelTables).observe(document.querySelector('main'),{childList:true,subtree:true});
 // region:refresh
