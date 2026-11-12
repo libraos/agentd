@@ -1203,7 +1203,7 @@ function openPRConfirm(d){const fact=(k,v)=>[el('dt',{},k),el('dd',{},v)];
 async function openPRStart(hid){const c=await openPRLoad(hid,true);if(c.error){toast(c.error,false);return}const why=openPRWhy(c.data);if(why){toast(why,false);return}return openPRConfirm(c.data)}
 function openPRNotNow(id,hid){return pending(id,'Dismissing…',{action:'inbox_mark',id,mark:'resolved'},'Dismissed. Open a draft PR stays on the task.').then(()=>{delete OPENPR[hid]})}
 function openPRButtons(d){if(PENDING[d.inbox_id])return [el('span',{class:'mute',role:'status'},PENDING[d.inbox_id])];const why=openPRWhy(d);
-  return [el('button',{type:'button',class:'primary','data-write':true,'data-disabled-reason':why||null,title:why||null,onclick:()=>openPRConfirm(d)},'Open a draft PR'),d.inbox_id&&!d.dismissed?el('button',{type:'button','data-write':true,onclick:()=>openPRNotNow(d.inbox_id,d.handoff)},'Not now'):null].filter(Boolean)}
+  return [el('button',{type:'button',class:'primary','data-write':true,'data-disabled-reason':why||null,title:why||null,onclick:()=>openPRConfirm(d)},'Open a draft PR'),...(typeof pushButtons==='function'?pushButtons(d):[]),d.inbox_id&&!d.dismissed?el('button',{type:'button','data-write':true,onclick:()=>openPRNotNow(d.inbox_id,d.handoff)},'Not now'):null].filter(Boolean)}
 // openPRFill draws a loaded review into box: the proposal, the PR if one is linked, and the diff.
 function openPRFill(box,d){if(!d||!d.branch||!(d.files||[]).length&&!d.pr){box.hidden=true;box.replaceChildren();return}box.hidden=false;
   const ask=d.proposed&&!d.pr,link=d.pr?el('p',{},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():''):null;
@@ -1259,6 +1259,19 @@ function resultInboxLine(x){const d=x.deliverables||[];if(!d.length)return null;
   return el('div',{class:'ib-goal',title:d.join('\n')},'Report: '+name+(more?' and '+more+' more file'+(more>1?'s':''):''))}
 function resultInboxActs(x){return [el('button',{type:'button',class:'primary',onclick:()=>resultSheet(x.handoff,x.title)},'View')]}
 // end:openpr
+// region:push: Push branch beside Open a draft PR (#461). It pushes the finished worker's own
+// branch to origin and nothing else: no commit, no pull request, no merge. The click is the
+// person's word; the server refuses a worker and a viewer and records who clicked.
+function pushWhy(d){return d.may_push?'':d.may_push_why||openPRWhy(d)||'This branch cannot be pushed.'}
+function pushConfirm(d){const fact=(k,v)=>[el('dt',{},k),el('dd',{},v)];
+  return sheet({title:'Push this branch?',description:'AgentD pushes this branch to origin and nothing else. No pull request is opened and nothing is merged.',action:'Push branch',pending:'Pushing…',caution:true,
+    content:el('div',{class:'openpr-confirm'},el('dl',{},fact('Branch',el('code',{},d.branch)),fact('Remote and repository',[el('code',{},d.remote||'origin'),' → ',d.repo||'']),fact('Commit',el('code',{},d.head||''))),
+      d.warning?el('p',{class:'field-error',role:'note'},'Check before you push: '+d.warning):null,el('p',{},'Your name goes into the task’s history. AgentD never force-pushes: if origin already has this branch at another commit, nothing is pushed.')),
+    onSubmit:async()=>{const j=await act({action:'push_branch',id:d.handoff,head:d.head});delete OPENPR[d.handoff];toast(j.pushed?'Pushed '+j.branch+' to origin':'Already on origin: '+j.branch,true);refresh()}})}
+// Pushed: the history line says by whom; the button goes, Open a draft PR stays.
+function pushButtons(d){if(d.pushed)return [el('span',{class:'mute push-done',role:'status',title:d.pushed.note||null},'Branch pushed to origin')];const why=pushWhy(d);
+  return [el('button',{type:'button','data-write':true,'data-disabled-reason':why||null,title:why||null,onclick:()=>pushConfirm(d)},'Push branch')]}
+// end:push
 // region:changes: how big a worker's change is, and Changes as a file list beside one diff (#449).
 // change is {files,added,deleted} from the server's diff stat of the task's
 // worker branch, the figures handoff show has; a task with no branch has none.
