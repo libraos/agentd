@@ -1422,6 +1422,15 @@ function drawMarks(tasks){const box=$('mark-strip-box');if(box)keepFocus(box,()=
   const xs=tasks.filter(i=>i.mark===MARK_PICK);
   $('board').replaceChildren(xs.length?el('div',{class:'cards mark-list','data-marked':MARK_PICK},xs.map(i=>i.node)):el('div',{class:'empty'},'No task here reads '+markOf(MARK_PICK).word+'.'));return true}
 // end:marks
+// region:linear: a Linear issue synced by agentd issue sync-linear (#464). Its ref is
+// linear:TEAM-N and its link the url the sync stored (https only); it has no GitHub
+// page, and agentd does not read its text.
+const LINEAR_RE=/^linear:[A-Za-z][A-Za-z0-9]*-[1-9]\d*$/,linearURLs=new Map();
+function isLinearRef(ref){return LINEAR_RE.test(String(ref||''))}
+function noteLinearURLs(items){for(const x of items||[])if(x&&isLinearRef(x.ref)&&/^https:\/\//.test(x.url||''))linearURLs.set(x.ref,x.url)}
+function linearHref(ref){return linearURLs.get(ref)||null}
+function trackerName(ref){return isLinearRef(ref)?'Linear':'GitHub'}
+function linearTextNode(ref){const href=linearHref(ref);return el('div',{class:'itext mute linear-text'},'This issue is in Linear; agentd keeps its title and state, not its text. ',href?el('a',{href,target:'_blank',rel:'noopener'},'Open it in Linear'):null)}
 // region:shared-work: what Inbox, Issues and Team all draw with
 /* Projects and status: the board's two axes. A card's project is its
    handoff's project, else the checkout its session works in (last path
@@ -1510,7 +1519,7 @@ function runStrip(x){const as=x.attempts||[];if(!as.length)return null;
     title:[a.tool+(a.model?' '+a.model:''),a.running?'Running':word(a.end_reason)||'Unknown',fmtMin(a.minutes),a.tokens!==undefined?fmtTok(a.tokens)+' tokens':'usage not reported',a.usd!==undefined?'$'+a.usd.toFixed(2):null].filter(Boolean).join(', ')})));
   return el('div',{class:'cost'},anyTok?fig([ge(),fmtTok(tok)],'tokens'):null,fig(fmtMin(min),'agent time'),anyUsd?fig([ge(),'$'+usd.toFixed(2)],as.length>1?'over '+as.length+' runs':'est.'):null,
     !anyTok&&!anyUsd?el('span',{class:'fig',title:'no run reported tokens or dollars yet'},as.some(a=>a.running)?'usage not reported yet':'usage not reported'):null,bars)}
-function ghHref(ref,what){const [repo,num]=ref.split('#');return 'https://github.com/'+repo+'/'+(what==='PR'?'pull':'issues')+'/'+num}
+function ghHref(ref,what){if(isLinearRef(ref))return linearHref(ref);const [repo,num]=ref.split('#');return 'https://github.com/'+repo+'/'+(what==='PR'?'pull':'issues')+'/'+num}
 // end:shared-work
 // region:inbox
 /* Needs you: everything that waits for a person (approvals, issues, the
@@ -1630,8 +1639,8 @@ const INBOX_NAMES={needs:'Needs you',approvals:'Approvals',blocked:'Blocked',fai
 let inboxFilter='needs';
 function inboxRow(raw){
   if(raw.what==='issue')return el('article',{class:'ib-row','data-id':raw.ref},el('span',{class:'ib-tag'},'Issue'),
-    el('div',{class:'ib-main'},el('div',{class:'ib-title'},raw.title),el('div',{class:'ib-sub'},el('span',{},raw.ref),el('span',{},raw.age+' ago'),el('span',{},'reply on GitHub'))),
-    el('div',{class:'kact'},el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open on GitHub')));
+    el('div',{class:'ib-main'},el('div',{class:'ib-title'},raw.title),el('div',{class:'ib-sub'},el('span',{},raw.ref),el('span',{},raw.age+' ago'),el('span',{},'reply on '+trackerName(raw.ref)))),
+    el('div',{class:'kact'},el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open on '+trackerName(raw.ref))));
   const x=needNorm(raw),tag=x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind],path=x.transcript||x.log,stale=x.kind==='stale';
   // The tag says what kind of item it is, so the title names the task: its goal, else the item's own words.
   const full=words(x.goal&&(stale||/^(failed|review|result)$/.test(x.kind))?x.goal:x.title),short=cardTitle(full);
@@ -2018,7 +2027,7 @@ function keepFocus(box,draw){const a=document.activeElement,c=box.contains(a)&&a
   if(!ref)return;const n=[...box.querySelectorAll('[data-ref]')].find(x=>x.dataset.ref===ref),t=n&&n.querySelectorAll('a,button,summary')[at];if(t)t.focus({preventScroll:true})}
 // itemHash: an item's page. An issue is #issues/OWNER/REPO/N, a handoff with no issue #issues/ID.
 function itemHash(issue,hid){return '#issues/'+(issue?issue.replace('#','/'):hid)}
-function routeItem(r){const x=r.rest||[];return x.length===1&&/^hof-/.test(x[0])?x[0]:x.length===3&&/^\d+$/.test(x[2])?x[0]+'/'+x[1]+'#'+x[2]:''}
+function routeItem(r){const x=r.rest||[];return x.length===1&&/^hof-/.test(x[0])?x[0]:x.length===1&&isLinearRef(x[0])?x[0]:x.length===3&&/^\d+$/.test(x[2])?x[0]+'/'+x[1]+'#'+x[2]:''}
 const isClosed=it=>/^closed$/i.test(it.state||'');
 function issueStatusCtx(d){const {rows}=needItems(d);return {live:new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,{...x,id:x.ref}])]),rows,openPR:new Set((d.waiting||[]).filter(x=>x.what==='PR').map(x=>x.ref)),user:d.user||'',my:mySession()}}
 // issueStatus: the status words again, for the work item as a whole, from each
@@ -2032,7 +2041,7 @@ function issueStatus(it,ctx){const hs=(it.handoffs||[]).map(h=>ctx.live.get(h.id
   return isClosed(it)?'done':'todo'}
 function issueItem(it,ctx,needRows){
   const hs=(it.handoffs||[]).map(h=>ctx.live.get(h.id)||h),status=issueStatus(it,ctx),needs=hs.flatMap(h=>ctx.rows.get(h.id)||[]),on=hs.filter(h=>/^(claimed|held)$/.test(h.state||'')||h.state==='offered'&&h.dispatched),now=on[on.length-1],last=hs[hs.length-1];
-  const who=now&&(now.state==='held'?now.from:now.claimer),live=now?liveOf(who,now):null,num='#'+(it.ref.split('#')[1]||''),worker=hs.some(h=>h.worker||h.dispatched);
+  const who=now&&(now.state==='held'?now.from:now.claimer),live=now?liveOf(who,now):null,num=isLinearRef(it.ref)?it.ref.slice(7):'#'+(it.ref.split('#')[1]||''),worker=hs.some(h=>h.worker||h.dispatched);
   const ended=!now&&last&&status==='todo'?(statusOf(last,[],ctx.openPR)==='failed'?'last run failed':last.state==='done'?'last run done':last.state==='cancelled'?'last run cancelled':last.state==='declined'?'last run declined':null):null;
   const waiting=!isClosed(it)&&it.waiting_on?(it.waiting_on==='user'?'waiting on you':'waiting on '+it.waiting_on):null;
   const node=el('article',{class:'kcard icard','data-ref':it.ref},
@@ -2053,7 +2062,7 @@ async function loadIssues(){if(ISS.busy)return;ISS.busy=true;
   let changed=false;
   try{const r=await fetch('/api/issues',{cache:'no-store',headers:auth()});
     if(!r.ok)throw new Error(r.status===401?'this dash needs the token':'HTTP '+r.status);
-    const text=await r.text();changed=text!==ISS.key||!!ISS.error;ISS.key=text;ISS.d=JSON.parse(text);ISS.error=''}
+    const text=await r.text();changed=text!==ISS.key||!!ISS.error;ISS.key=text;ISS.d=JSON.parse(text);noteLinearURLs(ISS.d.issues);ISS.error=''}
   catch(e){changed=ISS.error!==e.message;ISS.error=e.message}
   finally{ISS.busy=false}
   if(changed&&lastDash){board(lastDash);lockState()}}
@@ -2062,11 +2071,11 @@ async function loadDetail(ref,fresh){if(fresh){DET.ref=ref;DET.d=null;DET.error=
   const request=++DET.request;DET.at=Date.now();
   try{const r=await fetch('/api/issue?ref='+encodeURIComponent(ref),{cache:'no-store',headers:auth()});
     if(!r.ok)throw new Error(r.status===401?'this dash needs the token':(await r.text()).trim()||'HTTP '+r.status);
-    const d=await r.json();if(request!==DET.request||DET.ref!==ref)return;DET.d=d;DET.error='';
+    const d=await r.json();if(request!==DET.request||DET.ref!==ref)return;DET.d=d;DET.error='';noteLinearURLs([d.issue,...(d.issues||[])]);
     if(d.kind==='issue'&&!DET.text)loadIssueText(ref)}
   catch(e){if(request!==DET.request||DET.ref!==ref)return;DET.error=e.message}
   drawDetail()}
-async function loadIssueText(ref){DET.text=el('div',{class:'itext mute'},'Loading the text from GitHub…');
+async function loadIssueText(ref){if(isLinearRef(ref)){DET.text=linearTextNode(ref);return}DET.text=el('div',{class:'itext mute'},'Loading the text from GitHub…');
   let node;
   try{const r=await fetch('/api/issuetext?ref='+encodeURIComponent(ref),{cache:'no-store',headers:auth()});
     if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();
@@ -2096,9 +2105,9 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
     worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,worked?filesPanel(x.id):null,
     log.length?el('details',{'data-log':x.id,open:openIds.has(x.id)||null},el('summary',{},'History, '+log.length),el('ol',{class:'ilog'},log.map(l=>el('li',{},el('span',{class:'when'},l.ago+' ago '),l.actor?nameOf(l.actor)+': ':'',l.note||l.state)))):null)}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
-  keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#');
+  keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#')||isLinearRef(ref);
     const from=(ROUTE.params&&ROUTE.params.get('from'))||'',backChat=from.startsWith('chat-')?from.slice(5):'';
-    const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All issues'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On GitHub'):null);
+    const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All issues'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On '+trackerName(ref)):null);
     if(DET.error){box.replaceChildren(crumb,el('div',{class:'state error',role:'alert'},'Could not load this: '+DET.error));return}
     if(!DET.d){box.replaceChildren(crumb,el('div',{class:'state'},'Loading…'));return}
     const d=DET.d,dash=lastDash||{},ctx=issueStatusCtx(dash),tree=d.tree||[],issue=d.issue||null,focus=tree.find(x=>x.focus)||tree[0]||{},hLive=ctx.live.get(focus.id),body=d.body||{};
@@ -2111,7 +2120,7 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
       ['Status',status?d.kind==='issue'||d.kind==='pr'?statusEl(status):taskStatus(hLive&&hLive.mark?hLive:focus,status):null],
       ['On GitHub',ghState||(d.kind==='issue'?'not synced yet':null)],
       [on?'Assignee':'Last on it',onWho?whoLink(onWho):lastWho?whoLink(lastWho):null],
-      ['Project',d.kind==='issue'||d.kind==='pr'?ref.split('#')[0]:projectOf(hLive||focus)||null],
+      ['Project',d.kind==='issue'||d.kind==='pr'?(isLinearRef(ref)?ref.replace(/-\d+$/,''):ref.split('#')[0]):projectOf(hLive||focus)||null],
       ['Stage',(s=>s?word(s):null)(d.kind==='handoff'?focus.stage:on?on.stage:null)],
       ['Source',d.kind==='handoff'&&focus.source?word(focus.source):null],
       ['Branch',d.kind==='handoff'&&focus.branch?el('code',{},focus.branch):null],
