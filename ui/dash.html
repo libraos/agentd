@@ -532,6 +532,12 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .tpl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.tpl-row select,.tpl-row input[type=text]{flex:1 1 180px;min-width:0}
 .tpl-row label{display:inline-flex;align-items:center;gap:6px}.tpl-status{font-size:12px;color:var(--mute);overflow-wrap:anywhere}.tpl-status.bad{color:var(--red)}
 /* end:css-templates */
+/* region:css-triggers: the Triggers page for owners (#460) */
+.trig-tpl{display:grid;gap:8px;padding:12px;margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}.trig-tpl>*{min-width:0}.trig-tpl h3,.trig-tpl p{margin:0}
+.trig-tpl pre{margin:0;padding:8px;overflow-x:auto;white-space:pre;font:12px/1.5 ui-monospace,monospace;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--fg)}
+.trig-actions,.trig-fill{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trig-fill label{display:grid;gap:4px;flex:1 1 180px;min-width:0}.trig-fill input{min-width:0}
+.trig-problem{color:var(--red);overflow-wrap:anywhere}.trig-ok{color:var(--green,var(--fg))}#page-triggers code{overflow-wrap:anywhere}
+/* end:css-triggers */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -718,11 +724,19 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
     <h3>Sign-in</h3><div id="set-access"></div><h3>Notifications</h3><div id="set-personal-body"></div>
   </section>
   <section class="runs set-group" id="set-team" aria-label="Team" hidden><div id="set-team-body"></div><div id="set-invite-once" hidden></div></section>
-  <section class="runs set-group" id="set-workers" aria-label="Workers" hidden><div id="set-workers-body"></div><p class="mute" id="set-dispatch"></p></section>
+  <section class="runs set-group" id="set-workers" aria-label="Workers" hidden><div id="set-workers-body"></div><p class="mute" id="set-dispatch"></p><p class="mute" id="set-triggers"><a href="#triggers">Triggers</a>: what starts a worker on its own (off by default), and templates for it. Owners only.</p></section>
   <section class="runs set-group" id="set-connections" aria-label="Connections" hidden><div id="set-connections-body"></div></section>
   <section class="runs set-group" id="set-diagnostics" aria-label="Diagnostics" hidden><div id="set-diagnostics-body"></div></section>
 </div>
 <!-- end:page-settings -->
+<!-- region:page-triggers -->
+<div id="page-triggers" class="page textpage" hidden><a class="page-back" href="#settings">← Settings</a>
+  <div class="set-toolbar"><h2>Triggers</h2><button type="button" id="trig-refresh">Refresh</button></div>
+  <p class="mute">What <code>agentd trigger status</code> prints, and templates for <code>[triggers]</code> in config.toml. Triggers start workers on their own, so they are off by default and only an owner sees this page.</p>
+  <p id="trig-error" role="alert" hidden></p><p id="trig-status" class="mute" role="status"></p>
+  <div id="trig-body"></div>
+</div>
+<!-- end:page-triggers -->
 <div id="page-notfound" class="page textpage" hidden><h2>This page could not be found</h2><p>The address may be old or incomplete. <a href="#inbox">Go to Inbox</a>.</p></div>
 <!-- region:page-help -->
 <div id="page-help" class="page textpage" hidden><a class="page-back" href="#inbox">← Inbox</a>
@@ -2996,6 +3010,40 @@ document.addEventListener('keydown',e=>{
 $('keys-open').addEventListener('click',()=>{$('account').open=false;keysSheet()});
 for(const [k,[hash]] of Object.entries(KEYS_GO))for(const a of document.querySelectorAll('.rail a[href="'+hash.split('/')[0]+'"].rail-item'))a.setAttribute('aria-keyshortcuts','G '+k.toUpperCase());
 // end:keys
+// region:triggers: the Triggers page for owners (#460). GET /api/triggers is what
+// `agentd trigger status` prints (the same function) and the templates as
+// ready-to-copy [triggers] config; Write puts one in config.toml through the
+// Settings route (settingsAPI, action trigger_template). Nothing here turns
+// triggers on: that stays a terminal step, and the server refuses a template
+// while they are on.
+const TRIG={data:null,request:0,repo:'',author:''};
+async function trigLoad(){const seq=++TRIG.request,q=new URLSearchParams();if(TRIG.repo)q.set('repo',TRIG.repo);if(TRIG.author)q.set('author',TRIG.author);
+  $('trig-error').hidden=true;$('trig-status').textContent='Loading triggers…';
+  try{const r=await fetch('/api/triggers'+(q.toString()?'?'+q:''),{cache:'no-store',headers:auth()});let d={};try{d=await r.json()}catch(e){}if(seq!==TRIG.request)return;
+    if(!r.ok)throw new Error(d.error||'Could not read triggers (HTTP '+r.status+').');TRIG.data=d;trigRender();$('trig-status').textContent=''}
+  catch(e){if(seq!==TRIG.request)return;TRIG.data=null;$('trig-body').replaceChildren();$('trig-error').textContent=errorText(e);$('trig-error').hidden=false;$('trig-status').textContent=''}}
+function trigList(v){return Array.isArray(v)&&v.length?v.join(', '):''}
+function trigWrite(t){const d=TRIG.data;return sheet({title:'Write “'+t.title+'”',description:'Writes repos, authors, label, budget, max_per_day and the checkout under [triggers] in config.toml, with a backup and a history entry. enabled is not written: nothing fires until someone runs '+d.enable+' in a terminal.',action:'Write to config.toml',
+  onSubmit:async()=>{await settingsAPI({action:'trigger_template',template:t.name,repo:d.repo,author:d.author});toast('Template written. Triggers are still off.',true);trigLoad()}})}
+function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st.enabled===true,dirs=Object.entries(st.dirs||{});
+  const state=on?(st.problem?el('span',{class:'trig-problem','data-trig':'problem'},'On, but cannot fire: '+st.problem):el('span',{class:'trig-ok','data-trig':'problem'},'On and able to fire')):
+    el('span',{'data-trig':'problem'},'Off. Nothing fires until it is turned on from a terminal: ',el('code',{},d.enable),'.');
+  const later=on?null:st.problem_when_enabled?el('span',{class:'trig-problem','data-trig':'later'},st.problem_when_enabled):el('span',{'data-trig':'later'},'Nothing');
+  const settings=settingsSection('Settings',settingsPairs([['State',state],...(on?[]:[['Would stop it once on',later]]),['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most offers a day',st.max_per_day],
+    ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])]));
+  settings.dataset.trig='settings';
+  const offers=settingsSection('Latest offers',settingsTable(['When','Kind','For','Commit','Task','Error'],(st.offers||[]).map(o=>[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',o.handoff?el('a',{href:'#issues/'+encodeURIComponent(o.handoff)},o.handoff):'',o.error||''])));
+  offers.dataset.trig='offers';
+  const repo=el('input',{type:'text',id:'trig-repo',value:d.repo||'',placeholder:'OWNER/NAME',autocomplete:'off'}),author=el('input',{type:'text',id:'trig-author',value:d.author||'',placeholder:'GitHub login',autocomplete:'off'});
+  const fill=el('form',{class:'trig-fill',onsubmit:e=>{e.preventDefault();TRIG.repo=repo.value.trim();TRIG.author=author.value.trim();trigLoad()}},el('label',{for:'trig-repo'},'Repository',repo),el('label',{for:'trig-author'},'Author whose PRs and issues fire',author),el('button',{type:'submit'},'Fill in'));
+  const why=on?'Triggers are on. Turn them off from a terminal before writing a template.':!d.repo||!d.author?'Fill in the repository and author first.':'';
+  const tpls=(d.templates||[]).map(t=>el('div',{class:'trig-tpl','data-template':t.name},el('h3',{},t.title),el('p',{},t.about),el('pre',{},el('code',{},t.toml)),
+    el('div',{class:'trig-actions'},el('button',{type:'button',onclick:()=>chatCopy(t.toml)},'Copy'),el('button',{type:'button',class:'primary','data-write':'','data-disabled-reason':why||null,onclick:()=>trigWrite(t)},'Write to config.toml'))));
+  $('trig-body').replaceChildren(settings,offers,settingsSection('Templates',el('p',{class:'mute'},'Copy one into config.toml, or write it there from here. Either way triggers stay off until you turn them on.'),fill,...tpls));
+  lockState()}
+$('trig-refresh').onclick=()=>trigLoad();
+dashPage('triggers',{title:'Triggers',panel:false,enter(){trigLoad()},unlock(){trigLoad()},leave(){TRIG.request++}});
+// end:triggers
 // region:refresh
 function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);lockState();notifyCheck(d)}
 let dashRequest=0;
