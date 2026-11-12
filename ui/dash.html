@@ -1532,16 +1532,57 @@ function inboxDraw(d){
   if(id){const n=[...box.querySelectorAll('[data-id]')].find(n=>n.dataset.id===id),target=n&&[...n.querySelectorAll('button,a,summary')].find(c=>c.textContent===name&&!c.disabled);focusBack(target||n&&n.querySelector('button,a,summary'))}}
 dashPage('inbox',{title:'Inbox',enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter;inboxFilter=f;if(lastDash){inboxDraw(lastDash);lockState()}if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}},render(d){inboxBadge(d);inboxDraw(d)}});
 // end:inbox
+// region:newtask: the new task sheet's two kinds (Implement, Review a PR), its
+// acceptance criteria, check and issue (#453). It sends what agentd new takes;
+// the server applies the checkout's committed .agentd/tasks.toml and refuses
+// what agentd new refuses. GET /api/taskdefaults fills in the file's check and
+// names its criteria, which the server adds to every task.
+const NEWTASK_SPEC='An implementation task needs acceptance criteria or a check: write what done means, one per line, or a command that exits 0 when it is right.';
+function newTaskPRs(d){return (d.waiting||[]).filter(x=>x.what==='PR'&&x.ref)}
+// newTaskFields puts the kind first and the pull request beside it, then the
+// sheet's own fields (base, goal first), then criteria, check and issue.
+function newTaskFields(d,base){const prs=newTaskPRs(d);return [
+  {name:'kind',label:'Kind',required:true,segment:true,value:'implement',options:[{value:'implement',label:'Implement'},{value:'review',label:'Review a PR'}]},
+  {name:'pr',label:'Pull request',value:'',options:[{value:'',label:prs.length?'Choose an open pull request':'No open pull requests (agentd pr sync-gh)'},...prs.map(p=>({value:p.ref,label:p.ref+(p.title?' · '+p.title:'')}))],hint:'The review task is linked to this pull request.'},
+  ...base.map(f=>f.name==='goal'?{...f,required:false}:f),
+  {name:'accept',label:'Acceptance criteria',multiline:true,hint:'What done means, one per line.'},
+  {name:'check',label:'Check command',maxlength:1000,hint:'A command that exits 0 when the work is right.'},
+  {name:'issue',label:'Issue',maxlength:200,hint:'OWNER/REPO#N, or one from the Issues page.'}]}
+function newTaskSetup(ui,nt){const field=n=>ui.inputs[n].closest('.sheet-field'),label=field('goal').querySelector('label');
+  const kind=()=>{const review=ui.inputs.kind.value==='review';field('pr').hidden=!review;label.textContent=review?'Goal (optional)':'Goal';ui.inputs.goal.placeholder=review?'Review the pull request':''};
+  ui.inputs.kind.addEventListener('input',kind);kind();
+  // The Issues page's open issues, as choices for the issue field.
+  const list=el('datalist',{id:ui.inputs.issue.id+'-list'}),fill=x=>list.replaceChildren(...((x&&x.issues)||[]).filter(i=>i.ref&&String(i.state||'').toUpperCase()!=='CLOSED').map(i=>el('option',{value:i.ref},i.title||i.ref)));
+  ui.inputs.issue.setAttribute('list',list.id);field('issue').append(list);
+  if(ISS.d)fill(ISS.d);else fetch('/api/issues',{cache:'no-store',headers:auth()}).then(r=>r.ok?r.json():null).then(fill).catch(()=>{});
+  // The checkout's task file: its check fills the field until someone types.
+  const note=el('p',{class:'field-hint newtask-file',hidden:true});field('accept').append(note);
+  let asked='';nt.touched=false;nt.defaults=null;ui.inputs.check.addEventListener('input',()=>{nt.touched=true});
+  const load=async()=>{const cwd=ui.inputs.cwd.value;if(!cwd||cwd===asked)return;asked=cwd;nt.defaults=null;let t;
+    try{const r=await fetch('/api/taskdefaults?cwd='+encodeURIComponent(cwd),{cache:'no-store',headers:auth()});t=r.ok?await r.json():{error:(await r.text()).trim()||'HTTP '+r.status}}catch(e){t={error:errorText(e)}}
+    if(asked!==cwd)return;nt.defaults=t;if(!nt.touched)ui.inputs.check.value=t.check||'';
+    note.textContent=[t.error?'The task file could not be read: '+t.error:'',(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; '):'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');note.hidden=!note.textContent};
+  for(const ev of ['input','change'])ui.inputs.cwd.addEventListener(ev,load);if(ui.inputs.role)ui.inputs.role.addEventListener('change',load);load()}
+// newTaskValidate refuses in the sheet, before anything is sent, a task the
+// server would refuse for want of a PR, a goal, or criteria and a check; the
+// server's own refusals (a bad issue, a check that cannot run) show in the sheet too.
+function newTaskValidate(v,nt){if(v.kind==='review')return v.pr?null:['pr','Choose the pull request to review.'];
+  if(!v.goal)return ['goal','Goal is required.'];
+  return !v.accept&&!v.check&&!((nt.defaults||{}).accept||[]).length?['accept',NEWTASK_SPEC]:null}
+// The check goes only once it is the person's answer: typed, or the task file's
+// shown to them; until then the server reads the file itself.
+function newTaskBody(v,nt){return {kind:v.kind,accept:v.accept,issue:v.issue,...(nt.touched||nt.defaults?{check:v.check}:{}),...(v.kind==='review'?{pr:v.pr}:{})}}
+// end:newtask
 // region:issues
 function newHandoff(d){$('new-handoff-box').hidden=true}
 function newHandoffSheet(roleName=''){const d=lastDash||{},l=TEAM.lists||{},roles=l.roles||[];
-  const fields=[{name:'goal',label:'Goal',required:true,multiline:true},{name:'state',label:'Context so far',multiline:true},{name:'role',label:'Role',value:roleName,options:[{value:'',label:'No role'},...roles.map(r=>({value:r.name,label:r.name}))]},...workerFields(d).map(f=>f.name==='tool'?{...f,required:false}:f),{name:'budget',label:'Budget',required:true,value:d.dispatch_budget||'30m',hint:'90m, $5 or both: 90m,$5. The worker stops at it.',maxlength:100}],
+  const nt={},fields=newTaskFields(d,[{name:'goal',label:'Goal',required:true,multiline:true},{name:'state',label:'Context so far',multiline:true},{name:'role',label:'Role',value:roleName,options:[{value:'',label:'No role'},...roles.map(r=>({value:r.name,label:r.name}))]},...workerFields(d).map(f=>f.name==='tool'?{...f,required:false}:f),{name:'budget',label:'Budget',required:true,value:d.dispatch_budget||'30m',hint:'90m, $5 or both: 90m,$5. The worker stops at it.',maxlength:100}]),
     key=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');
   const sync=ui=>{const role=roles.find(r=>r.name===ui.inputs.role.value),dirs=role?(role.checkouts||[]).map(c=>c.dir).filter(dir=>(d.checkouts||[]).includes(dir)):d.checkouts||[],cwd=ui.inputs.cwd,old=cwd.value;
     cwd.replaceChildren(...dirs.map(dir=>el('option',{value:dir,title:dir},dir)));cwd.value=dirs.includes(old)?old:dirs[0]||'';
     const tool=ui.inputs.tool,was=tool.value;tool.replaceChildren(...(role?[el('option',{value:''},'Use role settings')]:[]),el('option',{value:'claude'},'Claude'),el('option',{value:'codex'},'Codex'),el('option',{value:'opencode'},'opencode'));tool.value=role?'':was||l.default_tool||'claude';
     ui.submit.setAttribute('aria-disabled',String(!dirs.length));ui.submit.title=dirs.length?'':'No known checkout is available. Start a session in a checkout first.';ui.syncSegments()};
-  return actionSheet({title:roleName?'Assign work to '+roleName:'New handoff',description:'Starts a worker in the selected checkout. Its work and result will appear in Issues.',action:'Start',pending:'Starting…',fields,setup:ui=>{const deps=depsNote(ui,'');ui.inputs.role.onchange=()=>{sync(ui);deps()};sync(ui);deps()},validate:v=>!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:null},'new-handoff',v=>({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key}),'Worker requested')}
+  return actionSheet({title:roleName?'Assign work to '+roleName:'New handoff',description:'Starts a worker in the selected checkout. Its work and result will appear in Issues.',action:'Start',pending:'Starting…',fields,setup:ui=>{const deps=depsNote(ui,'');ui.inputs.role.onchange=()=>{sync(ui);deps()};sync(ui);deps();newTaskSetup(ui,nt)},validate:v=>!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:newTaskValidate(v,nt)},'new-handoff',v=>({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key,...newTaskBody(v,nt)}),'Worker requested')}
 // retryHandoff starts a new worker on a work item whose worker failed, after
 // the same review-and-confirm step as a Chat proposal: the task is the item's
 // own (goal, acceptance criteria, check and budget stay on it), and only the
