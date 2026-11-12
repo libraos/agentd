@@ -122,8 +122,9 @@ const current=()=>run('activeSheet.dialog'),submit=()=>current().children[0].ons
  assert.equal(iacts[0].textContent,'Start again','a failed inbox item leads with '+iacts[0].textContent);
  // New handoff: a budget by default, and one client key for every retry of the same sheet.
  vm.runInContext(page.split('function newHandoffSheet(')[1].split('// retryHandoff starts')[0].replace(/^/,'function newHandoffSheet('),ctx);
- // Its kinds, criteria, check and issue (region:newtask); this DOM has no closest and no options, so no setup and no segments.
- vm.runInContext(page.split('// region:newtask')[1].split('// end:newtask')[0].replace(/^/,'//'),ctx);run('newTaskSetup=()=>{};var newTaskFieldsAll=newTaskFields;newTaskFields=(d,b)=>newTaskFieldsAll(d,b).map(f=>({...f,segment:false}))');
+ // Its kinds, criteria, check and issue (region:newtask); this DOM has no closest and no options, so no setup and no segments,
+ // and no template picker (region:templates, covered by dash_templates.cjs).
+ vm.runInContext(page.split('// region:newtask')[1].split('// end:newtask')[0].replace(/^/,'//'),ctx);run('newTaskSetup=()=>{};var newTaskTemplates=()=>{};var newTaskFieldsAll=newTaskFields;newTaskFields=(d,b)=>newTaskFieldsAll(d,b).map(f=>({...f,segment:false}))');
  ctx.crypto=require('crypto').webcrypto;run("var TEAM={lists:{roles:[],default_tool:'claude'}};lastDash={dispatch:true,checkouts:['/repo'],dispatch_budget:'45m'}");
  let offerTries=0;ctx.fetch=async(url,opts)=>{writes.push({url,body:JSON.parse(opts.body)});if(++offerTries===1)throw new TypeError('Failed to fetch');return {ok:true,status:200,json:async()=>({ok:true})}};
  run('activeSheet=null;newHandoffSheet()');const budget=current().querySelectorAll('textarea,input').find(n=>n.id.endsWith('-budget'));assert(budget&&budget.value==='45m','budget not preset: '+(budget&&budget.value));

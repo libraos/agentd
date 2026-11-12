@@ -517,6 +517,11 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .keys-list kbd{font:12px/1.4 ui-monospace,monospace;padding:1px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--sunk);color:var(--fg)}
 .keys-or{color:var(--mute);font-size:12px}
 /* end:css-keys */
+/* region:css-templates: saved task templates at the top of the new task sheet (#458) */
+.tpl{display:grid;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}
+.tpl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.tpl-row select,.tpl-row input[type=text]{flex:1 1 180px;min-width:0}
+.tpl-row label{display:inline-flex;align-items:center;gap:6px}.tpl-status{font-size:12px;color:var(--mute);overflow-wrap:anywhere}.tpl-status.bad{color:var(--red)}
+/* end:css-templates */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -1628,6 +1633,45 @@ function newTaskValidate(v,nt){if(v.kind==='review')return v.pr?null:['pr','Choo
 // shown to them; until then the server reads the file itself.
 function newTaskBody(v,nt){return {kind:v.kind,accept:v.accept,issue:v.issue,...(nt.touched||nt.defaults?{check:v.check}:{}),...(v.kind==='review'?{pr:v.pr}:{})}}
 // end:newtask
+// region:templates: saved task templates in the new task sheet (#458). A person
+// saves what the sheet holds (kind, goal, criteria, check, role, budget) under a
+// name, their own or shared with the team, and starts a task from one: choosing
+// it fills the sheet, which is then sent as any other task. GET /api/templates
+// lists the person's own and the team's shared templates; POST saves, renames or
+// deletes, only the person's own. The server refuses a field that looks like a credential.
+const TPL_FIELDS=['goal','accept','check','budget'];
+async function tplRequest(body){const r=await fetch('/api/templates',body?{method:'POST',headers:{'Content-Type':'application/json',...auth()},body:JSON.stringify(body)}:{cache:'no-store',headers:auth()});
+  let j={};try{j=await r.json()}catch(e){j={error:'The server returned HTTP '+r.status}}if(!r.ok||j.ok===false)throw new Error(j.error||'HTTP '+r.status);return j}
+function tplLabel(t){return t.name+(t.mine?(t.shared?' · shared':''):' · shared by '+(t.owner||'the shared token'))}
+// newTaskTemplates puts the template picker over the sheet's fields.
+function newTaskTemplates(ui,nt){let list=[],canSave=false,mode='';
+  const pick=el('select',{id:'tpl-pick','aria-label':'Start from a template'}),status=el('p',{class:'tpl-status',role:'status'});
+  const save=el('button',{type:'button',class:'quiet'},'Save as template'),rename=el('button',{type:'button',class:'quiet'},'Rename'),del=el('button',{type:'button',class:'quiet'},'Delete');
+  const name=el('input',{type:'text',id:'tpl-name',maxlength:80,autocomplete:'off','aria-label':'Template name'}),shared=el('input',{type:'checkbox',id:'tpl-shared'}),sharedBox=el('label',{for:'tpl-shared'},shared,'Shared with the team');
+  const ask=el('span',{class:'tpl-ask'}),ok=el('button',{type:'button',class:'primary'},'Save'),no=el('button',{type:'button'},'Close'),editor=el('div',{class:'tpl-row tpl-edit',hidden:true},ask,name,sharedBox,ok,no);
+  const chosen=()=>list.find(t=>t.id===pick.value),say=(text,bad)=>{status.textContent=text||'';status.classList.toggle('bad',!!bad)};
+  const draw=keep=>{pick.replaceChildren(el('option',{value:''},list.length?'Start from a template':'No saved templates yet'),...list.map(t=>el('option',{value:t.id},tplLabel(t))));pick.value=list.some(t=>t.id===keep)?keep:'';buttons()};
+  const buttons=()=>{const t=chosen(),can=canSave&&CAN();save.hidden=!can;rename.hidden=del.hidden=!(can&&t&&t.mine);pick.disabled=!list.length};
+  const load=async keep=>{try{const j=await tplRequest();list=j.templates||[];canSave=!!j.can_save;draw(keep)}catch(e){say('Templates could not be loaded: '+errorText(e),true)}};
+  const set=(n,v)=>{const i=ui.inputs[n];if(!i)return;i.value=v;i.dispatchEvent(new Event('input'));i.dispatchEvent(new Event('change'))};
+  // Choosing a template fills the sheet; the checkout and worker stay as chosen.
+  const apply=t=>{set('kind',t.kind||'implement');ui.syncSegments();for(const n of TPL_FIELDS)if(n!=='budget'||t.budget)set(n,t[n]||'');nt.touched=true;
+    const roles=[...ui.inputs.role.options].map(o=>o.value),missing=t.role&&!roles.includes(t.role);set('role',missing?'':t.role||'');
+    say('Filled in from '+t.name+'.'+(missing?' Its role '+t.role+' is not on this team, so no role is set.':''))};
+  pick.addEventListener('change',()=>{const t=chosen();buttons();close();if(t)apply(t)});
+  const open=(m,text)=>{mode=m;ask.textContent=text;ok.textContent=m==='delete'?'Delete template':m==='rename'?'Save name':'Save';ok.className=m==='delete'?'danger':'primary';name.hidden=m==='delete';sharedBox.hidden=m!=='save';editor.hidden=false;say('');(m==='delete'?ok:name).focus()};
+  function close(){editor.hidden=true;mode=''}
+  save.onclick=()=>{const t=chosen();name.value=t&&t.mine?t.name:'';shared.checked=!!(t&&t.mine&&t.shared);open('save','Save the sheet as')};
+  rename.onclick=()=>{const t=chosen();if(!t)return;name.value=t.name;open('rename','Rename '+t.name+' to')};
+  del.onclick=()=>{const t=chosen();if(t)open('delete','Delete the template '+t.name+'?')};
+  no.onclick=()=>{close();pick.focus()};
+  name.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ok.click()}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();pick.focus()}});
+  ok.onclick=async()=>{const t=chosen(),v=ui.values(),m=mode;if(m!=='delete'&&!name.value.trim()){say('Give the template a name.',true);name.focus();return}
+    const body=m==='save'?{op:'save',name:name.value.trim(),shared:shared.checked,kind:v.kind,goal:v.goal,accept:v.accept,check:v.check,role:v.role,budget:v.budget}:{op:m,id:t&&t.id,...(m==='rename'?{name:name.value.trim()}:{})};
+    ok.disabled=true;try{const j=await tplRequest(body);close();await load(m==='delete'?'':j.id||t&&t.id);say(m==='delete'?'Deleted '+t.name+'.':m==='rename'?'Renamed to '+body.name+'.':'Saved '+body.name+(body.shared?', shared with the team.':', for you only.'))}
+    catch(e){say(errorText(e),true)}finally{ok.disabled=false}};
+  ui.body.prepend(el('div',{class:'tpl',role:'group','aria-label':'Templates'},el('div',{class:'tpl-row'},pick,save,rename,del),editor,status));buttons();load('')}
+// end:templates
 // region:issues
 function newHandoff(d){$('new-handoff-box').hidden=true}
 function newHandoffSheet(roleName=''){const d=lastDash||{},l=TEAM.lists||{},roles=l.roles||[];
@@ -1637,7 +1681,7 @@ function newHandoffSheet(roleName=''){const d=lastDash||{},l=TEAM.lists||{},role
     cwd.replaceChildren(...dirs.map(dir=>el('option',{value:dir,title:dir},dir)));cwd.value=dirs.includes(old)?old:dirs[0]||'';
     const tool=ui.inputs.tool,was=tool.value;tool.replaceChildren(...(role?[el('option',{value:''},'Use role settings')]:[]),el('option',{value:'claude'},'Claude'),el('option',{value:'codex'},'Codex'),el('option',{value:'opencode'},'opencode'));tool.value=role?'':was||l.default_tool||'claude';
     ui.submit.setAttribute('aria-disabled',String(!dirs.length));ui.submit.title=dirs.length?'':'No known checkout is available. Start a session in a checkout first.';ui.syncSegments()};
-  return actionSheet({title:roleName?'Assign work to '+roleName:'New handoff',description:'Starts a worker in the selected checkout. Its work and result will appear in Issues.',action:'Start',pending:'Starting…',fields,setup:ui=>{const deps=depsNote(ui,'');ui.inputs.role.onchange=()=>{sync(ui);deps()};sync(ui);deps();newTaskSetup(ui,nt)},validate:v=>!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:newTaskValidate(v,nt)},'new-handoff',v=>({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key,...newTaskBody(v,nt)}),'Worker requested')}
+  return actionSheet({title:roleName?'Assign work to '+roleName:'New handoff',description:'Starts a worker in the selected checkout. Its work and result will appear in Issues.',action:'Start',pending:'Starting…',fields,setup:ui=>{const deps=depsNote(ui,'');ui.inputs.role.onchange=()=>{sync(ui);deps()};sync(ui);deps();newTaskSetup(ui,nt);newTaskTemplates(ui,nt)},validate:v=>!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:newTaskValidate(v,nt)},'new-handoff',v=>({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key,...newTaskBody(v,nt)}),'Worker requested')}
 // retryHandoff starts a new worker on a work item whose worker failed, after
 // the same review-and-confirm step as a Chat proposal: the task is the item's
 // own (goal, acceptance criteria, check and budget stay on it), and only the
