@@ -122,10 +122,15 @@ const current=()=>run('activeSheet.dialog'),submit=()=>current().children[0].ons
  assert.equal(iacts[0].textContent,'Start again','a failed inbox item leads with '+iacts[0].textContent);
  // New handoff: a budget by default, and one client key for every retry of the same sheet.
  vm.runInContext(page.split('function newHandoffSheet(')[1].split('// retryHandoff starts')[0].replace(/^/,'function newHandoffSheet('),ctx);
+ // Its kinds, criteria, check and issue (region:newtask); this DOM has no closest and no options, so no setup and no segments.
+ vm.runInContext(page.split('// region:newtask')[1].split('// end:newtask')[0].replace(/^/,'//'),ctx);run('newTaskSetup=()=>{};var newTaskFieldsAll=newTaskFields;newTaskFields=(d,b)=>newTaskFieldsAll(d,b).map(f=>({...f,segment:false}))');
  ctx.crypto=require('crypto').webcrypto;run("var TEAM={lists:{roles:[],default_tool:'claude'}};lastDash={dispatch:true,checkouts:['/repo'],dispatch_budget:'45m'}");
  let offerTries=0;ctx.fetch=async(url,opts)=>{writes.push({url,body:JSON.parse(opts.body)});if(++offerTries===1)throw new TypeError('Failed to fetch');return {ok:true,status:200,json:async()=>({ok:true})}};
  run('activeSheet=null;newHandoffSheet()');const budget=current().querySelectorAll('textarea,input').find(n=>n.id.endsWith('-budget'));assert(budget&&budget.value==='45m','budget not preset: '+(budget&&budget.value));
- current().querySelectorAll('textarea,input').find(n=>n.id.endsWith('-goal')).value='Fix it';const n0=writes.length;await submit();await submit();
+ current().querySelectorAll('textarea,input').find(n=>n.id.endsWith('-goal')).value='Fix it';const n0=writes.length;
+ // An implement task with neither criteria nor a check is refused in the sheet, and nothing is sent.
+ await submit();assert.equal(writes.length,n0,'an implement task without criteria or a check was sent');assert.equal(current().querySelectorAll('textarea,input').find(n=>n.id.endsWith('-accept')).getAttribute('aria-invalid'),'true','no reason on the criteria field');
+ current().querySelectorAll('textarea,input').find(n=>n.id.endsWith('-accept')).value='It is fixed';await submit();await submit();
  assert.equal(writes.length,n0+2,'offer not retried');assert.equal(writes[n0].body.action,'offer');assert.equal(writes[n0].body.budget,'45m');assert(/^[0-9a-f]{24}$/.test(writes[n0].body.key),'no client key');assert.equal(writes[n0+1].body.key,writes[n0].body.key,'a retry sent a new key');
  // A blocked worker's reply box: shown to whom the server lets type (an owner too), else why not.
  vm.runInContext(page.split('function blockedWorkerReply(')[1].split('// workItemBody')[0].replace(/^/,'function blockedWorkerReply('),ctx);
