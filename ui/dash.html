@@ -538,6 +538,11 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .trig-actions,.trig-fill{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trig-fill label{display:grid;gap:4px;flex:1 1 180px;min-width:0}.trig-fill input{min-width:0}
 .trig-problem{color:var(--red);overflow-wrap:anywhere}.trig-ok{color:var(--green,var(--fg))}#page-triggers code{overflow-wrap:anywhere}
 /* end:css-triggers */
+/* region:css-connect: agentd connect from Settings > Diagnostics, owners only (#466) */
+.set-connect-out{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--sunk);min-width:0}.set-connect-out h4{margin:0}
+.set-connect-log{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-height:320px;overflow:auto;font:12px/1.5 ui-monospace,monospace;color:var(--fg)}
+.set-connect-out ul{margin:0;padding-left:18px}.set-connect-out code{overflow-wrap:anywhere}
+/* end:css-connect */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -993,7 +998,7 @@ function settingsInviteResult(r){if(ROUTE.item!=='settings'){toast('Invitation c
 function settingsInvite(){let result;return sheet({title:'Invite member',description:'They need VPN access before signing in. A link lasts 24 hours and works once.',action:'Create invitation',fields:[{name:'name',label:'Name',required:true},{name:'email',label:'Email',type:'email',required:true},{name:'role',label:'Role',value:'dev',options:[{value:'dev',label:'Developer'},{value:'viewer',label:'Viewer'},{value:'owner',label:'Owner'}],required:true}],onSubmit:async v=>{result=await settingsAPI({action:'invite',...v});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsResend(i){let result;return sheet({title:'Resend invitation',description:'Replace the previous link for '+i.user+'. The old link will stop working.',action:'Resend',onSubmit:async()=>{result=await settingsAPI({action:'resend',id:i.id});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsRevoke(i){return sheet({title:'Revoke invitation',description:'The sign-in link for '+i.user+' will stop working.',action:'Revoke',danger:true,onSubmit:async()=>{await settingsAPI({action:'revoke',id:i.id});await settingsLoad();toast('Invitation revoked',true)}})}
-async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.tab!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
+async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.tab!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),settingsConnect(d.connect),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
 $('set-tabs').replaceChildren(...SET_GROUPS.map(g=>el('button',{type:'button','data-group':g,'aria-pressed':String(g==='models'),onclick:()=>settingsTab(g)},g[0].toUpperCase()+g.slice(1))));
 $('set-refresh').onclick=settingsLoad;
 dashPage('settings',{title:'Settings',panel:false,enter(){const t=document.documentElement.dataset.theme||'system';for(const n of document.querySelectorAll('[name=theme]'))n.checked=n.value===t;settingsAccess();settingsTab(SETTINGS.tab);if(!SETTINGS.loading)settingsLoad()},unlock(){settingsAccess();if(!SETTINGS.loading)settingsLoad()},render(){settingsAccess()},leave(){SETTINGS.request++;SETTINGS.loading=false;$('set-invite-once').replaceChildren();$('set-invite-once').hidden=true}});
@@ -3044,6 +3049,24 @@ function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st
 $('trig-refresh').onclick=()=>trigLoad();
 dashPage('triggers',{title:'Triggers',panel:false,enter(){trigLoad()},unlock(){trigLoad()},leave(){TRIG.request++}});
 // end:triggers
+// region:connect: agentd connect from Settings > Diagnostics, owners only (#466). Preview is
+// agentd connect TOOL --dry-run and changes nothing; Connect (offered after a clean preview) runs it,
+// with the backups connect makes, and names them. Only a tool name the server listed is sent.
+const CONNECT={busy:false};
+function settingsConnect(list){const box=el('div',{id:'set-connect-result',class:'set-connect-out',hidden:true});
+  const rows=(list||[]).map(c=>[c.tool,c.found?'Installed':'Not installed',c.found?el('span',{class:'set-actions'},el('button',{type:'button','data-connect-preview':c.tool,onclick:()=>connectRun(c.tool,true,box)},'Preview')):'—']);
+  return settingsSection('Connect agents',el('p',{class:'mute'},'Register agentd with an agent (its MCP server, hooks and Skills), as agentd connect does in the terminal. Preview shows what would change and changes nothing; Connect makes the change and keeps a backup of every file it edits.'),settingsTable(['Agent','Status','Actions'],rows),box)}
+function connectButtons(off){for(const b of document.querySelectorAll('[data-connect-preview],[data-connect-apply]'))b.disabled=off}
+async function connectRun(tool,dry,box){if(CONNECT.busy)return;CONNECT.busy=true;const identity=settingsIdentity();connectButtons(true);box.hidden=false;box.replaceChildren(el('p',{role:'status'},(dry?'Previewing ':'Connecting ')+tool+'…'));
+  try{const r=await settingsAPI({action:'connect',tool,dry_run:dry});if(identity!==settingsIdentity())return;
+    const head=dry?(r.ok?'Preview for '+tool+': nothing has changed yet':'Preview for '+tool+' found a problem'):(r.ok?'Connected '+tool:'Connect for '+tool+' did not finish'),backups=r.backups||[];
+    box.replaceChildren(el('h4',{'data-connect-head':dry?'preview':'connect'},head),el('pre',{class:'set-connect-log'},(r.output||[]).join('\n')||'Nothing to change.'),
+      dry?null:el('div',{'data-connect-backups':''},el('h4',{},'Backups'),backups.length?el('ul',{},backups.map(p=>el('li',{},el('code',{},p)))):el('p',{class:'mute'},'No file needed a backup.')),
+      dry&&r.ok?el('div',{class:'set-actions'},el('button',{type:'button',class:'primary','data-connect-apply':tool,onclick:()=>connectRun(tool,false,box)},'Connect '+tool)):null);
+    if(!dry)toast(head,r.ok)}
+  catch(e){if(identity===settingsIdentity())box.replaceChildren(el('p',{role:'alert'},errorText(e)))}
+  finally{CONNECT.busy=false;connectButtons(false)}}
+// end:connect
 // region:refresh
 function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);lockState();notifyCheck(d)}
 let dashRequest=0;
