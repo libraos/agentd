@@ -38,10 +38,12 @@ The installer needs no login. It checks every file against the release's `SHA256
 
 **Requirements:**
 
-- Linux with systemd user services is the tested platform. On macOS, services are LaunchAgents, and the macOS build has not yet been tested on a Mac. Windows is new in v0.1.7: services are Task Scheduler tasks, and agentd needs [Git for Windows](https://git-scm.com/download/win) for its shell.
+- Linux with systemd user services, macOS (services are LaunchAgents) or Windows, new in v0.1.7 (services are Task Scheduler tasks; agentd needs [Git for Windows](https://git-scm.com/download/win) for its shell: `winget install --id Git.Git -e`).
 - git 2.25 or newer, with `user.name` and `user.email` set, because workers commit.
-- Claude Code or Codex, installed and signed in. One is enough. On Linux, Codex workers also need `bwrap` (bubblewrap).
-- Optional: `gh`, to sync pull requests and issues.
+- Claude Code or Codex, installed and signed in **before** agentd, so the installer finds it and adds the Skills. One is enough. Claude Code: `curl -fsSL https://claude.ai/install.sh | bash` on Linux and macOS, `irm https://claude.ai/install.ps1 | iex` in PowerShell on Windows. Codex: `npm install -g @openai/codex` (Node.js 18 or newer). On Linux, Codex workers also need `bwrap` (bubblewrap); Windows has no equivalent, see [the docs](https://libraos.com/docs/agentd/).
+- Optional: the GitHub CLI, signed in (`gh auth login`), to sync pull requests and issues and open draft PRs. Install it with `sudo apt install -y gh`, `brew install gh` or `winget install --id GitHub.cli`.
+
+On Windows, open a new terminal after each install so the new PATH applies.
 
 ## Get Started
 
@@ -143,7 +145,7 @@ It needs beta access, a cloud key from the Console and the LibraOS GitHub App on
 
 ## Upgrade and Uninstall
 
-**Upgrade:** run the installer again, then restart the notifier (`systemctl --user restart agentd-notify.service` on Linux). Replacing the binary does not restart what runs the old one.
+**Upgrade:** from v0.1.9, run `agentd upgrade`: it checks the download against `SHA256SUMS`, keeps the previous binary as `agentd.old` and restarts the services it finds. From an older release, run the installer once, then restart the notifier (`systemctl --user restart agentd-notify.service` on Linux).
 
 **Uninstall:** on macOS and Windows, `agentd uninstall` removes the services. On Linux, disable and delete the `agentd-*` units in `~/.config/systemd/user`. Then remove the `agentd` MCP server and hooks from `~/.claude.json`, `~/.claude/settings.json` and `~/.codex/config.toml`, and delete the binary, the two Skills and the data directory, which holds your ledger (`~/.local/share/agentd` on Linux and macOS). If you started a Runtime, `agentd runtime down` stops it; see [Uninstall](https://libraos.com/docs/agentd/#uninstall) to remove its containers and data.
 
