@@ -1,6 +1,6 @@
 // The shell (#479): the rail's eight items, with Tasks where Issues was; the
 // persistent Agents list (Needs you first, then open tasks by repository, counts,
-// New task, Add a repository) shown on Inbox, Tasks, Chat and Triggers and
+// New task, Add a repository) shown on Inbox, Tasks and Triggers (Chat has its conversations) and
 // collapsed elsewhere, the choice remembered; a row opens its task in place, the
 // address naming it, so reload and back keep it; Team's Working now gone with
 // nothing lost; on a phone the list is a drawer. Run in every mode:
@@ -55,7 +55,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  // The list: Needs you first (needs_you before failed), then repositories by name, each working → waiting → not started; a session with no task in its own.
  assert.deepEqual([...doc.querySelectorAll('#agents-rows .ag-group')].map(g=>g.firstChild.textContent),['Needs you','acme/alpha','acme/zeta','gamma']);
  assert.deepEqual(ids(),['hof-ask','hof-fail','hof-work','hof-wait','hof-new','hof-zed','s-solo']);
- assert.equal(doc.querySelector('#agents-counts').textContent,'2 need you3 working1 waiting');
+ assert.equal(doc.querySelector('#agents-counts').textContent,'2 tasks need you3 working1 waiting');
  for(const r of rows())assert.equal(r.querySelectorAll('.tmark').length,1,'a row without its one mark: '+r.textContent);
  assert.equal(row('hof-ask').querySelector('.tmark').dataset.mark,'needs_you');assert.equal(row('hof-fail').querySelector('.tmark').dataset.mark,'failed');
  assert(row('hof-ask').textContent.includes(evil),'the title is not the task text');assert(!doc.querySelector('#agents-rows img'),'a title became markup');
@@ -64,9 +64,9 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  assert.equal(row('s-solo').getAttribute('href'),'#team/session/s-solo');assert(row('s-solo').textContent.includes('Exploring the gamma repo'));
  assert.equal(doc.querySelector('#agents-add').getAttribute('href'),'#team/repositories','Add a repository does not lead to Team');
  assert.equal(doc.querySelector('#agents-new').textContent,'New task');
- // Shown on the four pages, collapsed on Insights, Team and Settings (desktop); the toggle says which.
- if(!phone){for(const h of ['#inbox','#issues','#chat','#triggers']){await go(h);assert(!collapsed(),'the list is not shown on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'true');assert(!doc.querySelector('#agents-list').inert)}
-  for(const h of ['#insights/metrics','#team','#settings']){await go(h);assert(collapsed(),'the list is not collapsed on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'false');assert(doc.querySelector('#agents-list').inert)}
+ // Shown on Inbox, Tasks and Triggers, collapsed on Chat (its conversation list takes the list's place, #483), Insights, Team and Settings (desktop); the toggle says which.
+ if(!phone){for(const h of ['#inbox','#issues','#triggers']){await go(h);assert(!collapsed(),'the list is not shown on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'true');assert(!doc.querySelector('#agents-list').inert)}
+  for(const h of ['#chat','#insights/metrics','#team','#settings']){await go(h);assert(collapsed(),'the list is not collapsed on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'false');assert(doc.querySelector('#agents-list').inert)}
   // Hide it on Inbox and show it on Team: remembered for this browser, page by page.
   await go('#inbox');doc.querySelector('#agents-toggle').click();await tick();assert(collapsed());await go('#team');doc.querySelector('#agents-toggle').click();await tick();assert(!collapsed());
   assert.deepEqual(JSON.parse(w.localStorage.getItem('dash-agents')),{inbox:false,team:true});await go('#issues');assert(!collapsed(),'hiding on Inbox hid it on Tasks');
@@ -95,9 +95,9 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  // The list follows the page's own refresh: a task that finished leaves, a new one arrives, counts follow.
  dash={...dash,handoff_list:[...open.filter(h=>h.id!=='hof-ask'),{...base,id:'hof-late',goal:'Arrived later',project:'acme/beta',state:'offered',mark:'waiting'}]};
  w.eval('refresh()');await settle();assert(!row('hof-ask'),'a finished task stays');assert(row('hof-late'),'a new task is missing');
- assert.deepEqual([...doc.querySelectorAll('#agents-rows .ag-group')].map(g=>g.firstChild.textContent),['Needs you','acme/alpha','acme/beta','acme/zeta','gamma']);assert.equal(doc.querySelector('#agents-counts').textContent,'1 need you3 working2 waiting');
+ assert.deepEqual([...doc.querySelectorAll('#agents-rows .ag-group')].map(g=>g.firstChild.textContent),['Needs you','acme/alpha','acme/beta','acme/zeta','gamma']);assert.equal(doc.querySelector('#agents-counts').textContent,'1 task needs you3 working2 waiting');
  // Team: no Working now; what it showed is on the list's rows (task, agent, state, time, cost) and its latest activity.
- await go('#team');await settle();assert(!doc.querySelector('.working-table'),'Team still has Working now');assert(![...doc.querySelectorAll('#team-working .pitem')].some(a=>/Working now/.test(a.textContent)),'Working now is still in the Team panel');
+ await go('#team');await settle();assert(!doc.querySelector('.working-table'),'Team still has Working now');assert(![...doc.querySelectorAll('#team-tabs a')].some(a=>/Working now/.test(a.textContent)),'Working now is still a Team tab');
  assert(row('hof-work').querySelector('.ag-act')&&row('hof-work').querySelector('.ag-act').textContent==='Reading the alpha tests','the latest activity is lost');assert(requests.some(r=>r.startsWith('/api/team?activity=')));
  await go('#team/working');assert(doc.querySelector('#team-view [data-moved="working"]'),'#team/working does not say where it went');
  // A page hooks in from its dashPage(): the row its own address shows, and whether the list shows by default.

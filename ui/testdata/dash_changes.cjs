@@ -44,9 +44,9 @@ const card=ref=>doc.querySelector('#board [data-ref="'+ref+'"]');
  // Choosing a file shows its diff instead, and the choice stays across a redraw.
  files[1].click();view=changes.querySelector('.changes-view');assert(view.textContent.includes('second file')&&!view.textContent.includes('first file'),'choosing a file did not show it');assert.equal(files[1].getAttribute('aria-current'),'true');assert(!files[0].hasAttribute('aria-current'));
  w.eval('drawDetail()');await tick();const again=doc.querySelector('#issue-detail details.openpr-changes .changes-view');assert(again&&again.textContent.includes('second file'),'the chosen file was lost on a redraw');
- // No worker branch: no size in the header and no Changes.
+ // No worker branch: no size in the header, and the Changes tab says there is no change instead of a diff (#480).
  await route('#issues/hof-none');const bare=doc.querySelector('#issue-detail');assert(bare.querySelector('.iev'),'hof-none page did not draw');assert(!bare.querySelector('.kchange'),'header shows a size with no branch');
- const panel=bare.querySelector('section.openpr');assert(!panel||panel.hidden,'Changes shown with no branch');
+ const panel=bare.querySelector('.tw-panel[data-tab="changes"]');assert(panel&&!panel.querySelector('details.openpr-changes,.changes-view'),'Changes shown with no branch');assert(/No (change|worker)/.test(panel.textContent),'the Changes tab does not say there is no change: '+panel.textContent);
  // The phone layout puts the list above the diff.
  const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');assert(/@media\(max-width:860px\)\{\.changes\{grid-template-columns:minmax\(0,1fr\)\}/.test(css),'no phone rule for Changes');
  assert(!errors.length,errors.join('\n'));
