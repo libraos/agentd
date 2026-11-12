@@ -66,7 +66,7 @@ const refresh=async w=>{await w.eval('refresh()');await settle()};
  dash.inbox=[...dash.inbox,{id:'review:hof-old:1',kind:'review',title:'ready',goal:'Goal of hof-old',handoff:'hof-old',age:'1m',read:false,mine:true},{id:'failed:run-9',kind:'failed',title:'claude worker failed: lost',goal:'Goal of hof-front',handoff:'hof-front',age:'1m',read:false,mine:true}];
  await refresh(w);assert.deepEqual(b.shown.slice(1).map(n=>n.title).sort(),['Task done: ready for review','Task failed']);
  // 4. Settings: granted says On, and can be turned off in this browser.
- const personal=async()=>{w.location.hash='#settings';await settle();w.eval("settingsTab('personal')");await settle();return w.document.querySelector('#set-browser-notify')};
+ const personal=async()=>{w.location.hash='#settings/personal';await settle();return w.document.querySelector('#set-browser-notify')};
  let sec=await personal();assert(sec,'no In this browser section');assert(sec.textContent.includes('In this browser'));assert(sec.textContent.includes('On.'),sec.textContent);
  [...sec.querySelectorAll('button')].find(x=>x.textContent==='Turn off in this browser').click();await settle();
  sec=w.document.querySelector('#set-browser-notify');assert(sec.textContent.includes('Off in this browser'),sec.textContent);
