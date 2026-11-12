@@ -928,7 +928,7 @@ function settingsRender(){const d=SETTINGS.data;if(!d)return;const cfg=d.config|
   const tg=d.telegram||{},tp=d.telegram_personal,tgForm=el('form',{class:'set-form'}),tgInputs={};if(tp&&USER){for(const [k,title] of [['waiting','Waiting on you'],['blocked','Worker blocked'],['failed','Worker failed'],['finished','Worker finished']]){const input=el('input',{type:'checkbox',checked:!!tp[k],name:k});tgInputs[k]=input;tgForm.append(el('label',{class:'set-check'},input,title))}const save=el('button',{type:'submit',class:'primary'},'Save Telegram choices'),note=el('p',{role:'status',class:'mute'});tgForm.append(save,note);tgForm.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{await settingsAPI({action:'telegram_preferences',preferences:Object.fromEntries(Object.entries(tgInputs).map(([k,v])=>[k,v.checked]))});note.textContent='Telegram choices saved.'}catch(e){note.textContent=errorText(e)}finally{save.disabled=false}}}
   const tgHow=tg.configured?['Link your chat from the terminal: ',el('code',{},'agentd notify telegram link'),', then tap Start in Telegram. Approvals arrive with Approve and Reject buttons.']:owner?['Set up the bot from the terminal: ',el('code',{},'agentd notify telegram setup'),'. The bot token is read at a hidden prompt and never reaches this page.']:['An owner sets up Telegram from the terminal.'];
   const tgStatus=settingsSection('Telegram',settingsPairs([['Status',tg.configured?'Configured':'Not configured'],['Bot',tg.bot?'@'+tg.bot:''],['Your chat',USER?(tg.you_linked?'Linked':'Not linked'):'Sign in to link a chat'],...(owner?[['Linked people',(tg.linked_users||[]).join(', ')||'None']]:[]),['Last send',tg.last_send?.created?[(tg.last_send.ok?'Sent':'Failed'),tg.last_send.created,tg.last_send.note].filter(Boolean).join(' · '):'No message sent yet']]),el('p',{class:'mute'},tgHow),tp&&USER?tgForm:null,tg.configured&&tg.you_linked?button('Send Telegram test',async e=>{const b=e.currentTarget;b.disabled=true;try{await settingsAPI({action:'telegram_test'});toast('Telegram test sent',true);await settingsLoad()}catch(e){toast(errorText(e),false);await settingsLoad()}finally{b.disabled=false}}):null);
-  $('set-personal-body').replaceChildren(prefs,emailStatus,tgStatus);
+  $('set-personal-body').replaceChildren(notifySettings(),prefs,emailStatus,tgStatus);
   $('set-team-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Team'),owner?button('Invite member',settingsInvite,true):null),settingsTable(['Name','Role'],(d.members||[]).map(u=>[u.name,u.role])),owner?settingsSection('Invitations',settingsTable(['Person','Email','Status','Actions'],(d.invites||[]).map(i=>[i.user,i.email,i.state,['pending','expired'].includes(i.state)?el('span',{class:'set-actions'},button('Resend',()=>settingsResend(i)),button('Revoke',()=>settingsRevoke(i))):'—']))):el('p',{class:'mute'},'An owner can invite members.'));
   $('set-workers-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Workers')),settingsTable(['Setting','Value',...(owner?['']:[])],[['Max workers',cfg['dispatch.max_workers'],...(owner?[button('Edit',()=>settingsEdit('dispatch.max_workers','Max workers',cfg['dispatch.max_workers']))]:[])],['Default tool',cfg['dispatch.default_tool'],...(owner?[button('Edit',()=>settingsEdit('dispatch.default_tool','Default tool',cfg['dispatch.default_tool'],['claude','codex']))]:[])],['Default budget',cfg['dispatch.budget']||'No default limit',...(owner?[button('Edit',()=>settingsEdit('dispatch.budget','Default budget',cfg['dispatch.budget']))]:[])],['Codex network',cfg['dispatch.codex_network']?'On':'Off',...(owner?[button('Edit',()=>settingsEdit('dispatch.codex_network','Codex network',cfg['dispatch.codex_network'],['true','false']))]:[])]]),el('p',{class:'mute'},'Task and role budgets take precedence over the default. Use a duration such as 90m, a dollar limit such as $5, or both.'),el('p',{class:'mute'},'Codex network gives every Codex worker on a workspace-write sandbox network access and listeners, with GitHub commands that push, merge or comment forbidden. A role with network: false stays off.'),...(owner?[settingsSection('Change history',settingsTable(['When','Who','Setting','Value','Result'],(d.history||[]).map(h=>[h.created,h.actor,h.key,h.new_value,h.state])))]:[]));
   $('set-dispatch').textContent='Start workers from the dash: '+(cfg['dash.dispatch']?'On.':'Off.')+' Change from the terminal with agentd config set dash.dispatch true|false.';
@@ -2614,8 +2614,44 @@ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e
 // end:search
 function labelTables(){for(const table of document.querySelectorAll('.phone-rows table')){const heads=[...table.querySelectorAll('thead th')].map(h=>h.textContent);for(const row of table.querySelectorAll('tbody tr'))[...row.children].forEach((td,i)=>td.dataset.label=heads[i]||'Detail')}}
 new MutationObserver(labelTables).observe(document.querySelector('main'),{childList:true,subtree:true});
+// region:notify: a browser notification for a new Inbox item of the signed-in person (#452).
+// Every item seen is remembered in this browser (localStorage, per person), whether the tab
+// was in front or not, so an item raises at most one notification, never again on a reload
+// or in a second tab; the first look in a browser only remembers. Only blocked workers,
+// approvals and finished or failed tasks raise one, only with the tab in the background, and
+// only kind and task goal, as text. Without localStorage nothing is raised, since it could repeat.
+const NOTIFY_KINDS={blocked:'Worker blocked',failed:'Task failed',approval:'Approval asked',spec:'Spec approval asked',review:'Task done: ready for review',result:'Task done: report ready'};
+function notifySupported(){return typeof Notification==='function'}
+function notifyOff(){try{return localStorage.getItem('dash-notify-off')==='1'}catch(e){return false}}
+function notifyOn(){return notifySupported()&&Notification.permission==='granted'&&!notifyOff()}
+// The Inbox's own My work list (inboxSets), so another person's item is never one.
+function notifyItems(d){return inboxSets(d).mine.filter(x=>!x.what||x.what==='approval').map(needNorm).filter(x=>x.id&&NOTIFY_KINDS[x.spec?'spec':x.kind])}
+function notifyCheck(d){
+  const key='dash-notified:'+(USER||''),items=notifyItems(d);let seen,fresh;
+  try{const old=JSON.parse(localStorage.getItem(key)||'null'),first=!Array.isArray(old),known=new Set(first?[]:old);fresh=first?[]:items.filter(x=>!known.has(x.id));
+    if(!first&&!fresh.length)return;
+    seen=[...(first?[]:old),...(first?items:fresh).map(x=>x.id)].slice(-500);localStorage.setItem(key,JSON.stringify(seen))}catch(e){return}
+  if(!document.hidden||!notifyOn())return;
+  for(const x of fresh)notifyRaise(d,x)}
+function notifyRaise(d,x){const h=x.handoff&&(d.handoff_list||[]).find(y=>y.id===x.handoff),goal=x.goal||h&&(h.goal||h.title)||'';
+  try{const n=new Notification(NOTIFY_KINDS[x.spec?'spec':x.kind],{body:goal?cardTitle(words(goal)):'',tag:'agentd-'+x.id});
+    n.onclick=()=>{try{window.focus()}catch(e){}location.hash=x.handoff?itemHash(null,x.handoff):'#inbox';inboxRead(x);n.close()}}catch(e){}}
+// Settings > Notifications > In this browser: asks for the browser's permission once.
+function notifySettings(){
+  const box=el('div',{class:'set-section',id:'set-browser-notify'},el('h3',{},'In this browser')),say=t=>box.append(el('p',{class:'mute',role:'status'},t)),
+    redraw=()=>{const cur=$('set-browser-notify');if(cur)cur.replaceWith(notifySettings())},btn=(t,f)=>box.append(el('button',{type:'button',onclick:f},t));
+  if(!notifySupported()){say('This browser cannot show notifications. Use email or Telegram instead.');return box}
+  const p=Notification.permission;
+  if(p==='denied')say('Notifications are blocked for this dash in this browser. To get them, allow notifications in the browser’s site settings (they need HTTPS or this computer), then reload.');
+  else if(p!=='granted'){say('Off. Turn on to get a notification when a worker is blocked, an approval is asked, or a task of yours finishes or fails while this tab is in the background. The browser asks once.');
+    btn('Turn on notifications',()=>{try{localStorage.removeItem('dash-notify-off')}catch(e){}let r;try{r=Notification.requestPermission(redraw)}catch(e){redraw()}if(r&&r.then)r.then(redraw,redraw)})}
+  else if(notifyOff()){say('Off in this browser.');btn('Turn on notifications',()=>{try{localStorage.removeItem('dash-notify-off')}catch(e){}redraw()})}
+  else{say('On. While a dash tab is open in the background, a blocked worker, an approval, or a task of yours that finishes or fails raises one notification. Clicking it opens the item.');
+    btn('Turn off in this browser',()=>{try{localStorage.setItem('dash-notify-off','1')}catch(e){}redraw()})}
+  return box}
+// end:notify
 // region:refresh
-function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);lockState()}
+function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);lockState();notifyCheck(d)}
 let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
