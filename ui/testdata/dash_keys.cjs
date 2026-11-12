@@ -76,8 +76,10 @@ const go=async(target,a,b)=>{key(target,a);key(target,b);await settle()};
  assert.equal(w.location.hash,href,'Enter did not open the card');
  w.location.hash='#issues?view=all&layout=board';await settle();
 
- // n opens the new task sheet; / opens search.
- key(body,'n');s=sheetOpen();assert(s,'n did not open a sheet');assert.equal(s.querySelector('h2').textContent,'New handoff');await closeSheet();
+ // n opens the New task page (#482), not a sheet; Cancel goes back.
+ key(body,'n');await tick();assert.equal(w.location.hash,'#new','n did not open New task');assert(!sheetOpen(),'n opened a sheet');assert(!$('page-new').hidden&&$('nt-form'),'the New task page is not shown');
+ [...$('nt-form').querySelectorAll('.nt-foot button')].find(b=>b.textContent==='Cancel').click();await tick();await tick();assert.notEqual(w.location.hash,'#new','Cancel stayed on New task');
+ // / opens search.
  assert(key(body,'/').defaultPrevented,'/ was not handled');assert(searchOpen(),'/ did not open search');
  // Typing in the search box is typing: n and ? there do not open a sheet.
  key($('search-input'),'n');key($('search-input'),'?');assert(!sheetOpen(),'a key typed in search opened a sheet');
@@ -95,7 +97,7 @@ const go=async(target,a,b)=>{key(target,a);key(target,b);await settle()};
  box.remove();
 
  // Without dispatch, n says why instead of opening anything.
- w.eval('lastDash.dispatch=false');key(body,'n');assert(!sheetOpen(),'n opened a sheet without dispatch');assert(/dispatch/.test($('toast').textContent),'n did not say why');w.eval('lastDash.dispatch=true');
+ w.eval('lastDash.dispatch=false');{const before=w.location.hash;key(body,'n');await tick();assert(!sheetOpen(),'n opened a sheet without dispatch');assert.equal(w.location.hash,before,'n opened New task without dispatch')}assert(/dispatch/.test($('toast').textContent),'n did not say why');w.eval('lastDash.dispatch=true');
 
  // The account menu has Keyboard shortcuts, on a phone too; it opens the same sheet.
  const item=$('keys-open');assert(item,'no Keyboard shortcuts in the menu');assert(item.closest('#account .menu-items'),'Keyboard shortcuts is not in the account menu');

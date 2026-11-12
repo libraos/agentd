@@ -612,6 +612,18 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .tpl-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.tpl-row select,.tpl-row input[type=text]{flex:1 1 180px;min-width:0}
 .tpl-row label{display:inline-flex;align-items:center;gap:6px}.tpl-status{font-size:12px;color:var(--mute);overflow-wrap:anywhere}.tpl-status.bad{color:var(--red)}
 /* end:css-templates */
+/* region:css-new: New task as a page (#482): the task, and where it runs beside it */
+.nt-form{display:grid;grid-template-columns:minmax(0,760px) minmax(260px,340px);grid-template-areas:"main side" "end side";gap:16px 24px;align-items:start}
+.nt-main{grid-area:main;display:grid;gap:12px;min-width:0}.nt-main h2{margin:0;font-size:15px}.nt-side{grid-area:side;display:grid;gap:12px;min-width:0;padding:12px 16px 16px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.nt-end{grid-area:end;display:grid;gap:8px;min-width:0}.nt-fields{display:grid;gap:14px;min-width:0}.nt-fields .views{width:max-content;max-width:100%;flex-wrap:wrap}.nt-fields .views button{min-width:80px}
+.nt-tabs{display:flex;gap:12px;border-bottom:1px solid var(--line);margin:0 -16px;padding:0 16px}.nt-tabs .on{padding:6px 0;border-bottom:2px solid var(--accent);font-weight:600;font-size:13px}
+.nt-label{color:var(--fg);font-size:12px}.nt-static span{padding:3px 10px;border-radius:6px;color:var(--mute);font-size:12px}.nt-static span.on{background:var(--panel);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
+.nt-where{display:grid;gap:14px}.nt-where code{overflow-wrap:anywhere}.nt-card{display:grid;gap:4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);font-size:13px;overflow-wrap:anywhere}
+.nt-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.nt-grow{flex:1}.nt-main .sheet-field textarea{min-height:64px;resize:vertical}#nt-goal{min-height:110px}.nt-form .mono{font-family:ui-monospace,monospace}
+.nt-end .sheet-error{margin:0}.nt-main .tpl-status:empty{display:none}.nt-main .tpl-status{margin:0}
+@media(max-width:1100px){.nt-form{grid-template-columns:minmax(0,1fr);grid-template-areas:"main" "side" "end"}}
+@media(max-width:860px){.nt-foot button{min-height:44px;flex:1 1 40%}.nt-grow{display:none}}
+/* end:css-new */
 /* region:css-triggers: the Triggers page for owners (#460) */
 .trig-tpl{display:grid;gap:8px;padding:12px;margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}.trig-tpl>*{min-width:0}.trig-tpl h3,.trig-tpl p{margin:0}
 .trig-tpl pre{margin:0;padding:8px;overflow-x:auto;white-space:pre;font:12px/1.5 ui-monospace,monospace;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--fg)}
@@ -750,6 +762,9 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   <div id="issue-detail"></div>
 </div>
 <!-- end:page-issues -->
+<!-- region:page-new: New task as a page (#482); region:new draws it -->
+<div id="page-new" class="page" hidden></div>
+<!-- end:page-new -->
 <!-- region:page-team -->
 <div id="page-team" class="page" hidden>
   <div id="team-head"></div>
@@ -1268,7 +1283,7 @@ function teamProps(pairs){const out=[];for(const [k,v] of pairs)if(v!==null&&v!=
 function teamRoleLink(name){return el('a',{href:teamHref('role',name)},name)}
 // teamAssignAct: Assign work on a page with a role, behind the same [dash] dispatch as the New handoff form.
 function teamAssignAct(d,roleName){if(!(lastDash||{}).dispatch)return [el('span',{class:'tm-note',title:'Set [dash] dispatch = true in config.toml on the host; it is not changed from the dash on purpose.'},'Starting workers from the dash is turned off. An owner can turn it on from the host’s terminal.')];
-  const b=el('button',{type:'button',class:'ok','data-write':true,'data-tk':'assign',title:'Open the New handoff form'+(roleName?' for '+roleName:''),onclick:e=>teamFormOpen(roleName,e.currentTarget)},'Assign work');b.disabled=!CAN();
+  const b=el('button',{type:'button',class:'ok','data-write':true,'data-tk':'assign',title:'Open New task'+(roleName?' for '+roleName:''),onclick:e=>teamFormOpen(roleName,e.currentTarget)},'Assign work');b.disabled=!CAN();
   return [b,CAN()?null:el('span',{class:'tm-note'},'Read-only: unlock to assign work.')]}
 function teamDetailView(d){const dash=lastDash||{},u=d.runs_7d,runs=u&&u.workers?String(u.workers):'0';const common=[['Runs (7d)',runs],['Success',teamRate(u)],['Spend (7d)',teamUsd(u)],['Tokens (7d)',teamTok(u)]];
   const now=teamNow(d),recent=teamRecent(d),more=d.recent_total>recent.length?'latest '+recent.length+' of '+d.recent_total:d.recent_total||'';
@@ -1981,8 +1996,8 @@ function newTaskFields(d,base){const prs=newTaskPRs(d);return [
   {name:'accept',label:'Acceptance criteria',multiline:true,hint:'What done means, one per line.'},
   {name:'check',label:'Check command',maxlength:1000,hint:'A command that exits 0 when the work is right.'},
   {name:'issue',label:'Issue',maxlength:200,hint:'OWNER/REPO#N, or one from the Tasks page.'}]}
-function newTaskSetup(ui,nt){const field=n=>ui.inputs[n].closest('.sheet-field'),label=field('goal').querySelector('label');
-  const kind=()=>{const review=ui.inputs.kind.value==='review';field('pr').hidden=!review;label.textContent=review?'Goal (optional)':'Goal';ui.inputs.goal.placeholder=review?'Review the pull request':''};
+function newTaskSetup(ui,nt){const field=n=>ui.inputs[n].closest('.sheet-field'),label=field('goal').querySelector('label'),ph=ui.inputs.goal.placeholder||'';
+  const kind=()=>{const review=ui.inputs.kind.value==='review';field('pr').hidden=!review;label.textContent=review?'Goal (optional)':'Goal';ui.inputs.goal.placeholder=review?'Review the pull request':ph};
   ui.inputs.kind.addEventListener('input',kind);kind();
   // The Issues page's open issues, as choices for the issue field.
   const list=el('datalist',{id:ui.inputs.issue.id+'-list'}),fill=x=>list.replaceChildren(...((x&&x.issues)||[]).filter(i=>i.ref&&String(i.state||'').toUpperCase()!=='CLOSED').map(i=>el('option',{value:i.ref},i.title||i.ref)));
@@ -1993,7 +2008,7 @@ function newTaskSetup(ui,nt){const field=n=>ui.inputs[n].closest('.sheet-field')
   let asked='';nt.touched=false;nt.defaults=null;ui.inputs.check.addEventListener('input',()=>{nt.touched=true});
   const load=async()=>{const cwd=ui.inputs.cwd.value;if(!cwd||cwd===asked)return;asked=cwd;nt.defaults=null;let t;
     try{const r=await fetch('/api/taskdefaults?cwd='+encodeURIComponent(cwd),{cache:'no-store',headers:auth()});t=r.ok?await r.json():{error:(await r.text()).trim()||'HTTP '+r.status}}catch(e){t={error:errorText(e)}}
-    if(asked!==cwd)return;nt.defaults=t;if(!nt.touched)ui.inputs.check.value=t.check||'';
+    if(asked!==cwd)return;nt.defaults=t;if(!nt.touched)ui.inputs.check.value=t.check||'';if(nt.onDefaults)nt.onDefaults(t);
     note.textContent=[t.error?'The task file could not be read: '+t.error:'',(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; '):'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');note.hidden=!note.textContent};
   for(const ev of ['input','change'])ui.inputs.cwd.addEventListener(ev,load);if(ui.inputs.role)ui.inputs.role.addEventListener('change',load);load()}
 // newTaskValidate refuses in the sheet, before anything is sent, a task the
@@ -2045,16 +2060,94 @@ function newTaskTemplates(ui,nt){let list=[],canSave=false,mode='';
     catch(e){say(errorText(e),true)}finally{ok.disabled=false}};
   ui.body.prepend(el('div',{class:'tpl',role:'group','aria-label':'Templates'},el('div',{class:'tpl-row'},pick,save,rename,del),editor,status));buttons();load('')}
 // end:templates
+// region:new: New task as a page (#482). Centre: the task (kind, template, goal,
+// context, done-when, check, linked issue); right, "Where it runs": agent,
+// repository, where the worker works and from which branch (as GET
+// /api/taskdefaults says dispatch will do it), other repositories, role, budget,
+// and what past tasks of the type cost (GET /api/estimate, handoff estimate).
+// Every field of the old sheet is here and the request is the sheet's own
+// (region:newtask, region:templates), so Start makes the same handoff; Save
+// without starting sends start:false. What is typed is kept in localStorage as a
+// draft until Start, Save or Cancel. newHandoffSheet(role) and n open it.
+const NT_DRAFT='dash-newtask-draft',NT={ui:null,waiting:false,nt:null,key:'',busy:false,role:'',back:'',backId:'',est:{},estSeq:0};
+function ntDraftRead(){try{const v=JSON.parse(localStorage.getItem(NT_DRAFT)||'null');return v&&typeof v==='object'&&v.values&&typeof v.values==='object'?v:null}catch(e){return null}}
+function ntDraftClear(){try{localStorage.removeItem(NT_DRAFT)}catch(e){}}
+function ntDraftSave(){if(!NT.ui||NT.busy)return;try{localStorage.setItem(NT_DRAFT,JSON.stringify({values:NT.ui.values(),touched:!!NT.nt.touched,key:NT.key,role:NT.role}))}catch(e){}}
+function ntKey(){return Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('')}
+// ntOpen is where New task, n and Assign work lead: the page, remembering where to go back to.
+function ntOpen(roleName=''){if(ROUTE.item!=='new'){NT.back=location.hash||'#issues';const a=document.activeElement;NT.backId=a&&a.id||''}
+  const hash='#new'+(roleName?'?role='+encodeURIComponent(roleName):'');if(location.hash===hash)ntEnter(parseRoute(hash));else location.hash=hash}
+// ntField draws one field the way a sheet does (label, input, segments, hint, error).
+function ntField(f,ui){const id='nt-'+f.name,hint=el('div',{class:'field-hint',id:id+'-hint'},f.hint||''),err=el('div',{class:'field-error',id:id+'-error',hidden:true});
+  const input=f.options?el('select',{},f.options.map(v=>el('option',{value:typeof v==='string'?v:v.value},typeof v==='string'?v:v.label))):el(f.multiline?'textarea':'input',{type:'text',maxlength:f.maxlength||2000,autocomplete:'off',rows:f.multiline?(f.rows||3):null,placeholder:f.placeholder||null,class:f.mono?'mono':null});
+  input.id=id;input.name=f.name;input.value=f.value||'';input.setAttribute('aria-describedby',id+'-hint '+id+'-error');if(f.required)input.setAttribute('aria-required','true');ui.inputs[f.name]=input;ui.errors[f.name]=err;
+  input.addEventListener('input',()=>{err.hidden=true;input.removeAttribute('aria-invalid');ui.error.hidden=true});
+  const label=el('label',{for:id,id:id+'-label'},f.label+(f.required?'':' (optional)')),group=f.segment?el('div',{class:'views',role:'group','aria-labelledby':id+'-label'}):null;if(group){input.hidden=true;ui.segments[f.name]=group}
+  return el('div',{class:'sheet-field nt-'+f.name},label,input,group,f.hint?hint:null,err)}
+// The page's fields: the sheet's (newTaskFields), in the design's words and places.
+function ntFields(d,roles,roleName){const words={goal:{placeholder:'What should the worker do? Describe the change.',rows:5},accept:{label:'Done when',hint:'One per line. Each line becomes an acceptance criterion in the worker\'s prompt and the PR.'},check:{mono:true,placeholder:'go test ./...'},issue:{label:'Linked issue',placeholder:'OWNER/REPO#N'}};
+  const all=newTaskFields(d,[{name:'goal',label:'Goal',required:true,multiline:true},{name:'state',label:'Context so far',multiline:true},{name:'role',label:'Role',value:roleName,options:[{value:'',label:'No role'},...roles.map(r=>({value:r.name,label:r.name}))]},...workerFields(d).map(f=>f.name==='tool'?{...f,label:'Agent',required:false}:{...f,label:'Repository',hint:'A checkout known to agentd. The worker runs in it or in a worktree of it.'}),{name:'budget',label:'Budget',required:true,value:d.dispatch_budget||'30m',hint:'Minutes, dollars or both: 90m,$5. The worker stops at it.',maxlength:100},{name:'also',label:'Also in other repositories',multiline:true,rows:2,placeholder:'none',hint:'Further checkouts the task spans, one per line. Each gets its own branch; not for a Codex worker.'}]).map(f=>words[f.name]?{...f,...words[f.name]}:f);
+  const side=['tool','cwd','also','role','budget'];return {main:all.filter(f=>!side.includes(f.name)),side:side.map(n=>all.find(f=>f.name===n))}}
+function ntWhere(t){const box=$('nt-where');if(!box)return;const ws=t&&t.workspace,from=t&&t.branch_from;
+  box.replaceChildren(el('div',{class:'sheet-field'},el('span',{class:'nt-label'},'Workspace'),el('div',{class:'views nt-static',role:'group','aria-label':'Workspace'},el('span',{class:ws==='worktree'?'on':''},'New worktree'),el('span',{class:ws==='checkout'?'on':''},'Main checkout')),
+    el('div',{class:'field-hint'},!t?'Choose a repository.':t.workspace_error?t.workspace_error:ws==='worktree'?'A worktree is its own branch and directory, so workers run side by side.':ws==='checkout'?'The checkout is not on its default branch, so the worker works in it as it is, on that branch.':'Not a git checkout: the worker works in the directory.')),
+    el('div',{class:'sheet-field'},el('span',{class:'nt-label'},'Branch from'),el('code',{id:'nt-branch'},from||'—'),el('div',{class:'field-hint'},'Set by the checkout: switch it to another branch to change this.')))}
+// ntEstimate asks once per type and dollar cap what past tasks of that type cost.
+async function ntEstimate(){const ui=NT.ui;if(!ui)return;const kind=ui.inputs.kind.value==='review'?'review':'implement',b=(/\$\s*[0-9.]+/.exec(ui.inputs.budget.value)||[''])[0].replace(/\s/g,''),k=kind+'|'+b,seq=++NT.estSeq,box=$('nt-estimate');if(!box)return;
+  const show=r=>{if(seq!==NT.estSeq)return;box.replaceChildren(el('strong',{},'Past tasks like this'),el('span',{class:'field-hint',id:'nt-estimate-line'},r.error?'No estimate: '+r.error:typeof r.median==='number'&&r.line?r.line:'No history yet for '+(r.label||kind)+' tasks'+(r.line?': '+r.line:'.')))};
+  if(NT.est[k]){show(NT.est[k]);return}box.replaceChildren(el('strong',{},'Past tasks like this'),el('span',{class:'field-hint',id:'nt-estimate-line'},'Loading…'));
+  let r;try{const x=await fetch('/api/estimate?type='+kind+(b?'&budget='+encodeURIComponent(b):''),{cache:'no-store',headers:auth()});r=x.ok?await x.json():{error:(await x.text()).trim()||'HTTP '+x.status};if(x.ok)NT.est[k]=r}catch(e){r={error:errorText(e)}}show(r)}
+function ntBuild(roleName){const page=$('page-new'),d=lastDash||{},l=TEAM.lists||{},roles=l.roles||[],draft=ntDraftRead(),role=roleName||(draft&&draft.role)||'';NT.role=role;NT.key=draft&&/^[0-9a-f]{24}$/.test(draft.key||'')?draft.key:ntKey();NT.est={};
+  const nt={},f=ntFields(d,roles,role),ui={inputs:{},errors:{},segments:{},error:el('div',{class:'sheet-error',role:'alert',hidden:true})};NT.nt=nt;NT.ui=ui;
+  const mainBody=el('div',{class:'nt-fields'}),sideBody=el('div',{class:'nt-fields'});ui.body=mainBody;
+  for(const x of f.main)mainBody.append(ntField(x,ui));
+  for(const x of f.side){sideBody.append(ntField(x,ui));if(x.name==='cwd')sideBody.append(el('div',{id:'nt-where',class:'nt-where'}))}
+  sideBody.append(el('div',{class:'nt-card',id:'nt-estimate',role:'status'}));
+  const start=el('button',{type:'submit',class:'primary','data-write':true},'Start worker'),save=el('button',{type:'button',id:'nt-save','data-write':true},'Save without starting'),cancel=el('button',{type:'button',id:'nt-cancel'},'Cancel');
+  const foot=el('div',{class:'nt-foot'},start,save,el('span',{class:'nt-grow'}),cancel);ui.submit=start;
+  const form=el('form',{id:'nt-form',class:'nt-form',novalidate:true,'aria-labelledby':'nt-title'},
+    el('section',{class:'nt-main','aria-label':'Task'},el('h2',{id:'nt-title'},role?'Assign work to '+role:'Task'),el('p',{class:'field-hint',id:'nt-note',hidden:true}),mainBody),
+    el('aside',{class:'nt-side','aria-label':'Where it runs'},el('div',{class:'nt-tabs',role:'tablist'},el('span',{role:'tab','aria-selected':'true',class:'on'},'Where it runs')),sideBody),
+    el('div',{class:'nt-end'},ui.error,foot));
+  page.replaceChildren(form);
+  ui.values=()=>Object.fromEntries(Object.entries(ui.inputs).map(([n,i])=>[n,i.value.trim()]));
+  ui.fieldError=(name,message)=>{const input=ui.inputs[name],err=ui.errors[name];if(!input)return;err.textContent=message;err.hidden=false;input.setAttribute('aria-invalid','true');(ui.segments[name]?ui.segments[name].querySelector('button'):input).focus()};
+  ui.syncSegments=()=>{for(const [name,group] of Object.entries(ui.segments)){const input=ui.inputs[name];group.replaceChildren(...[...input.options].map(o=>el('button',{type:'button',class:input.value===o.value?'on':'','aria-pressed':String(input.value===o.value),onclick:()=>{input.value=o.value;input.dispatchEvent(new Event('input'));ui.syncSegments()}},o.textContent)))}};
+  // The draft comes back before the checkout's defaults are read, so they are its checkout's.
+  if(draft)for(const [n,v] of Object.entries(draft.values))if(ui.inputs[n]&&typeof v==='string'&&!(n==='role'&&roleName)){const i=ui.inputs[n];if(i.tagName!=='SELECT'||[...i.options].some(o=>o.value===v))i.value=v}
+  const sync=()=>{const r=roles.find(x=>x.name===ui.inputs.role.value),dirs=r?(r.checkouts||[]).map(c=>c.dir).filter(dir=>(d.checkouts||[]).includes(dir)):d.checkouts||[],cwd=ui.inputs.cwd,old=cwd.value;
+    cwd.replaceChildren(...dirs.map(dir=>el('option',{value:dir,title:dir},dir)));cwd.value=dirs.includes(old)?old:dirs[0]||'';
+    const tool=ui.inputs.tool,was=tool.value;tool.replaceChildren(...(r?[el('option',{value:''},'Use role settings')]:[]),el('option',{value:'claude'},'Claude'),el('option',{value:'codex'},'Codex'),el('option',{value:'opencode'},'opencode'));tool.value=r?'':was||l.default_tool||'claude';
+    start.title=save.title=dirs.length?'':'No known checkout is available. Start a session in a checkout first.';ui.syncSegments()};
+  const deps=depsNote(ui,'');ui.inputs.role.addEventListener('change',()=>{sync();deps()});sync();deps();
+  nt.onDefaults=ntWhere;ntWhere(null);newTaskSetup(ui,nt);if(draft)nt.touched=!!draft.touched;newTaskTemplates(ui,nt);
+  // Save as template sits with the page's other actions.
+  const tplSave=[...mainBody.querySelectorAll('.tpl button')].find(b=>b.textContent==='Save as template');if(tplSave){tplSave.id='nt-template';foot.insertBefore(tplSave,foot.querySelector('.nt-grow'))}
+  ui.syncSegments();
+  for(const ev of ['input','change'])form.addEventListener(ev,()=>ntDraftSave());
+  ui.inputs.kind.addEventListener('input',ntEstimate);ui.inputs.budget.addEventListener('change',ntEstimate);ntEstimate();
+  form.onsubmit=e=>{e.preventDefault();ntSend(true)};save.onclick=()=>ntSend(false);cancel.onclick=ntCancel;
+  const note=$('nt-note'),why=!d.dispatch?'New tasks need dispatch on for this dash: agentd config set dash.dispatch true.':'';note.textContent=why;note.hidden=!why;if(why)start.dataset.disabledReason=save.dataset.disabledReason=why;
+  lockState()}
+async function ntSend(startIt){const ui=NT.ui,nt=NT.nt;if(!ui||NT.busy)return;const v=ui.values();
+  if(!v.budget){ui.fieldError('budget','Budget is required.');return}
+  const invalid=!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:newTaskValidate(v,nt);if(invalid){ui.fieldError(invalid[0],invalid[1]);return}
+  const buttons=[...$('nt-form').querySelectorAll('.nt-foot button')],btn=startIt?ui.submit:$('nt-save'),label=btn.textContent;NT.busy=true;for(const b of buttons)b.disabled=true;btn.textContent=startIt?'Starting…':'Saving…';ui.error.hidden=true;
+  try{const j=await act({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key:NT.key,...(v.also?{also:v.also}:{}),...newTaskBody(v,nt),...(startIt?{}:{start:false})});
+    toast(startIt?(j.queued?'Worker queued: it starts when a slot is free':'Worker requested'):'Saved without starting. Start its worker from the task.',true);ntDraftClear();NT.ui=null;NT.busy=false;location.hash=j.handoff?'#issues/'+j.handoff:'#issues';refresh()}
+  catch(e){ui.error.textContent=errorText(e);ui.error.hidden=false}
+  finally{if(NT.ui===ui){NT.busy=false;for(const b of buttons)b.disabled=false;btn.textContent=label}}}
+function ntCancel(){if(NT.busy)return;ntDraftClear();NT.ui=null;const back=NT.back&&!/^#new\b/.test(NT.back)?NT.back:'#issues',id=NT.backId;location.hash=back;if(id)setTimeout(()=>{const n=$(id);if(n)focusBack(n)},0)}
+function ntEnter(r){const role=(r.params&&r.params.get('role'))||'';for(const n of document.querySelectorAll('[data-rail]'))if(n.dataset.rail==='issues')n.setAttribute('aria-current','page');
+  NT.waiting=!lastDash;if(!lastDash){$('page-new').replaceChildren(el('div',{class:'empty'},'Loading…'));return}
+  if(NT.busy)return;ntBuild(role);
+  if(!TEAM.lists&&!TEAM.ntAsked){TEAM.ntAsked=true;teamLoadLists().then(()=>{if(ROUTE.item==='new'&&TEAM.lists&&(TEAM.lists.roles||[]).length&&!NT.busy){ntDraftSave();ntBuild(role)}})}}
+dashPage('new',{title:'New task',panel:false,agents:true,enter:ntEnter,unlock(r){if(!NT.busy){ntDraftSave();ntEnter(r)}},render(){if(ROUTE.item==='new'&&NT.waiting)ntEnter(ROUTE)},leave(){ntDraftSave();NT.ui=null}});
+// end:new
 // region:issues
 function newHandoff(d){$('new-handoff-box').hidden=true}
-function newHandoffSheet(roleName=''){const d=lastDash||{},l=TEAM.lists||{},roles=l.roles||[];
-  const nt={},fields=newTaskFields(d,[{name:'goal',label:'Goal',required:true,multiline:true},{name:'state',label:'Context so far',multiline:true},{name:'role',label:'Role',value:roleName,options:[{value:'',label:'No role'},...roles.map(r=>({value:r.name,label:r.name}))]},...workerFields(d).map(f=>f.name==='tool'?{...f,required:false}:f),{name:'budget',label:'Budget',required:true,value:d.dispatch_budget||'30m',hint:'90m, $5 or both: 90m,$5. The worker stops at it.',maxlength:100}]),
-    key=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');
-  const sync=ui=>{const role=roles.find(r=>r.name===ui.inputs.role.value),dirs=role?(role.checkouts||[]).map(c=>c.dir).filter(dir=>(d.checkouts||[]).includes(dir)):d.checkouts||[],cwd=ui.inputs.cwd,old=cwd.value;
-    cwd.replaceChildren(...dirs.map(dir=>el('option',{value:dir,title:dir},dir)));cwd.value=dirs.includes(old)?old:dirs[0]||'';
-    const tool=ui.inputs.tool,was=tool.value;tool.replaceChildren(...(role?[el('option',{value:''},'Use role settings')]:[]),el('option',{value:'claude'},'Claude'),el('option',{value:'codex'},'Codex'),el('option',{value:'opencode'},'opencode'));tool.value=role?'':was||l.default_tool||'claude';
-    ui.submit.setAttribute('aria-disabled',String(!dirs.length));ui.submit.title=dirs.length?'':'No known checkout is available. Start a session in a checkout first.';ui.syncSegments()};
-  return actionSheet({title:roleName?'Assign work to '+roleName:'New handoff',description:'Starts a worker in the selected checkout. Its work and result will appear in Tasks.',action:'Start',pending:'Starting…',fields,setup:ui=>{const deps=depsNote(ui,'');ui.inputs.role.onchange=()=>{sync(ui);deps()};sync(ui);deps();newTaskSetup(ui,nt);newTaskTemplates(ui,nt)},validate:v=>!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:newTaskValidate(v,nt)},'new-handoff',v=>({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key,...newTaskBody(v,nt)}),'Worker requested')}
+// The New handoff sheet is now the New task page (region:new).
+function newHandoffSheet(roleName=''){ntOpen(roleName)}
 // retryHandoff starts a new worker on a work item whose worker failed, after
 // the same review-and-confirm step as a Chat proposal: the task is the item's
 // own (goal, acceptance criteria, check and budget stay on it), and only the
@@ -2191,7 +2284,7 @@ function wfBar(d){const b=$('wfilter'),key=JSON.stringify([d.dispatch,d.handoff_
   const pick=(key,label,values)=>el('label',{},label+' ',el('select',{'data-filter-field':key,onchange:e=>{WF[key]=e.target.value;if(lastDash)board(lastDash);lockState();saveIssueRoute()}},el('option',{value:''},'All'),(values||[]).map(v=>el('option',{value:v},word(v)))));
   const layouts=el('div',{class:'views','aria-label':'Layout'},[['list','List'],['board','Board']].map(([key,label])=>el('button',{class:LAYOUT===key?'on':'','aria-pressed':LAYOUT===key?'true':'false','data-layout':key,onclick:()=>setLayout(key)},label)));
   const filters=el('div',{class:'filters'+(ISSUE_FILTERS_OPEN?' open':'')},...bfPicks(),pick('source','Source',d.handoff_sources),pick('stage','Stage',d.handoff_stages)),toggle=el('button',{class:'issue-filters-toggle','aria-expanded':String(ISSUE_FILTERS_OPEN),onclick:()=>{ISSUE_FILTERS_OPEN=!ISSUE_FILTERS_OPEN;filters.classList.toggle('open',ISSUE_FILTERS_OPEN);toggle.setAttribute('aria-expanded',String(ISSUE_FILTERS_OPEN))}},'Filters');
-  b.append(...[layouts,bfBox(),toggle,filters,el('button',{id:'issue-clear',onclick:clearIssueFilters},'Clear filters'),d.dispatch?el('button',{id:'new-handoff',class:'primary','data-write':true,onclick:()=>newHandoffSheet()},'New handoff'):null].filter(Boolean))}
+  b.append(...[layouts,bfBox(),toggle,filters,el('button',{id:'issue-clear',onclick:clearIssueFilters},'Clear filters'),d.dispatch?el('button',{id:'new-handoff',class:'primary','data-write':true,onclick:()=>newHandoffSheet()},'New task'):null].filter(Boolean))}
 function wkLink(ref,text){return el('button',{class:'linkish',title:'Open work item',onclick:()=>showWorkItem(ref)},el('code',{title:ref},text||ref))}
 function costText(c){if(!c)return 'No worker ran on this.';
   if(c.partial&&!(c.usd>0))return 'Cost unknown: some usage or prices are missing. See Insights → Usage. '+Math.round(c.minutes)+' min across '+c.workers+' workers.';
@@ -3325,7 +3418,7 @@ function notifySettings(){
 // on the document; it does nothing while a text field, a select or an editable
 // element has the focus, while a sheet or the search box is open (both stop their
 // own keys), or with Ctrl, Cmd or Alt held (Ctrl+K is search's own). Every key has
-// a pointer twin: the rail for g, New handoff for n, the search button for / and
+// a pointer twin: the rail for g, New task for n, the search button for / and
 // the account menu's Keyboard shortcuts (on a phone too) for ?.
 const KEYS_GO={i:['#inbox','Inbox'],b:['#issues','the board (Tasks)'],c:['#chat','Chat'],m:['#insights/metrics','Metrics']};
 const KEYS_LIST=[[['?'],'Show this list of shortcuts'],...Object.entries(KEYS_GO).map(([k,[,name]])=>[['g',k],'Go to '+name]),[['n'],'New task'],[['/'],['Ctrl','K']],[['j'],'Next item in a list'],[['k'],'Previous item in a list'],[['Enter'],'Open the selected item'],[['Esc'],'Close a sheet, menu or panel']];

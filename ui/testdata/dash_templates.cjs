@@ -1,4 +1,4 @@
-// Saved task templates in the new task sheet (#458): the picker lists the
+// Saved task templates on the New task page (#458; a page since #482): the picker lists the
 // person's own templates and the team's shared ones; choosing one fills the
 // sheet, which starts a task as usual; Save as template, Rename and Delete go to
 // /api/templates, only on the person's own; a refusal (a credential-shaped
@@ -37,13 +37,14 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   else if(u.pathname==='/api/team')body={roles:[{name:'fixer',checkouts:[{dir:'/plain'}]}],members:[],default_tool:'claude',handoff_roles:{}};
   return {ok:status<400,status,json:async()=>body,text:async()=>JSON.stringify(body)}}}});
 const w=dom.window,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<4;i++)await tick()};
-const sheetEl=()=>w.document.querySelector('dialog.sheet'),q=s=>sheetEl().querySelector(s),field=name=>[...sheetEl().querySelectorAll('.sheet-field input,.sheet-field select,.sheet-field textarea')].find(n=>n.id.endsWith('-'+name));
+const sheetEl=()=>w.document.getElementById('nt-form'),q=s=>sheetEl().querySelector(s),field=name=>[...sheetEl().querySelectorAll('.sheet-field input,.sheet-field select,.sheet-field textarea')].find(n=>n.id.endsWith('-'+name));
 const box=name=>field(name).closest('.sheet-field'),set=(name,value)=>{const n=field(name);n.value=value;n.dispatchEvent(new w.Event('input'));n.dispatchEvent(new w.Event('change'))};
-const button=label=>[...q('.tpl').querySelectorAll('button')].find(b=>b.textContent===label&&!b.hidden&&!b.closest('[hidden]'));
+// Save as template sits with the page's actions; Rename and Delete with the picker.
+const button=label=>[...q('.tpl').querySelectorAll('button'),...q('.nt-foot').querySelectorAll('button')].find(b=>b.textContent===label&&!b.hidden&&!b.closest('[hidden]'));
 const choose=async id=>{const p=q('#tpl-pick');p.value=id;p.dispatchEvent(new w.Event('change'));await settle()};
 const status=()=>q('.tpl-status');
-const submit=async()=>{sheetEl().querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await settle()};
-const open=async()=>{w.eval("TEAM.lists={roles:[{name:'fixer',checkouts:[{dir:'/plain'}]}],members:[],default_tool:'claude',handoff_roles:{}};newHandoffSheet()");await settle();assert(sheetEl(),'the sheet did not open')};
+const submit=async()=>{sheetEl().dispatchEvent(new w.Event('submit',{cancelable:true}));await settle()};
+const open=async()=>{w.eval("TEAM.lists={roles:[{name:'fixer',checkouts:[{dir:'/plain'}]}],members:[],default_tool:'claude',handoff_roles:{}};newHandoffSheet()");await settle();assert(sheetEl()&&w.location.hash==='#new','the page did not open')};
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
  await open();
@@ -52,7 +53,7 @@ const open=async()=>{w.eval("TEAM.lists={roles:[{name:'fixer',checkouts:[{dir:'/
  assert(q('.tpl').compareDocumentPosition(box('kind'))&w.Node.DOCUMENT_POSITION_FOLLOWING,'the picker is not above the fields');
  assert.deepEqual([...pick.options].map(o=>o.value),['','tpl-1','tpl-2']);
  assert.equal(pick.options[2].textContent,'Review '+evil+' · shared by bob');assert(!sheetEl().querySelector('img'),'a template name became markup');
- assert(button('Save as template'),'no Save as template');assert(!button('Rename')&&!button('Delete'),'Rename or Delete with nothing chosen');
+ assert(button('Save as template'),'no Save as template');assert(q('.nt-foot').contains(button('Save as template')),'Save as template is not with the page\'s actions');assert(!button('Rename')&&!button('Delete'),'Rename or Delete with nothing chosen');
  // Start from one's own: the sheet is filled in, and the task goes as usual.
  await choose('tpl-1');
  assert.equal(field('goal').value,'Fix the failing check');assert.equal(field('accept').value,'the check passes\nno test skipped');
@@ -73,7 +74,7 @@ const open=async()=>{w.eval("TEAM.lists={roles:[{name:'fixer',checkouts:[{dir:'/
  const name=q('#tpl-name');assert(!q('.tpl-edit').hidden&&!name.hidden,'no name field');
  name.value='Deps';q('#tpl-shared').checked=true;
  name.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));await settle();
- assert(sheetEl(),'Enter in the name submitted the task');assert.equal(writes.length,1,'saving a template started a task');
+ assert(sheetEl()&&w.location.hash==='#new','Enter in the name submitted the task');assert.equal(writes.length,1,'saving a template started a task');
  const saved=tplWrites.at(-1);
  assert.deepEqual({...saved},{op:'save',name:'Deps',shared:true,kind:'implement',goal:'Bump the deps',accept:'go build passes',check:'go build ./...',role:'',budget:'20m'});
  assert(q('.tpl-edit').hidden,'the name row stayed open');assert.equal(q('#tpl-pick').value,saved&&templates.at(-1).id,'the saved template is not chosen');
@@ -96,7 +97,7 @@ const open=async()=>{w.eval("TEAM.lists={roles:[{name:'fixer',checkouts:[{dir:'/
  assert(![...q('#tpl-pick').options].some(o=>o.value===id),'the deleted template is still listed');assert.equal(q('#tpl-pick').value,'');
  assert(status().textContent.includes('Deleted Dependencies'),status().textContent);
  // Someone who may not save (a viewer) can still start from one, but sees no Save.
- sheetEl().querySelector('.sheet-foot button').click();await settle();
+ button('Cancel').click();await settle();
  canSave=false;await open();assert(!button('Save as template'),'Save as template for someone who may not save');
  await choose('tpl-1');assert(!button('Rename')&&!button('Delete'));assert.equal(field('goal').value,'Fix the failing check');
  assert(!errors.length,errors.join('\n'));
