@@ -507,6 +507,11 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 /* region:css-worker-env: where a task's worker runs, in its header (#459) */
 .wenv{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;min-width:0}.wenv code{overflow-wrap:anywhere}.wenv .wenv-off{color:var(--amber)}
 /* end:css-worker-env */
+/* region:css-filter: the board's typed filter box (#456) */
+.bf-box{flex:1 1 260px;min-width:0;display:grid;gap:4px}.bf-input{width:100%;min-width:0;font-size:13px;padding:5px 8px}
+.bf-input[aria-invalid=true]{border-color:var(--amber)}.bf-bad{margin:0;font-size:12px;color:var(--amber)}.bf-bad[hidden]{display:none}.bf-bad code{color:var(--fg)}
+@media(max-width:860px){.bf-box{flex-basis:100%;order:3}}@media(max-width:860px),(pointer:coarse){.bf-input{min-height:44px;font-size:16px}}
+/* end:css-filter */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -887,8 +892,8 @@ function dashPage(name,def){PAGES[name]=def}
 function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'inbox').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
   const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||['settings','help'].includes(item)&&rest.length>0;return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
-function saveIssueRoute(){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);routeQuery('issues',p);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
-function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
+function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
+function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
 function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.replaceState(null,'','#'+ALIASES[raw]);
   const r=parseRoute(location.hash),def=PAGES[r.item],moved=r.item!==ROUTE.item||r.view!==ROUTE.view,pageId=r.view||def.pageId||r.item,path='#'+r.item+(r.view?'/'+r.view:'');if(moved&&PAGES[ROUTE.item]?.leave)PAGES[ROUTE.item].leave();ROUTE=r;
   setPanel(false);$('account').open=false;
@@ -1676,25 +1681,25 @@ function issueItems(d,unfiltered){
     // One menu per card: with a need row, the card's actions join that row's.
     const merge=needs.length>0&&needs[0].what!=='issue',rws=needs.length?needRows(needs,merge?{visible:wacts,more:acts.slice(wacts.length)}:null):[];
     if(acts.length&&!merge)meta.push(moreMenu(acts));
-    items.push({project:projectOf(h),status,mark:h.mark,sid:who,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
+    items.push({project:projectOf(h),status,mark:h.mark,sid:who,src:h,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
       node:card({status,mark:h.mark,live:live&&live.key==='working',liveTitle:live&&live.text,title:cardTitle(h.title||h.goal),full:h.title||h.goal,link:itemHash(h.issue,h.id),ref:h.id,meta,age:h.updated_ago,rows:rws,sub:!!(h.parent&&h.depth)})})}
   for(const x of (d.done||[]).filter(x=>x.what==='handoff'&&wf(x))){
     const status=statusOf(x,[],openPR),who=x.by||x.from,why=status==='failed'?failedWhy(x):'';
-    items.push({project:projectOf(x),status,mark:x.mark,sid:who,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
+    items.push({project:projectOf(x),status,mark:x.mark,sid:who,src:x,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
       node:card({status,mark:x.mark,title:cardTitle(x.title),full:x.title,link:itemHash(x.issue,x.ref),ref:x.ref,age:x.age,
         meta:[x.worker&&who===x.by&&/ session$/.test(sessLabel(who))?el('span',{class:'who'},sessLink(who,toolName(x.worker)+' worker')):whoLink(who),cardStage(x.stage),changeEl(x)],rows:why?[el('div',{class:'krow'},el('span',{class:'why full'},el('span',{class:'k'},'Could not finish: '),why))]:[]})})}
   for(const x of [...(d.waiting||[]).filter(x=>x.what==='PR'),...(d.done||[]).filter(x=>x.what==='PR')]){
     if(filt)continue;
     const acts=prActions(d,x);
     const n=(x.handoffs||[]).length;
-    items.push({project:prProject(x.ref),status:statusOf(x),openPR:!x.state,mine:false,worker:false,pr:x.ref,
+    items.push({project:prProject(x.ref),status:statusOf(x),openPR:!x.state,mine:false,worker:false,pr:x.ref,src:x,
       node:card({status:statusOf(x),title:x.title||x.ref,link:itemHash(x.ref),ref:x.ref,age:x.age,
         meta:[el('span',{},x.state==='MERGED'?'merged':x.state?'closed':'open pull request'),n?wkLink(x.ref,n+' handoff'+(n>1?'s':'')):null,acts.length?el('span',{class:'kact'},acts):null]})})}
-  for(const x of rows.get('')||[])items.push({project:x.what==='issue'?prProject(x.ref):projectOf(x),status:'needs',mine:!!x.mine,worker:false,issues:x.what==='issue'?[x.ref]:null,
+  for(const x of rows.get('')||[])items.push({project:x.what==='issue'?prProject(x.ref):projectOf(x),status:'needs',src:x,mine:!!x.mine,worker:false,issues:x.what==='issue'?[x.ref]:null,
     node:card({status:'needs',title:x.what==='issue'?x.ref:x.title,href:x.what==='issue'?ghHref(x.ref,'issue'):null,meta:[x.from?whoLink(x.from):null],age:x.what==='issue'?null:x.age,rows:[needRow(x,null,true)]})});
   // A session working with no handoff listed is still work in progress.
   for(const s of (filt?[]:d.sessions||[]).filter(s=>s.host_state==='busy'&&!isDash(s)&&!items.some(i=>i.sid===s.id)))
-    items.push({project:projKey(s.cwd),status:'progress',sid:s.id,mine:user?s.user===user:false,worker:false,
+    items.push({project:projKey(s.cwd),status:'progress',sid:s.id,src:s,mine:user?s.user===user:false,worker:false,
       node:card({status:'progress',live:true,liveTitle:'working now',title:s.task||shortPath(s.cwd),open:()=>showHistory(s.id,s.host_session||''),meta:[whoLink(s.id),(s.claims||[]).length?el('span',{},'holds '+(s.claims||[]).map(shortPath).join(', ')):null],age:s.seen_ago})});
   if(ISS.d){
     const ctx={live:new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,{...x,id:x.ref}])]),rows,openPR,user,my},cards=new Set(),prs=new Set();
@@ -1707,14 +1712,14 @@ function issueItems(d,unfiltered){
   return items}
 function drawCards(d){
   wfBar(d);
-  const items=issueItems(d,false);
+  const items=issueItems(d,false);bfSync(d,items);
   const projects=[...new Set(items.map(i=>i.project).filter(Boolean))].sort(projOrder);
   if(PROJ&&!projects.includes(PROJ))PROJ='';
   // In the Needs you view a folded open PR keeps its own card: that is where it is merged or rejected.
   const onBoard=i=>!i.folded||VIEW==='needs'&&i.openPR,inView=(i,v)=>v==='all'||v==='mine'&&i.mine||v==='agents'&&i.status==='progress'||v==='needs'&&(i.status==='needs'||i.status==='failed');
   const cards=items.filter(onBoard);if(VIEW==='mine'&&!CAN()&&!cards.some(i=>inView(i,'mine'))&&!ROUTE.params.has('view')){VIEW='all';VIEW_FALLBACK=true}drawIssuePanel(projects,cards,inView);issueNote();
-  const shown=cards.filter(i=>!PROJ||i.project===PROJ).filter(i=>inView(i,VIEW));
-  if(drawMarks(items.filter(i=>i.mark&&(!PROJ||i.project===PROJ)&&inView(i,VIEW))))return;
+  const shown=cards.filter(i=>!PROJ||i.project===PROJ).filter(i=>inView(i,VIEW)).filter(bfMatch);
+  if(drawMarks(items.filter(i=>i.mark&&(!PROJ||i.project===PROJ)&&inView(i,VIEW)&&bfMatch(i))))return;
   if(LAYOUT==='board'){drawBoard(shown);return}
   // Panels: by name, ignoring case, as the sidebar lists them; no checkout last.
   const groups=new Map();for(const i of shown){if(!groups.has(i.project))groups.set(i.project,[]);groups.get(i.project).push(i)}
@@ -1726,7 +1731,7 @@ function drawCards(d){
     const finBox=fin.length?el('details',{class:'finished','data-finished':k,open:finOpen},el('summary',{},'Finished ('+fin.length+')'),el('div',{class:'cards'},fin.map(i=>i.node))):null;if(finBox)finBox.addEventListener('toggle',()=>{try{localStorage.setItem(finKey,finBox.open?'1':'0')}catch(e){}});
     const p=el('details',{class:'proj','data-project':k,open:isOpen},el('summary',{},el('h2',{},k||'No checkout'),el('span',{class:'n',title:live.length+' open, '+fin.length+' finished'},live.length+' open'),need?el('span',{class:'n hot'},need+' need'+(need>1?'':'s')+' attention'):null),el('div',{class:'cards'},live.map(i=>i.node)),finBox);
     p.addEventListener('toggle',()=>{try{localStorage.setItem('dash-proj-'+k,p.open?'1':'0')}catch(e){}});return p});
-  board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]))}
+  board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ||BF_TEXT.trim()?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]))}
 /* views and filters */
 const WF={source:'',stage:''};let VIEW_FALLBACK=false,VIEW='mine';try{VIEW=localStorage.getItem('dash-view')||'mine'}catch(e){}if(!['all','mine','agents','needs'].includes(VIEW))VIEW='all';
 let ISSUE_FILTERS_OPEN=false;let LAYOUT='board',PROJ='';try{LAYOUT=localStorage.getItem('dash-layout')==='list'?'list':'board'}catch(e){}
@@ -1763,8 +1768,8 @@ function shortProject(p){return p.length>26&&p.includes('/')?p.split('/').pop():
 function wfBar(d){const b=$('wfilter'),key=JSON.stringify([d.dispatch,d.handoff_sources,d.handoff_stages]);if(b.dataset.key===key)return;b.dataset.key=key;b.replaceChildren();
   const pick=(key,label,values)=>el('label',{},label+' ',el('select',{'data-filter-field':key,onchange:e=>{WF[key]=e.target.value;if(lastDash)board(lastDash);lockState();saveIssueRoute()}},el('option',{value:''},'All'),(values||[]).map(v=>el('option',{value:v},word(v)))));
   const layouts=el('div',{class:'views','aria-label':'Layout'},[['list','List'],['board','Board']].map(([key,label])=>el('button',{class:LAYOUT===key?'on':'','aria-pressed':LAYOUT===key?'true':'false','data-layout':key,onclick:()=>setLayout(key)},label)));
-  const filters=el('div',{class:'filters'+(ISSUE_FILTERS_OPEN?' open':'')},pick('source','Source',d.handoff_sources),pick('stage','Stage',d.handoff_stages)),toggle=el('button',{class:'issue-filters-toggle','aria-expanded':String(ISSUE_FILTERS_OPEN),onclick:()=>{ISSUE_FILTERS_OPEN=!ISSUE_FILTERS_OPEN;filters.classList.toggle('open',ISSUE_FILTERS_OPEN);toggle.setAttribute('aria-expanded',String(ISSUE_FILTERS_OPEN))}},'Filters');
-  b.append(...[layouts,toggle,filters,el('button',{id:'issue-clear',onclick:clearIssueFilters},'Clear filters'),d.dispatch?el('button',{id:'new-handoff',class:'primary','data-write':true,onclick:()=>newHandoffSheet()},'New handoff'):null].filter(Boolean))}
+  const filters=el('div',{class:'filters'+(ISSUE_FILTERS_OPEN?' open':'')},...bfPicks(),pick('source','Source',d.handoff_sources),pick('stage','Stage',d.handoff_stages)),toggle=el('button',{class:'issue-filters-toggle','aria-expanded':String(ISSUE_FILTERS_OPEN),onclick:()=>{ISSUE_FILTERS_OPEN=!ISSUE_FILTERS_OPEN;filters.classList.toggle('open',ISSUE_FILTERS_OPEN);toggle.setAttribute('aria-expanded',String(ISSUE_FILTERS_OPEN))}},'Filters');
+  b.append(...[layouts,bfBox(),toggle,filters,el('button',{id:'issue-clear',onclick:clearIssueFilters},'Clear filters'),d.dispatch?el('button',{id:'new-handoff',class:'primary','data-write':true,onclick:()=>newHandoffSheet()},'New handoff'):null].filter(Boolean))}
 function wkLink(ref,text){return el('button',{class:'linkish',title:'Open work item',onclick:()=>showWorkItem(ref)},el('code',{title:ref},text||ref))}
 function costText(c){if(!c)return 'No worker ran on this.';
   if(c.partial&&!(c.usd>0))return 'Cost unknown: some usage or prices are missing. See Insights → Usage. '+Math.round(c.minutes)+' min across '+c.workers+' workers.';
@@ -1913,8 +1918,8 @@ function issueItem(it,ctx,needRows){
     el('div',{class:'ktop'},el('div',{class:'ktitle',title:it.title||it.ref},el('a',{href:itemHash(it.ref)},shortTitle(it.title||it.ref))),statusEl(status,live&&live.key==='working',live&&live.text)),
     el('div',{class:'kmeta'},el('code',{class:'kref',title:it.ref},num),who?whoLink(who):el('span',{},'Unassigned'),ended?el('span',{},ended):null,changeEl(hs.filter(h=>h.change).pop()),it.updated_ago?el('span',{class:'age'},it.updated_ago+' ago'):null),
     ...(needs.length?needRows(needs):[]));
-  return {project:it.repo,status,sid:who||'',mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
-function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ='';VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
+  return {project:it.repo,status,sid:who||'',src:it,mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
+function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ='';bfRead(new URLSearchParams());VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
 function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
   if(VIEW_FALLBACK)out.push(el('div',{class:'filter-note'},'Showing All because nothing is assigned to you in Started by me.'));
   if(WF.source||WF.stage)out.push(el('div',{class:'filter-note'},'Source and stage apply to tasks. Standalone pull requests and sessions are hidden.'));
@@ -2017,6 +2022,62 @@ dashPage('issues',{title:'Issues',pageId:'work',enter:issuesEnter,unlock(r){issu
     if(ROUTE.item!=='issues')return;
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
 // end:issues
+// region:filter: typed filters on the board (#456). One filter, read from the
+// box (free words match the title; agent:, status:, pr:, project:, person:
+// narrow it) and written by the Agent, Status, PR and Person dropdowns, so both
+// show the same cards. It is q= in the address: a link or a reload brings it
+// back. A key or value it does not know is named under the box, not dropped.
+const BF_KEYS={agent:['claude','codex','opencode'],status:['needs','failed','todo','progress','review','done','cancelled','declined'],pr:['open','merged','closed','none'],project:null,person:null},
+  BF_LABEL={agent:'Agent',status:'Status',pr:'PR',person:'Person'};
+let BF_TEXT='',BF=bfParse(''),BF_PR=new Map();
+function bfParse(text){const f={words:[],agent:'',status:'',pr:'',project:'',person:'',bad:[]};
+  for(const t of String(text||'').trim().split(/\s+/).filter(Boolean)){const m=/^([A-Za-z_]+):(.*)$/.exec(t);
+    if(!m){f.words.push(t.toLowerCase());continue}
+    const k=m[1].toLowerCase(),v=m[2].toLowerCase(),known=Object.prototype.hasOwnProperty.call(BF_KEYS,k);
+    if(!known)f.bad.push({token:t,why:'no key '+k+': (use agent:, status:, pr:, project: or person:)'});
+    else if(!v)f.bad.push({token:t,why:k+': needs a value'});
+    else if(BF_KEYS[k]&&!BF_KEYS[k].includes(v))f.bad.push({token:t,why:k+': takes '+BF_KEYS[k].join(', ')});
+    else f[k]=v}
+  return f}
+function bfText(f){return [...['agent','status','pr','project','person'].filter(k=>f[k]).map(k=>k+':'+f[k]),...f.words,...f.bad.map(b=>b.token)].join(' ')}
+function bfRead(p){BF_TEXT=p.get('q')||'';BF=bfParse(BF_TEXT);const box=$('board-filter');if(box)box.value=BF_TEXT}
+function bfApply(text,replace){BF_TEXT=text;BF=bfParse(text);saveIssueRoute(replace);if(lastDash)board(lastDash);lockState()}
+// bfSet is a dropdown's write: the same filter the box holds, rewritten.
+function bfSet(k,v){const f=bfParse(BF_TEXT);f[k]=v;f.bad=f.bad.filter(b=>!b.token.toLowerCase().startsWith(k+':'));const t=bfText(f);const box=$('board-filter');if(box)box.value=t;bfApply(t,false)}
+function bfBox(){const input=el('input',{id:'board-filter',type:'search',class:'bf-input',autocomplete:'off',spellcheck:'false','aria-label':'Filter the board','aria-describedby':'board-filter-bad',placeholder:'Filter: words, agent:codex status:review pr:open project: person:'});
+  input.value=BF_TEXT;input.addEventListener('input',()=>bfApply(input.value,true));input.addEventListener('change',()=>bfApply(input.value,false));
+  return el('div',{class:'bf-box'},input,el('p',{id:'board-filter-bad',class:'bf-bad',role:'status'}))}
+function bfPicks(){return ['agent','status','pr','person'].map(k=>el('label',{},BF_LABEL[k]+' ',el('select',{'data-bf':k,onchange:e=>bfSet(k,e.target.value)},el('option',{value:''},'All'),(BF_KEYS[k]||[]).map(v=>el('option',{value:v},k==='status'?STATUS[v]:k==='agent'?toolName(v):word(v))))))}
+// bfSync puts the filter back into the box, the dropdowns and the note after each draw.
+function bfSync(d,items){BF_PR=new Map();for(const x of d.done||[])if(x.what==='PR')BF_PR.set(x.ref,x.state==='MERGED'?'merged':'closed');for(const x of d.waiting||[])if(x.what==='PR')BF_PR.set(x.ref,'open');
+  const box=$('board-filter');if(box&&document.activeElement!==box&&box.value!==BF_TEXT)box.value=BF_TEXT;
+  const people=[...new Set([...items.flatMap(i=>[...bfPeople(i)]),BF.person].filter(Boolean))].sort();
+  for(const s of document.querySelectorAll('select[data-bf]')){const k=s.dataset.bf;
+    if(k==='person'&&s.dataset.opts!==people.join(' ')){s.dataset.opts=people.join(' ');s.replaceChildren(el('option',{value:''},'All'),...people.map(v=>el('option',{value:v},v)))}
+    s.value=BF[k]||''}
+  const bad=$('board-filter-bad');if(bad){bad.replaceChildren(...(BF.bad.length?['Not understood: ',...BF.bad.flatMap((b,n)=>[n?'; ':'',el('code',{},b.token),' ('+b.why+')']),'. The rest of the filter applies.']:[]));bad.hidden=!BF.bad.length}
+  if(box)box.setAttribute('aria-invalid',BF.bad.length?'true':'false');
+  const clear=$('issue-clear');if(clear&&BF_TEXT.trim())clear.hidden=false}
+function bfRows(i){const x=i.src||{};return [x,...(i.issueCard?x.handoffs||[]:[])]}
+function bfAgents(i){const out=new Set(),add=t=>{if(t)out.add(String(t).toLowerCase())};
+  for(const h of bfRows(i)){add(h.worker);for(const a of h.attempts||[])add(a.tool)}
+  if(!i.pr&&!out.size&&i.sid){const s=sessionRow(i.sid);if(s)add(s.tool)}
+  return out}
+function bfPeople(i){const out=new Set();for(const h of bfRows(i))for(const k of ['from_user','to_user','claimer_user','user'])if(h[k])out.add(String(h[k]).toLowerCase());return out}
+// bfPRs: open, merged, closed for each pull request a card has, or none. A PR the
+// dash does not list (closed over a day ago) has no state here and matches neither.
+function bfPRs(i){const x=i.src||{};if(i.pr)return new Set([x.state==='MERGED'?'merged':x.state?'closed':'open']);
+  const refs=(x.prs||[]).map(p=>typeof p==='string'?{ref:p}:p||{}).filter(p=>p.ref);if(!refs.length)return new Set(['none']);
+  return new Set(refs.map(p=>{const s=String(p.state||'').toUpperCase();return s==='MERGED'?'merged':s==='CLOSED'?'closed':s==='OPEN'?'open':BF_PR.get(p.ref)||''}).filter(Boolean))}
+function bfMatch(i){const f=BF;
+  if(f.status&&i.status!==f.status)return false;
+  if(f.agent&&!bfAgents(i).has(f.agent))return false;
+  if(f.person&&!bfPeople(i).has(f.person))return false;
+  if(f.pr&&!bfPRs(i).has(f.pr))return false;
+  if(f.project){const p=(i.project||'').toLowerCase();if(p!==f.project&&p.split('/').pop()!==f.project)return false}
+  if(f.words.length){const x=i.src||{},t=[x.title,x.goal,x.task,x.ref,x.id].filter(Boolean).join(' ').toLowerCase();if(!f.words.every(w=>t.includes(w)))return false}
+  return true}
+// end:filter
 // region:console: the session and work item drawer, opened from any page
 /* history drawer */
 const KIND={session:'idle',claim:'shellp',handoff:'busy',msg:'active',compaction:'stale'};
