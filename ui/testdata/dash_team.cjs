@@ -75,8 +75,9 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  assert.deepEqual(posts[1],{action:'add',dir:'/srv/beta',route:'off'});assert(form.hidden,'the form stays open after the add');
  r=rowOf('/srv/beta');assert(r,'the added checkout is not listed');assert.equal(r.querySelector('[data-route]').textContent,'Off');assert.equal(tabs()[0].querySelector('.n').textContent,'2');
  assert(requests.filter(x=>x==='GET /api/dash').length>before,'the snapshot New task reads was not refreshed');
- w.eval('newHandoffSheet()');await settle();const cwd=[...doc.querySelectorAll('dialog.sheet select')].find(n=>n.id.endsWith('-cwd'));assert(cwd,'New task has no repository field');
- assert([...cwd.querySelectorAll('option')].some(o=>o.value==='/srv/beta'),'New task does not offer the added checkout');w.eval('activeSheet&&activeSheet.cancel()');await settle();assert(!doc.querySelector('dialog.sheet'),'the sheet did not close');
+ // New task is a page (#482): its form is #nt-form, left with Cancel.
+ w.eval('newHandoffSheet()');await settle();const ntForm=doc.getElementById('nt-form');assert(ntForm&&w.location.hash==='#new','New task did not open');const cwd=[...ntForm.querySelectorAll('select')].find(n=>n.id.endsWith('-cwd'));assert(cwd,'New task has no repository field');
+ assert([...cwd.querySelectorAll('option')].some(o=>o.value==='/srv/beta'),'New task does not offer the added checkout');[...ntForm.querySelectorAll('.nt-foot button')].find(b=>b.textContent==='Cancel').click();await settle();assert(w.location.hash!=='#new','New task did not close');
  // Anyone else: no Add a repository and no form, the terminal command instead.
  dash={...dash,user:'vera',role:'viewer'};w.eval('refresh()');await settle();await go('#team/repositories');
  assert(!btn(doc.querySelector('#team-head'),'Add a repository'),'a viewer is offered Add a repository');assert(doc.querySelector('#repo-add').hidden);assert(doc.querySelector('#team-head').textContent.includes('agentd repo add DIR'));
