@@ -139,6 +139,13 @@ details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:a
 .tfiles-md h1,.tfiles-md h2,.tfiles-md h3,.tfiles-md h4,.tfiles-md h5,.tfiles-md h6{margin:8px 0 4px;font-size:1em}.tfiles-md h1{font-size:1.25em}.tfiles-md h2{font-size:1.12em}
 @media(max-width:860px){.tfiles-text,.tfiles-md{max-height:60vh}.tfiles-filter{min-height:44px}}
 /* end:css-files */
+/* region:css-terminal: an owner's shell on a task (GET /api/terminal, #463), off unless [dash] terminal is set */
+.tterm{margin:8px 0;min-width:0;max-width:100%;box-sizing:border-box}.tterm>summary{cursor:pointer;font-weight:600}
+.tterm-status{margin:4px 0;overflow-wrap:anywhere}.tterm-warn{margin:4px 0;color:var(--amber);overflow-wrap:anywhere}
+.tterm-screen{height:360px;max-width:100%;min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:var(--sunk);padding:4px;box-sizing:border-box}
+.tterm-actions{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
+@media(max-width:860px){.tterm-screen{height:50vh}.tterm-actions button{min-height:44px}}
+/* end:css-terminal */
 /* region:css-team */
 #page-team{container-type:inline-size;min-width:0}
 #team-open{display:none;margin-top:10px}#team-open[hidden]{display:none}#team-view>.tm-sec:first-child{margin-top:0}
@@ -1435,6 +1442,49 @@ function filesPanel(hid){const c=FILES[hid]||(FILES[hid]={}),body=el('div',{clas
   det.addEventListener('toggle',()=>{if(c.body!==body)return;const was=c.open;c.open=det.open;if(det.open&&!was){delete c.data;delete c.shown;load()}});
   return det}
 // end:files
+// region:terminal: an owner's interactive shell on a task (GET /api/terminal, a WebSocket, #463). Shown only
+// when /api/dash says terminal (the server's [dash] terminal is on, its listening rule allows it, and this
+// person is an owner signed in as themselves); the server checks all of that again on the socket. The
+// widget is the vendored xterm.js at /vendor/ (served by the binary, never a CDN), loaded on first open.
+// Keystrokes go as binary messages, the size as a text {cols,rows}; the shell's bytes are drawn by xterm,
+// and the close reason goes in as text. Closing the section, leaving the task or the page closes the socket,
+// and the server ends the shell; one shell per task.
+const TERM={};let TERM_LOADING=null,TERM_WATCH=2000;
+function termOffered(){return !!(lastDash&&lastDash.terminal)}
+function termLoad(){if(window.Terminal)return Promise.resolve(window.Terminal);if(TERM_LOADING)return TERM_LOADING;
+  TERM_LOADING=new Promise((ok,fail)=>{if(!document.querySelector('link[data-xterm]'))document.head.append(el('link',{rel:'stylesheet',href:'/vendor/xterm.css','data-xterm':''}));
+    const sc=el('script',{src:'/vendor/xterm.js','data-xterm':''});sc.addEventListener('load',()=>window.Terminal?ok(window.Terminal):fail(new Error('the terminal widget did not load')));
+    sc.addEventListener('error',()=>{TERM_LOADING=null;fail(new Error('the terminal widget did not load'))});document.head.append(sc)});return TERM_LOADING}
+function termColors(){const cs=getComputedStyle(document.documentElement),v=n=>(cs.getPropertyValue(n)||'').trim();return {background:v('--sunk')||'#ebebee',foreground:v('--fg')||'#1d1d1f',cursor:v('--fg')||'#1d1d1f'}}
+// termSize is the columns and rows the screen element holds at the widget's 13px font.
+function termSize(box){const w=box&&box.clientWidth||640,h=box&&box.clientHeight||360;return {cols:Math.max(20,Math.min(400,Math.floor((w-8)/7.8))),rows:Math.max(5,Math.min(200,Math.floor((h-8)/17)))}}
+function termSay(c,text,warn){if(c.status){c.status.textContent=text;c.status.className=warn?'tterm-warn':'mute tterm-status'}}
+function termButtons(c,hid){if(!c.actions)return;c.actions.replaceChildren(c.ws?el('button',{type:'button',onclick:()=>termClose(hid,'You closed the terminal.')},'Close terminal'):el('button',{type:'button',onclick:()=>termOpen(hid)},c.used?'Open again':'Open a shell'))}
+function termClose(hid,why){const c=TERM[hid];if(!c)return;if(c.watch){clearInterval(c.watch);c.watch=0}const ws=c.ws;c.ws=null;if(ws&&ws.readyState<2)ws.close(1000);if(why)termSay(c,why);termButtons(c,hid)}
+function termOpen(hid){const c=TERM[hid]||(TERM[hid]={});if(c.ws)return;c.used=true;termSay(c,'Starting the shell…');termButtons(c,hid);
+  termLoad().then(T=>{if(!c.screen||!c.screen.isConnected){termSay(c,'');return}
+    if(!c.term){c.term=new T({fontSize:13,cursorBlink:true,convertEol:false,scrollback:2000,theme:termColors()});c.term.open(c.screen);c.term.onData(d=>{if(c.ws&&c.ws.readyState===1)c.ws.send(new TextEncoder().encode(d))})}
+    const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/api/terminal?id='+encodeURIComponent(hid));ws.binaryType='arraybuffer';c.ws=ws;termButtons(c,hid);
+    const fit=()=>{const z=termSize(c.screen);c.term.resize(z.cols,z.rows);if(ws.readyState===1)ws.send(JSON.stringify(z))};
+    ws.onopen=()=>{fit();termSay(c,'Connected: a shell in the task’s worker directory, as the dash’s own user on this host. What you type runs there. It closes after 15 minutes with nothing typed.');if(c.term.focus)c.term.focus()};
+    ws.onmessage=e=>{if(e.data&&typeof e.data!=='string')c.term.write(new Uint8Array(e.data))};
+    ws.onclose=e=>{if(c.ws!==ws)return;c.ws=null;if(c.watch){clearInterval(c.watch);c.watch=0}
+      termSay(c,e.reason?'Closed: '+e.reason+'.':e.code===1006?'The terminal was refused or lost. Only an owner may open one, from the dash itself, on a task with a worker directory, one at a time.':'Closed.',!e.reason);termButtons(c,hid)};
+    c.onresize=c.onresize||(()=>{if(c.ws&&c.ws.readyState===1)fit()});window.addEventListener('resize',c.onresize);
+    // Leaving the task (its section no longer on the page) closes the shell too.
+    c.watch=setInterval(()=>{if(!c.screen||!c.screen.isConnected)termClose(hid,'')},TERM_WATCH)})
+  .catch(e=>{c.ws=null;termSay(c,'The terminal could not start: '+errorText(e),true);termButtons(c,hid)})}
+// termPanels is [] or the Terminal section of task hid; a redraw moves the open screen into the new section.
+function termPanels(hid){if(!termOffered()||!hid)return [];const c=TERM[hid]||(TERM[hid]={});
+  const screen=c.screen||el('div',{class:'tterm-screen','aria-label':'Terminal'});c.screen=screen;
+  c.status=el('p',{class:'mute tterm-status',role:'status'},c.ws?'Connected.':'Opens an interactive shell in this task’s worker directory, as the dash’s own user. Owners only.');
+  c.actions=el('div',{class:'tterm-actions'});termButtons(c,hid);
+  const det=el('details',{class:'tterm','data-terminal':hid},el('summary',{},'Terminal'),c.status,c.actions,screen);
+  if(c.open)det.open=true;
+  det.addEventListener('toggle',()=>{if(c.screen!==screen||!det.isConnected)return;c.open=det.open;if(!det.open&&c.ws)termClose(hid,'You closed the terminal.')});
+  return [det]}
+window.addEventListener('pagehide',()=>{for(const hid of Object.keys(TERM))termClose(hid,'')});
+// end:terminal
 // region:marks: one mark per task (#454). The server decides it (taskMark) and
 // sends it as mark on every task, so the board, Chat and Team read the same:
 // the same word, glyph and colour, never colour alone. The strip over the board
@@ -1989,7 +2039,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
     ['Cost',d.cost?costText(d.cost):null],
     ['Latest result',done&&done.result?words(done.result):null],
     ['Actions',h&&handoffActions(dash,h).length?el('span',{class:'kact',style:'margin:0'},handoffActions(dash,h)):null]])));
-  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref),filesPanel(ref));
+  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref),filesPanel(ref),...termPanels(ref));
   const reply=blockedWorkerReply(h,who);if(reply)box.append(sec('Waiting for your reply'),reply);
   if(d.kind==='pr'&&!tree.length)box.append(el('p',{class:'mute'},'No handoff is linked to this PR. A dispatched worker\'s PR links by its branch on pr sync-gh; otherwise use handoff link.'));
   // Sub-handoffs: the tree rows under the focused one.
@@ -2145,7 +2195,7 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
     x.env?el('div',{class:'kmeta'},workerEnvLine(x.env)):null,
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
-    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,worked?filesPanel(x.id):null,
+    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,worked?filesPanel(x.id):null,worked?termPanels(x.id):null,
     log.length?el('details',{'data-log':x.id,open:openIds.has(x.id)||null},el('summary',{},'History, '+log.length),el('ol',{class:'ilog'},log.map(l=>el('li',{},el('span',{class:'when'},l.ago+' ago '),l.actor?nameOf(l.actor)+': ':'',l.note||l.state)))):null)}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
   keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#')||isLinearRef(ref);
