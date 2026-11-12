@@ -3,6 +3,17 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>agentd dash</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%230a66d6%22/%3E%3Cpath d=%22M9 22V13a7 7 0 0114 0v9M9 16h14%22 fill=%22none%22 stroke=%22white%22 stroke-width=%223%22/%3E%3C/svg%3E">
+<!-- region:install-head: the dash as an installable app (#465): its manifest and icons are served by agentd -->
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="application-name" content="agentd">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="agentd">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1e1e20" media="(prefers-color-scheme: dark)">
+<!-- end:install-head -->
 <script>try{const t=localStorage.getItem('dash-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <style>
 /* Shared surfaces, type and controls. Status always pairs a glyph with a word. */
@@ -3456,5 +3467,14 @@ document.addEventListener('click',e=>{if(CHAT.menu&&!e.target.closest('.chat-row
 function chatRouted(r){let want='';try{want=decodeURIComponent(r.rest[0]||'')}catch(e){want=r.rest[0]}return want}
 dashPage('chat',{title:'Chat',leave(){chatVoiceCancel()},render(){if(ROUTE.item==='chat'){chatComposerState();chatRenderCards()}},enter(r){const want=chatRouted(r);if(r.params&&r.params.get('role')&&!CHAT.id){CHAT.draft=r.params.get('role');CHAT.chat={role:CHAT.draft,title:'New conversation'}}chatRenderThread();chatHint();chatLoad();if(want){if(!(CHAT.live&&CHAT.id===want))chatOpen(want,CHAT.id===want);return}if(CHAT.id)history.replaceState(null,'','#chat/'+encodeURIComponent(CHAT.id));else if(CHAT.missing){CHAT.missing=false;chatRenderThread()}},unlock(r){chatLoad();const want=chatRouted(r)||CHAT.id;if(want)chatOpen(want,true)}});
 // end:chat
+// region:install: an installed dash's window bar follows the page's theme (#465). The
+// two theme-color tags in region:install-head follow the system; a theme chosen in
+// Settings (data-theme) sets both to that theme's background.
+const INSTALL_BAR={light:'#f5f5f7',dark:'#1e1e20'};
+function installThemeBar(){const t=document.documentElement.dataset.theme;
+  for(const m of document.querySelectorAll('meta[name="theme-color"]')){const own=/dark/.test(m.getAttribute('media')||'')?'dark':'light';m.content=INSTALL_BAR[t==='light'||t==='dark'?t:own]}}
+installThemeBar();
+new MutationObserver(installThemeBar).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+// end:install
 </script>
 </body></html>
