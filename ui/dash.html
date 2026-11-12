@@ -684,6 +684,17 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .set-toolbar{gap:12px;align-items:flex-start}.set-desc{margin:4px 0 0}.set-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px;align-items:start}.set-card{border:1px solid var(--line);border-radius:var(--r-s);padding:12px;min-width:0}.set-card h3{margin:0 0 8px}.set-group code{overflow-wrap:anywhere}
 @media(max-width:860px){.set-cards{grid-template-columns:minmax(0,1fr)}}
 /* end:css-settings */
+/* region:css-setup: the first-run wizard (#488), one card of four steps */
+#page-setup{max-width:none;justify-items:center}#setup-body{width:100%;max-width:860px;display:grid;gap:20px;padding:28px 32px;border:1px solid var(--line);border-radius:var(--r-m,10px);background:var(--panel);box-sizing:border-box;min-width:0}
+.setup-head{display:flex;align-items:center;gap:12px}.setup-head .rail-mark{margin:0;pointer-events:none}.setup-head [data-setup-count]{margin-left:auto}.setup-small{font-size:var(--fs-s,12px)}
+.setup-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}.setup-steps button{display:grid;gap:6px;width:100%;text-align:left;background:none;border:0;padding:0 0 4px;color:var(--mute);font:inherit;font-size:var(--fs-s,12px);cursor:pointer;min-height:32px}
+.setup-bar{display:block;height:4px;border-radius:2px;background:var(--line)}.setup-steps button.done .setup-bar,.setup-steps button[aria-current] .setup-bar{background:var(--accent-fill)}.setup-steps button[aria-current]{color:var(--fg);font-weight:600}.setup-steps button.done .setup-mark{color:var(--green)}
+#setup-body h2{margin:0;font-size:22px}#setup-body h2+p{margin:6px 0 0}.setup-step{display:grid;gap:12px;min-width:0}.setup-cmd{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}.setup-cmd code{overflow-wrap:anywhere}
+.setup-agents{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.setup-agent{display:grid;gap:6px;align-content:start;padding:14px;border:1px solid var(--line);border-radius:8px;min-width:0}.setup-agent.on{border-color:var(--accent)}.setup-agent [data-setup-state=connected],.setup-agent [data-setup-state=installed]{color:var(--green)}.setup-agent button{justify-self:start}
+.setup-form{display:grid;gap:6px;max-width:560px}.setup-form label{color:var(--mute);margin-top:6px}.setup-form input,.setup-form select,.setup-form textarea{min-width:0;font:inherit}.setup-form [role=alert],#setup-body [role=alert]{color:var(--red);overflow-wrap:anywhere}.setup-list{margin:0;padding-left:18px}.setup-list code{overflow-wrap:anywhere}
+.setup-four{display:grid;gap:4px;padding:12px 14px;border-radius:8px;background:var(--sunk)}.setup-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.setup-grow{flex:1}
+@media(max-width:860px){#setup-body{padding:18px 16px;border:0;background:none}.setup-agents{grid-template-columns:minmax(0,1fr)}.setup-steps button,.setup-foot button,.setup-form button,.setup-agent button,.setup-cmd button{min-height:44px}.setup-form{max-width:none}}
+/* end:css-setup */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -915,6 +926,9 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   <div id="trig-body" class="trig-col"></div>
 </div>
 <!-- end:page-triggers -->
+<!-- region:page-setup: the first-run wizard (#488); drawn by region:setup in the script -->
+<div id="page-setup" class="page textpage" hidden><div id="setup-body"></div></div>
+<!-- end:page-setup -->
 <div id="page-notfound" class="page textpage" hidden><h2>This page could not be found</h2><p>The address may be old or incomplete. <a href="#inbox">Go to Inbox</a>.</p></div>
 <!-- region:page-help -->
 <div id="page-help" class="page textpage" hidden><a class="page-back" href="#inbox">← Inbox</a>
@@ -3741,6 +3755,90 @@ async function connectRun(tool,dry,box){if(CONNECT.busy)return;CONNECT.busy=true
   catch(e){if(identity===settingsIdentity())box.replaceChildren(el('p',{role:'alert'},errorText(e)))}
   finally{CONNECT.busy=false;connectButtons(false)}}
 // end:connect
+// region:setup: the first-run wizard (#488). Four steps, each the terminal command it
+// stands for and its real state: 1 agentd doctor (GET /api/settings?diagnostics=1),
+// 2 agentd connect (region:connect's Preview and Connect), 3 agentd repo add DIR --route
+// (POST /api/repositories), 4 a first task with a 30-minute budget (POST /api/action offer,
+// as New task sends), ending on its workspace #issues/ID. GET /api/setup says which of 2-4
+// are done and whether to open it on its own: for a signed-in owner whose install has no
+// repository or no connected agent, unless "Set up later" was pressed (POST /api/setup
+// {action:'later'}, kept by the install). Help opens it at any time.
+const SETUP={data:null,doctor:null,step:0,asked:'',request:0,error:'',busy:false,picked:false};
+const SETUP_STEPS=[
+  {id:'host',name:'Check this host',title:'Check this host',lead:'agentd doctor reads this install and says what works. It changes nothing; a failing check names its fix.'},
+  {id:'agents',name:'Connect agents',title:'Connect your coding agents',lead:'agentd starts the agents already on this host. Pick the ones it may use; nothing is changed until you press Connect.'},
+  {id:'repository',name:'Add a repository',title:'Add a repository and choose routing',lead:'A checkout on this host that workers may run in. With routing on, implementation, fixes and PR reviews in it go through agentd.'},
+  {id:'task',name:'Run a first task',title:'Run a first task',lead:'Start one worker with a 30-minute budget and watch it in the task’s workspace. It stops at the budget.'}];
+const SETUP_AGENT={claude:'MCP server, hooks and Skills',codex:'MCP server and approval mode',opencode:'Its MCP entry'};
+function setupOwner(){return ROLE==='owner'&&!!USER}
+function setupDone(id){const d=SETUP.data,s=d&&d.steps||{};if(id==='host')return !!SETUP.doctor&&!SETUP.doctor.error&&!(SETUP.doctor.doctor||[]).some(c=>c.status==='fail');return !!(s[id]&&s[id].done)}
+async function setupAPI(body){const r=await fetch('/api/setup',{method:body?'POST':'GET',cache:'no-store',headers:{...auth(),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});let d={};try{d=await r.json()}catch(e){}if(!r.ok)throw new Error(d.error||'Could not read the setup state (HTTP '+r.status+').');return d}
+// setupLoad reads the state again; the first load picks the first step not done.
+async function setupLoad(){const seq=++SETUP.request;try{const d=await setupAPI();if(seq!==SETUP.request)return;SETUP.data=d;SETUP.error='';
+    if(!SETUP.picked){SETUP.picked=true;const next=['agents','repository','task'].findIndex(id=>!setupDone(id));SETUP.step=setupDone('agents')||setupDone('repository')?next<0?3:next+1:0}}
+  catch(e){if(seq===SETUP.request)SETUP.error=errorText(e)}
+  if(ROUTE.item==='setup')setupRender()}
+async function setupDoctor(){if(!setupOwner())return;SETUP.doctor={loading:true};if(ROUTE.item==='setup')setupRender();
+  try{SETUP.doctor=await settingsAPI(null,'?diagnostics=1')}catch(e){SETUP.doctor={error:errorText(e)}}if(ROUTE.item==='setup')setupRender()}
+// setupCommand is a step's terminal command with Copy, so the page and the CLI never disagree.
+function setupCommand(text){return el('p',{class:'setup-cmd','data-setup-command':''},el('span',{class:'mute'},'In a terminal: '),el('code',{},text),el('button',{type:'button',class:'quiet',onclick:()=>chatCopy(text)},'Copy'))}
+function setupHost(){const d=SETUP.doctor||{},checks=d.doctor||[],fails=checks.filter(c=>c.status==='fail');
+  return [setupCommand('agentd doctor'),d.loading?el('p',{role:'status'},'Running doctor…'):d.error?el('p',{role:'alert'},d.error):
+    el('div',{},el('p',{'data-setup-state':fails.length?'fail':'pass'},fails.length?fails.length+' required '+(fails.length===1?'check fails':'checks fail')+'. Each names its fix.':'Every required check passes.'),
+      settingsTable(['Check','Status','Detail'],checks.map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)]))),
+    el('div',{class:'set-actions'},el('button',{type:'button',onclick:setupDoctor,disabled:!!d.loading},'Check again'))]}
+function setupAgents(){const a=(SETUP.data&&SETUP.data.steps||{}).agents||{},box=el('div',{id:'setup-connect-result',class:'set-connect-out',hidden:true});
+  // Connect is region:connect's; once it has run, the state is read again.
+  new MutationObserver(()=>{if(box.querySelector('[data-connect-head="connect"]'))setupLoad()}).observe(box,{childList:true});
+  const cards=(a.clients||[]).map(c=>el('div',{class:'setup-agent'+(c.connected?' on':''),'data-setup-agent':c.tool},el('strong',{},toolName(c.tool)),
+    el('span',{class:'setup-small','data-setup-state':c.connected?'connected':c.found?'installed':'missing'},c.connected?'Connected':c.found?'Installed':'Not installed'),
+    el('span',{class:'setup-small mute'},c.found?SETUP_AGENT[c.tool]||'':'Skipped; add it later in Settings'),
+    c.found?el('button',{type:'button','data-connect-preview':c.tool,onclick:()=>connectRun(c.tool,true,box)},c.connected?'Preview again':'Preview'):null));
+  return [setupCommand('agentd connect '+((a.clients||[]).find(c=>c.found)||{tool:'claude'}).tool),el('div',{class:'setup-agents'},cards),box]}
+function setupRepository(){const r=(SETUP.data&&SETUP.data.steps||{}).repository||{},list=r.repositories||[],msg=el('p',{id:'setup-repo-msg',role:'alert',hidden:true});
+  const dir=el('input',{id:'setup-repo-dir',type:'text',autocomplete:'off',placeholder:'/home/you/src/project'}),route=el('select',{id:'setup-repo-route'},el('option',{value:'on'},'On'),el('option',{value:'off'},'Off'));
+  const form=el('form',{class:'setup-form',id:'setup-repo'},el('label',{for:'setup-repo-dir'},'Checkout on this host'),dir,el('label',{for:'setup-repo-route'},'Route work through agentd'),route,msg,el('div',{class:'set-actions'},el('button',{type:'submit',class:'primary'},'Add repository')));
+  form.onsubmit=async e=>{e.preventDefault();if(SETUP.busy)return;SETUP.busy=true;msg.hidden=true;try{const res=await fetch('/api/repositories',{method:'POST',headers:{...auth(),'Content-Type':'application/json'},body:JSON.stringify({action:'add',dir:dir.value.trim(),route:route.value})});let j={};try{j=await res.json()}catch(x){}
+      if(!res.ok)throw new Error(j.error||'The repository was not added (HTTP '+res.status+').');toast('Added '+(j.path||dir.value.trim()),true);refresh();await setupLoad()}
+    catch(x){msg.textContent=errorText(x);msg.hidden=false}finally{SETUP.busy=false}};
+  return [setupCommand('agentd repo add DIR --route on|off'),list.length?el('ul',{class:'setup-list','data-setup-repos':''},list.map(x=>el('li',{},el('code',{},x.path),' · routing ',x.route==='on'?'on':x.route==='off'?'off':'not set'))):el('p',{class:'mute'},'No repository yet.'),form]}
+function setupTask(){const t=(SETUP.data&&SETUP.data.steps||{}).task||{},s=SETUP.data&&SETUP.data.steps||{},repos=((s.repository||{}).repositories||[]).map(x=>x.path),tools=((s.agents||{}).clients||[]).filter(c=>c.connected).map(c=>c.tool),msg=el('p',{id:'setup-task-msg',role:'alert',hidden:true});
+  const out=[setupCommand(t.command||'agentd run "GOAL" --budget 30m')];
+  if(t.done&&t.handoff)out.push(el('p',{'data-setup-first':''},'A first task has started: ',el('a',{href:'#issues/'+t.handoff},'open its workspace'),'.'));
+  if(!t.dispatch){out.push(el('p',{'data-setup-off':''},'Starting workers from the dash is off. Turn it on in a terminal: ',el('code',{},'agentd config set dash.dispatch true'),', or run the command above there.'));return out}
+  if(!repos.length){out.push(el('p',{class:'mute'},'Add a repository first (step 3).'));return out}
+  const cwd=el('select',{id:'setup-task-cwd'},repos.map(p=>el('option',{value:p},p))),tool=el('select',{id:'setup-task-tool'},(tools.length?tools:[t.default_tool||'claude']).map(x=>el('option',{value:x},toolName(x))));
+  const goal=el('textarea',{id:'setup-task-goal',rows:3,maxlength:2000}),accept=el('textarea',{id:'setup-task-accept',rows:2,maxlength:2000});
+  const form=el('form',{class:'setup-form',id:'setup-task'},el('label',{for:'setup-task-cwd'},'Repository'),cwd,el('label',{for:'setup-task-tool'},'Agent'),tool,el('label',{for:'setup-task-goal'},'Goal'),goal,el('label',{for:'setup-task-accept'},'What done means, one per line'),accept,
+    el('p',{class:'mute','data-setup-budget':''},'Budget: 30 minutes. The worker stops at it.'),msg,el('div',{class:'set-actions'},el('button',{type:'submit',class:'primary','data-write':true},'Start the task')));
+  form.onsubmit=async e=>{e.preventDefault();if(SETUP.busy)return;const g=goal.value.trim(),a=accept.value.trim();msg.hidden=true;
+    if(!g||!a){msg.textContent=!g?'Goal is required.':'Write what done means: the worker is checked against it.';msg.hidden=false;(g?accept:goal).focus();return}
+    SETUP.busy=true;try{const key=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('');
+      const j=await act({action:'offer',goal:g,accept:a,cwd:cwd.value,worker:tool.value,budget:t.budget||'30m',kind:'implement',key});toast(j.queued?'Task queued: '+(j.note||''):'Worker started',true);refresh();if(j.handoff)location.hash='#issues/'+j.handoff}
+    catch(x){msg.textContent=errorText(x);msg.hidden=false}finally{SETUP.busy=false}};
+  out.push(form);return out}
+function setupRender(){const page=$('setup-body');if(!page)return;
+  if(!setupOwner()){page.replaceChildren(el('h2',{},'Set up this host'),el('p',{'data-setup-owner':''},'An owner sets up this host. In a terminal on it: ',el('code',{},'agentd init'),'.'));return}
+  if(!SETUP.data){page.replaceChildren(el('h2',{},'Set up this host'),SETUP.error?el('p',{role:'alert'},SETUP.error):el('p',{role:'status'},'Loading…'));return}
+  const i=SETUP.step,st=SETUP_STEPS[i],body={host:setupHost,agents:setupAgents,repository:setupRepository,task:setupTask}[st.id]();
+  const nav=el('ol',{class:'setup-steps',id:'setup-steps'},SETUP_STEPS.map((s,n)=>el('li',{},el('button',{type:'button','data-step':s.id,'aria-current':n===i?'step':null,class:setupDone(s.id)?'done':'',onclick:()=>{SETUP.step=n;setupRender()}},el('span',{class:'setup-bar','aria-hidden':'true'}),(n+1)+' '+s.name,el('span',{class:'setup-mark'},setupDone(s.id)?' · Done':'')))));
+  const back=el('button',{type:'button',disabled:i===0,onclick:()=>{SETUP.step=Math.max(0,i-1);setupRender()}},'Back'),
+    later=el('button',{type:'button',id:'setup-later',onclick:setupLater},'Set up later'),
+    next=i<3?el('button',{type:'button',class:'primary',id:'setup-next',onclick:()=>{SETUP.step=i+1;setupRender()}},setupDone(st.id)?'Continue':'Skip for now'):el('button',{type:'button',class:'primary',id:'setup-finish',onclick:()=>{location.hash='#issues'}},'Go to Tasks');
+  page.replaceChildren(el('div',{class:'setup-head'},el('span',{class:'rail-mark','aria-hidden':'true'},'a'),el('strong',{},'agentd'),el('span',{class:'mute setup-small','data-setup-count':''},'Step '+(i+1)+' of 4')),nav,
+    el('div',{},el('h2',{id:'setup-title'},st.title),el('p',{class:'mute'},st.lead)),el('section',{class:'setup-step','data-setup-step':st.id,'aria-labelledby':'setup-title'},body),
+    el('div',{class:'setup-four'},el('strong',{class:'setup-small'},'The four steps'),el('span',{class:'setup-small'},'1 Check this host (doctor) · 2 Connect agents · 3 Add a repository and choose routing · 4 Run a first task with a 30-minute budget and watch it in the workspace'),el('span',{class:'setup-small mute'},'Each step runs the same command the terminal does (agentd doctor, connect, repo add, run) and shows it, so the page and the CLI never disagree.')),
+    el('div',{class:'setup-foot'},back,later,el('span',{class:'setup-grow'}),next));lockState()}
+async function setupLater(){try{SETUP.data=await setupAPI({action:'later'});toast('Set up later: open it again from Help.',true);location.hash='#issues'}catch(e){toast(errorText(e),false)}}
+// Help keeps a way back to it.
+{const help=$('page-help');if(help&&!$('help-setup'))help.querySelector('section')?.before(el('section',{class:'runs',id:'help-setup','aria-label':'Set up this host'},el('div',{class:'colhead'},el('h2',{},'Set up this host')),el('p',{class:'mute'},'The four first-run steps: check this host, connect agents, add a repository, run a first task. ',el('a',{href:'#setup'},'Open setup'))))}
+dashPage('setup',{title:'Set up',panel:false,agents:false,
+  enter(){SETUP.picked=false;SETUP.data=null;setupRender();if(setupOwner()){setupLoad();setupDoctor()}},
+  unlock(){if(setupOwner()){setupLoad();setupDoctor()}else setupRender()},
+  // On landing, an owner whose install is not set up is taken to it, once a page load.
+  render(){const who=USER+'|'+ROLE;if(!setupOwner()||SETUP.asked===who)return;SETUP.asked=who;
+    setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
+// end:setup
 // region:refresh
 function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
