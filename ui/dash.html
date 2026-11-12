@@ -493,6 +493,17 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 @media(max-width:860px){.search-open{min-width:44px;padding:0 10px;justify-content:center}.search-open .search-open-label,.search-open kbd{display:none}.search-box{inset:0;width:100%;max-width:none;height:100dvh;max-height:none;border:0;border-radius:0}.search-head input{font-size:16px}.search-opt{min-height:44px}}
 @media(pointer:coarse){.search-open kbd{display:none}}
 /* end:css-search */
+/* region:css-marks: one mark per task, the count strip over the board and its legend (#454) */
+.tmark{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--fg);white-space:nowrap;flex:none}
+.tm-g{font-style:normal;font-weight:700;display:inline-grid;place-items:center;min-width:14px;line-height:1}
+.m-working .tm-g{color:var(--accent)}.m-waiting .tm-g{color:var(--violet)}.m-needs_you .tm-g{color:var(--amber)}.m-done .tm-g{color:var(--green)}.m-failed .tm-g{color:var(--red)}.m-not_started .tm-g{color:var(--mute)}
+.mark-strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-bottom:12px;font-size:12px}
+.mark-strip>a{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid var(--line);border-radius:var(--r-m);color:var(--fg);text-decoration:none}
+.mark-strip>a:hover{background:var(--hover)}.mark-strip>a.on{background:var(--sel);border-color:var(--accent)}.mark-strip .n{font-variant-numeric:tabular-nums}
+.mark-legend>summary{cursor:pointer;color:var(--mute);padding:4px}.mark-legend[open]{flex-basis:100%}
+.mark-legend dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 12px;margin:4px 0 0}.mark-legend dd{margin:0;color:var(--mute)}
+@media(max-width:860px),(pointer:coarse){.mark-strip>a,.mark-strip>button,.mark-legend>summary{min-height:44px;display:inline-flex;align-items:center}}
+/* end:css-marks */
 .login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
@@ -600,6 +611,7 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
        on its own card and its actions. Needs-you rows live on their card; the
        Needs you view (from the top bar's count) shows only those. -->
   <div id="issue-note"></div>
+  <div id="mark-strip-box"></div>
   <div class="board" id="board"></div>
   <div id="issue-detail"></div>
 </div>
@@ -872,8 +884,8 @@ function dashPage(name,def){PAGES[name]=def}
 function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'inbox').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
   const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||['settings','help'].includes(item)&&rest.length>0;return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
-function saveIssueRoute(){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);routeQuery('issues',p);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
-function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
+function saveIssueRoute(){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);routeQuery('issues',p);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
+function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
 function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.replaceState(null,'','#'+ALIASES[raw]);
   const r=parseRoute(location.hash),def=PAGES[r.item],moved=r.item!==ROUTE.item||r.view!==ROUTE.view,pageId=r.view||def.pageId||r.item,path='#'+r.item+(r.view?'/'+r.view:'');if(moved&&PAGES[ROUTE.item]?.leave)PAGES[ROUTE.item].leave();ROUTE=r;
   setPanel(false);$('account').open=false;
@@ -1017,7 +1029,7 @@ function teamWorking(d){const roles=(TEAM.lists||{}).handoff_roles||{},open=d.ha
   const claimedBy=id=>open.find(h=>h.state==='claimed'&&h.claimer===id);
   for(const s of sessions){if(seen.has(s.id))continue;const h=claimedBy(s.id);if(s.host_state==='busy'||s.status==='active'&&!s.host_state&&h)out.push(row(s,h))}
   return out.sort((a,b)=>(b.wait-a.wait)||String(a.name).localeCompare(String(b.name)))}
-function teamWorkItem(w){return teamItem({name:w.name,sub:(w.wait?w.status+': ':'')+w.task,dot:w.dot,dotTitle:w.status,href:w.href,tk:'hof-'+(w.handoff&&w.handoff.id),onclick:()=>{setPanel(false);showWorkItem(w.handoff.id)}})}
+function teamWorkItem(w){return teamItem({name:w.name,sub:(w.wait?w.status+': ':'')+w.task,dot:w.dot,dotTitle:w.status,side:w.handoff&&markEl(w.handoff.mark),href:w.href,tk:'hof-'+(w.handoff&&w.handoff.id),onclick:()=>{setPanel(false);showWorkItem(w.handoff.id)}})}
 function teamRoleTool(r,lists){return r.tool||(lists||{}).default_tool||''}
 function teamPanelGroups(d){const l=TEAM.lists,working=teamWorking(d),head=(name,n)=>el('div',{class:'pgroup-name'},el('span',{},name),n?el('span',{},n):null);
   teamKeep($('team-working'),[teamItem({name:'Overview',href:'#team'}),teamItem({name:'Working now',side:working.length||'',href:'#team/working'}),teamItem({name:'Sessions on this host',href:'#team/host'}),reposPanelItem()]);
@@ -1034,11 +1046,11 @@ function teamRunUsd(x){if(x.usd!==undefined)return (x.floor?'≥ ':'')+'$'+x.usd
 function teamModel(d){const f=d.role,last=d.last_run;if(last)return (last.model||"unknown")+(d.kind==="session"?"":" (last run)");if(f&&f.model)return f.model+" (configured)";return "unknown"}
 function teamNow(d){const dash=lastDash||{},{rows}=needItems(dash),openPR=new Set((dash.waiting||[]).filter(x=>x.what==='PR').map(x=>x.ref));
   return (d.now||[]).map(x=>{const h=(dash.handoff_list||[]).find(y=>y.id===x.id)||x,needs=rows.get(x.id)||[],who=h.state==='held'?h.from:h.claimer,live=liveOf(who,h),status=statusOf(h,needs,openPR),run=(h.attempts||[]).filter(a=>a.running).pop();
-    return el('div',{class:'tm-row'},statusEl(status,live&&live.key==='working',live&&live.text),el('div',{class:'tm-main'},el('button',{type:'button',class:'linkish','data-tk':'n-'+x.id,title:x.id,onclick:()=>showWorkItem(x.id)},cardTitle(h.title||h.goal||x.goal)),el('span',{class:'tm-why'},live?live.text:h.state==='blocked'?'waiting on another task':h.worker?toolName(h.worker)+' worker':'')),
+    return el('div',{class:'tm-row'},taskStatus(h.mark?h:x,status,live&&live.key==='working',live&&live.text),el('div',{class:'tm-main'},el('button',{type:'button',class:'linkish','data-tk':'n-'+x.id,title:x.id,onclick:()=>showWorkItem(x.id)},cardTitle(h.title||h.goal||x.goal)),el('span',{class:'tm-why'},live?live.text:h.state==='blocked'?'waiting on another task':h.worker?toolName(h.worker)+' worker':'')),
       el('span',{class:'tm-fig'},run&&run.minutes!==undefined?'started '+fmtMin(run.minutes)+' ago':'updated '+(h.updated_ago||x.updated_ago)+' ago'),el('button',{type:'button','data-tk':'o-'+x.id,onclick:()=>showWorkItem(x.id)},'Open'))})}
 function teamRecent(d){const dash=lastDash||{},openPR=new Set((dash.waiting||[]).filter(x=>x.what==='PR').map(x=>x.ref));
   return (d.recent||[]).map(r=>{const status=statusOf(r,[],openPR),usd=teamRunUsd(r),why=r.failed?[r.end_reason&&r.end_reason!=='done'?word(r.end_reason):'',r.check&&r.check!=='passed'?'check '+r.check:''].filter(Boolean).join(', '):'';
-    return el('div',{class:'tm-row'},statusEl(status),el('div',{class:'tm-main'},el('button',{type:'button',class:'linkish','data-tk':'r-'+r.id,title:r.id,onclick:()=>showWorkItem(r.id)},cardTitle(r.goal)),why?el('span',{class:'tm-why'},why):null),
+    return el('div',{class:'tm-row'},taskStatus(r,status),el('div',{class:'tm-main'},el('button',{type:'button',class:'linkish','data-tk':'r-'+r.id,title:r.id,onclick:()=>showWorkItem(r.id)},cardTitle(r.goal)),why?el('span',{class:'tm-why'},why):null),
       el('span',{class:'tm-fig'},r.updated_ago+' ago'),el('span',{class:'tm-fig',title:'Time the workers ran'},r.minutes!==undefined?fmtMin(r.minutes):'no duration recorded'),usd?el('span',{class:'tm-fig'},usd):null)})}
 function teamSec(name,n,kids){return [el('div',{class:'tm-sec'},el('h3',{},name),n!==undefined&&n!==null&&n!==''?el('span',{class:'n'},n):null),el('div',{class:'tm-rows'},kids)]}
 function teamProps(pairs){const out=[];for(const [k,v] of pairs)if(v!==null&&v!==undefined&&v!=='')out.push(el('dt',{},k),el('dd',{},v));return el('dl',{class:'tm-props'},out)}
@@ -1072,7 +1084,7 @@ async function teamLoadActivity(d){const req=++TEAM.activityReq;TEAM.activityAt=
 function teamWorkingTable(working){if(!working.length)return el('div',{class:'empty'},'No workers are running. Assign work from a role to start one.');
   const headers=['Work item','Running time','Cost so far','Latest activity'];return el('div',{class:'working-table tablewrap'},el('table',{},el('thead',{},el('tr',{},headers.map(h=>el('th',{},h)))),el('tbody',{},working.map(w=>{
     const h=w.handoff||{},s=w.session||{},run=(h.attempts||[]).filter(a=>a.running).pop(),activity=TEAM.activity[s.id],fallback=TEAM.activityError||(s.host_state==='busy'?'Working; no step recorded yet':'No step recorded yet');
-    return el('tr',{},el('td',{'data-label':'Work item'},el('a',{href:h.id?itemHash(h.issue,h.id):w.href,'data-tk':'working-'+(h.id||s.id),title:w.task},cardTitle(w.task)),el('span',{class:'tm-why'},[toolName(h.worker||s.tool),modelName(activity?.model||run?.model||''),s.user].filter(Boolean).join(' · '),w.href?[' · ',el('a',{href:w.href},'Open session')]:null)),
+    return el('tr',{},el('td',{'data-label':'Work item'},el('a',{href:h.id?itemHash(h.issue,h.id):w.href,'data-tk':'working-'+(h.id||s.id),title:w.task},cardTitle(w.task)),h.mark?[' ',markEl(h.mark)]:null,el('span',{class:'tm-why'},[toolName(h.worker||s.tool),modelName(activity?.model||run?.model||''),s.user].filter(Boolean).join(' · '),w.href?[' · ',el('a',{href:w.href},'Open session')]:null)),
       el('td',{'data-label':'Running time'},run&&run.minutes!==undefined?fmtMin(run.minutes):'Not recorded'),
       el('td',{'data-label':'Cost so far',title:[h.stage?'Stage: '+word(h.stage):'',run&&run.tokens!==undefined?fmtTok(run.tokens)+' tokens':''].filter(Boolean).join(', ')},run&&run.usd!==undefined?'$'+run.usd.toFixed(2)+' est.':el('span',{title:'The worker has not reported its usage yet.'},'–')),
       el('td',{'data-label':'Latest activity'},el('span',{class:'activity-line',title:activity&&activity.text||w.status},w.wait?w.status:activity?activity.text:fallback),el('span',{class:'tm-why'},activity&&activity.at?'Recorded '+chatWhen(activity.at):s.seen_ago?'Last seen '+s.seen_ago+' ago':w.status)))}))))}
@@ -1290,6 +1302,36 @@ function wlogPanel(hid){const c=WLOG[hid]||(WLOG[hid]={}),body=el('div',{class:'
   det.addEventListener('toggle',()=>{if(c.body!==body)return;c.open=det.open;if(det.open)wlogTick(hid);else if(c.timer){clearTimeout(c.timer);c.timer=0}});
   return det}
 // end:worker-log
+// region:marks: one mark per task (#454). The server decides it (taskMark) and
+// sends it as mark on every task, so the board, Chat and Team read the same:
+// the same word, glyph and colour, never colour alone. The strip over the board
+// counts each mark among the tasks the view and project show, and a count shows
+// exactly those tasks; its legend says what each mark means.
+function marks(){return [
+  ['needs_you','Needs you','!','A person must act: its worker asks something or was stopped, its budget ran out, it could not start, or an approval waits.'],
+  ['failed','Failed','\u2715','Its latest worker ended badly or its check did not pass.'],
+  ['working','Working','\u25B6','A worker or a session is on it now.'],
+  ['waiting','Waiting','\u25F7','Queued for a free worker or checkout, or waiting for other tasks to finish.'],
+  ['not_started','Not started','\u25CB','Offered, with no worker asked for and nobody on it yet.'],
+  ['done','Done','\u2713','Finished: done, cancelled or declined.']]}
+function markOf(key){const m=marks().find(x=>x[0]===key);return m?{key:m[0],word:m[1],glyph:m[2],help:m[3]}:null}
+var MARK_PICK='',MARK_LEGEND=false;
+function markEl(key){const m=markOf(key);if(!m)return null;return el('span',{class:'tmark m-'+key,'data-mark':key,title:m.help},el('i',{class:'tm-g','aria-hidden':'true'},m.glyph),m.word)}
+// taskStatus: a task's mark when the server sent one, else the status it drew before.
+function taskStatus(x,key,live,title){return x&&markOf(x.mark)?markEl(x.mark):key?statusEl(key,live,title):null}
+function markHref(key){const p=new URLSearchParams(ROUTE.params);if(key)p.set('mark',key);else p.delete('mark');const q=p.toString();return '#issues'+(q?'?'+q:'')}
+function markLegend(){const d=el('details',{class:'mark-legend',open:MARK_LEGEND},el('summary',{},'What the marks mean'),el('dl',{},marks().flatMap(([k,,,help])=>[el('dt',{},markEl(k)),el('dd',{},help)])));d.addEventListener('toggle',()=>{MARK_LEGEND=d.open});return d}
+function markStrip(tasks){
+  return el('nav',{class:'mark-strip','data-ref':'mark-strip','aria-label':'Tasks by mark'},marks().map(([k,word])=>{const n=tasks.filter(i=>i.mark===k).length;
+    return el('a',{href:markHref(MARK_PICK===k?'':k),class:MARK_PICK===k?'on':'','data-mark-pick':k,'aria-current':MARK_PICK===k?'true':null,'aria-label':word+': '+n+(MARK_PICK===k?', shown; choose again to show all':''),onclick:e=>{e.preventDefault();pickMark(MARK_PICK===k?'':k)}},markEl(k),el('b',{class:'n'},String(n)))}),
+    MARK_PICK?el('button',{type:'button',class:'linkish','data-mark-pick':'',onclick:()=>pickMark('')},'Show all'):null,markLegend())}
+function pickMark(key){MARK_PICK=markOf(key)?key:'';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
+// drawMarks: the strip, then with a mark chosen its tasks as one list in every
+// layout and on a phone, none capped or folded away, so the count is what shows.
+function drawMarks(tasks){const box=$('mark-strip-box');if(box)keepFocus(box,()=>box.replaceChildren(markStrip(tasks)));if(!MARK_PICK)return false;
+  const xs=tasks.filter(i=>i.mark===MARK_PICK);
+  $('board').replaceChildren(xs.length?el('div',{class:'cards mark-list','data-marked':MARK_PICK},xs.map(i=>i.node)):el('div',{class:'empty'},'No task here reads '+markOf(MARK_PICK).word+'.'));return true}
+// end:marks
 // region:shared-work: what Inbox, Issues and Team all draw with
 /* Projects and status: the board's two axes. A card's project is its
    handoff's project, else the checkout its session works in (last path
@@ -1357,7 +1399,7 @@ function cardStage(stage){return /^(review|validate)$/.test(stage||'')?el('span'
 function card(o){
   const title=o.link?el('a',{href:o.link},o.title):o.href?el('a',{href:o.href,target:'_blank',rel:'noopener'},o.title):o.open?el('button',{class:'linkish',title:'Open in the panel',onclick:o.open},o.title):o.title;
   return el('article',{class:'kcard'+(o.sub?' sub':''),'data-ref':o.ref||''},
-    el('div',{class:'ktop'},el('div',{class:'ktitle',title:o.full||o.title},title),statusEl(o.status,o.live,o.liveTitle)),
+    el('div',{class:'ktop'},el('div',{class:'ktitle',title:o.full||o.title},title),taskStatus(o,o.status,o.live,o.liveTitle)),
     el('div',{class:'kmeta'},...(o.meta||[]).filter(Boolean),o.age?el('span',{class:'age'},o.age+' ago'):null),
     ...(o.rows||[]).filter(Boolean))}
 function endTick(a){const r=a.end_reason||'';
@@ -1631,12 +1673,12 @@ function issueItems(d,unfiltered){
     // One menu per card: with a need row, the card's actions join that row's.
     const merge=needs.length>0&&needs[0].what!=='issue',rws=needs.length?needRows(needs,merge?{visible:wacts,more:acts.slice(wacts.length)}:null):[];
     if(acts.length&&!merge)meta.push(moreMenu(acts));
-    items.push({project:projectOf(h),status,sid:who,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
-      node:card({status,live:live&&live.key==='working',liveTitle:live&&live.text,title:cardTitle(h.title||h.goal),full:h.title||h.goal,link:itemHash(h.issue,h.id),ref:h.id,meta,age:h.updated_ago,rows:rws,sub:!!(h.parent&&h.depth)})})}
+    items.push({project:projectOf(h),status,mark:h.mark,sid:who,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
+      node:card({status,mark:h.mark,live:live&&live.key==='working',liveTitle:live&&live.text,title:cardTitle(h.title||h.goal),full:h.title||h.goal,link:itemHash(h.issue,h.id),ref:h.id,meta,age:h.updated_ago,rows:rws,sub:!!(h.parent&&h.depth)})})}
   for(const x of (d.done||[]).filter(x=>x.what==='handoff'&&wf(x))){
     const status=statusOf(x,[],openPR),who=x.by||x.from,why=status==='failed'?failedWhy(x):'';
-    items.push({project:projectOf(x),status,sid:who,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
-      node:card({status,title:cardTitle(x.title),full:x.title,link:itemHash(x.issue,x.ref),ref:x.ref,age:x.age,
+    items.push({project:projectOf(x),status,mark:x.mark,sid:who,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
+      node:card({status,mark:x.mark,title:cardTitle(x.title),full:x.title,link:itemHash(x.issue,x.ref),ref:x.ref,age:x.age,
         meta:[x.worker&&who===x.by&&/ session$/.test(sessLabel(who))?el('span',{class:'who'},sessLink(who,toolName(x.worker)+' worker')):whoLink(who),cardStage(x.stage),changeEl(x)],rows:why?[el('div',{class:'krow'},el('span',{class:'why full'},el('span',{class:'k'},'Could not finish: '),why))]:[]})})}
   for(const x of [...(d.waiting||[]).filter(x=>x.what==='PR'),...(d.done||[]).filter(x=>x.what==='PR')]){
     if(filt)continue;
@@ -1669,6 +1711,7 @@ function drawCards(d){
   const onBoard=i=>!i.folded||VIEW==='needs'&&i.openPR,inView=(i,v)=>v==='all'||v==='mine'&&i.mine||v==='agents'&&i.status==='progress'||v==='needs'&&(i.status==='needs'||i.status==='failed');
   const cards=items.filter(onBoard);if(VIEW==='mine'&&!CAN()&&!cards.some(i=>inView(i,'mine'))&&!ROUTE.params.has('view')){VIEW='all';VIEW_FALLBACK=true}drawIssuePanel(projects,cards,inView);issueNote();
   const shown=cards.filter(i=>!PROJ||i.project===PROJ).filter(i=>inView(i,VIEW));
+  if(drawMarks(items.filter(i=>i.mark&&(!PROJ||i.project===PROJ)&&inView(i,VIEW))))return;
   if(LAYOUT==='board'){drawBoard(shown);return}
   // Panels: by name, ignoring case, as the sidebar lists them; no checkout last.
   const groups=new Map();for(const i of shown){if(!groups.has(i.project))groups.set(i.project,[]);groups.get(i.project).push(i)}
@@ -1748,7 +1791,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
   const prs=d.prs.length?d.prs:(d.pr?[d.pr]:[]);
   box.append(sec('Properties'),el('div',{class:'props'},...propRows([
     // The card's five words, and the finer state after them (To do · Waiting for another task).
-    ['Status',status?el('span',{},statusEl(status,liveNow&&liveNow.key==='working'),liveNow?el('span',{class:'mute'},' '+liveNow.text):live&&live.state==='blocked'?el('span',{class:'mute'},' · '+word('blocked')):null):null],
+    ['Status',status?el('span',{},taskStatus(d.kind==='pr'?null:live&&live.mark?live:focus,status,liveNow&&liveNow.key==='working'),liveNow?el('span',{class:'mute'},' '+liveNow.text):live&&live.state==='blocked'?el('span',{class:'mute'},' · '+word('blocked')):null):null],
     ['Assignee',who?el('span',{},(teamMode(dash)&&live&&(h&&h.state==='held'?h.from_user:live.claimer_user))?(h&&h.state==='held'?h.from_user:live.claimer_user)+': ':'',whoLink(who)):h&&h.worker?toolName(h.worker)+' worker, not started':null],
     ['Project',d.kind==='pr'?(d.pr?d.pr.ref.split('#')[0]:null):live?projectOf(live)||null:null],
     ['Stage',focus.stage||(h&&h.stage)?word(focus.stage||h.stage):null],
@@ -1773,7 +1816,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
   if(others.length){box.append(sec(d.kind==='pr'?'Handoffs':'Sub-handoffs',others.length));
     for(const x of others){const sp=x.spend,xs=rows.get(x.id)||[],xh=(dash.handoff_list||[]).find(y=>y.id===x.id)||x;
       box.append(el('div',{class:'wi-row'+(x.focus?' focus':''),style:'padding-left:'+Math.max(0,Math.min(x.depth-(d.kind==='pr'?0:(focus.depth||0)+1),6))*16+'px'},
-        el('div',{class:'ktop'},el('div',{class:'ktitle'},x.id===ref?x.goal||x.id:el('button',{class:'linkish',onclick:()=>showWorkItem(x.id)},x.goal||x.id)),statusEl(statusOf({...xh,prs:x.prs},xs,openPR))),
+        el('div',{class:'ktop'},el('div',{class:'ktitle'},x.id===ref?x.goal||x.id:el('button',{class:'linkish',onclick:()=>showWorkItem(x.id)},x.goal||x.id)),taskStatus(xh.mark?xh:x,statusOf({...xh,prs:x.prs},xs,openPR))),
         el('div',{class:'kmeta'},el('code',{},x.id),x.claimer?whoLink(x.claimer):x.from?['from ',whoLink(x.from)]:null,x.stage?el('span',{},word(x.stage)):null,sp?el('span',{},Math.round(sp.minutes)+' min'+(sp.usd!==undefined?', $'+sp.usd.toFixed(2):'')):null)))}}
   if(needs.length){box.append(sec('Needs you',needs.length));for(const x of needs)box.append(el('div',{class:'wi-row'},needRow(x)))}
   const as=(live&&live.attempts)||[];
@@ -1915,7 +1958,7 @@ function issueSpend(d,tree){const as=tree.flatMap(x=>x.attempts||[]),out=[],done
 function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x,worked=!!(x.dispatched||x.branch||h.dispatched||h.state==='done'),needs=ctx.rows.get(x.id)||[],status=statusOf({...h,prs:x.prs},needs,ctx.openPR),who=h.state==='held'?h.from:h.claimer||x.claimer,now=liveOf(who,h),acts=(dash.handoff_list||[]).some(y=>y.id===x.id)?handoffActions(dash,h):[],log=x.log||[];
   const sp=x.spend;
   return el('article',{class:'iev','data-ref':x.id,style:x.depth?'margin-left:'+Math.min(x.depth,4)*14+'px':null},
-    el('div',{class:'ktop'},String(x.goal||'').trim()===String(pageTitle||'').trim()?null:el('div',{class:'ktitle'},el('button',{class:'linkish',title:'Open its work item and run viewer',onclick:()=>showWorkItem(x.id)},x.goal||x.id)),statusEl(status,now&&now.key==='working',now&&now.text)),
+    el('div',{class:'ktop'},String(x.goal||'').trim()===String(pageTitle||'').trim()?null:el('div',{class:'ktitle'},el('button',{class:'linkish',title:'Open its work item and run viewer',onclick:()=>showWorkItem(x.id)},x.goal||x.id)),taskStatus(x.mark?x:h,status,now&&now.key==='working',now&&now.text)),
     el('div',{class:'kmeta'},el('code',{},x.id),who?whoLink(who):x.from?['from ',whoLink(x.from)]:null,x.stage?el('span',{},x.stage):null,now?el('span',{},now.text):null,changeEl(x.change?x:h),sp?el('span',{},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,...(x.prs||[]).map(p=>el('span',{},'PR ',wkLink(p,'#'+p.split('#')[1]))),x.updated_ago?el('span',{class:'age'},'Updated '+x.updated_ago+' ago'):null,acts.length?el('span',{class:'kact'},acts):null),
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
@@ -1934,7 +1977,7 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
     const text=d.kind==='handoff'?el('dl',{class:'itext ifields'},[['Goal',body.goal],['Acceptance criteria',body.accept],['Where it stands',body.state],['Decided',body.decisions],['Still open',body.open],['Paths',body.paths]].filter(([k,v])=>v&&(k!=='Goal'||String(v).trim()!==String(title).trim())).map(([k,v])=>[el('dt',{},k),el('dd',{},v)])):d.kind==='issue'?DET.text:null;
     const ghState=issue&&issue.state?issue.state.toLowerCase():'';
     const props=propRows([
-      ['Status',status?statusEl(status):null],
+      ['Status',status?d.kind==='issue'||d.kind==='pr'?statusEl(status):taskStatus(hLive&&hLive.mark?hLive:focus,status):null],
       ['On GitHub',ghState||(d.kind==='issue'?'not synced yet':null)],
       [on?'Assignee':'Last on it',onWho?whoLink(onWho):lastWho?whoLink(lastWho):null],
       ['Project',d.kind==='issue'||d.kind==='pr'?ref.split('#')[0]:projectOf(hLive||focus)||null],
@@ -2908,7 +2951,7 @@ async function chatWorkerWork(h){if(ROUTE.item!=='chat'||!CHAT.id){if(activeShee
   catch(e){if(request===CHAT.viewRequest&&CHAT.id===id)chatSetView({...view,note:'Could not load this work item: '+errorText(e)},false)}}
 function chatWorkBody(v){return el('div',{class:'chat-work'},el('p',{},el('a',{href:chatIssuesHref(v.handoff,CHAT.id),class:'chat-open-issues'},'Open in Issues'),' ',el('code',{},v.handoff)),v.data?workItemBody(v.data,{noRun:true}):el('div',{class:'mute'},v.note||'Loading…'))}
 // A finished worker's card opens its result in Canvas; its work item is one button there. A running one still leads to its work item.
-function chatWorkerCard(h){const running=chatWorkerRunning(h),files=running?[]:CHAT.files.filter(f=>f.path.startsWith(h.id+'/')),content=[el('b',{title:h.goal||''},cardTitle(h.goal)||'Untitled task'),...(h.state==='done'&&h.result&&!chatWorkerRunning(h)?[el('small',{},['Finished',h.result.check_result==='passed'?'checks passed':h.result.check_result==='failed'?'checks failed':''].filter(Boolean).join(' · ')),el('small',{},'Open to see the result')]:[el('small',{title:[h.id,h.branch?'branch '+h.branch:''].filter(Boolean).join(' · ')},[chatWorkerStatus(h),roleName(h.role),toolName(h.worker)].filter(Boolean).join(' · ')),failureDetail(h),h.note?el('small',{},h.note):null,h.notice?el('small',{},h.notice):null,h.result?el('small',{},[h.result.end_reason,h.result.check_result,h.result.diff_stat].filter(Boolean).map(words).join(' · ')):null])];
+function chatWorkerCard(h){const running=chatWorkerRunning(h),files=running?[]:CHAT.files.filter(f=>f.path.startsWith(h.id+'/')),content=[el('b',{title:h.goal||''},cardTitle(h.goal)||'Untitled task'),markEl(h.mark),...(h.state==='done'&&h.result&&!chatWorkerRunning(h)?[el('small',{},['Finished',h.result.check_result==='passed'?'checks passed':h.result.check_result==='failed'?'checks failed':''].filter(Boolean).join(' · ')),el('small',{},'Open to see the result')]:[el('small',{title:[h.id,h.branch?'branch '+h.branch:''].filter(Boolean).join(' · ')},[chatWorkerStatus(h),roleName(h.role),toolName(h.worker)].filter(Boolean).join(' · ')),failureDetail(h),h.note?el('small',{},h.note):null,h.notice?el('small',{},h.notice):null,h.result?el('small',{},[h.result.end_reason,h.result.check_result,h.result.diff_stat].filter(Boolean).map(words).join(' · ')):null])];
   if(running)return el('button',{class:'chat-card',title:'Open its work item',onclick:()=>chatWorkerWork(h)},content);
   if(!files.length)return el('button',{class:'chat-card',title:'Open its result in canvas',onclick:()=>chatOpenResult(h)},content);
   return el('section',{class:'chat-card chat-output'},el('button',{type:'button',class:'chat-output-main',title:'Open its result in canvas',onclick:()=>chatOpenResult(h)},content),el('div',{class:'chat-output-files'},files.map(f=>{const b=el('button',{type:'button',class:'chat-file',title:f.path,onclick:()=>chatOpenFile(f)},f.name);if(chatImageFile(f)){const img=el('img',{alt:'',width:48,height:48}),id=CHAT.id;b.prepend(img);chatAPI(chatFileURL(f.path)).then(async r=>{if(!r.ok)return;const blob=await r.blob();if(CHAT.id!==id||!b.isConnected)return;const u=URL.createObjectURL(blob);chatCardURLs.push(u);img.src=u}).catch(()=>{})}return b})))}
