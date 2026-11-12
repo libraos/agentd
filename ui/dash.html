@@ -113,6 +113,11 @@ details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:a
 .check-noev{color:var(--amber);border:1px solid currentColor;border-radius:4px;padding:0 4px;font-size:var(--fs-s)}.check-note{font-size:var(--fs-s);color:var(--mute);margin:2px 0}
 .check-tail{white-space:pre-wrap;overflow:auto;max-width:100%;max-height:260px;font-size:12px;margin:4px 0;box-sizing:border-box}
 /* end:css-checks */
+/* region:css-worker-log: a worker's log, read only, on its task */
+.wlog{margin:8px 0;min-width:0;max-width:100%;box-sizing:border-box}.wlog>summary{cursor:pointer;font-weight:600}.wlog-status{margin:4px 0;overflow-wrap:anywhere}
+.wlog-lines{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-width:100%;max-height:360px;overflow:auto;font-size:12px;margin:4px 0;padding:6px 8px;border:1px solid var(--line,#ddd);border-radius:6px;box-sizing:border-box}
+@media(max-width:860px){.wlog-lines{max-height:50vh;font-size:11px}}
+/* end:css-worker-log */
 /* region:css-team */
 #page-team{container-type:inline-size;min-width:0}
 #team-open{display:none;margin-top:10px}#team-open[hidden]{display:none}#team-view>.tm-sec:first-child{margin-top:0}
@@ -1247,6 +1252,32 @@ function checksFill(box,c){if(c.error){box.replaceChildren(el('h5',{},'Checks'),
 function checksPanel(hid){const box=el('section',{class:'checks','aria-label':'Checks'}),c=CHECKS[hid];if(c&&(c.data||c.error))checksFill(box,c);else box.append(el('h5',{},'Checks'),el('p',{class:'mute'},'Loading…'));
   checksLoad(hid).then(c=>checksFill(box,c));return box}
 // end:checks
+// region:worker-log: the tail of a dispatched worker's log on its task (GET /api/log), read only:
+// nothing typed here reaches the worker. The server redacts secrets and decides who may read it;
+// the lines are the worker's text, so they go in as text. While the section is open and the
+// worker runs it asks again every WLOG_EVERY ms; it stops when the worker ends or the section closes.
+const WLOG={};let WLOG_EVERY=3000;
+function wlogLoad(hid){const c=WLOG[hid]||(WLOG[hid]={});if(c.loading)return c.loading;
+  c.loading=fetch('/api/log?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(r.status===404)throw new Error('You cannot see this task’s log.');if(!r.ok)throw new Error((await r.text())||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+function wlogStatus(d){const n=(d.lines||[]).length;
+  return [d.running?'Live: new lines appear while the worker runs.':d.lines&&n?'The worker is not running; this is the end of its log.':'',
+    n?(d.truncated?'Last '+n+' lines.':n+(n===1?' line.':' lines.')):'',d.redacted?d.redacted+(d.redacted===1?' secret':' secrets')+' hidden.':''].filter(Boolean).join(' ')}
+// wlogFill draws what is loaded into the open panel, keeping the view at the bottom if it was there.
+function wlogFill(c){const b=c.body;if(!b)return;if(c.error&&!c.data){b.replaceChildren(el('p',{class:'mute'},'The log could not be read: '+c.error));return}const d=c.data;if(!d)return;
+  const old=b.querySelector('.wlog-lines'),stick=!old||old.scrollTop+old.clientHeight>=old.scrollHeight-8,lines=d.lines||[];
+  const pre=lines.length?el('pre',{class:'wlog-lines','aria-label':'Worker log','aria-live':d.running?'polite':null},lines.join('\n')):null;
+  b.replaceChildren(el('p',{class:'mute wlog-status',role:'status'},[d.note,wlogStatus(d)].filter(Boolean).join(' ')),pre,c.error?el('p',{class:'mute'},'The last refresh failed: '+c.error):null);
+  if(pre&&stick)pre.scrollTop=pre.scrollHeight}
+function wlogTick(hid){const c=WLOG[hid];if(!c||c.timer||c.loading)return;
+  wlogLoad(hid).then(()=>{wlogFill(c);if(c.open&&c.data&&c.data.running&&c.body&&c.body.isConnected)c.timer=setTimeout(()=>{c.timer=0;wlogTick(hid)},WLOG_EVERY)})}
+// wlogPanel is the Log section of task hid; it stays open across redraws, per task.
+function wlogPanel(hid){const c=WLOG[hid]||(WLOG[hid]={}),body=el('div',{class:'wlog-body'},el('p',{class:'mute'},'Loading the log…')),
+    det=el('details',{class:'wlog','data-wlog':hid},el('summary',{},'Log'),body);
+  c.body=body;if(c.data||c.error)wlogFill(c);
+  if(c.open){det.open=true;if(!c.data||c.data.running)wlogTick(hid)}
+  det.addEventListener('toggle',()=>{if(c.body!==body)return;c.open=det.open;if(det.open)wlogTick(hid);else if(c.timer){clearTimeout(c.timer);c.timer=0}});
+  return det}
+// end:worker-log
 // region:shared-work: what Inbox, Issues and Team all draw with
 /* Projects and status: the board's two axes. A card's project is its
    handoff's project, else the checkout its session works in (last path
@@ -1680,7 +1711,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
     ['Cost',d.cost?costText(d.cost):null],
     ['Latest result',done&&done.result?words(done.result):null],
     ['Actions',h&&handoffActions(dash,h).length?el('span',{class:'kact',style:'margin:0'},handoffActions(dash,h)):null]])));
-  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref));
+  if(d.kind!=='pr'&&ref&&(focus.branch||h&&h.dispatched||done))box.append(openPRPanel(ref),resultPanel(ref),wlogPanel(ref));
   const reply=blockedWorkerReply(h,who);if(reply)box.append(sec('Waiting for your reply'),reply);
   if(d.kind==='pr'&&!tree.length)box.append(el('p',{class:'mute'},'No handoff is linked to this PR. A dispatched worker\'s PR links by its branch on pr sync-gh; otherwise use handoff link.'));
   // Sub-handoffs: the tree rows under the focused one.
@@ -1835,7 +1866,7 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
     el('div',{class:'kmeta'},el('code',{},x.id),who?whoLink(who):x.from?['from ',whoLink(x.from)]:null,x.stage?el('span',{},x.stage):null,now?el('span',{},now.text):null,changeEl(x.change?x:h),sp?el('span',{},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,...(x.prs||[]).map(p=>el('span',{},'PR ',wkLink(p,'#'+p.split('#')[1]))),x.updated_ago?el('span',{class:'age'},'Updated '+x.updated_ago+' ago'):null,acts.length?el('span',{class:'kact'},acts):null),
     h.worker_state==='blocked'?workerReport({...x,...h,handoff:x.id,report_note:h.report_note||x.report_note,report_ago:h.report_ago||x.report_ago}):null,
     ...needs.filter(n=>!(worked&&n.kind==='review')).map(needRow),
-    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,
+    worked?openPRPanel(x.id):null,worked?resultPanel(x.id):null,worked?wlogPanel(x.id):null,
     log.length?el('details',{'data-log':x.id,open:openIds.has(x.id)||null},el('summary',{},'History, '+log.length),el('ol',{class:'ilog'},log.map(l=>el('li',{},el('span',{class:'when'},l.ago+' ago '),l.actor?nameOf(l.actor)+': ':'',l.note||l.state)))):null)}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
   keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#');
