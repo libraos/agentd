@@ -119,16 +119,26 @@ body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
 /* end:css-agents-list */
 /* region:css-inbox */
 .ib-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin-bottom:12px}.ib-head .n{font-size:var(--fs-s);color:var(--mute);font-variant-numeric:tabular-nums}.ib-note{flex-basis:100%;font-size:var(--fs-s);color:var(--mute);margin:0}
+.ib-tabs{display:flex;flex-wrap:wrap;gap:2px 4px;margin-bottom:10px;border-bottom:1px solid var(--line)}.ib-tabs a{padding:6px 10px;color:var(--mute);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:var(--fs-s)}.ib-tabs a[aria-current]{color:var(--fg);border-bottom-color:var(--accent);font-weight:500}.ib-tabs .n{margin-left:5px;font-variant-numeric:tabular-nums}
+.ib-panes{display:grid;grid-template-columns:minmax(260px,400px) minmax(0,1fr);gap:12px;align-items:start}
 .ib-list{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0}
-.ib-row{display:grid;grid-template-columns:104px minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:12px 16px;border-top:1px solid var(--line)}.ib-row:first-child{border-top:0}
+.ib-row{border-top:1px solid var(--line)}.ib-row:first-child{border-top:0}
+.ib-pick{display:grid;grid-template-columns:96px minmax(0,1fr);gap:2px 10px;align-items:start;padding:10px 14px;color:inherit;text-decoration:none}.ib-pick:hover{background:var(--sunk)}.ib-row.on .ib-pick{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
+.ib-detail{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0;padding:16px;display:grid;gap:14px;position:sticky;top:0}.ib-detail:empty{display:none}
+.ib-detail h3{margin:0;font-size:var(--fs-l);overflow-wrap:anywhere}.ib-dsub{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:var(--fs-s);color:var(--mute);margin-top:4px}
+.ib-msg{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 12px;border-radius:var(--r-s);background:var(--sunk)}
+.ib-prog{display:grid;gap:4px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-s);font-size:var(--fs-s)}.ib-prog .facts{display:flex;flex-wrap:wrap;gap:2px 12px;color:var(--mute)}.ib-prog .add{color:var(--green)}.ib-prog .del{color:var(--red)}
+.ib-answer{display:grid;gap:6px}.ib-answer textarea{width:100%;box-sizing:border-box;font:inherit;min-height:84px}.ib-answer .row{display:flex;gap:8px;flex-wrap:wrap}
+.ib-detail .kact{justify-content:flex-start;flex-wrap:wrap;margin-left:0}.ib-back{display:none}
 .ib-tag{justify-self:start;font-size:var(--fs-s);line-height:18px;padding:1px 7px;border-radius:var(--r-s);background:var(--sunk);color:var(--mute);white-space:nowrap}.ib-tag.r{color:var(--red)}.ib-tag.a{color:var(--amber)}.ib-tag.b{color:var(--accent)}
 .ib-main{min-width:0;display:grid;gap:2px}.ib-title{overflow-wrap:anywhere}.ib-row.unread .ib-title{font-weight:500}.ib-dot{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:var(--accent);vertical-align:1px}
 .ib-goal{color:var(--mute);overflow-wrap:anywhere}.ib-sub{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;font-size:var(--fs-s);color:var(--mute);min-width:0}.ib-sub code{overflow-wrap:anywhere}.ib-sub .linkish{font-size:var(--fs-s)}
 /* .tech: a quiet disclosure for what only someone at the host's terminal can use (paths, commands, IDs) */
 details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:anywhere}details.tech>summary{cursor:pointer;color:var(--mute)}details.tech code,details.tech pre{overflow-wrap:anywhere;white-space:pre-wrap}details.tech[open]>summary{margin-bottom:4px}
 .failure-detail{display:grid;gap:2px;margin-top:3px;font-size:var(--fs-s);overflow-wrap:anywhere}.failure-reason{color:var(--fg)}.failure-next{color:var(--mute)}.krow>.failure-detail{flex:1 0 100%}.worker-report{margin-top:3px;font-size:var(--fs-s);overflow-wrap:anywhere}.worker-report .report-text{white-space:pre-wrap}.worker-report .linkish{margin-left:4px}
-.ib-row .kact{flex-wrap:wrap;justify-content:flex-end;margin-left:0}.ib-more{display:block;padding:10px 16px;border-top:1px solid var(--line);font-size:var(--fs-s)}.ib-list>.ib-more:first-child{border-top:0}
-@media(max-width:860px){.ib-row{grid-template-columns:minmax(0,1fr)}.ib-row .kact{justify-content:flex-start}.ib-row .kact button,.ib-row .kact a{min-height:36px}}
+.ib-more{display:block;padding:10px 16px;border-top:1px solid var(--line);font-size:var(--fs-s)}.ib-list>.ib-more:first-child{border-top:0}
+/* Phone: one pane at a time. The list, until an item is opened; then its detail, with a link back. */
+@media(max-width:860px){.ib-panes{grid-template-columns:minmax(0,1fr)}.ib-panes.picked .ib-list,.ib-panes:not(.picked) .ib-detail{display:none}.ib-back{display:inline-block;min-height:36px}.ib-detail{position:static}.ib-pick{grid-template-columns:minmax(0,1fr)}.ib-detail .kact button,.ib-detail .kact a{min-height:36px}}
 /* end:css-inbox */
 /* region:css-openpr: a worker's change and its draft PR */
 .openpr{margin:8px 0}.openpr h5{margin:4px 0}.openpr-actions{margin:6px 0}
@@ -719,7 +729,11 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 <!-- region:page-inbox -->
 <div id="page-inbox" class="page" hidden>
   <div class="ib-head"><h2 id="inbox-title">Needs you</h2><span class="n" id="inbox-count"></span><p class="ib-note" id="inbox-note" hidden></p></div>
-  <section class="ib-list" aria-labelledby="inbox-title" id="inbox-rows"><div class="empty">Loading…</div></section>
+  <nav class="ib-tabs" id="inbox-tabs" aria-label="Inbox lists"></nav>
+  <div class="ib-panes" id="inbox-panes">
+    <section class="ib-list" aria-labelledby="inbox-title" id="inbox-rows"><div class="empty">Loading…</div></section>
+    <section class="ib-detail" id="inbox-detail" aria-label="Selected item"></section>
+  </div>
 </div>
 <!-- end:page-inbox -->
 <!-- region:page-issues -->
@@ -1763,7 +1777,7 @@ function needNorm(x){return x.what==='approval'?{kind:'approval',id:x.ref,approv
 // {inbox:true} is an Inbox row, which has no card: it gets the work item's own buttons.
 function needActs(x,extra){
   if(PENDING[x.id]||PENDING[x.approval])return [el('span',{class:'mute',role:'status'},PENDING[x.id]||PENDING[x.approval])];
-  const visible=[...((extra||{}).visible||[]).filter(Boolean)],more=[...((extra||{}).more||[]).filter(Boolean)],h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff);
+  const visible=[...((extra||{}).visible||[]).filter(Boolean)],more=[...((extra||{}).more||[]).filter(Boolean)],late=[],detail=!!(extra&&extra.detail),h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff);
   // A failed or expired item's next step is a button, not a command: the work item's own Start again or Dispatch.
   if(extra&&extra.inbox&&h&&(x.kind==='failed'||x.kind==='stale'))visible.push(...handoffWorkerActions(lastDash||{},h));
   if(x.approvalOnly&&x.can_answer===false)visible.push(el('span',{class:'mute'},x.self?capFirst(x.answer_hint||'waiting for someone else to answer'):'Waiting for '+(x.required_role?'a '+x.required_role:'an owner')+' to answer; your role cannot'+(x.answer_hint?': '+x.answer_hint:'')));
@@ -1776,9 +1790,11 @@ function needActs(x,extra){
     if(x.kind==='stale'&&x.handoff)visible.push(el('button',{class:'no','data-write':true,onclick:()=>actionSheet({title:'Cancel this expired offer?',description:'The offer will be cancelled. Its history stays available.',action:'Cancel offer',danger:true,pending:'Cancelling…'},x.id,{action:'clear_stale',id:x.handoff},'Offer cancelled')},'Clear'));
     // Opening the item's link marks it read; only an item with nothing to open keeps Mark read.
     if(!x.read&&!x.handoff)more.push(el('button',{'data-write':true,onclick:()=>pending(x.id,'Marking…',{action:'inbox_mark',id:x.id,mark:'read'},'')},'Mark read'));
-    more.push(el('button',{'data-write':true,onclick:()=>actionSheet({title:'Archive this inbox item?',description:x.kind==='blocked'?'The worker stays blocked. This only removes the item from your inbox.':'This removes the item from your inbox. The task and its history stay available.',action:'Archive',pending:'Archiving…'},x.id,{action:'inbox_mark',id:x.id,mark:'resolved'},'Archived')},'Archive'))}
+    // In the Inbox's detail pane it is Mark resolved, beside the other actions; on a card it waits in More.
+    const resolve=el('button',{'data-write':true,onclick:()=>actionSheet({title:detail?'Mark this item resolved?':'Archive this inbox item?',description:x.kind==='blocked'?'The worker stays blocked. This only removes the item from your inbox.':'This removes the item from your inbox. The task and its history stay available.',action:detail?'Mark resolved':'Archive',pending:detail?'Marking resolved…':'Archiving…'},x.id,{action:'inbox_mark',id:x.id,mark:'resolved'},detail?'Resolved':'Archived')},detail?'Mark resolved':'Archive');
+    if(detail)late.push(resolve);else more.push(resolve)}
   if(x.transcript||x.log)more.unshift(el('button',{onclick:()=>logSheet(x)},'View log'));
-  if(!visible.length&&more.length)visible.push(more.shift());return [...visible,moreMenu(more)]}
+  if(!visible.length&&more.length)visible.push(more.shift());return [...visible,moreMenu(more),...late]}
 // logSheet: a browser cannot open a path on the host, so the sheet leads to the
 // session's console, which reads its transcript here; the path stays for the terminal.
 function logSheet(x){const path=x.transcript||x.log,sid=x.claimer||(((lastDash||{}).handoff_list||[]).find(h=>h.id===x.handoff)||{}).claimer||(x.kind==='answered'?'':x.from),known=sid&&[...((lastDash||{}).sessions||[]),...((lastDash||{}).left||[])].some(s=>s.id===sid);
@@ -1855,42 +1871,99 @@ function inboxBadge(d){const n=inboxNeedCount(d),u=inboxUnread(d),b=$('inbox-bad
 const INBOX_NAMES={needs:'Needs you',approvals:'Approvals',blocked:'Blocked',failed:'Failed',mine:'My work',expired:'Expired'},
   INBOX_EMPTY={needs:'Nothing needs you.',approvals:'No approvals are waiting.',blocked:'No worker is blocked.',failed:'No worker has failed.',mine:'Nothing of yours needs you.',expired:'Nothing has expired.'},
   INBOX_TAGS={blocked:['Blocked','a'],failed:['Failed','r'],approval:['Approval','b'],spec:['Spec approval','b'],validator:['Validator'],linked_done:['Linked work'],improve:['Proposal'],review:['Ready for review','b'],result:['Report ready','b'],stale:['Expired'],answered:['Answered']};
-let inboxFilter='needs';
+let inboxFilter='needs',inboxSel='',inboxPicked=false;
+// The two panes (#481): the list on the left, one row per item, and the selected
+// item on the right with what it asks, what its task has done so far and the
+// action in place. The selection is the address's ?item=, so Back and a reload
+// keep it; with none, the first item shows (on a phone, the list does).
+function inboxKey(x){return x.what==='issue'?x.ref:needNorm(x).id}
+function inboxHref(f,id){return '#inbox'+(f&&f!=='needs'?'/'+f:'')+(id?'?item='+encodeURIComponent(id):'')}
+function inboxTag(x){if(x.what==='issue')return ['Issue',''];x=needNorm(x);return x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind]}
+// The tag says what kind of item it is, so the title names the task: its goal, else the item's own words.
+function inboxTitle(x){if(x.what==='issue')return x.title;x=needNorm(x);return words(x.goal&&(x.kind==='stale'||/^(failed|review|result)$/.test(x.kind))?x.goal:x.title)}
 function inboxRow(raw){
-  if(raw.what==='issue')return el('article',{class:'ib-row','data-id':raw.ref},el('span',{class:'ib-tag'},'Issue'),
-    el('div',{class:'ib-main'},el('div',{class:'ib-title'},raw.title),el('div',{class:'ib-sub'},el('span',{},raw.ref),el('span',{},raw.age+' ago'),el('span',{},'reply on '+trackerName(raw.ref)))),
-    el('div',{class:'kact'},el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open on '+trackerName(raw.ref))));
-  const x=needNorm(raw),tag=x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind],path=x.transcript||x.log,stale=x.kind==='stale';
-  // The tag says what kind of item it is, so the title names the task: its goal, else the item's own words.
-  const full=words(x.goal&&(stale||/^(failed|review|result)$/.test(x.kind))?x.goal:x.title),short=cardTitle(full);
-  return el('article',{class:'ib-row'+(x.read?'':' unread'),'data-id':x.id},el('span',{class:'ib-tag '+(tag[1]||'')},tag[0]),
-    el('div',{class:'ib-main'},
-      el('div',{class:'ib-title'},inboxUnreadDot(x)?el('span',{class:'ib-dot',role:'img','aria-label':'Unread',title:'Unread'}):null,x.handoff?el('a',{href:itemHash(null,x.handoff),onclick:()=>inboxRead(x),title:full},short):short),
-      !(x.failure||x.next_step)&&(short!==shortTitle(full)||plainText(full)!==full)?el('details',{class:'tech ib-full'},el('summary',{},'Details'),el('div',{class:'ib-goal'},full)):null,
-      failureDetail(x),
-      x.kind==='review'?openPRInboxLine(x):null,
-      x.kind==='result'?resultInboxLine(x):null,
-      x.kind==='blocked'?workerReport(x):null,
-      x.kind==='blocked'?blockedHow(x):null,
-      el('div',{class:'ib-sub'},x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLink(x.from)):null,x.age?el('span',{},x.age+' ago'):null,
-        (x.prs||[]).map(p=>el('a',{href:ghHref(p,'PR'),target:'_blank',rel:'noopener'},p+' ↗')))),
-    el('div',{class:'kact'},needActs(x,{inbox:true})))}
-// blockedHow: a blocked worker is answered in its session (Open session, the
-// row's first action); the terminal command is for people at the host.
+  const key=inboxKey(raw),tag=inboxTag(raw),full=inboxTitle(raw),x=raw.what==='issue'?raw:needNorm(raw),on=key===inboxSel,h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff);
+  return el('article',{class:'ib-row'+(raw.what!=='issue'&&!x.read?' unread':'')+(on?' on':''),'data-id':key},
+    el('a',{class:'ib-pick',href:inboxHref(inboxFilter,key),'aria-current':on?'true':null,title:full,onclick:()=>{inboxPicked=true;if(raw.what!=='issue')inboxRead(x)}},
+      el('span',{class:'ib-tag '+(tag[1]||'')},tag[0]),
+      el('span',{class:'ib-main'},
+        el('span',{class:'ib-title'},raw.what!=='issue'&&inboxUnreadDot(x)?el('span',{class:'ib-dot',role:'img','aria-label':'Unread',title:'Unread'}):null,cardTitle(full)),
+        el('span',{class:'ib-sub'},raw.what==='issue'?el('span',{},raw.ref):h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLabel(x.from)):null,x.age?el('span',{},x.age+' ago'):null))))}
+// blockedHow: a blocked worker is answered in place (the answer box) or in its
+// session; the terminal command is for people at the host.
 function blockedHow(x){const cmd=x.worker==='claude'?'claude attach '+(hostOf(x.claimer)||x.claimer||''):'';
-  return el('div',{class:'ib-goal'},'Open the session to see what the worker is waiting for.',cmd?el('details',{class:'tech'},el('summary',{},'Answer from the terminal'),el('code',{},cmd),' ',el('button',{type:'button',class:'linkish',onclick:()=>chatCopy(cmd)},'Copy')):null)}
+  return el('div',{class:'ib-goal'},'Answer here, or open the session to see what the worker is waiting for.',cmd?el('details',{class:'tech'},el('summary',{},'Answer from the terminal'),el('code',{},cmd),' ',el('button',{type:'button',class:'linkish',onclick:()=>chatCopy(cmd)},'Copy')):null)}
+// What it has done so far (GET /api/inboxitem): the change, live from the
+// worker's directory while it is there, the check and the spend. Read when an
+// item is opened and again after 30 s, never on every 10 s redraw.
+const INBOX_PROG={};
+function inboxProgLoad(hid){const c=INBOX_PROG[hid]||(INBOX_PROG[hid]={});if(c.loading||c.at&&Date.now()-c.at<30000)return;
+  c.loading=fetch('/api/inboxitem?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.loading=null;c.at=Date.now();if(lastDash&&ROUTE.item==='inbox')inboxDetailDraw(lastDash)})}
+function inboxProgress(hid){inboxProgLoad(hid);const c=INBOX_PROG[hid]||{},d=c.data,facts=[];
+  if(d){const ch=d.change,k=d.check||{};
+    if(ch)facts.push(el('span',{'data-k':'change'},ch.files+' file'+(ch.files===1?'':'s')+' ',el('span',{class:'add'},'+'+ch.added),' ',el('span',{class:'del'},'−'+ch.deleted),ch.live?' so far':''));
+    else facts.push(el('span',{'data-k':'change'},d.runs?'No change yet':'No worker ran on this yet'));
+    facts.push(el('span',{'data-k':'check'},k.result?'check '+plainText(words(k.result))+(k.ago?' '+k.ago+' ago':''):k.cmd?'check not run yet':'no check'));
+    if(d.runs)facts.push(el('span',{'data-k':'time'},fmtMin(d.minutes)+(d.running?', running':'')));
+    if(d.runs)facts.push(el('span',{'data-k':'spend'},d.usd!==undefined?(d.usage_floor?'≥ ':'')+'$'+Number(d.usd).toFixed(2):'spend not reported'));}
+  return el('div',{class:'ib-prog'},el('strong',{},'What it has done so far'),
+    d?el('div',{class:'facts'},facts):el('div',{class:'mute'},c.error?'Could not read its progress: '+c.error:'Reading what it has done…'),
+    el('a',{href:itemHash(null,hid)},'Open the workspace to see the changes'),
+    d&&d.check&&d.check.cmd?el('details',{class:'tech'},el('summary',{},'The check'),el('code',{},d.check.cmd)):null)}
+// The answer box: what is typed goes to the blocked worker as the person's own
+// turn (action prompt), under the same rules as the work item's Reply. A draft
+// survives the 10 s redraws.
+const INBOX_DRAFT={};
+function inboxAnswer(x){const h=((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff)||{},who=x.claimer||h.claimer,s=who&&who!=='any'?sessionRow(who):null,box=el('div',{class:'ib-answer'});
+  if(!s||s.status!=='active')return box.appendChild(el('p',{class:'mute'},'This session cannot be reached, so it cannot receive an answer here.')),box;
+  if(CAN()&&s.may_prompt===false)return box.appendChild(el('p',{class:'mute'},s.prompt_why_not||'You cannot answer this worker.')),box;
+  if(!CAN())return box.appendChild(el('p',{class:'mute'},ROLE==='viewer'?(h.claimer_user?h.claimer_user+' can answer with owner or developer access.':'The session owner can answer with owner or developer access.'):'Unlock the dash to answer.')),box;
+  const input=el('textarea',{rows:4,maxlength:4000,'aria-label':'Your answer',placeholder:'The worker gets this as a message and carries on'}),send=el('button',{type:'button',class:'primary','data-write':true},'Send answer');
+  input.value=INBOX_DRAFT[x.id]||'';input.addEventListener('input',()=>{INBOX_DRAFT[x.id]=input.value});
+  const submit=async()=>{const text=input.value.trim();if(!text||input.readOnly)return;input.readOnly=send.disabled=true;try{const j=await act({action:'prompt',to:who,text});if(input.value.trim()===text){input.value='';delete INBOX_DRAFT[x.id]}toast(promptToast(j,who),true)}catch(e){toast('Failed: '+errorText(e),false)}finally{input.readOnly=send.disabled=false}};
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&!e.isComposing){e.preventDefault();submit()}});send.onclick=submit;
+  box.append(el('span',{class:'mute'},'Your answer'),input,el('div',{class:'row'},send));return box}
+// What an approval releases: the PR or path it is about, and its words as asked.
+function inboxReleases(x){const ref=x.about||'',pr=/^[\w.-]+\/[\w.-]+#\d+$/.test(ref);
+  return ref?el('div',{class:'ib-dsub'},'It releases: ',pr?el('a',{href:ghHref(ref,'PR'),target:'_blank',rel:'noopener'},ref+' ↗'):el('code',{},ref)):null}
+function inboxDetail(raw){
+  if(!raw)return [];
+  const back=el('a',{class:'ib-back',href:inboxHref(inboxFilter),onclick:()=>{inboxPicked=false}},'← All items');
+  if(raw.what==='issue')return [back,el('div',{},el('h3',{},raw.title),el('div',{class:'ib-dsub'},el('span',{},'Issue'),el('span',{},raw.ref),el('span',{},raw.age+' ago'),el('span',{},'reply on '+trackerName(raw.ref)))),
+    el('div',{class:'kact'},el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open on '+trackerName(raw.ref)))];
+  const x=needNorm(raw),tag=inboxTag(raw),full=inboxTitle(raw),h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff),goal=h&&h.goal&&words(h.goal)!==full?words(h.goal):'';
+  const head=el('div',{},el('h3',{},x.kind==='blocked'?'Worker asks: '+cardTitle(x.worker_wait||h&&h.worker_wait||full):cardTitle(full)),
+    el('div',{class:'ib-dsub'},el('span',{class:'ib-tag '+(tag[1]||'')},tag[0]),goal?el('span',{},cardTitle(goal)):null,h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):null,
+      x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLink(x.from)):null,x.age?el('span',{},x.age+' ago'):null,(x.prs||[]).map(p=>el('a',{href:ghHref(p,'PR'),target:'_blank',rel:'noopener'},p+' ↗'))));
+  const ask=x.kind==='blocked'?[el('div',{class:'ib-msg'},x.worker_wait||h&&h.worker_wait||'The worker ended its turn and is waiting for a reply.'),workerReport(x)]:
+    x.approvalOnly||x.kind==='spec'?[el('div',{class:'ib-msg'},x.title),inboxReleases(x)]:
+    [plainText(full)!==cardTitle(full)?el('div',{class:'ib-msg'},full):null,failureDetail(x),x.kind==='review'?openPRInboxLine(x):null,x.kind==='result'?resultInboxLine(x):null];
+  return [back,head,...ask.filter(Boolean),x.handoff?inboxProgress(x.handoff):null,x.kind==='blocked'?inboxAnswer(x):null,el('div',{class:'kact'},needActs(x,{inbox:true,detail:true})),x.kind==='blocked'?blockedHow(x):null].filter(Boolean)}
+// inboxDetailDraw redraws the right pane alone; the focused control and an open
+// menu come back, and so does the caret in the answer box.
+function inboxDetailDraw(d){
+  const list=inboxSets(d)[inboxFilter],sel=list.find(x=>inboxKey(x)===inboxSel)||(!inboxPicked||!PHONE.matches?list[0]:null),pane=$('inbox-detail'),panes=$('inbox-panes');
+  const a=document.activeElement,inside=pane.contains(a),label=inside&&(a.getAttribute('aria-label')||a.textContent),caret=inside&&a.tagName==='TEXTAREA'?[a.selectionStart,a.selectionEnd]:null,menu=!!pane.querySelector('.row-more[open]');
+  pane.dataset.id=sel?inboxKey(sel):'';pane.replaceChildren(...inboxDetail(sel));panes.classList.toggle('picked',!!sel&&inboxPicked);
+  for(const r of $('inbox-rows').querySelectorAll('.ib-row')){const on=!!sel&&r.dataset.id===inboxKey(sel);r.classList.toggle('on',on);const p=r.querySelector('.ib-pick');if(p){if(on)p.setAttribute('aria-current','true');else p.removeAttribute('aria-current')}}
+  if(menu){const m=pane.querySelector('.row-more');if(m)m.open=true}
+  if(inside){const t=[...pane.querySelectorAll('button,a,summary,textarea')].find(c=>(c.getAttribute('aria-label')||c.textContent)===label&&!c.disabled);focusBack(t||pane.querySelector('h3'));if(t&&caret)try{t.setSelectionRange(caret[0],caret[1])}catch(e){}}}
 // A refresh replaces the rows every 10 s: the focused control comes back, by row and name.
 function inboxDraw(d){
-  const sets=inboxSets(d),box=$('inbox-rows'),a=document.activeElement,row=box.contains(a)&&a.closest('[data-id]'),id=row&&row.dataset.id,name=row&&a.textContent,menus=new Set([...box.querySelectorAll('[data-id]')].filter(n=>n.querySelector('.row-more[open]')).map(n=>n.dataset.id));
+  const sets=inboxSets(d),box=$('inbox-rows'),a=document.activeElement,row=box.contains(a)&&a.closest('[data-id]'),id=row&&row.dataset.id,name=row&&a.textContent;
   for(const n of document.querySelectorAll('#panel-inbox [data-n]'))n.textContent=sets[n.dataset.n].length;
   for(const n of document.querySelectorAll('#panel-inbox [data-filter]')){if(n.dataset.filter===inboxFilter)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
+  $('inbox-tabs').replaceChildren(...Object.keys(INBOX_NAMES).map(f=>el('a',{href:inboxHref(f),'data-tab':f,'aria-current':f===inboxFilter?'page':null},INBOX_NAMES[f],el('span',{class:'n'},sets[f].length))));
   const list=sets[inboxFilter],open=list.length,unread=list.filter(inboxUnreadDot).length,more=inboxFilter==='needs'?sets.expired.length:0;
   $('inbox-title').textContent=INBOX_NAMES[inboxFilter];$('inbox-count').textContent=open?open+' open'+(inboxFilter!=='expired'&&unread?', '+unread+' unread':''):'';
   const note=$('inbox-note'),anon=inboxFilter==='mine'&&!d.user,exp=inboxFilter==='expired'&&open,text=anon?'You are not signed in, so My work shows all work started by people, not work started automatically.':exp?'Offers nobody took in time. Start a worker on one, or clear it.':'';note.hidden=!text;note.textContent=text;
   box.replaceChildren(...(open?list.map(inboxRow):[el('div',{class:'empty'},ROLE==='viewer'?'Nothing is assigned to you. Your account is read-only; owners may have other items waiting.':INBOX_EMPTY[inboxFilter],el('div',{class:'field-hint'},inboxFilter==='needs'?'New approvals and worker updates appear here. Browse Tasks to see all work.':el('a',{href:'#inbox'},'Show all inbox items')))]),...(more?[el('a',{class:'ib-more',href:'#inbox/expired'},more+' expired, kept under Expired')]:[]));
-  for(const n of box.querySelectorAll('[data-id]'))if(menus.has(n.dataset.id)){const menu=n.querySelector('.row-more');if(menu)menu.open=true}
+  inboxDetailDraw(d);
   if(id){const n=[...box.querySelectorAll('[data-id]')].find(n=>n.dataset.id===id),target=n&&[...n.querySelectorAll('button,a,summary')].find(c=>c.textContent===name&&!c.disabled);focusBack(target||n&&n.querySelector('button,a,summary'))}}
-dashPage('inbox',{title:'Inbox',enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter;inboxFilter=f;if(lastDash){inboxDraw(lastDash);lockState()}if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}},render(d){inboxBadge(d);inboxDraw(d)}});
+// agentsSelected: the Agents list marks the task the open item is about.
+function inboxAgentsSelected(r){const id=r.params.get('item');if(!id||!lastDash)return '';const x=inboxSets(lastDash).needs.concat(inboxSets(lastDash).expired).find(y=>inboxKey(y)===id);return x&&x.handoff||''}
+dashPage('inbox',{title:'Inbox',agentsSelected:inboxAgentsSelected,enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter,item=r.params.get('item')||'';inboxFilter=f;inboxPicked=!!item;const opened=item&&item!==inboxSel;inboxSel=item;if(lastDash){inboxDraw(lastDash);lockState()}
+  if(opened&&PHONE.matches){const t=$('inbox-detail').querySelector('h3');if(t)focusBack(t)}if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}},render(d){inboxBadge(d);inboxDraw(d)}});
 // end:inbox
 // region:newtask: the new task sheet's two kinds (Implement, Review a PR), its
 // acceptance criteria, check and issue (#453). It sends what agentd new takes;
