@@ -214,8 +214,14 @@ a.tm-row:hover{background:var(--hover);text-decoration:none}a.tm-row:focus-visib
 @container (max-width:720px){.tm-split{grid-template-columns:minmax(0,1fr);gap:4px}.tm-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .working-table{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}.working-table table{width:100%;border-collapse:collapse;table-layout:fixed}.working-table th,.working-table td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:break-word}.working-table th{font-size:12px;color:var(--mute);font-weight:400}.working-table th:nth-child(1){width:40%}.working-table th:nth-child(2){width:14%}.working-table th:nth-child(3){width:14%}.working-table th:nth-child(4){width:32%}.tm-settings{margin-top:12px}.tm-settings .tm-props{margin-top:8px}.working-table tr:last-child td{border-bottom:0}.working-table td>a,.activity-line{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.working-table td>a{color:var(--fg)}.activity-line{color:var(--fg)}#team-host{margin-top:12px}.tm-row .tm-fig{white-space:normal;overflow-wrap:anywhere;flex-shrink:1}.cc-pins,.cc-foot{font-family:var(--sans)}.cc-input{font-family:var(--sans)}
 @media(max-width:860px){.working-table table,.working-table tbody,.working-table tr{display:block;width:100%}.working-table thead{display:none}.working-table tr{padding:12px;border-bottom:1px solid var(--line)}.working-table td{display:grid;grid-template-columns:84px minmax(0,1fr);gap:8px;padding:4px 0;border:0;width:100%}.working-table td:before{content:attr(data-label);color:var(--mute);font-size:12px}.working-table td>a{min-height:44px;white-space:normal}.working-table td .tm-why{grid-column:2}.activity-line{white-space:normal}.tm-row .tm-fig{flex-basis:100%}.cc-box{flex-wrap:wrap}.cc-input{min-width:160px}}
+/* Team's four tabs (#486): Repositories, Members, Roles, Sessions on this host; they scroll sideways on a phone */
+.tm-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:0 0 16px;overflow-x:auto;scrollbar-width:none}.tm-tabs::-webkit-scrollbar{display:none}
+.tm-tabs a{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--mute);font-weight:400;white-space:nowrap;text-decoration:none}
+.tm-tabs a:hover{color:var(--fg);text-decoration:none}.tm-tabs a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:500}.tm-tabs .n{font-size:var(--fs-s);color:var(--mute);font-variant-numeric:tabular-nums}
+.tm-intro{margin:0 0 4px;overflow-wrap:anywhere}
+@media(max-width:860px){.tm-tabs a{min-height:44px}}
 /* end:css-team */
-/* region:css-repositories: Team > Repositories, read-only */
+/* region:css-repositories: Team > Repositories, a table, and the owner's Add a repository form (#486) */
 .repo-list{margin-top:12px}.repo-row{padding:12px;border-top:1px solid var(--line);min-width:0}.repo-row:first-child{border-top:0}
 .repo-head{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap;min-width:0}.repo-name{font-weight:500;overflow-wrap:anywhere}.repo-path{overflow-wrap:anywhere}
 .repo-checks{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}.repo-check{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:2px 10px;align-items:baseline;min-width:0}
@@ -223,8 +229,14 @@ a.tm-row:hover{background:var(--hover);text-decoration:none}a.tm-row:focus-visib
 .repo-chip.repo-ok{color:var(--green)}.repo-chip.repo-bad{color:var(--amber);border-color:var(--amber)}
 .repo-check .tm-why{grid-column:2}.repo-fix{grid-column:2;display:flex;align-items:center;gap:6px;min-width:0}.repo-fix code{flex:1;min-width:0;overflow-wrap:anywhere;color:var(--fg);background:var(--hover);border-radius:4px;padding:2px 6px}
 .repo-copy{font-size:12px;padding:2px 8px}
+.repo-cells{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) 72px 84px 72px 56px;gap:4px 12px;align-items:baseline;min-width:0}.repo-cell{min-width:0;overflow-wrap:anywhere}
+.repo-colhead{padding:8px 12px;font-size:12px;color:var(--mute)}.repo-row .repo-cells{margin-bottom:4px}.repo-row .repo-cells [data-open],.repo-row .repo-cells [data-working]{font-variant-numeric:tabular-nums}
+.repo-add{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);padding:12px;margin-top:12px;display:grid;gap:10px}.repo-add[hidden]{display:none}.repo-add h3{font-size:var(--fs-m);font-weight:500}
+.repo-modes{display:flex;gap:6px;flex-wrap:wrap}.repo-mode[aria-pressed="true"]{background:var(--sel);border-color:var(--accent)}
+.repo-fields{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}.repo-fields label{display:grid;gap:3px;font-size:var(--fs-s);color:var(--mute);min-width:0}.repo-fields .repo-dir{flex:1 1 260px}.repo-fields input,.repo-fields select{width:100%;color:var(--fg);font-size:var(--fs-m)}
+.repo-add-msg{color:var(--red);overflow-wrap:anywhere;margin:0}.repo-add-msg[hidden]{display:none}
 .repo-work{margin-top:8px;font-size:var(--fs-s);color:var(--mute);overflow-wrap:anywhere}
-@media(max-width:860px){.repo-check{grid-template-columns:minmax(0,1fr)}.repo-check .tm-why,.repo-fix{grid-column:1}.repo-copy{min-height:44px;min-width:44px}}
+@media(max-width:860px){.repo-colhead{display:none}.repo-cells{grid-template-columns:minmax(0,1fr)}.repo-cell[data-label]:not([data-label=""]){display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px}.repo-cell[data-label]:not([data-label=""]):before{content:attr(data-label);color:var(--mute);font-size:12px}.repo-tasks{display:inline-flex;align-items:center;min-height:44px}.repo-fields button,.repo-mode{min-height:44px}.repo-check{grid-template-columns:minmax(0,1fr)}.repo-check .tm-why,.repo-fix{grid-column:1}.repo-copy{min-height:44px;min-width:44px}}
 /* end:css-repositories */
 .group{padding:4px 8px 6px}.group-name{font-size:12px;color:var(--mute);padding:8px 8px 2px;display:flex;gap:6px;align-items:baseline;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .agent{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;border-radius:6px;padding:6px 8px;cursor:pointer;font-weight:400}
@@ -725,14 +737,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   </div>
   <!-- end:panel-issues -->
   <!-- region:panel-team -->
-  <div class="panel-body" id="panel-team" hidden>
-    <nav aria-label="Team">
-      <div class="pgroup" id="team-working"></div>
-      <div class="pgroup" id="team-roles"></div>
-      <div class="pgroup" id="team-members"></div>
-    </nav>
-
-  </div>
+  <!-- Team has no second panel since #486 (dashPage panel:false): its tabs (#team-tabs) are on its page; the element stays, empty, as every page's does -->
+  <div class="panel-body" id="panel-team" hidden></div>
   <!-- end:panel-team -->
   <!-- region:panel-chat -->
   <div class="panel-body" id="panel-chat" hidden>
@@ -800,14 +806,15 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 <!-- end:page-new -->
 <!-- region:page-team -->
 <div id="page-team" class="page" hidden>
+  <nav class="tm-tabs" id="team-tabs" aria-label="Team"></nav>
   <div id="team-head"></div>
   <form class="tm-form" id="team-form" aria-label="New handoff" hidden></form>
+  <form class="repo-add" id="repo-add" aria-label="Add a repository" hidden></form>
   <div id="team-view"></div>
   <section id="team-host" hidden>    <div class="tm-host"><div class="tm-host-name"><span>Running</span><span id="acount"></span></div>
     <div id="agents"></div></div>
     <details class="more" id="leftbox"><summary>Recently ended <span id="lcount" class="mute"></span></summary><div id="left"></div></details>
     <details class="more"><summary>Not connected to agentd <span id="ucount" class="mute"></span></summary><div id="unlinked"></div></details></section>
-  <button type="button" id="team-open">Sessions on this host</button>
 </div>
 <!-- end:page-team -->
 <!-- region:page-insights -->
@@ -1299,12 +1306,13 @@ function teamWorking(d){const roles=(TEAM.lists||{}).handoff_roles||{},open=d.ha
   return out.sort((a,b)=>(b.wait-a.wait)||String(a.name).localeCompare(String(b.name)))}
 function teamWorkItem(w){return teamItem({name:w.name,sub:(w.wait?w.status+': ':'')+w.task,dot:w.dot,dotTitle:w.status,side:w.handoff&&markEl(w.handoff.mark),href:w.href,tk:'hof-'+(w.handoff&&w.handoff.id),onclick:()=>{setPanel(false);showWorkItem(w.handoff.id)}})}
 function teamRoleTool(r,lists){return r.tool||(lists||{}).default_tool||''}
-function teamPanelGroups(d){const l=TEAM.lists,head=(name,n)=>el('div',{class:'pgroup-name'},el('span',{},name),n?el('span',{},n):null);
-  teamKeep($('team-working'),[teamItem({name:'Overview',href:'#team'}),teamItem({name:'Sessions on this host',href:'#team/host'}),reposPanelItem()]);
-  if(!l){const msg=TEAM.listsErr?el('div',{class:'tm-problem'},'Could not load: '+TEAM.listsErr):el('div',{class:'tm-empty'},'Loading…');teamKeep($('team-roles'),[head('Roles'),msg]);teamKeep($('team-members'),[head('Members')]);return}
-  const roles=l.roles||[],members=l.members||[];
-  teamKeep($('team-roles'),[teamItem({name:'Roles',side:roles.length||'',href:'#team/roles'}),...(l.problems||[]).length?[el('details',{class:'tm-problem'},el('summary',{},l.problems.length+' role files could not be read'),l.problems.map(p=>el('div',{},p)))]:[]]);
-  teamKeep($('team-members'),[teamItem({name:'Members',side:members.length||'',href:'#team/members'})])}
+// teamTab: which of Team's four tabs the route shows (#486); a detail page is under
+// its list's tab, and #team itself is Repositories, as the design has it.
+function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'members':'host';const g=r.rest&&r.rest[0];return g==='working'?'':['roles','members','host'].includes(g)?g:'repositories'}
+function teamTabs(){const l=TEAM.lists,tab=teamTab(),n=v=>v===undefined||v===null?'':String(v);
+  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host','']];
+  if(!REPOS.data&&!REPOS.err&&reposStale())reposLoad();
+  teamKeep($('team-tabs'),tabs.map(([k,name,c])=>el('a',{href:'#team/'+k,'data-tk':'tab-'+k,'data-tab':k,'aria-current':tab===k?'page':null},name,n(c)!==''?el('span',{class:'n'},n(c)):null)))}
 
 /* figures: a missing price or token count stays missing, a partial total is a floor */
 function teamUsd(u){if(!u||!u.workers)return 'no runs';const missing=u.missing_usd??0;if(u.usd===undefined)return missing?'price missing ('+missing+' run'+(missing>1?'s':'')+')':'nothing spent';return (missing?'≥ ':'')+'$'+u.usd.toFixed(2)+' est.'+(missing?', '+missing+' run'+(missing>1?'s':'')+' unpriced':'')}
@@ -1358,14 +1366,15 @@ function teamOverview(d){const l=TEAM.lists,working=teamWorking(d),row=(href,tk,
   // Running workers moved to the Agents list (#479); #team/working, an old address, says where.
   const group=ROUTE.rest[0],out=[];
   if(group==='working')return [el('div',{class:'state','data-moved':'working'},el('span',{},working.length?working.length+' working now. ':'','Running workers are in the Agents list beside the rail: each row has its task, agent, state, time, cost so far and latest activity.'),agentsShown()&&!PHONE.matches?null:el('button',{type:'button',onclick:()=>agentsSet(true)},'Show the Agents list'))];
-  if(l){if(group!=='members')out.push(...teamSec('Roles',(l.roles||[]).length||'',(l.roles||[]).length?l.roles.map(r=>row(teamHref('role',r.name),'r-'+r.name,r.name,r.description,toolName(teamRoleTool(r,l)))):[el('div',{class:'empty'},'No agents/*.md in a known checkout.')]));
-    if(group!=='roles')out.push(...teamSec('Members',(l.members||[]).length||'',(l.members||[]).length?l.members.map(m=>row(teamHref('member',m.name),'m-'+m.name,m.name,memberSessions(d,m.name),m.role||'not added')):[el('div',{class:'empty'},'No users on this ledger.')]))}
+  // Each is a tab (#486): Roles with the role files that could not be read (the panel had them), Members.
+  if(l){if(group==='roles')out.push(el('p',{class:'mute tm-intro'},'agents/NAME.md in each repository: tool, model, sandbox, budget. A task offered with that role starts a worker defined by the file.'),...teamSec('Roles',(l.roles||[]).length||'',(l.roles||[]).length?l.roles.map(r=>row(teamHref('role',r.name),'r-'+r.name,r.name,r.description,toolName(teamRoleTool(r,l)))):[el('div',{class:'empty'},'No agents/*.md in a known checkout.')]),...(l.problems||[]).length?[el('details',{class:'tm-problem','data-problems':''},el('summary',{},l.problems.length+' role files could not be read'),l.problems.map(p=>el('div',{},p)))]:[]);
+    if(group==='members')out.push(el('p',{class:'mute tm-intro'},'People on this ledger and their role: owners approve and change settings, developers start work, viewers read. Invite from Settings > Team.'),...teamSec('Members',(l.members||[]).length||'',(l.members||[]).length?l.members.map(m=>row(teamHref('member',m.name),'m-'+m.name,m.name,memberSessions(d,m.name),m.role||'not added')):[el('div',{class:'empty'},'No users on this ledger.')]))}
   else if(TEAM.listsErr)out.push(el('div',{class:'state error',role:'alert'},'Could not load roles and members: '+TEAM.listsErr));
   return out}
-function teamDraw(){const d=lastDash||{};teamPanelGroups(d);const t=teamTarget(),view=$('team-view'),head=$('team-head');$('team-open').hidden=!!t;
+function teamDraw(){const d=lastDash||{};teamTabs();const t=teamTarget(),view=$('team-view'),head=$('team-head');repoAddShow(!t&&teamTab()==='repositories');
   const hostView=!t&&ROUTE.rest[0]==='host';$('team-host').hidden=!hostView;let top=[],body;
   if(hostView)body=[el('h2',{},'Sessions on this host'),el('p',{class:'mute'},'Sessions connected to agentd, grouped by checkout. Recently ended sessions, and Claude sessions on this host that are not connected to agentd, are below.')];
-  else if(!t&&ROUTE.rest[0]==='repositories')body=reposBody();
+  else if(!t&&teamTab()==='repositories'){top=[reposHead()];body=reposBody()}
   else if(!t)body=!lastDash?[el('div',{class:'state'},'Loading…')]:teamOverview(d);
   else if(TEAM.detailErr)body=[el('div',{class:'state error',role:'alert'},'Could not load this page: '+TEAM.detailErr),el('p',{},el('a',{href:'#team'},'Back to Team'))];
   else if(!TEAM.detail)body=[el('div',{class:'state'},'Loading…')];
@@ -1377,16 +1386,17 @@ function teamDraw(){const d=lastDash||{};teamPanelGroups(d);const t=teamTarget()
 function teamFormClose(focus){TEAM.form=null}
 function teamFormOpen(roleName){return newHandoffSheet(roleName)}
 
-dashPage('team',{title:'Team',enter(r){teamMoved(r)},unlock(){teamLoadLists();teamLoadDetail();teamLoadActivity(lastDash||{})},
+dashPage('team',{title:'Team',panel:false,enter(r){teamMoved(r)},unlock(){teamLoadLists();teamLoadDetail();teamLoadActivity(lastDash||{})},
   render(d){agents(d);left(d);unlinked(d);if(ROUTE.item!=='team')return;const now=Date.now();if(now-TEAM.listsAt>8000)teamLoadLists();if(now-TEAM.activityAt>8000)teamLoadActivity(d);if(now-TEAM.detailAt>8000&&teamTarget())teamLoadDetail();teamDraw()}});
-$('team-open').onclick=()=>{location.hash='team/host'};
 // end:team
 // region:repositories
-/* Team > Repositories (#team/repositories): every checkout this host offers for
-   work, from GET /api/repositories, with what a worker there needs and the
-   terminal command that fixes each. Read-only: repositories are added with
-   agentd init in a terminal, never here. Every repository-derived string is
-   text, set through el(). */
+/* Team > Repositories (#team, #team/repositories): every checkout this host offers
+   for work, from GET /api/repositories, as a table (repository, checkout, routing,
+   open tasks, working, a link to its tasks), each row with what a worker there
+   needs and the terminal command that fixes it. An owner adds a checkout that is
+   already on this host with Add a repository (POST /api/repositories, the same as
+   agentd repo add DIR --route on|off, #486); cloning from a URL is done in a
+   terminal first. Every repository-derived string is text, set through el(). */
 const REPOS={data:null,err:'',at:0,req:0};
 const REPO_CHECKS={trust:'Claude trust',sync:'GitHub sync',commit:'First commit',gh:'gh access',origin:'Up to date with GitHub'};
 async function reposLoad(){const req=++REPOS.req;REPOS.at=Date.now();try{const r=await fetch('/api/repositories',{cache:'no-store',headers:auth()});if(r.status===401){dropToken();throw new Error('this dash needs the token')}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);const j=await r.json();if(req!==REPOS.req)return;REPOS.data=j;REPOS.err=''}catch(e){if(req!==REPOS.req)return;REPOS.err=e.message}if(ROUTE.item==='team')teamDraw()}
@@ -1402,20 +1412,53 @@ function repoCheckItem(c,r){const state=c.ok===true?'ok':c.ok===false?'bad':'unk
 // Issues counts it (issueItems), and says Failed where Issues does; the folder, the
 // remote and the worker worktrees on disk are under Details.
 function repoOpen(r){if(!lastDash||!r.project||typeof issueItems!=='function')return null;return issueItems(lastDash,true).filter(i=>!i.folded&&i.project===r.project&&!FINISHED.has(i.status)).length}
+// repoRoute: on, off or not set, from the row (or the snapshot's checkout_routes on an older server).
+function repoRoute(r){const v=r.route||((lastDash||{}).checkout_routes||{})[r.path]||'';return v==='on'?'On':v==='off'?'Off':'Not set'}
+const REPO_COLS=['Repository','Checkout','Routing','Open tasks','Working',''];
 function repoRow(r){const folder=(r.path||'').split('/').filter(Boolean).pop()||r.path,name=r.github||r.project||folder,n=r.worker_worktrees||0,last=r.last,open=repoOpen(r)??r.open??0;
   const meta=[r.github?'GitHub '+r.github:r.remote?'origin is not on GitHub':'no origin',r.default_branch?'default branch '+r.default_branch:null,r.branch?'on '+r.branch:'no branch checked out',r.linked?'a linked worktree':null].filter(Boolean).join(' · ');
   const issues='#issues?'+new URLSearchParams({project:r.project||''}).toString();
   const details=el('details',{class:'tech repo-details'},el('summary',{},'Details'),el('div',{},'Folder ',el('code',{class:'repo-path'},r.path)),r.remote&&!r.github?el('div',{},'Origin ',el('code',{},r.remote)):null,
     el('div',{},n?n+' worker worktree'+(n>1?'s':'')+' on disk (folders agentd made for workers; finished ones stay until removed)':'No worker worktrees on disk'));
-  return el('div',{class:'repo-row','data-repo':r.path},el('div',{class:'repo-head'},el('span',{class:'repo-name'},name),folder!==name.split('/').pop()?el('span',{class:'mute'},'folder '+folder):null),el('span',{class:'tm-why'},meta),
+  const cell=(i,...kids)=>el('span',{class:'repo-cell','data-label':REPO_COLS[i]||null},...kids);
+  return el('div',{class:'repo-row','data-repo':r.path},el('div',{class:'repo-cells'},
+      cell(0,el('span',{class:'repo-name'},name),folder!==name.split('/').pop()?el('span',{class:'mute'},' folder '+folder):null),
+      cell(1,el('code',{class:'repo-path',title:r.path},r.path)),
+      cell(2,el('span',{'data-route':''},repoRoute(r))),
+      cell(3,el('span',{'data-open':''},String(open))),
+      cell(4,el('span',{'data-working':'',title:'Workers running'},String(r.running||0))),
+      cell(5,el('a',{href:issues,class:'repo-tasks',title:'Open tasks and pull requests for '+(r.project||name)+' in Tasks'},'Tasks'))),
+    el('span',{class:'tm-why'},meta),
     el('ul',{class:'repo-checks','aria-label':'Checks for '+name},(r.checks||[]).map(c=>repoCheckItem(c,r))),
-    el('div',{class:'repo-work'},el('a',{href:issues,title:'Open tasks and pull requests for '+(r.project||name)+' in Tasks'},open+' open in Tasks'),' · '+(r.running||0)+' worker'+(r.running===1?'':'s')+' running · ',
-      last?['last task ',el('a',{href:itemHash(null,last.id),title:last.goal||''},cardTitle(last.goal)||'Untitled'),' ('+(last.failed?'Failed':word(last.state)==='Taken'?'Started':word(last.state))+(last.updated?', '+whenText(last.updated):'')+')']:'no tasks yet'),details)}
+    el('div',{class:'repo-work'},last?['Last task ',el('a',{href:itemHash(null,last.id),title:last.goal||''},cardTitle(last.goal)||'Untitled'),' ('+(last.failed?'Failed':word(last.state)==='Taken'?'Started':word(last.state))+(last.updated?', '+whenText(last.updated):'')+')']:'no tasks yet'),details)}
+function repoOwner(){return ROLE==='owner'&&!!USER}
+// reposHead: the tab's heading, with Add a repository for an owner and the terminal command for anyone else.
+function reposHead(){return el('div',{class:'tm-head'},el('div',{class:'tm-title'},el('h2',{},'Repositories'),el('p',{},repoOwner()?'The checkouts on this host that workers can run in.':['The checkouts on this host that workers can run in. An owner adds one here; or, in a terminal on the host, ',el('code',{},'agentd repo add DIR'),'.'])),
+  repoOwner()?el('div',{class:'tm-acts'},el('button',{type:'button',class:'ok','data-tk':'repo-add','aria-expanded':String(REPO_ADD.open),'aria-controls':'repo-add',onclick:()=>repoAddOpen(!REPO_ADD.open)},'Add a repository')):null)}
 function reposBody(){if(reposStale())reposLoad();const d=REPOS.data,list=d&&d.repositories||[];
-  const head=[el('h2',{},'Repositories'),el('p',{class:'mute'},'The repositories workers on this host can run in. They are added from a terminal on the host, not from this page: run ',el('code',{},'agentd init'),' inside a repository.')];
-  if(!d)return [...head,REPOS.err?el('div',{class:'state error',role:'alert'},'Could not load repositories: '+REPOS.err):el('div',{class:'state'},'Loading…')];
-  return [...head,REPOS.err?el('div',{class:'state error',role:'alert'},'Could not refresh: '+REPOS.err):null,el('div',{class:'tm-rows repo-list'},list.length?list.map(repoRow):el('div',{class:'empty'},'No repositories yet. Run ',el('code',{},'agentd init'),' inside a repository on this host.'))].filter(Boolean)}
-function reposPanelItem(){if(!REPOS.data&&!REPOS.err&&reposStale())reposLoad();return teamItem({name:'Repositories',side:REPOS.data?(REPOS.data.repositories||[]).length||'0':'–',href:'#team/repositories'})}
+  if(!d)return [REPOS.err?el('div',{class:'state error',role:'alert'},'Could not load repositories: '+REPOS.err):el('div',{class:'state'},'Loading…')];
+  return [REPOS.err?el('div',{class:'state error',role:'alert'},'Could not refresh: '+REPOS.err):null,el('div',{class:'tm-rows repo-list'},list.length?[el('div',{class:'repo-cells repo-colhead','aria-hidden':'true'},REPO_COLS.map(c=>el('span',{},c))),...list.map(repoRow)]:el('div',{class:'empty'},'No repositories yet. '+(repoOwner()?'Add one with Add a repository, or run ':'Run '),el('code',{},'agentd repo add DIR'),' in a terminal on this host.'))].filter(Boolean)}
+// The add form stays out of teamDraw (#repo-add beside #team-view), so a refresh
+// does not wipe what is being typed. A checkout on this host is added; Clone from
+// URL only says to clone in a terminal first.
+const REPO_ADD={open:false,mode:'local',busy:false};
+function repoAddShow(here){const f=$('repo-add');if(REPO_ADD.open&&!repoOwner())REPO_ADD.open=false;f.hidden=!(here&&REPO_ADD.open)}
+function repoAddOpen(open){REPO_ADD.open=!!open&&repoOwner();if(REPO_ADD.open){REPO_ADD.mode='local';repoAddBuild()}teamDraw();if(REPO_ADD.open){const i=$('repo-add-dir');if(i)i.focus()}}
+function repoAddBuild(){const f=$('repo-add'),local=REPO_ADD.mode==='local',chip=(mode,label)=>el('button',{type:'button',class:'repo-mode','aria-pressed':String(REPO_ADD.mode===mode),onclick:()=>{const dir=$('repo-add-dir'),keep=dir?dir.value:'';REPO_ADD.mode=mode;repoAddBuild();const d=$('repo-add-dir');if(d){d.value=keep;d.focus()}}},label);
+  const kids=[el('h3',{},'Add a repository'),el('div',{class:'repo-modes',role:'group','aria-label':'Where the repository comes from'},chip('local','A checkout on this host'),chip('clone','Clone from URL'))];
+  if(local){const dir=el('input',{type:'text',id:'repo-add-dir',name:'dir',class:'mono',placeholder:'/path/to/repo',required:true,autocomplete:'off',spellcheck:'false'}),route=el('select',{id:'repo-add-route',name:'route'},el('option',{value:'on'},'On'),el('option',{value:'off'},'Off'));
+    kids.push(el('div',{class:'repo-fields'},el('label',{class:'repo-dir'},el('span',{},'Directory'),dir),el('label',{},el('span',{},'Route work through agentd'),route),el('span',{class:'tm-acts'},el('button',{type:'submit',class:'ok',id:'repo-add-go'},'Add'),el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel'))),
+      el('p',{class:'tm-why'},'Same as ',el('code',{},'agentd repo add DIR --route on|off'),'. It must be a git checkout the dash’s user can write. Workers get their own worktree under it; the main checkout is not touched.'))}
+  else kids.push(el('p',{class:'tm-why','data-clone':''},'Cloning from a URL is not done from the dash. Clone it in a terminal on this host first, then add the folder as a checkout on this host:'),el('span',{class:'repo-fix'},el('code',{},'git clone URL DIR'),el('button',{type:'button',class:'repo-copy','aria-label':'Copy the clone command',onclick:()=>repoCopy('git clone URL DIR')},'Copy')),el('span',{class:'tm-acts'},el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel')));
+  kids.push(el('p',{class:'repo-add-msg',id:'repo-add-msg',role:'alert',hidden:true}));f.replaceChildren(...kids)}
+async function repoAddSubmit(e){e.preventDefault();if(REPO_ADD.busy||REPO_ADD.mode!=='local')return;const dir=$('repo-add-dir').value.trim(),route=$('repo-add-route').value,msg=$('repo-add-msg'),go=$('repo-add-go'),show=t=>{msg.textContent=t;msg.hidden=!t};
+  if(!dir){show('Enter the directory of a checkout on this host.');$('repo-add-dir').focus();return}
+  REPO_ADD.busy=true;go.disabled=true;show('');
+  try{const r=await fetch('/api/repositories',{method:'POST',cache:'no-store',headers:{...auth(),'Content-Type':'application/json'},body:JSON.stringify({action:'add',dir,route})});let d={};try{d=await r.json()}catch(x){}
+    if(!r.ok)throw new Error(d.error||'Could not add the repository (HTTP '+r.status+').');
+    REPO_ADD.open=false;toast((d.added===false?'Already known: ':'Added ')+(d.path||dir)+', routing '+(d.route||route),true);REPOS.at=0;await reposLoad();if(typeof refresh==='function')refresh()}
+  catch(x){show(errorText(x))}finally{REPO_ADD.busy=false;go.disabled=false;if(ROUTE.item==='team')teamDraw()}}
+if($('repo-add'))$('repo-add').onsubmit=repoAddSubmit;
 // end:repositories
 // region:openpr: a finished worker's change, and the draft pull request a person may open for it.
 // The diff is the worker's text, so it goes in as text. Nothing here pushes

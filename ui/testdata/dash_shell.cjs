@@ -97,7 +97,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  w.eval('refresh()');await settle();assert(!row('hof-ask'),'a finished task stays');assert(row('hof-late'),'a new task is missing');
  assert.deepEqual([...doc.querySelectorAll('#agents-rows .ag-group')].map(g=>g.firstChild.textContent),['Needs you','acme/alpha','acme/beta','acme/zeta','gamma']);assert.equal(doc.querySelector('#agents-counts').textContent,'1 need you3 working2 waiting');
  // Team: no Working now; what it showed is on the list's rows (task, agent, state, time, cost) and its latest activity.
- await go('#team');await settle();assert(!doc.querySelector('.working-table'),'Team still has Working now');assert(![...doc.querySelectorAll('#team-working .pitem')].some(a=>/Working now/.test(a.textContent)),'Working now is still in the Team panel');
+ await go('#team');await settle();assert(!doc.querySelector('.working-table'),'Team still has Working now');assert(![...doc.querySelectorAll('#team-tabs a')].some(a=>/Working now/.test(a.textContent)),'Working now is still a Team tab');
  assert(row('hof-work').querySelector('.ag-act')&&row('hof-work').querySelector('.ag-act').textContent==='Reading the alpha tests','the latest activity is lost');assert(requests.some(r=>r.startsWith('/api/team?activity=')));
  await go('#team/working');assert(doc.querySelector('#team-view [data-moved="working"]'),'#team/working does not say where it went');
  // A page hooks in from its dashPage(): the row its own address shows, and whether the list shows by default.
