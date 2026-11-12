@@ -55,7 +55,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  // The list: Needs you first (needs_you before failed), then repositories by name, each working → waiting → not started; a session with no task in its own.
  assert.deepEqual([...doc.querySelectorAll('#agents-rows .ag-group')].map(g=>g.firstChild.textContent),['Needs you','acme/alpha','acme/zeta','gamma']);
  assert.deepEqual(ids(),['hof-ask','hof-fail','hof-work','hof-wait','hof-new','hof-zed','s-solo']);
- assert.equal(doc.querySelector('#agents-counts').textContent,'2 need you3 working1 waiting');
+ assert.equal(doc.querySelector('#agents-counts').textContent,'2 tasks need you3 working1 waiting');
  for(const r of rows())assert.equal(r.querySelectorAll('.tmark').length,1,'a row without its one mark: '+r.textContent);
  assert.equal(row('hof-ask').querySelector('.tmark').dataset.mark,'needs_you');assert.equal(row('hof-fail').querySelector('.tmark').dataset.mark,'failed');
  assert(row('hof-ask').textContent.includes(evil),'the title is not the task text');assert(!doc.querySelector('#agents-rows img'),'a title became markup');
@@ -95,7 +95,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  // The list follows the page's own refresh: a task that finished leaves, a new one arrives, counts follow.
  dash={...dash,handoff_list:[...open.filter(h=>h.id!=='hof-ask'),{...base,id:'hof-late',goal:'Arrived later',project:'acme/beta',state:'offered',mark:'waiting'}]};
  w.eval('refresh()');await settle();assert(!row('hof-ask'),'a finished task stays');assert(row('hof-late'),'a new task is missing');
- assert.deepEqual([...doc.querySelectorAll('#agents-rows .ag-group')].map(g=>g.firstChild.textContent),['Needs you','acme/alpha','acme/beta','acme/zeta','gamma']);assert.equal(doc.querySelector('#agents-counts').textContent,'1 need you3 working2 waiting');
+ assert.deepEqual([...doc.querySelectorAll('#agents-rows .ag-group')].map(g=>g.firstChild.textContent),['Needs you','acme/alpha','acme/beta','acme/zeta','gamma']);assert.equal(doc.querySelector('#agents-counts').textContent,'1 task needs you3 working2 waiting');
  // Team: no Working now; what it showed is on the list's rows (task, agent, state, time, cost) and its latest activity.
  await go('#team');await settle();assert(!doc.querySelector('.working-table'),'Team still has Working now');assert(![...doc.querySelectorAll('#team-tabs a')].some(a=>/Working now/.test(a.textContent)),'Working now is still a Team tab');
  assert(row('hof-work').querySelector('.ag-act')&&row('hof-work').querySelector('.ag-act').textContent==='Reading the alpha tests','the latest activity is lost');assert(requests.some(r=>r.startsWith('/api/team?activity=')));

@@ -24,7 +24,7 @@ const full=()=>({factory:1,since:'2026-10-15T09:00:00Z',until:'2026-10-29T09:00:
     {agent:'codex',model:'gpt-x',tasks:1,accepted:1,attempts:1,tokens:150,missing_tokens:0,usd:4,missing_usd:0,wall_time:{n:1,median_min:30}},
     {agent:'claude',model:null,tasks:1,accepted:0,attempts:0,missing_tokens:0,missing_usd:0,wall_time:{not_computable:'no handoff went from claimed to done'}}],
   load:{max_workers:2,peak_workers:0,unpriced:0,days:[],averages:{}}});
-let factory=full(),factoryMode='ok';const requests=[];
+let factory=full(),factoryMode='ok',metricsDelay=0;const requests=[];
 const dash={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#inbox',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
@@ -35,7 +35,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   if(u.pathname==='/api/auth')return {ok:true,status:204};
   if(u.pathname==='/api/dash')body=dash;
   else if(u.pathname==='/api/issues')body={issues:[]};
-  else if(u.pathname==='/api/metrics')body=metrics();
+  else if(u.pathname==='/api/metrics'){if(metricsDelay)await new Promise(r=>setTimeout(r,metricsDelay));body=metrics()}
   else if(u.pathname==='/api/bench')body={rounds:[]};
   else if(u.pathname==='/api/factory'){if(factoryMode==='denied'){status=401;body='needs the token'}else if(factoryMode==='broken'){status=500;body='ledger is locked'}else body=factory}
   else if(u.pathname==='/api/history')body={rows:[{id:'hof-3',state:'done',goal:'Fix the flaky test',failed:true,updated:now}],total:1,groups:1,next:null,limit:50,facets:{states:['done','cancelled','declined'],sources:[],creators:[]}};
@@ -100,6 +100,20 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  const chip=doc.getElementById('h-outcome');assert(!chip.hidden);assert.equal(chip.textContent,'Failed · week of 2026-10-15 ×');assert(!doc.getElementById('h-clear').hidden,'Clear hidden while filtered');
  assert(doc.getElementById('h-rows').textContent.includes('Fix the flaky test'));
  chip.click();await settle();assert(chip.hidden);const after=requests.filter(r=>r.startsWith('/api/history?')).pop();assert(!new URL('http://x'+after).searchParams.has('outcome'),'the outcome stayed after removing it');assert(!w.location.hash.includes('outcome='));
+ // No second panel: Metrics, Usage and History are tabs at the top of the page, Metrics' beside its period picker; addresses unchanged.
+ assert.equal(w.eval("PAGES.insights.panel"),false,'Insights still has a second panel');assert(!doc.getElementById('panel-insights').children.length,'the Insights panel element is not empty');
+ const tabsAt=async v=>{await route('#insights/'+v);const t=doc.getElementById('ins-tabs');assert(!doc.getElementById('side').contains(t),'the tabs are in the panel');
+  assert(doc.body.classList.contains('no-panel'));assert.deepEqual([...t.querySelectorAll('a')].map(a=>[a.getAttribute('href'),a.textContent,a.getAttribute('aria-current')]),['metrics','usage','history'].map(k=>['#insights/'+k,k[0].toUpperCase()+k.slice(1),k===v?'page':null]));return t};
+ let t=await tabsAt('metrics');assert.equal(t.parentElement.id,'ins-head','Metrics\' tabs are not beside the period picker');assert(t.parentElement.querySelector('#m-range'));
+ t=await tabsAt('usage');assert.equal(t.parentElement.id,'page-usage');assert.equal(t.parentElement.firstElementChild,t,'Usage\'s tabs are not at the top');
+ t=await tabsAt('history');assert.equal(t.parentElement.id,'page-history');assert.equal(t.parentElement.firstElementChild,t,'History\'s tabs are not at the top');
+ // PR workflow latency: a slow /api/metrics shows Loading, then the value; it never stays loading.
+ await route('#insights/metrics');metricsDelay=200;latency={n:3,median_hours:0.48};w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
+ assert.deepEqual(cards()[3],['PR workflow latency','…','Loading…']);
+ await new Promise(r=>setTimeout(r,300));await settle();assert.deepEqual(cards()[3],['PR workflow latency','0.5 h','open to merge, median · 3 merged PRs']);metricsDelay=0;
+ // Dates with no start date read nothing, and the cards say so instead of Loading.
+ w.eval("$('m-range').value='dates';$('m-from').value='';INS_READ.metrics=0;loadMetrics()");await settle();
+ assert(cards().every(c=>c[1]!=='…'&&c[2]!=='Loading…'),'a card stays loading with no start date: '+JSON.stringify(cards()));assert.equal(cards()[3][2],'choose a start date');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_insights: ok');process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1)});

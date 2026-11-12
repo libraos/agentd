@@ -323,6 +323,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 @media(max-width:860px){.board-pick{display:grid;gap:4px;margin-bottom:12px;font-size:12px;color:var(--mute)}.kboard{display:block;overflow:visible}.kcol{display:none}.kcol.picked{display:block}.kcol .kcard{margin:0 8px 8px}.kcol .ktop .status{display:none}.ib-title{-webkit-line-clamp:2}.ib-row{gap:4px;padding:12px}.ib-tag{font-size:11px}.ib-row .kact{flex-direction:row}.wfilter .filters{flex-wrap:wrap}.wfilter{gap:8px}.ktitle{-webkit-line-clamp:2}.idetail{grid-template-columns:minmax(0,1fr)}}
 /* the task workspace (#480): a top bar, then Session | Log | Terminal beside Changes | Files | Checks | Details */
 .idetail.tw{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+/* .tw-top is a div, not a header: the shell's header{} rule (the top bar's 44px, sticky, one nowrap row) drew the status line under the tabs */
 .tw-top{display:grid;gap:6px;min-width:0}.tw-top .ititle{margin-bottom:0}
 .tw-bar{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;min-width:0;padding-bottom:10px;border-bottom:1px solid var(--line)}.tw-bar .tw-status{flex:1 1 320px}.tw-bar .tw-acts{margin-left:auto;flex-wrap:wrap}
 .tw-pick{display:flex;gap:6px;align-items:center;font-size:var(--fs-s)}.tw-pick select{max-width:280px;font-size:var(--fs-s)}
@@ -342,6 +343,12 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
   .idetail.tw:not([data-phone]) .tw-side{display:none}.idetail.tw[data-phone] .tw-main>.tw-panel{display:none}.idetail.tw[data-phone] .tw-main .tw-tab:not(.tw-more)[aria-selected="true"]{color:var(--mute);border-bottom-color:transparent}
   .idetail.tw[data-phone] .tw-main .tw-tabs{margin-bottom:0}.tw-side.iprops{border-top-left-radius:0;border-top-right-radius:0}}
 /* end:css-issues */
+/* region:css-tasks-row: Tasks with no second panel: its views (with open counts) and project filter in the board's filter row; card titles wrap at spaces */
+.issue-views button{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.issue-views .n{color:var(--mute);font-variant-numeric:tabular-nums}.issue-views .n:empty{display:none}
+.issue-proj{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mute)}.issue-proj[hidden]{display:none}.issue-proj select{font-size:12px;padding:3px 6px;max-width:240px}
+.ktitle{overflow-wrap:break-word;word-break:normal}.kcol .ktop{flex-wrap:wrap;gap:4px 12px}.kcol .ktop .ktitle{flex:1 1 140px}
+@media(max-width:860px){.issue-views{flex-wrap:wrap}.issue-views button{flex:1 1 40%;justify-content:center}.issue-proj{flex:1 1 100%}.issue-proj select{flex:1;max-width:none}}
+/* end:css-tasks-row */
 /* region:css-insights */
 .runs{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px 8px;margin-bottom:12px;min-width:0}
 .colhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;padding:0 0 8px}.colhead .n{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -393,6 +400,12 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .ins-overview td.num,.ins-overview th.num{text-align:right}.ins-overview .mute{font-size:12px}
 @media(max-width:860px){.ins-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.ins-cols{grid-template-columns:minmax(0,1fr)}}
 /* end:css-insights-overview */
+/* region:css-insights-tabs: Metrics, Usage and History as tabs at the top of Insights (no second panel) */
+.ins-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;align-self:stretch}.ins-tabs::-webkit-scrollbar{display:none}
+.ins-tabs a{display:inline-flex;align-items:center;padding:6px 12px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--mute);text-decoration:none;white-space:nowrap}
+.ins-tabs a:hover{color:var(--fg);text-decoration:none}.ins-tabs a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:500}
+.page>.ins-tabs{border-bottom:1px solid var(--line);margin-bottom:14px}#ins-head{align-items:center;border-bottom:1px solid var(--line);margin-bottom:14px;padding-bottom:0}#ins-head .ins-tabs{margin-right:auto}#ins-head #ins-period{margin-left:auto}#ins-head .mrange{margin-left:0;padding:4px 0}
+/* end:css-insights-tabs */
 /* cost strip: figures and one bar per run */
 .cost{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
 .cost b{color:var(--fg);font-weight:400}.cost .fig{white-space:nowrap}.cost .fig i{font-style:normal;color:var(--amber)}
@@ -737,10 +750,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   <div class="panel-body" id="panel-inbox" hidden></div>
   <!-- end:panel-inbox -->
   <!-- region:panel-issues -->
-  <div class="panel-body" id="panel-issues" hidden>
-    <nav class="pgroup" id="issue-views" aria-label="Views"></nav>
-    <nav class="pgroup" aria-labelledby="issue-projects-name"><div class="pgroup-name" id="issue-projects-name">Projects</div><div id="issue-projects"></div></nav>
-  </div>
+  <!-- Tasks has no second panel (dashPage panel:false): its views and project are in the board's filter row (#issue-views, #issue-projects), with the same counts; the element stays, empty, as every page's does -->
+  <div class="panel-body" id="panel-issues" hidden></div>
   <!-- end:panel-issues -->
   <!-- region:panel-team -->
   <!-- Team has no second panel since #486 (dashPage panel:false): its tabs (#team-tabs) are on its page; the element stays, empty, as every page's does -->
@@ -756,13 +767,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   </div>
   <!-- end:panel-chat -->
   <!-- region:panel-insights -->
-  <div class="panel-body" id="panel-insights" hidden>
-    <nav class="pgroup" aria-label="Insights views">
-      <a class="pitem" href="#insights/metrics">Metrics</a>
-      <a class="pitem" href="#insights/usage">Usage</a>
-      <a class="pitem" href="#insights/history">History</a>
-    </nav>
-  </div>
+  <!-- Insights has no second panel (dashPage panel:false): Metrics, Usage and History are tabs at the top of its page (#ins-tabs); the element stays, empty, as every page's does -->
+  <div class="panel-body" id="panel-insights" hidden></div>
   <!-- end:panel-insights -->
   <!-- region:panel-settings: Settings' sections (#487), each at #settings/SECTION; drawn by region:settings -->
   <div class="panel-body" id="panel-settings" hidden>
@@ -800,7 +806,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 <!-- end:page-inbox -->
 <!-- region:page-issues -->
 <div id="page-work" class="page" hidden>
-  <div class="wfilter" id="wfilter" aria-label="Views and filters"></div>
+  <!-- The views (with counts of open tasks) and the project filter (with counts in its options): wfBar keeps them in this row -->
+  <div class="wfilter" id="wfilter" aria-label="Views and filters"><nav class="views issue-views" id="issue-views" aria-label="Views"></nav><label class="issue-proj" id="issue-proj">Project <select id="issue-projects" aria-label="Project"></select></label></div>
   <section class="proj" id="new-handoff-box" aria-label="New handoff" hidden style="margin-bottom:12px"><div class="colhead" style="padding:12px 16px 0"><h2>New handoff</h2></div><div class="new-handoff" id="new-handoff-form" style="border-top:0;padding-top:8px"></div></section>
   <!-- Board: a column per status, one card per GitHub issue and a card each for
        what has no issue. List: one panel per project with every handoff and PR
@@ -829,6 +836,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 </div>
 <!-- end:page-team -->
 <!-- region:page-insights -->
+<!-- Metrics, Usage and History as tabs; insightsTabs puts them at the top of the view shown, beside Metrics' period picker -->
+<nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav>
 <div id="page-history" class="page" hidden>
   <section class="runs" aria-label="Finished work"><div class="colhead"><h2>History</h2><span class="n" id="n-history"></span></div>
     <form class="hfilter" id="h-filters" role="search">
@@ -1305,7 +1314,8 @@ function agentsRow(r,sel){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.runnin
     tip=[r.full,[modelName(act&&act.model||run&&run.model||''),r.session&&r.session.user||h&&h.claimer_user||''].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
   return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,'aria-current':sel?'page':null,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
 function agentsDraw(d){if(!d)return;const box=$('agents-rows'),m=agentsModel(d),sel=agentsSelected(),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'',isSel=r=>!!sel&&(r.id===sel||r.issue===sel);
-  $('agents-counts').replaceChildren(...[[m.counts.need,'need you'],[m.counts.working,'working'],[m.counts.waiting,'waiting']].map(([n,l])=>el('span',{},el('b',{},n),' '+l)));
+  // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
+  $('agents-counts').replaceChildren(...[[m.counts.need,m.counts.need===1?'task needs you':'tasks need you','Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
   const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...m.need.map(r=>agentsRow(r,isSel(r))));
   for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...g.rows.map(r=>agentsRow(r,isSel(r))));
   box.replaceChildren(...(kids.length?kids:[el('div',{class:'empty'},'No open tasks. Start one with New task.')]));
@@ -1824,8 +1834,9 @@ function taskStatus(x,key,live,title){return x&&markOf(x.mark)?markEl(x.mark):ke
 function markHref(key){const p=new URLSearchParams(ROUTE.params);if(key)p.set('mark',key);else p.delete('mark');const q=p.toString();return '#issues'+(q?'?'+q:'')}
 function markLegend(){const d=el('details',{class:'mark-legend',open:MARK_LEGEND},el('summary',{},'What the marks mean'),el('dl',{},marks().flatMap(([k,,,help])=>[el('dt',{},markEl(k)),el('dd',{},help)])));d.addEventListener('toggle',()=>{MARK_LEGEND=d.open});return d}
 function markStrip(tasks){
-  return el('nav',{class:'mark-strip','data-ref':'mark-strip','aria-label':'Tasks by mark'},marks().map(([k,word])=>{const n=tasks.filter(i=>i.mark===k).length;
-    return el('a',{href:markHref(MARK_PICK===k?'':k),class:MARK_PICK===k?'on':'','data-mark-pick':k,'aria-current':MARK_PICK===k?'true':null,'aria-label':word+': '+n+(MARK_PICK===k?', shown; choose again to show all':''),onclick:e=>{e.preventDefault();pickMark(MARK_PICK===k?'':k)}},markEl(k),el('b',{class:'n'},String(n)))}),
+  // Counts the tasks on this board: its view, project and filters. The Agents list counts every open task, the Inbox items.
+  return el('nav',{class:'mark-strip','data-ref':'mark-strip','aria-label':'Tasks on this board by mark'},marks().map(([k,word])=>{const n=tasks.filter(i=>i.mark===k).length;
+    return el('a',{href:markHref(MARK_PICK===k?'':k),class:MARK_PICK===k?'on':'','data-mark-pick':k,title:n+(n===1?' task':' tasks')+' on this board (its view, project and filters) marked '+word+'.'+(k==='needs_you'?' The Agents list counts every open task that needs you; the Inbox counts items, not tasks.':''),'aria-current':MARK_PICK===k?'true':null,'aria-label':word+': '+n+(MARK_PICK===k?', shown; choose again to show all':''),onclick:e=>{e.preventDefault();pickMark(MARK_PICK===k?'':k)}},markEl(k),el('b',{class:'n'},String(n)))}),
     MARK_PICK?el('button',{type:'button',class:'linkish','data-mark-pick':'',onclick:()=>pickMark('')},'Show all'):null,markLegend())}
 function pickMark(key){MARK_PICK=markOf(key)?key:'';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
 // drawMarks: the strip, then with a mark chosen its tasks as one list in every
@@ -2046,7 +2057,7 @@ function inboxUnread(d){return inboxSets(d).needs.filter(x=>x.can_answer!==false
 // and the rail's badge both show it, read or not. Unread is the dot on a row
 // and the badge's label, never a second count.
 function inboxNeedCount(d){return inboxSets(d).needs.length}
-function inboxBadge(d){const n=inboxNeedCount(d),u=inboxUnread(d),b=$('inbox-badge');b.hidden=!n;b.textContent=n>99?'99+':n;b.title=n?n+' need you'+(u?', '+u+' unread':''):'';document.querySelector('[data-rail="inbox"]').setAttribute('aria-label',n?'Inbox, '+n+' need you'+(u?', '+u+' unread':''):'Inbox')}
+function inboxBadge(d){const n=inboxNeedCount(d),u=inboxUnread(d),b=$('inbox-badge');b.hidden=!n;b.textContent=n>99?'99+':n;b.title=n?n+' Inbox '+(n===1?'item needs':'items need')+' you'+(u?', '+u+' unread':''):'';document.querySelector('[data-rail="inbox"]').setAttribute('aria-label',n?'Inbox, '+n+' '+(n===1?'item needs':'items need')+' you'+(u?', '+u+' unread':''):'Inbox')}
 const INBOX_NAMES={needs:'Needs you',approvals:'Approvals',blocked:'Blocked',failed:'Failed',mine:'My work',expired:'Expired'},
   INBOX_EMPTY={needs:'Nothing needs you.',approvals:'No approvals are waiting.',blocked:'No worker is blocked.',failed:'No worker has failed.',mine:'Nothing of yours needs you.',expired:'Nothing has expired.'},
   INBOX_TAGS={blocked:['Blocked','a'],failed:['Failed','r'],approval:['Approval','b'],spec:['Spec approval','b'],validator:['Validator'],linked_done:['Linked work'],improve:['Proposal'],review:['Ready for review','b'],result:['Report ready','b'],stale:['Expired'],answered:['Answered']};
@@ -2424,21 +2435,27 @@ function drawBoard(shown){const cols=[['needs',['needs','failed']],['todo',['tod
 }
 function setLayout(key){LAYOUT=key;saveIssueRoute();try{localStorage.setItem('dash-layout',key)}catch(e){};for(const n of document.querySelectorAll('[data-layout]')){const on=n.dataset.layout===key;n.classList.toggle('on',on);n.setAttribute('aria-pressed',on?'true':'false')}if(lastDash)board(lastDash);lockState()}
 function setView(key){VIEW_FALLBACK=false;VIEW=key;saveIssueRoute();try{localStorage.setItem('dash-view',key)}catch(e){};for(const n of document.querySelectorAll('[data-view]')){const on=n.dataset.view===key;n.classList.toggle('on',on);n.setAttribute('aria-pressed',on?'true':'false')}if(lastDash)board(lastDash);lockState();toBoard()}
-// A choice in the panel is about the board, so from an issue's page it goes back there.
+// A view or project is about the board, so from an issue's page it goes back there.
 function toBoard(){if(ROUTE.item==='issues'&&ROUTE.rest&&ROUTE.rest.length)saveIssueRoute()}
 function setProject(key){PROJ=PROJ===key?'':key;saveIssueRoute();if(lastDash)board(lastDash);lockState();toBoard()}
 function wfOK(h){return (!WF.source||h.source===WF.source)&&(!WF.stage||h.stage===WF.stage)}
-$('issue-views').append(...[['needs','Needs attention'],['mine','Started by me'],['agents','Running now'],['all','All']].map(([key,label])=>el('button',{type:'button',class:'pitem'+(VIEW===key?' on':''),'aria-pressed':VIEW===key?'true':'false','data-view':key,onclick:()=>setView(key)},el('span',{},label),el('span',{class:'n','data-view-n':key}))));
+const ISSUE_VIEWS=$('issue-views'),ISSUE_PROJ=$('issue-proj'),ISSUE_PROJ_PICK=$('issue-projects');
+ISSUE_PROJ_PICK.onchange=e=>{PROJ=e.target.value;saveIssueRoute();if(lastDash)board(lastDash);lockState();toBoard()};
+ISSUE_VIEWS.append(...[['needs','Needs attention'],['mine','Started by me'],['agents','Running now'],['all','All']].map(([key,label])=>el('button',{type:'button',class:(VIEW===key?'on':''),'aria-pressed':VIEW===key?'true':'false','data-view':key,onclick:()=>setView(key)},el('span',{},label),el('span',{class:'n','data-view-n':key}))));
 // drawIssuePanel: views counted within the chosen project, projects within the
-// chosen view, so each number is what choosing that row shows. A refresh that
-// adds no project only changes the numbers, so focus stays where it is.
+// chosen view, so each number is what choosing that view or project shows. Both
+// are in the board's filter row (Tasks has no second panel); a project's count is
+// in its option. A refresh that adds no project only changes the numbers.
 function drawIssuePanel(projects,cards,inView){
   for(const n of document.querySelectorAll('[data-view]')){const on=n.dataset.view===VIEW;n.classList.toggle('on',on);n.setAttribute('aria-pressed',String(on))}
   // Counts are open items: a sidebar number reads as "open", so finished work is in the tooltip only.
   for(const n of document.querySelectorAll('[data-view-n]')){const xs=cards.filter(i=>!i.folded&&(!PROJ||i.project===PROJ)&&inView(i,n.dataset.viewN)),open=xs.filter(i=>!FINISHED.has(i.status)).length;n.textContent=open||'';n.title=open+' open, '+(xs.length-open)+' finished'}
-  const box=$('issue-projects'),key=JSON.stringify(projects);
-  if(box.dataset.key!==key){box.dataset.key=key;box.replaceChildren(...(projects.length?projects.map(p=>el('button',{type:'button',class:'pitem','data-project':p,title:p,onclick:()=>setProject(p)},el('span',{},shortProject(p)),el('span',{class:'n'}))):[el('div',{class:'kcol-empty'},'None yet.')]))}
-  for(const n of box.querySelectorAll('[data-project]')){const on=n.dataset.project===PROJ,xs=cards.filter(i=>i.project===n.dataset.project&&inView(i,VIEW)),open=xs.filter(i=>!FINISHED.has(i.status)).length;n.classList.toggle('on',on);n.setAttribute('aria-pressed',on?'true':'false');n.hidden=!xs.length&&!on;const c=n.querySelector('.n');c.textContent=open||'';c.title=open+' open, '+(xs.length-open)+' finished'}}
+  const box=ISSUE_PROJ_PICK,key=JSON.stringify(projects);
+  if(box.dataset.key!==key){box.dataset.key=key;box.replaceChildren(el('option',{value:''},'All projects'),...projects.map(p=>el('option',{value:p,'data-project':p})))}
+  const count=xs=>{const open=xs.filter(i=>!FINISHED.has(i.status)).length;return {open,title:open+' open, '+(xs.length-open)+' finished'}};
+  {const c=count(cards.filter(i=>inView(i,VIEW)));box.options[0].textContent='All projects'+(c.open?' · '+c.open:'');box.options[0].title=c.title}
+  for(const n of box.querySelectorAll('[data-project]')){const p=n.dataset.project,xs=cards.filter(i=>i.project===p&&inView(i,VIEW)),c=count(xs);n.textContent=shortProject(p)+(c.open?' · '+c.open:'');n.title=p+': '+c.title;n.hidden=!xs.length&&p!==PROJ}
+  box.value=PROJ;ISSUE_PROJ.hidden=!projects.length}
 // projOrder is one order for projects wherever they are listed: by name, ignoring case.
 function projOrder(a,b){return a.localeCompare(b,undefined,{sensitivity:'base'})||a.localeCompare(b)}
 function shortProject(p){return p.length>26&&p.includes('/')?p.split('/').pop():p}
@@ -2446,7 +2463,7 @@ function wfBar(d){const b=$('wfilter'),key=JSON.stringify([d.dispatch,d.handoff_
   const pick=(key,label,values)=>el('label',{},label+' ',el('select',{'data-filter-field':key,onchange:e=>{WF[key]=e.target.value;if(lastDash)board(lastDash);lockState();saveIssueRoute()}},el('option',{value:''},'All'),(values||[]).map(v=>el('option',{value:v},word(v)))));
   const layouts=el('div',{class:'views','aria-label':'Layout'},[['list','List'],['board','Board']].map(([key,label])=>el('button',{class:LAYOUT===key?'on':'','aria-pressed':LAYOUT===key?'true':'false','data-layout':key,onclick:()=>setLayout(key)},label)));
   const filters=el('div',{class:'filters'+(ISSUE_FILTERS_OPEN?' open':'')},...bfPicks(),pick('source','Source',d.handoff_sources),pick('stage','Stage',d.handoff_stages)),toggle=el('button',{class:'issue-filters-toggle','aria-expanded':String(ISSUE_FILTERS_OPEN),onclick:()=>{ISSUE_FILTERS_OPEN=!ISSUE_FILTERS_OPEN;filters.classList.toggle('open',ISSUE_FILTERS_OPEN);toggle.setAttribute('aria-expanded',String(ISSUE_FILTERS_OPEN))}},'Filters');
-  b.append(...[layouts,bfBox(),toggle,filters,el('button',{id:'issue-clear',onclick:clearIssueFilters},'Clear filters'),d.dispatch?el('button',{id:'new-handoff',class:'primary','data-write':true,onclick:()=>newHandoffSheet()},'New task'):null].filter(Boolean))}
+  b.append(...[layouts,ISSUE_VIEWS,ISSUE_PROJ,bfBox(),toggle,filters,el('button',{id:'issue-clear',onclick:clearIssueFilters},'Clear filters'),d.dispatch?el('button',{id:'new-handoff',class:'primary','data-write':true,onclick:()=>newHandoffSheet()},'New task'):null].filter(Boolean))}
 function wkLink(ref,text){return el('button',{class:'linkish',title:'Open work item',onclick:()=>showWorkItem(ref)},el('code',{title:ref},text||ref))}
 function costText(c){if(!c)return 'No worker ran on this.';
   if(c.partial&&!(c.usd>0))return 'Cost unknown: some usage or prices are missing. See Insights → Usage. '+Math.round(c.minutes)+' min across '+c.workers+' workers.';
@@ -2750,7 +2767,7 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
     const pick=worked.length>1?el('label',{class:'tw-pick'},el('span',{class:'mute'},'Tabs show '),el('select',{'aria-label':'Which handoff the tabs show',onchange:e=>{TW.sel[ref]=e.target.value;drawDetail()}},worked.map(x=>el('option',{value:x.id,selected:x.id===hid||null},(x.goal||x.id).slice(0,60)+' · '+x.id)))):null;
     const noWorker=el('p',{class:'mute tw-none'},'No worker has run on this yet.');
     box.replaceChildren(el('div',{class:'idetail tw','data-phone':TW.phone||null},
-      el('header',{class:'tw-top'},crumb,el('h2',{class:'ititle'},title),el('div',{class:'tw-bar'},statusLine,pick,twActions(dash,sh,hid))),
+      el('div',{class:'tw-top'},crumb,el('h2',{class:'ititle'},title),el('div',{class:'tw-bar'},statusLine,pick,twActions(dash,sh,hid))),
       el('div',{class:'tw-body'},
         el('section',{class:'idoc tw-main','aria-label':'Session'},
           twTabs('Task','main',term?TW_MAIN:TW_MAIN.slice(0,2),main,sideTabs),
@@ -2778,7 +2795,7 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
   lockState()}
 function issuesEnter(r){readIssueRoute(r);const ref=routeItem(r),page=$('page-work');page.classList.toggle('in-detail',!!ref);
   if(ref){if(ref!==DET.ref||!DET.d)loadDetail(ref,true);else drawDetail()}else{DET.ref='';DET.d=null;DET.request++;$('issue-detail').replaceChildren();if(r.rest.length){$('page-work').classList.add('in-detail');$('issue-detail').append(el('div',{class:'state'},'This work item address is not valid. ',el('a',{href:'#issues'},'Back to Tasks')))}else loadIssues()}}
-dashPage('issues',{title:'Tasks',pageId:'work',enter:issuesEnter,unlock(r){issuesEnter(r)},
+dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unlock(r){issuesEnter(r)},
   render(d){newHandoff(d);board(d);
     if(ROUTE.item!=='issues')return;
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
@@ -3170,10 +3187,13 @@ async function showHistory(id,host,preserve=false){if(!preserve)setDrawerRoute('
 // When Metrics and Usage last read their numbers. Those two are read on entering the
 // view only if that was longer ago than their 5-minute refresh; History every time.
 const INS_READ={metrics:0,usage:0},INS_EVERY=300000;
-function insightsEnter(r){if(r.view==='history'){readHistoryRoute(r);loadHistory();}else {readInsightsRoute(r);if(Date.now()-INS_READ[r.view]>=INS_EVERY)(r.view==='metrics'?loadMetrics:loadUsage)()}}
+function insightsEnter(r){insightsTabs(r);if(r.view==='history'){readHistoryRoute(r);loadHistory();}else {readInsightsRoute(r);if(Date.now()-INS_READ[r.view]>=INS_EVERY)(r.view==='metrics'?loadMetrics:loadUsage)()}}
 function readInsightsRoute(r){const p=r.params||new URLSearchParams(),prefix=r.view==='metrics'?'m':'u',range=p.get('range');if(range&&[...$(prefix+'-range').options].some(o=>o.value===range)){$(prefix+'-range').value=range;INS_READ[r.view]=0}if(prefix==='m'){for(const key of ['from','to']){$('m-'+key).value=p.get(key)||'';$('m-'+key).hidden=$('m-range').value!=='dates'}}}
 function saveInsightsRoute(view){if(ROUTE.item!=='insights'||ROUTE.view!==view)return;const prefix=view==='metrics'?'m':'u',p=new URLSearchParams({range:$(prefix+'-range').value});if(prefix==='m'&&p.get('range')==='dates')for(const k of ['from','to'])if($('m-'+k).value)p.set(k,$('m-'+k).value);routeQuery('insights/'+view,p,true)}
-dashPage('insights',{title:'Insights',views:['metrics','usage','history'],viewTitle:{metrics:'Metrics',usage:'Usage',history:'History'},
+// insightsTabs: the one tab row, moved to the top of the view shown (into Metrics' head, beside its period picker).
+function insightsTabs(r){const t=$('ins-tabs'),at=r.view==='metrics'?$('ins-head'):$('page-'+r.view);if(at&&t.parentElement!==at)at.prepend(t);
+  for(const a of t.querySelectorAll('a')){if(a.dataset.tab===r.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}}
+dashPage('insights',{title:'Insights',panel:false,views:['metrics','usage','history'],viewTitle:{metrics:'Metrics',usage:'Usage',history:'History'},
   render(d){runs(d)},
   enter:insightsEnter,
   // The token changed: what any view read before says nothing about what it can read now.
@@ -3401,7 +3421,7 @@ function factoryLoad(l){if(!l)return [];const days=l.days||[],max=l.max_workers;
   return [head,tiles,el('div',{class:'mcharts'},chart),table]}
 async function loadFactory(range){const request=++factoryRequest,sec=$('factory');
   let q='since='+encodeURIComponent(range);
-  if(range==='dates'){if(!$('m-from').value)return;q='since='+encodeURIComponent($('m-from').value);if($('m-to').value){const d=new Date($('m-to').value+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);q+='&until='+d.toISOString().slice(0,10)}}
+  if(range==='dates'){if(!$('m-from').value){INS.f=null;INS.fErr='choose a start date';insDraw();return}q='since='+encodeURIComponent($('m-from').value);if($('m-to').value){const d=new Date($('m-to').value+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);q+='&until='+d.toISOString().slice(0,10)}}
   try{const r=await fetch('/api/factory?'+q,{cache:'no-store',headers:auth()});if(request!==factoryRequest)return;
     if(r.status===401){sec.hidden=true;$('ins-overview').hidden=true;return}
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
@@ -3413,7 +3433,7 @@ function rangeSegments(id){const input=$(id);let group=$(id+'-segments');if(!gro
 function validDates(from,to,note){const invalid=!!from.value&&!!to.value&&from.value>to.value;from.setAttribute('aria-invalid',String(invalid));to.setAttribute('aria-invalid',String(invalid));if(invalid){note.hidden=false;note.classList.add('error');note.textContent='Start date is after end date.'}return !invalid}
 async function loadMetrics(){rangeSegments('m-range');const request=++metricsRequest,sec=$('metrics'),range=$('m-range').value;INS_READ.metrics=Date.now();saveInsightsRoute('metrics');if(range==='dates'&&!validDates($('m-from'),$('m-to'),$('m-body'))){sec.hidden=false;return}INS.f=INS.m=null;INS.fErr=INS.mErr='';insDraw();loadBench();loadFactory(range);
   let q='since='+encodeURIComponent(range);
-  if(range==='dates'){if(!$('m-from').value)return;q='from='+encodeURIComponent($('m-from').value)+($('m-to').value?'&to='+encodeURIComponent($('m-to').value):'')}
+  if(range==='dates'){if(!$('m-from').value){INS.mErr='choose a start date';insCards();return}q='from='+encodeURIComponent($('m-from').value)+($('m-to').value?'&to='+encodeURIComponent($('m-to').value):'')}
   try{const r=await fetch('/api/metrics?'+q,{cache:'no-store',headers:auth()});
     if(r.status===401){if(request===metricsRequest){sec.hidden=true;INS.mErr='needs the token or a login link';insCards()}return}
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
