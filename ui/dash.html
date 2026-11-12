@@ -836,8 +836,6 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 </div>
 <!-- end:page-team -->
 <!-- region:page-insights -->
-<!-- Metrics, Usage and History as tabs; insightsTabs puts them at the top of the view shown, beside Metrics' period picker -->
-<nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav>
 <div id="page-history" class="page" hidden>
   <section class="runs" aria-label="Finished work"><div class="colhead"><h2>History</h2><span class="n" id="n-history"></span></div>
     <form class="hfilter" id="h-filters" role="search">
@@ -857,7 +855,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   </section>
 </div>
 <div id="page-metrics" class="page" hidden>
-  <div class="colhead ins-head" id="ins-head"><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
+  <!-- Metrics, Usage and History as tabs. Their home is Metrics' head, the default view, so the row is inside a page and hidden with it until Insights shows; insightsTabs moves it to the top of the view shown (beside Metrics' period picker). Outside every page it showed on Tasks before the first snapshot. -->
+  <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
   <section class="ins-overview" id="ins-overview" aria-label="Outcomes of dispatched tasks">
     <div class="ins-cards" id="ins-cards"></div>
     <div class="ins-cols">
