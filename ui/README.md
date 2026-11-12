@@ -15,7 +15,7 @@ npm test
 ```
 
 `testdata/` holds the tests: `dash_ui`, `dash_openpr` and `dash_chat` read the
-document, `dash_dom` and `dash_voice` run it in jsdom on desktop and phone,
+document, `dash_dom`, `dash_voice`, `dash_changes` and `dash_checks` run it in jsdom on desktop and phone,
 light and dark. A change to the page lands in a release when agentd moves its pin
 to the new commit.
 
