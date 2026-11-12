@@ -25,7 +25,7 @@
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   /* layout, radii and type sizes for the shell and the pages built on it.
      --top follows the top bar's real height (set in the shell's script). */
-  --rail-w:68px;--side-w:236px;--top:44px;--bar-h:56px;--r-s:6px;--r-m:10px;--fs-xs:11px;--fs-s:12px;--fs-m:13px;--fs-l:15px;
+  --rail-w:68px;--agents-w:264px;--side-w:236px;--top:44px;--bar-h:56px;--r-s:6px;--r-m:10px;--fs-xs:11px;--fs-s:12px;--fs-m:13px;--fs-l:15px;
   --scrim:rgba(10,10,14,.45);color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -57,10 +57,11 @@ button.stat{background:none;border:0;padding:0;font:inherit;cursor:pointer}butto
 .tokenbox{display:flex;gap:6px;align-items:center;margin-left:auto}.tokenbox input{width:150px}
 #now{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
 #tokstate{font-size:12px;color:var(--mute)}
-/* region:css-shell: left rail | second panel | top bar over the page.
-   On a phone the rail is a bottom bar and the second panel a drawer. */
-.shell{flex:1;display:grid;grid-template-columns:var(--rail-w) var(--side-w) minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0}
-body.no-panel .shell{grid-template-columns:var(--rail-w) minmax(0,1fr)}body.no-panel aside.side{display:none}
+/* region:css-shell: left rail | Agents list | second panel | top bar over the page.
+   On a phone the rail is a bottom bar, and the Agents list and the second panel drawers. */
+.shell{--ag-col:var(--agents-w);flex:1;display:grid;grid-template-columns:var(--rail-w) var(--ag-col) var(--side-w) minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0}
+body.agents-collapsed .shell{--ag-col:0px}
+body.no-panel .shell{grid-template-columns:var(--rail-w) var(--ag-col) minmax(0,1fr)}body.no-panel aside.side{display:none}
 .rail{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:10px 6px;background:var(--sunk);border-right:1px solid var(--line);min-height:0;overflow-y:auto}
 .rail-mark{display:grid;place-items:center;width:32px;height:32px;margin:0 auto 10px;border-radius:var(--r-m);background:var(--panel);border:1px solid var(--line);color:var(--fg);font-weight:600;text-decoration:none}.rail-mark:hover{text-decoration:none;background:var(--hover)}
 .rail-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 5px;border-radius:var(--r-m);color:var(--mute);font-size:var(--fs-xs);line-height:1.2;text-decoration:none}
@@ -85,6 +86,37 @@ main{flex:1;overflow-y:auto;min-height:0;padding:24px 24px 48px;min-width:0}
 .textpage fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 16px}.textpage fieldset label{display:inline-flex;gap:6px;align-items:center}.textpage legend{padding:0;margin-bottom:6px;color:var(--mute);font-size:var(--fs-s)}
 #page-settings{max-width:1100px}.set-toolbar{display:flex;align-items:center;justify-content:space-between}.set-toolbar h2{margin:0}.set-tabs{flex-wrap:wrap;justify-self:start}.set-group[hidden]{display:none}.set-group{padding:16px;min-width:0}.set-section{margin:16px 0}.set-section h3{margin:8px 0}.set-form{display:grid;gap:10px;max-width:420px}.set-form>button{justify-self:start}.set-check{display:flex;align-items:center;gap:8px}.set-actions{display:flex;flex-wrap:wrap;gap:6px}.set-failure,#set-error{color:var(--red)}#set-invite-once{margin-top:16px;padding:12px;background:var(--sunk);border-radius:var(--r-s)}#set-invite-once input{display:block;width:100%;margin:8px 0}.set-group td{overflow-wrap:anywhere}.set-group dl{grid-template-columns:140px minmax(0,1fr)}
 /* end:css-shell */
+/* region:css-agents-list: the persistent Agents list (#479): Needs you first, then open
+   tasks by repository; one row is a mark, the title, and agent and state under it.
+   Collapsed it takes no width; on a phone it is a drawer above the bottom bar. */
+aside.agents{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;background:var(--sidebar);border-right:1px solid var(--line)}
+aside.agents:focus{outline:none}
+body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
+.ag-head{display:flex;align-items:center;gap:8px;padding:12px 12px 6px 16px}.ag-head h2{flex:1}.ag-head button{min-height:30px}
+.ag-close{display:none}
+.ag-counts{display:flex;flex-wrap:wrap;gap:4px 10px;padding:0 16px 8px;font-size:var(--fs-s);color:var(--mute)}.ag-counts b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
+.ag-rows{flex:1;overflow-y:auto;min-height:0;padding:0 6px 8px}
+.ag-group{font-size:var(--fs-xs);letter-spacing:.04em;text-transform:uppercase;color:var(--mute);padding:10px 10px 4px;display:flex;justify-content:space-between;gap:6px}.ag-group span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-size:var(--fs-s)}.ag-group.ag-need span:first-child{color:var(--red)}
+.ag-row{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:var(--r-s);color:var(--fg);text-decoration:none;min-width:0}
+.ag-row:hover{background:var(--hover);text-decoration:none}.ag-row[aria-current="page"]{background:var(--sel)}.ag-row:focus-visible{outline-offset:-2px}
+/* the mark's word stays for a screen reader; the state line under the title says it in words */
+.ag-row .tmark{margin-top:2px;gap:0;font-size:0}.ag-row .tmark .tm-g{font-size:12px}
+.ag-text{display:flex;flex-direction:column;min-width:0;flex:1}
+.ag-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.ag-sub,.ag-act{font-size:var(--fs-s);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ag-act{color:var(--faint)}
+.ag-rows .empty{padding:10px;color:var(--mute);font-size:var(--fs-s)}
+.ag-add{display:block;padding:10px 16px;border-top:1px solid var(--line);font-size:var(--fs-s)}
+.agents-toggle{display:inline-flex;align-items:center;gap:6px;flex:none;background:none;border:0;padding:3px 6px;border-radius:var(--r-s);color:var(--mute);cursor:pointer}.agents-toggle:hover{background:var(--hover);color:var(--fg)}.agents-toggle[aria-expanded="true"]{color:var(--fg)}
+.agents-toggle-label{font-size:var(--fs-s)}
+.agents-scrim[hidden]{display:none}
+@media(max-width:860px){
+  aside.agents,body.agents-collapsed aside.agents{position:fixed;top:0;left:0;bottom:calc(var(--bar-h) + env(safe-area-inset-bottom));width:min(320px,88vw);z-index:7;border-right:1px solid var(--line);transform:translateX(-105%);visibility:hidden;transition:transform .2s ease,visibility .2s}
+  body.agents-open aside.agents{transform:none;visibility:visible;transition:transform .2s ease,visibility 0s}
+  .agents-scrim{position:fixed;inset:0 0 calc(var(--bar-h) + env(safe-area-inset-bottom)) 0;background:var(--scrim);z-index:6}
+  .ag-close{display:inline-flex}.ag-row{min-height:44px;align-items:center}.ag-add{min-height:44px}
+  .agents-toggle{min-height:44px}.agents-toggle-label{display:none}}
+@media(prefers-reduced-motion:reduce){aside.agents{transition:none}}
+/* end:css-agents-list */
 /* region:css-inbox */
 .ib-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin-bottom:12px}.ib-head .n{font-size:var(--fs-s);color:var(--mute);font-variant-numeric:tabular-nums}.ib-note{flex-basis:100%;font-size:var(--fs-s);color:var(--mute);margin:0}
 .ib-list{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0}
@@ -578,13 +610,23 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 <nav class="rail" id="rail" aria-label="Dash">
   <a class="rail-mark" href="#inbox" title="agentd dash" aria-label="agentd dash, go to Inbox">a</a>
   <a class="rail-item" data-rail="inbox" href="#inbox"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 5 4.5h10l2 7v4H3z"/><path d="M3 11.5h4.2l1 2h3.6l1-2H17"/></svg><span class="rail-badge" id="inbox-badge" hidden></span></span><span class="rail-label">Inbox</span></a>
-  <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg></span><span class="rail-label">Issues</span></a>
-  <a class="rail-item" data-rail="team" href="#team"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="7.5" r="2.7"/><path d="M2.8 16c.4-2.8 2.3-4.3 4.7-4.3s4.3 1.5 4.7 4.3"/><path d="M12.6 5.1a2.7 2.7 0 0 1 0 4.8M14.3 11.9c1.6.5 2.6 1.9 2.9 4.1"/></svg></span><span class="rail-label">Team</span></a>
+  <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg></span><span class="rail-label">Tasks</span></a>
   <a class="rail-item" data-rail="chat" href="#chat"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-3.5 2.8V14a2 2 0 0 1-2-2z"/></svg></span><span class="rail-label">Chat</span></a>
+  <a class="rail-item" data-rail="triggers" href="#triggers"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 2.8 4.5 11h5l-1 6.2L15.5 9h-5z"/></svg></span><span class="rail-label">Triggers</span></a>
   <a class="rail-item" data-rail="insights" href="#insights"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 16.5h13"/><path d="M6 13.5v-3M10 13.5v-9M14 13.5v-6"/></svg></span><span class="rail-label">Insights</span></a>
+  <a class="rail-item" data-rail="team" href="#team"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="7.5" r="2.7"/><path d="M2.8 16c.4-2.8 2.3-4.3 4.7-4.3s4.3 1.5 4.7 4.3"/><path d="M12.6 5.1a2.7 2.7 0 0 1 0 4.8M14.3 11.9c1.6.5 2.6 1.9 2.9 4.1"/></svg></span><span class="rail-label">Team</span></a>
   <div class="rail-foot"><a class="rail-item" data-rail="settings" href="#settings"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6h6.2M13.7 6h2.8M3.5 14h2.8M10.3 14h6.2"/><circle cx="11.7" cy="6" r="2"/><circle cx="8.3" cy="14" r="2"/></svg></span><span class="rail-label">Settings</span></a><a class="rail-item" data-rail="help" href="#help"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6.8"/><path d="M8 8a2 2 0 1 1 3.1 1.7c-.7.5-1.1.9-1.1 1.8"/><path d="M10 14h.01"/></svg></span><span class="rail-label">Help</span></a></div>
 </nav>
 <!-- end:rail -->
+<!-- region:agents-list: the persistent Agents list beside the rail (#479); drawn by region:agents-list in the script -->
+<aside class="agents" id="agents-list" aria-labelledby="agents-title" tabindex="-1">
+  <div class="ag-head"><h2 id="agents-title">Agents</h2><button type="button" class="primary" id="agents-new" data-write title="Start a worker on a new task">New task</button><button type="button" class="ag-close" id="agents-close" aria-label="Close the Agents list">Close</button></div>
+  <div class="ag-counts" id="agents-counts" aria-label="Tasks by state"></div>
+  <nav class="ag-rows" id="agents-rows" aria-label="Tasks that need you, then open tasks by repository"><div class="empty">Loading…</div></nav>
+  <a class="ag-add" id="agents-add" href="#team/repositories">+ Add a repository</a>
+</aside>
+<div class="agents-scrim" id="agents-scrim" hidden></div>
+<!-- end:agents-list -->
 <div class="panel-scrim" id="panel-scrim" hidden></div>
 <aside class="side" id="side" aria-labelledby="side-title" tabindex="-1">
   <div class="side-head"><h2 id="side-title"></h2><button type="button" class="side-close" id="side-close" aria-label="Close this panel">Close</button></div>
@@ -639,8 +681,9 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 </aside>
 <div class="column" id="column">
 <header>
+  <button type="button" class="agents-toggle" id="agents-toggle" aria-controls="agents-list" aria-expanded="true" aria-label="Hide the Agents list" title="Agents list"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="2"/><path d="M8 3.5v13"/></svg><span class="agents-toggle-label">Agents</span></button>
   <button type="button" class="panel-toggle" id="panel-toggle" aria-controls="side" aria-expanded="false" aria-label="Open this page's panel"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13"/></svg></button>
-  <h1 id="page-title">Issues</h1>
+  <h1 id="page-title">Tasks</h1>
   <div class="stats" id="stats"></div>
   <button type="button" class="search-open" id="search-open" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" title="Search tasks, PRs, issues and runs"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5"/><path d="m12.5 12.5 4 4"/></svg><span class="search-open-label">Search</span><kbd id="search-key">Ctrl K</kbd></button>
   <span id="now">Loading…</span>
@@ -763,14 +806,15 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 <div id="page-notfound" class="page textpage" hidden><h2>This page could not be found</h2><p>The address may be old or incomplete. <a href="#inbox">Go to Inbox</a>.</p></div>
 <!-- region:page-help -->
 <div id="page-help" class="page textpage" hidden><a class="page-back" href="#inbox">← Inbox</a>
-  <p>A session is an agent connected to this host. A handoff records a task, its context, and who has taken it. A worker is a session started for a handoff. Issues brings the work together; Inbox holds decisions and updates that need you.</p>
+  <p>A session is an agent connected to this host. A handoff records a task, its context, and who has taken it. A worker is a session started for a handoff. Tasks brings the work together; the Agents list beside the rail shows what needs you and what is running; Inbox holds decisions and updates that need you.</p>
   <section class="runs" aria-label="Where things are"><div class="colhead"><h2>Where things are</h2></div>
     <dl>
       <dt><a href="#inbox">Inbox</a></dt><dd>What needs you: approvals, blocked and failed workers.</dd>
-      <dt><a href="#issues">Issues</a></dt><dd>The board of work, and the New handoff form when dispatch is on.</dd>
-      <dt><a href="#team">Team</a></dt><dd>The sessions on this ledger. Pick one to open its console.</dd>
+      <dt><a href="#issues">Tasks</a></dt><dd>The board of work, and the New handoff form when dispatch is on.</dd>
       <dt><a href="#chat">Chat</a></dt><dd>Conversations with a role.</dd>
+      <dt><a href="#triggers">Triggers</a></dt><dd>What starts a worker on its own, and templates for it. Owners only.</dd>
       <dt><a href="#insights">Insights</a></dt><dd>Metrics, Usage and History.</dd>
+      <dt><a href="#team">Team</a></dt><dd>The sessions, roles, members and repositories on this ledger. Pick a session to open its console.</dd>
     </dl></section>
   <section class="runs" aria-label="Words used here"><div class="colhead"><h2>Words used here</h2></div><dl><dt>Unassigned</dt><dd>A task offered for an agent to take.</dd><dt>Working</dt><dd>The host process reports activity; a session can be connected without doing work.</dd><dt>Not seen</dt><dd>The session has not checked in recently. This is separate from the task’s result.</dd><dt>Reserved resource</dt><dd>A path or port an agent says it is using, recorded as a claim.</dd><dt>Validation</dt><dd>A check of the work. A passing check does not merge or publish it.</dd><dt>Lower bound (≥)</dt><dd>At least this amount is known; some usage or prices are missing.</dd><dt>From / Taken by</dt><dd>The session that offered the task and the session that claimed it.</dd></dl></section>
   <section class="runs" aria-label="From the command line"><div class="colhead"><h2>From the command line</h2></div>
@@ -940,6 +984,10 @@ function hostOf(id){const s=((lastDash||{}).sessions||[]).find(x=>x.id===id);ret
 //                  being what follows NAME, so #team/builder has rest ['builder']
 //   render(d)      every /api/dash snapshot, whatever page is showing
 //   unlock(route)  the token changed while this page shows
+//   agents   true or false: the Agents list shown on this page by default (see
+//            region:agents-list; default: Inbox, Tasks, Chat and Triggers)
+//   agentsSelected(route)  the data-agent-id of the Agents list row this route
+//            shows, when the page shows a task under its own address
 // Its panel is #panel-NAME, its rail link data-rail="NAME" in region:rail, and a
 // link in a panel is a plain <a class="pitem" href="#NAME/VIEW">.
 const PAGES=Object.create(null),ALIASES=Object.assign(Object.create(null),{work:'issues',metrics:'insights/metrics',usage:'insights/usage',history:'insights/history'}),PHONE=matchMedia('(max-width:860px)');
@@ -962,10 +1010,11 @@ function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.re
   const sub=r.view&&def.viewTitle?def.viewTitle[r.view]:'';
   $('side-title').textContent=({inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · agentd dash';
   if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}
+  agentsApply();if(lastDash)agentsDraw(lastDash);
   if(def.enter)def.enter(r);syncDrawerRoute(r)}
 // On a phone the second panel is a drawer: Escape, the scrim or Close shut it, and
 // the page behind is inert while it is open (the bottom bar stays usable).
-function setPanel(open){open=!!(open&&PHONE.matches&&PAGES[ROUTE.item]&&PAGES[ROUTE.item].panel!==false);const body=document.body,was=body.classList.contains('panel-open');if(open===was)return;
+function setPanel(open){open=!!(open&&PHONE.matches&&PAGES[ROUTE.item]&&PAGES[ROUTE.item].panel!==false);const body=document.body,was=body.classList.contains('panel-open');if(open===was)return;if(open)agentsDrawer(false);
   body.classList.toggle('panel-open',open);$('panel-scrim').hidden=!open;$('panel-toggle').setAttribute('aria-expanded',String(open));$('column').inert=open;
   if(open){panelOpener=document.activeElement;$('side').focus();return}
   const a=document.activeElement,back=panelOpener;panelOpener=null;if($('side').contains(a)||a===body)focusBack(back&&back.isConnected?back:$('panel-toggle'))}
@@ -1024,6 +1073,69 @@ $('theme-pick').addEventListener('change',e=>setTheme(e.target.value));
 dashPage('help',{title:'Help',panel:false,enter(){if(!$('help-docs'))$('page-help').append(el('p',{id:'help-docs'},el('a',{href:'https://github.com/libraos/agentd#readme',target:'_blank',rel:'noopener noreferrer'},'Documentation ↗'))) }});
 dashPage('notfound',{title:'Page not found',panel:false});
 // end:shell
+// region:agents-list: the persistent Agents list beside the rail (#479). It reads the
+// same /api/dash snapshot as every page, so it refreshes with them (render calls
+// agentsDraw): "Needs you" first (a task whose mark is Needs you or Failed, or with an
+// Inbox row its person can answer), then open tasks grouped by repository, each a row
+// with its mark, title, and agent and state under it. A row is a link to the task's
+// own page (#issues/ID): it opens in the main area with the rail and this list kept,
+// so the address names it and reload and back keep it; that row is marked
+// aria-current. A session working with no task (Team's Working now listed it) is a
+// row of its repository linking to its session page.
+// Shown by default on Inbox, Tasks, Chat and Triggers, collapsed elsewhere; Hide and
+// Show (#agents-toggle) are remembered per page in this browser (localStorage
+// dash-agents). On a phone the list is a drawer, like the second panel.
+// A page hooks in from its dashPage() without touching this region: agents (shown by
+// default or not) and agentsSelected(route) (which row its route shows). A row is
+// <a class="ag-row" data-agent-id=ID href=...>; agentsSet(true|false) shows or hides
+// the list for the current page, agentsDraw(lastDash) redraws it.
+const AGENTS_PAGES=['inbox','issues','chat','triggers'],AGENTS={open:{},drawer:false,opener:null};
+try{const v=JSON.parse(localStorage.getItem('dash-agents')||'{}');if(v&&typeof v==='object')AGENTS.open=v}catch(e){}
+function agentsShown(item){item=item||ROUTE.item;const v=AGENTS.open[item],def=PAGES[item];return typeof v==='boolean'?v:def&&typeof def.agents==='boolean'?def.agents:AGENTS_PAGES.includes(item)}
+function agentsSet(open){if(PHONE.matches){agentsDrawer(open);return}AGENTS.open[ROUTE.item]=!!open;try{localStorage.setItem('dash-agents',JSON.stringify(AGENTS.open))}catch(e){}agentsApply();if(open&&lastDash)agentsDraw(lastDash)}
+function agentsApply(){const phone=PHONE.matches,shown=phone?AGENTS.drawer:agentsShown(),t=$('agents-toggle');
+  document.body.classList.toggle('agents-collapsed',!phone&&!shown);document.body.classList.toggle('agents-open',phone&&AGENTS.drawer);$('agents-scrim').hidden=!(phone&&AGENTS.drawer);$('agents-list').inert=!shown;
+  t.setAttribute('aria-expanded',String(shown));t.setAttribute('aria-label',(phone?shown?'Close':'Open':shown?'Hide':'Show')+' the Agents list')}
+// On a phone the list is a drawer over the page, which is inert while it is open.
+function agentsDrawer(open){open=!!(open&&PHONE.matches);if(open===AGENTS.drawer)return;if(open)setPanel(false);AGENTS.drawer=open;$('column').inert=open;agentsApply();
+  if(open){AGENTS.opener=document.activeElement;if(lastDash)agentsDraw(lastDash);$('agents-list').focus();return}
+  const a=document.activeElement,back=AGENTS.opener;AGENTS.opener=null;if($('agents-list').contains(a)||a===document.body)focusBack(back&&back.isConnected?back:$('agents-toggle'))}
+$('agents-toggle').onclick=()=>agentsSet(PHONE.matches?!AGENTS.drawer:!agentsShown());
+$('agents-close').onclick=()=>agentsDrawer(false);$('agents-scrim').onclick=()=>agentsDrawer(false);
+$('agents-new').onclick=()=>keysNew();
+$('agents-list').addEventListener('click',e=>{if(PHONE.matches&&e.target.closest('a'))agentsDrawer(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&AGENTS.drawer)agentsDrawer(false)});
+PHONE.addEventListener('change',()=>{AGENTS.drawer=false;$('column').inert=false;agentsApply()});
+// agentsSelected: the task or session the route shows, as a row's data-agent-id.
+function agentsSelected(r){r=r||ROUTE;const def=PAGES[r.item];if(def&&def.agentsSelected)return def.agentsSelected(r)||'';if(r.item==='issues')return routeItem(r);if(r.item==='team'){const t=teamTarget(r);return t&&t.kind==='session'?t.name:''}return ''}
+const AGENTS_RANK={needs_you:0,failed:1,working:2,waiting:3,not_started:4,done:5};
+// agentsModel: the rows and counts from one snapshot; the page test reads it too.
+function agentsModel(d){const {rows}=needItems(d),openPR=new Set((d.waiting||[]).filter(x=>x.what==='PR').map(x=>x.ref)),need=[],groups=new Map(),counts={need:0,working:0,waiting:0},add=(k,r)=>{if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r)};
+  for(const h of d.handoff_list||[]){const who=h.state==='held'?h.from:h.claimer,live=liveOf(who,h),needs=(rows.get(h.id)||[]).filter(x=>x.kind!=='stale'&&x.can_answer!==false),status=statusOf(h,needs,openPR),
+      mark=markOf(h.mark)?h.mark:status==='needs'?'needs_you':status==='failed'?'failed':status==='progress'?'working':status==='todo'?'not_started':'waiting',
+      r={id:h.id,h,who,live,needs,status,mark,project:projectOf(h),title:cardTitle(h.title||h.goal||h.id),full:h.title||h.goal||h.id,href:itemHash(null,h.id),issue:h.issue||''};
+    if(mark==='needs_you'||mark==='failed'||needs.length||live&&live.key==='wait'){counts.need++;need.push(r);continue}
+    if(mark==='working')counts.working++;else if(mark==='waiting')counts.waiting++;add(r.project,r)}
+  for(const w of teamWorking(d))if(!w.handoff&&w.session){counts.working++;add(projKey(w.session.cwd),{id:w.session.id,session:w.session,who:w.session.id,live:w.live,mark:'working',project:projKey(w.session.cwd),title:cardTitle(w.task),full:w.task,href:teamHref('session',w.session.id)})}
+  const order=xs=>xs.map((r,i)=>[r,i]).sort((a,b)=>(AGENTS_RANK[a[0].mark]??9)-(AGENTS_RANK[b[0].mark]??9)||a[1]-b[1]).map(a=>a[0]);
+  return {need:order(need),groups:[...groups.keys()].sort((a,b)=>(!a)-(!b)||a.localeCompare(b)).map(k=>({project:k,rows:order(groups.get(k))})),counts}}
+// agentsState: the state word under a row's title, as the task's card says it.
+function agentsState(r){if(r.live)return r.live.text;const n=r.needs&&r.needs[0];if(n)return n.kind==='failed'?'failed':n.kind==='blocked'?'waiting on you':n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':'waiting on you';
+  return r.h?(r.mark==='not_started'?'not started':r.h.state==='blocked'?'waiting for another task':(markOf(r.mark)||{word:word(r.h.state)}).word.toLowerCase()):'working'}
+function agentsRow(r,sel){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).pop(),sid=r.who||'',act=TEAM.activity&&TEAM.activity[sid],agent=h?toolName(h.worker||toolOf(sid))||(h.state==='offered'?'Unassigned':sessLabel(sid)):toolName(r.session.tool)||'Agent',
+    num=r.issue?(isLinearRef(r.issue)?r.issue.slice(7):'#'+r.issue.split('#')[1]):'',
+    sub=[agent,agentsState(r),num,run&&run.minutes!==undefined?fmtMin(run.minutes):'',run&&run.usd!==undefined?'$'+run.usd.toFixed(2):''].filter(Boolean).join(' · '),
+    tip=[r.full,[modelName(act&&act.model||run&&run.model||''),r.session&&r.session.user||h&&h.claimer_user||''].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
+  return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,'aria-current':sel?'page':null,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
+function agentsDraw(d){if(!d)return;const box=$('agents-rows'),m=agentsModel(d),sel=agentsSelected(),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'',isSel=r=>!!sel&&(r.id===sel||r.issue===sel);
+  $('agents-counts').replaceChildren(...[[m.counts.need,'need you'],[m.counts.working,'working'],[m.counts.waiting,'waiting']].map(([n,l])=>el('span',{},el('b',{},n),' '+l)));
+  const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...m.need.map(r=>agentsRow(r,isSel(r))));
+  for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...g.rows.map(r=>agentsRow(r,isSel(r))));
+  box.replaceChildren(...(kids.length?kids:[el('div',{class:'empty'},'No open tasks. Start one with New task.')]));
+  if(keep){const n=box.querySelector('[data-agent-id="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
+  // Latest activity (Team's Working now showed it) for the sessions working on these rows, while the list shows.
+  if((PHONE.matches?AGENTS.drawer:agentsShown())&&Date.now()-TEAM.activityAt>8000&&teamWorking(d).some(w=>w.session))teamLoadActivity(d)}
+// end:agents-list
 /* header: the two counts that change; the rest is under Insights */
 function stats(d){
   const need=inboxNeedCount(d),h=d.host_states||{};
@@ -1096,8 +1208,8 @@ function teamWorking(d){const roles=(TEAM.lists||{}).handoff_roles||{},open=d.ha
   return out.sort((a,b)=>(b.wait-a.wait)||String(a.name).localeCompare(String(b.name)))}
 function teamWorkItem(w){return teamItem({name:w.name,sub:(w.wait?w.status+': ':'')+w.task,dot:w.dot,dotTitle:w.status,side:w.handoff&&markEl(w.handoff.mark),href:w.href,tk:'hof-'+(w.handoff&&w.handoff.id),onclick:()=>{setPanel(false);showWorkItem(w.handoff.id)}})}
 function teamRoleTool(r,lists){return r.tool||(lists||{}).default_tool||''}
-function teamPanelGroups(d){const l=TEAM.lists,working=teamWorking(d),head=(name,n)=>el('div',{class:'pgroup-name'},el('span',{},name),n?el('span',{},n):null);
-  teamKeep($('team-working'),[teamItem({name:'Overview',href:'#team'}),teamItem({name:'Working now',side:working.length||'',href:'#team/working'}),teamItem({name:'Sessions on this host',href:'#team/host'}),reposPanelItem()]);
+function teamPanelGroups(d){const l=TEAM.lists,head=(name,n)=>el('div',{class:'pgroup-name'},el('span',{},name),n?el('span',{},n):null);
+  teamKeep($('team-working'),[teamItem({name:'Overview',href:'#team'}),teamItem({name:'Sessions on this host',href:'#team/host'}),reposPanelItem()]);
   if(!l){const msg=TEAM.listsErr?el('div',{class:'tm-problem'},'Could not load: '+TEAM.listsErr):el('div',{class:'tm-empty'},'Loading…');teamKeep($('team-roles'),[head('Roles'),msg]);teamKeep($('team-members'),[head('Members')]);return}
   const roles=l.roles||[],members=l.members||[];
   teamKeep($('team-roles'),[teamItem({name:'Roles',side:roles.length||'',href:'#team/roles'}),...(l.problems||[]).length?[el('details',{class:'tm-problem'},el('summary',{},l.problems.length+' role files could not be read'),l.problems.map(p=>el('div',{},p)))]:[]]);
@@ -1145,22 +1257,16 @@ function teamDetailView(d){const dash=lastDash||{},u=d.runs_7d,runs=u&&u.workers
       el('aside',{'aria-label':'Properties'},el('div',{class:'tm-sec'},el('h3',{},'Properties')),teamProps(props),settings.some(([,v])=>v!==null&&v!==undefined&&v!=='')?el('details',{class:'tech tm-settings'},el('summary',{},'Settings for this role'),teamProps(settings)):null))}}
 async function teamLoadActivity(d){const req=++TEAM.activityReq;TEAM.activityAt=Date.now();const identity=[TOKEN,COOKIE,USER].join('|');if(!TOKEN&&!COOKIE){TEAM.activity={};TEAM.activityError='';return}
   const ids=[...new Set(teamWorking(d).map(w=>w.session&&w.session.id).filter(Boolean))],activity={};
-  try{for(let i=0;i<ids.length;i+=24){const j=await teamFetch('?activity='+encodeURIComponent(ids.slice(i,i+24).join(',')));Object.assign(activity,j.activity||{})}if(req!==TEAM.activityReq||identity!==[TOKEN,COOKIE,USER].join('|'))return;TEAM.activity=activity;TEAM.activityError=''}catch(e){if(req!==TEAM.activityReq)return;TEAM.activity={};TEAM.activityError='Activity could not refresh.'}if(ROUTE.item==='team')teamDraw()}
-function teamWorkingTable(working){if(!working.length)return el('div',{class:'empty'},'No workers are running. Assign work from a role to start one.');
-  const headers=['Work item','Running time','Cost so far','Latest activity'];return el('div',{class:'working-table tablewrap'},el('table',{},el('thead',{},el('tr',{},headers.map(h=>el('th',{},h)))),el('tbody',{},working.map(w=>{
-    const h=w.handoff||{},s=w.session||{},run=(h.attempts||[]).filter(a=>a.running).pop(),activity=TEAM.activity[s.id],fallback=TEAM.activityError||(s.host_state==='busy'?'Working; no step recorded yet':'No step recorded yet');
-    return el('tr',{},el('td',{'data-label':'Work item'},el('a',{href:h.id?itemHash(h.issue,h.id):w.href,'data-tk':'working-'+(h.id||s.id),title:w.task},cardTitle(w.task)),h.mark?[' ',markEl(h.mark)]:null,el('span',{class:'tm-why'},[toolName(h.worker||s.tool),modelName(activity?.model||run?.model||''),s.user].filter(Boolean).join(' · '),w.href?[' · ',el('a',{href:w.href},'Open session')]:null)),
-      el('td',{'data-label':'Running time'},run&&run.minutes!==undefined?fmtMin(run.minutes):'Not recorded'),
-      el('td',{'data-label':'Cost so far',title:[h.stage?'Stage: '+word(h.stage):'',run&&run.tokens!==undefined?fmtTok(run.tokens)+' tokens':''].filter(Boolean).join(', ')},run&&run.usd!==undefined?'$'+run.usd.toFixed(2)+' est.':el('span',{title:'The worker has not reported its usage yet.'},'–')),
-      el('td',{'data-label':'Latest activity'},el('span',{class:'activity-line',title:activity&&activity.text||w.status},w.wait?w.status:activity?activity.text:fallback),el('span',{class:'tm-why'},activity&&activity.at?'Recorded '+chatWhen(activity.at):s.seen_ago?'Last seen '+s.seen_ago+' ago':w.status)))}))))}
+  try{for(let i=0;i<ids.length;i+=24){const j=await teamFetch('?activity='+encodeURIComponent(ids.slice(i,i+24).join(',')));Object.assign(activity,j.activity||{})}if(req!==TEAM.activityReq||identity!==[TOKEN,COOKIE,USER].join('|'))return;TEAM.activity=activity;TEAM.activityError=''}catch(e){if(req!==TEAM.activityReq)return;TEAM.activity={};TEAM.activityError='Activity could not refresh.'}if(ROUTE.item==='team')teamDraw();if(lastDash)agentsDraw(lastDash)}
 // memberSessions counts a person's sessions as the header counts them (Claude
 // sessions on this host, working or idle), so "1 of 3 sessions working" and a
 // member's line add up; the dash's own tab is not a session.
 function memberSessions(d,name){const xs=(d.sessions||[]).filter(s=>s.user===name&&(s.host_state==='busy'||s.host_state==='idle')),busy=xs.filter(s=>s.host_state==='busy').length;
   return xs.length?xs.length+' session'+(xs.length>1?'s':'')+', '+busy+' working':''}
 function teamOverview(d){const l=TEAM.lists,working=teamWorking(d),row=(href,tk,name,sub,side,onclick)=>href?el('a',{class:'tm-row',href,'data-tk':tk},el('span',{class:'tm-main'},name,sub?el('span',{class:'tm-why'},sub):null),side?el('span',{class:'tm-fig'},side):null):el('div',{class:'tm-row'},el('span',{class:'tm-main'},el('button',{type:'button',class:'linkish','data-tk':tk,onclick},name),sub?el('span',{class:'tm-why'},sub):null),side?el('span',{class:'tm-fig'},side):null);
-  const group=ROUTE.rest[0],out=['roles','members'].includes(group)?[]:[el('div',{class:'tm-sec'},el('h3',{},'Working now'),el('span',{class:'n'},working.length)),teamWorkingTable(working)];
-  if(ROUTE.rest[0]==='working')return out;
+  // Running workers moved to the Agents list (#479); #team/working, an old address, says where.
+  const group=ROUTE.rest[0],out=[];
+  if(group==='working')return [el('div',{class:'state','data-moved':'working'},el('span',{},working.length?working.length+' working now. ':'','Running workers are in the Agents list beside the rail: each row has its task, agent, state, time, cost so far and latest activity.'),agentsShown()&&!PHONE.matches?null:el('button',{type:'button',onclick:()=>agentsSet(true)},'Show the Agents list'))];
   if(l){if(group!=='members')out.push(...teamSec('Roles',(l.roles||[]).length||'',(l.roles||[]).length?l.roles.map(r=>row(teamHref('role',r.name),'r-'+r.name,r.name,r.description,toolName(teamRoleTool(r,l)))):[el('div',{class:'empty'},'No agents/*.md in a known checkout.')]));
     if(group!=='roles')out.push(...teamSec('Members',(l.members||[]).length||'',(l.members||[]).length?l.members.map(m=>row(teamHref('member',m.name),'m-'+m.name,m.name,memberSessions(d,m.name),m.role||'not added')):[el('div',{class:'empty'},'No users on this ledger.')]))}
   else if(TEAM.listsErr)out.push(el('div',{class:'state error',role:'alert'},'Could not load roles and members: '+TEAM.listsErr));
@@ -1212,7 +1318,7 @@ function repoRow(r){const folder=(r.path||'').split('/').filter(Boolean).pop()||
     el('div',{},n?n+' worker worktree'+(n>1?'s':'')+' on disk (folders agentd made for workers; finished ones stay until removed)':'No worker worktrees on disk'));
   return el('div',{class:'repo-row','data-repo':r.path},el('div',{class:'repo-head'},el('span',{class:'repo-name'},name),folder!==name.split('/').pop()?el('span',{class:'mute'},'folder '+folder):null),el('span',{class:'tm-why'},meta),
     el('ul',{class:'repo-checks','aria-label':'Checks for '+name},(r.checks||[]).map(c=>repoCheckItem(c,r))),
-    el('div',{class:'repo-work'},el('a',{href:issues,title:'Open tasks and pull requests for '+(r.project||name)+' in Issues'},open+' open in Issues'),' · '+(r.running||0)+' worker'+(r.running===1?'':'s')+' running · ',
+    el('div',{class:'repo-work'},el('a',{href:issues,title:'Open tasks and pull requests for '+(r.project||name)+' in Tasks'},open+' open in Tasks'),' · '+(r.running||0)+' worker'+(r.running===1?'':'s')+' running · ',
       last?['last task ',el('a',{href:itemHash(null,last.id),title:last.goal||''},cardTitle(last.goal)||'Untitled'),' ('+(last.failed?'Failed':word(last.state)==='Taken'?'Started':word(last.state))+(last.updated?', '+whenText(last.updated):'')+')']:'no tasks yet'),details)}
 function reposBody(){if(reposStale())reposLoad();const d=REPOS.data,list=d&&d.repositories||[];
   const head=[el('h2',{},'Repositories'),el('p',{class:'mute'},'The repositories workers on this host can run in. They are added from a terminal on the host, not from this page: run ',el('code',{},'agentd init'),' inside a repository.')];
@@ -1761,7 +1867,7 @@ function inboxDraw(d){
   const list=sets[inboxFilter],open=list.length,unread=list.filter(inboxUnreadDot).length,more=inboxFilter==='needs'?sets.expired.length:0;
   $('inbox-title').textContent=INBOX_NAMES[inboxFilter];$('inbox-count').textContent=open?open+' open'+(inboxFilter!=='expired'&&unread?', '+unread+' unread':''):'';
   const note=$('inbox-note'),anon=inboxFilter==='mine'&&!d.user,exp=inboxFilter==='expired'&&open,text=anon?'You are not signed in, so My work shows all work started by people, not work started automatically.':exp?'Offers nobody took in time. Start a worker on one, or clear it.':'';note.hidden=!text;note.textContent=text;
-  box.replaceChildren(...(open?list.map(inboxRow):[el('div',{class:'empty'},ROLE==='viewer'?'Nothing is assigned to you. Your account is read-only; owners may have other items waiting.':INBOX_EMPTY[inboxFilter],el('div',{class:'field-hint'},inboxFilter==='needs'?'New approvals and worker updates appear here. Browse Issues to see all work.':el('a',{href:'#inbox'},'Show all inbox items')))]),...(more?[el('a',{class:'ib-more',href:'#inbox/expired'},more+' expired, kept under Expired')]:[]));
+  box.replaceChildren(...(open?list.map(inboxRow):[el('div',{class:'empty'},ROLE==='viewer'?'Nothing is assigned to you. Your account is read-only; owners may have other items waiting.':INBOX_EMPTY[inboxFilter],el('div',{class:'field-hint'},inboxFilter==='needs'?'New approvals and worker updates appear here. Browse Tasks to see all work.':el('a',{href:'#inbox'},'Show all inbox items')))]),...(more?[el('a',{class:'ib-more',href:'#inbox/expired'},more+' expired, kept under Expired')]:[]));
   for(const n of box.querySelectorAll('[data-id]'))if(menus.has(n.dataset.id)){const menu=n.querySelector('.row-more');if(menu)menu.open=true}
   if(id){const n=[...box.querySelectorAll('[data-id]')].find(n=>n.dataset.id===id),target=n&&[...n.querySelectorAll('button,a,summary')].find(c=>c.textContent===name&&!c.disabled);focusBack(target||n&&n.querySelector('button,a,summary'))}}
 dashPage('inbox',{title:'Inbox',enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter;inboxFilter=f;if(lastDash){inboxDraw(lastDash);lockState()}if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}},render(d){inboxBadge(d);inboxDraw(d)}});
@@ -1781,7 +1887,7 @@ function newTaskFields(d,base){const prs=newTaskPRs(d);return [
   ...base.map(f=>f.name==='goal'?{...f,required:false}:f),
   {name:'accept',label:'Acceptance criteria',multiline:true,hint:'What done means, one per line.'},
   {name:'check',label:'Check command',maxlength:1000,hint:'A command that exits 0 when the work is right.'},
-  {name:'issue',label:'Issue',maxlength:200,hint:'OWNER/REPO#N, or one from the Issues page.'}]}
+  {name:'issue',label:'Issue',maxlength:200,hint:'OWNER/REPO#N, or one from the Tasks page.'}]}
 function newTaskSetup(ui,nt){const field=n=>ui.inputs[n].closest('.sheet-field'),label=field('goal').querySelector('label');
   const kind=()=>{const review=ui.inputs.kind.value==='review';field('pr').hidden=!review;label.textContent=review?'Goal (optional)':'Goal';ui.inputs.goal.placeholder=review?'Review the pull request':''};
   ui.inputs.kind.addEventListener('input',kind);kind();
@@ -1855,7 +1961,7 @@ function newHandoffSheet(roleName=''){const d=lastDash||{},l=TEAM.lists||{},role
     cwd.replaceChildren(...dirs.map(dir=>el('option',{value:dir,title:dir},dir)));cwd.value=dirs.includes(old)?old:dirs[0]||'';
     const tool=ui.inputs.tool,was=tool.value;tool.replaceChildren(...(role?[el('option',{value:''},'Use role settings')]:[]),el('option',{value:'claude'},'Claude'),el('option',{value:'codex'},'Codex'),el('option',{value:'opencode'},'opencode'));tool.value=role?'':was||l.default_tool||'claude';
     ui.submit.setAttribute('aria-disabled',String(!dirs.length));ui.submit.title=dirs.length?'':'No known checkout is available. Start a session in a checkout first.';ui.syncSegments()};
-  return actionSheet({title:roleName?'Assign work to '+roleName:'New handoff',description:'Starts a worker in the selected checkout. Its work and result will appear in Issues.',action:'Start',pending:'Starting…',fields,setup:ui=>{const deps=depsNote(ui,'');ui.inputs.role.onchange=()=>{sync(ui);deps()};sync(ui);deps();newTaskSetup(ui,nt);newTaskTemplates(ui,nt)},validate:v=>!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:newTaskValidate(v,nt)},'new-handoff',v=>({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key,...newTaskBody(v,nt)}),'Worker requested')}
+  return actionSheet({title:roleName?'Assign work to '+roleName:'New handoff',description:'Starts a worker in the selected checkout. Its work and result will appear in Tasks.',action:'Start',pending:'Starting…',fields,setup:ui=>{const deps=depsNote(ui,'');ui.inputs.role.onchange=()=>{sync(ui);deps()};sync(ui);deps();newTaskSetup(ui,nt);newTaskTemplates(ui,nt)},validate:v=>!v.cwd?['cwd','Choose a known checkout. Start a session in a checkout first.']:newTaskValidate(v,nt)},'new-handoff',v=>({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key,...newTaskBody(v,nt)}),'Worker requested')}
 // retryHandoff starts a new worker on a work item whose worker failed, after
 // the same review-and-confirm step as a Chat proposal: the task is the item's
 // own (goal, acceptance criteria, check and budget stay on it), and only the
@@ -2059,7 +2165,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
   if(scored.length){box.append(sec('Scores',scored.reduce((n,x)=>n+x.scores.length,0)));for(const x of scored)for(const r of x.scores)box.append(scoreRow(r,d.kind==='handoff'?'':x.id))}
   // Execution: the run viewer of the session on it, when there is one.
   const sid=who&&who!=='any'&&sessionRow(who)?who:'';
-  if(sid&&opt&&opt.noRun)box.append(sec('Execution'),el('p',{class:'mute'},'The run viewer is on the full page: Open in Issues.'));
+  if(sid&&opt&&opt.noRun)box.append(sec('Execution'),el('p',{class:'mute'},'The run viewer is on the full page: Open in Tasks.'));
   else if(sid)box.append(sec('Execution'));
   if(sid&&!(opt&&opt.noRun)){const wf=el('div',{class:'wf'}),host=el('div',{class:'wi-exec cc'},wf);box.append(host);embedRun(sid,wf)}
 
@@ -2200,7 +2306,7 @@ function detailEvent(x,ctx,dash,openIds,pageTitle){const h=ctx.live.get(x.id)||x
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
   keepFocus(box,()=>{const openIds=new Set([...box.querySelectorAll('details[data-log][open]')].map(n=>n.dataset.log)),ref=DET.ref,isIssue=ref.includes('#')||isLinearRef(ref);
     const from=(ROUTE.params&&ROUTE.params.get('from'))||'',backChat=from.startsWith('chat-')?from.slice(5):'';
-    const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All issues'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On '+trackerName(ref)):null);
+    const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All tasks'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On '+trackerName(ref)):null);
     if(DET.error){box.replaceChildren(crumb,el('div',{class:'state error',role:'alert'},'Could not load this: '+DET.error));return}
     if(!DET.d){box.replaceChildren(crumb,el('div',{class:'state'},'Loading…'));return}
     const d=DET.d,dash=lastDash||{},ctx=issueStatusCtx(dash),tree=d.tree||[],issue=d.issue||null,focus=tree.find(x=>x.focus)||tree[0]||{},hLive=ctx.live.get(focus.id),body=d.body||{};
@@ -2239,8 +2345,8 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
         d.kind==='handoff'&&focus.id?checksPanel(focus.id):null)))});
   lockState()}
 function issuesEnter(r){readIssueRoute(r);const ref=routeItem(r),page=$('page-work');page.classList.toggle('in-detail',!!ref);
-  if(ref){if(ref!==DET.ref||!DET.d)loadDetail(ref,true);else drawDetail()}else{DET.ref='';DET.d=null;DET.request++;$('issue-detail').replaceChildren();if(r.rest.length){$('page-work').classList.add('in-detail');$('issue-detail').append(el('div',{class:'state'},'This work item address is not valid. ',el('a',{href:'#issues'},'Back to Issues')))}else loadIssues()}}
-dashPage('issues',{title:'Issues',pageId:'work',enter:issuesEnter,unlock(r){issuesEnter(r)},
+  if(ref){if(ref!==DET.ref||!DET.d)loadDetail(ref,true);else drawDetail()}else{DET.ref='';DET.d=null;DET.request++;$('issue-detail').replaceChildren();if(r.rest.length){$('page-work').classList.add('in-detail');$('issue-detail').append(el('div',{class:'state'},'This work item address is not valid. ',el('a',{href:'#issues'},'Back to Tasks')))}else loadIssues()}}
+dashPage('issues',{title:'Tasks',pageId:'work',enter:issuesEnter,unlock(r){issuesEnter(r)},
   render(d){newHandoff(d);board(d);
     if(ROUTE.item!=='issues')return;
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
@@ -2948,7 +3054,7 @@ $('h-clear').onclick=()=>{for(const id of Object.values(HFIELDS))$(id).value='';
 // top bar or with Ctrl+K / Cmd+K. Results come grouped by kind and limited by the
 // server to what this person may open; arrows move, Enter opens, Escape closes.
 const SEARCH={box:null,input:null,list:null,status:null,items:[],at:-1,request:0,timer:0,opener:null};
-const SEARCH_KINDS=[['handoff','Tasks'],['pr','Pull requests'],['issue','Issues'],['run','Runs'],['msg','Messages'],['compaction','Session summaries']];
+const SEARCH_KINDS=[['handoff','Tasks'],['pr','Pull requests'],['issue','GitHub and Linear issues'],['run','Runs'],['msg','Messages'],['compaction','Session summaries']];
 // searchHref is where a hit opens: a task, PR or issue on its Issues page; a run has no page here.
 function searchHref(x){return x.kind==='handoff'?itemHash('',x.ref):x.kind==='pr'||x.kind==='issue'?itemHash(x.ref):''}
 function searchBuild(){if(SEARCH.box)return SEARCH.box;
@@ -3044,7 +3150,7 @@ function notifySettings(){
 // own keys), or with Ctrl, Cmd or Alt held (Ctrl+K is search's own). Every key has
 // a pointer twin: the rail for g, New handoff for n, the search button for / and
 // the account menu's Keyboard shortcuts (on a phone too) for ?.
-const KEYS_GO={i:['#inbox','Inbox'],b:['#issues','the board (Issues)'],c:['#chat','Chat'],m:['#insights/metrics','Metrics']};
+const KEYS_GO={i:['#inbox','Inbox'],b:['#issues','the board (Tasks)'],c:['#chat','Chat'],m:['#insights/metrics','Metrics']};
 const KEYS_LIST=[[['?'],'Show this list of shortcuts'],...Object.entries(KEYS_GO).map(([k,[,name]])=>[['g',k],'Go to '+name]),[['n'],'New task'],[['/'],['Ctrl','K']],[['j'],'Next item in a list'],[['k'],'Previous item in a list'],[['Enter'],'Open the selected item'],[['Esc'],'Close a sheet, menu or panel']];
 const KEYS_ROWS='.ib-row,.kcard,.tm-row,.hrow,.working-table tbody tr,.chat-rowbox';
 let keysPrefix=0;
@@ -3129,7 +3235,7 @@ async function connectRun(tool,dry,box){if(CONNECT.busy)return;CONNECT.busy=true
   finally{CONNECT.busy=false;connectButtons(false)}}
 // end:connect
 // region:refresh
-function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);lockState();notifyCheck(d)}
+function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
@@ -3343,7 +3449,7 @@ async function chatWorkerWork(h){if(ROUTE.item!=='chat'||!CHAT.id){if(activeShee
   const id=CHAT.id,view={kind:'work',title:'Work item',handoff:h.id,card:h};if(activeSheet&&!PHONE.matches)activeSheet.cancel();chatSetView(view);const request=CHAT.viewRequest;
   try{const r=await fetch('/api/workitem?ref='+encodeURIComponent(h.id),{cache:'no-store',headers:auth()});if(r.status===401)dropToken();if(!r.ok)throw new Error((await r.text())||'HTTP '+r.status);const d=await r.json();if(request!==CHAT.viewRequest||CHAT.id!==id)return;chatSetView({...view,data:d},false)}
   catch(e){if(request===CHAT.viewRequest&&CHAT.id===id)chatSetView({...view,note:'Could not load this work item: '+errorText(e)},false)}}
-function chatWorkBody(v){return el('div',{class:'chat-work'},el('p',{},el('a',{href:chatIssuesHref(v.handoff,CHAT.id),class:'chat-open-issues'},'Open in Issues'),' ',el('code',{},v.handoff)),v.data?workItemBody(v.data,{noRun:true}):el('div',{class:'mute'},v.note||'Loading…'))}
+function chatWorkBody(v){return el('div',{class:'chat-work'},el('p',{},el('a',{href:chatIssuesHref(v.handoff,CHAT.id),class:'chat-open-issues'},'Open in Tasks'),' ',el('code',{},v.handoff)),v.data?workItemBody(v.data,{noRun:true}):el('div',{class:'mute'},v.note||'Loading…'))}
 // A finished worker's card opens its result in Canvas; its work item is one button there. A running one still leads to its work item.
 function chatWorkerCard(h){const running=chatWorkerRunning(h),files=running?[]:CHAT.files.filter(f=>f.path.startsWith(h.id+'/')),content=[el('b',{title:h.goal||''},cardTitle(h.goal)||'Untitled task'),markEl(h.mark),...(h.state==='done'&&h.result&&!chatWorkerRunning(h)?[el('small',{},['Finished',h.result.check_result==='passed'?'checks passed':h.result.check_result==='failed'?'checks failed':''].filter(Boolean).join(' · ')),el('small',{},'Open to see the result')]:[el('small',{title:[h.id,h.branch?'branch '+h.branch:''].filter(Boolean).join(' · ')},[chatWorkerStatus(h),roleName(h.role),toolName(h.worker)].filter(Boolean).join(' · ')),failureDetail(h),h.note?el('small',{},h.note):null,h.notice?el('small',{},h.notice):null,h.result?el('small',{},[h.result.end_reason,h.result.check_result,h.result.diff_stat].filter(Boolean).map(words).join(' · ')):null])];
   if(running)return el('button',{class:'chat-card',title:'Open its work item',onclick:()=>chatWorkerWork(h)},content);

@@ -1,5 +1,5 @@
 // One set of task marks (#454): a task reads the same mark (word, glyph,
-// colour class) on the board, in Chat and in Team's Working now, for each of the
+// colour class) on the board, in Chat and in the Agents list, for each of the
 // six; the strip over the board counts each mark and choosing one shows exactly
 // that many cards; the legend explains every mark. Run in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_marks.cjs dash.html
@@ -78,9 +78,9 @@ const markIn=(node,what)=>{const ms=node.querySelectorAll('.tmark');assert.equal
  const dts=[...strip().querySelectorAll('.mark-legend dt')];assert.equal(dts.length,6);
  for(const dt of dts){const m=markIn(dt,'legend');assert.equal(m[2],seen[m[0]][2],'legend glyph differs for '+m[0]);assert(dt.nextElementSibling.textContent.length>10,'legend lacks text for '+m[0])}
  assert(strip().querySelector('details.mark-legend').open,'the legend closes on a refresh');
- // Team > Working now: the running and blocked workers read as on the board.
- w.location.hash='#team/working';await settle();
- for(const id of ['hof-work','hof-work2','hof-ask']){const a=doc.querySelector('[data-tk="working-'+id+'"]');assert(a,'Working now lacks '+id);const m=markIn(a.closest('td'),'working '+id);assert.deepEqual(m,seen[want[id]],'Working now reads '+id+' differently')}
+ // The Agents list (which replaced Team > Working now, #479): every open task reads as on the board.
+ w.location.hash='#team/working';await settle();assert(doc.querySelector('#team-view [data-moved="working"]'),'#team/working does not say where Working now went');
+ for(const id of ['hof-work','hof-work2','hof-ask','hof-wait','hof-new']){const a=doc.querySelector('#agents-rows [data-agent-id="'+id+'"]');assert(a,'the Agents list lacks '+id);const m=markIn(a,'agents '+id);assert.deepEqual(m,seen[want[id]],'the Agents list reads '+id+' differently')}
  // A task's own page and its drawer read as on the board.
  for(const id of ['hof-ask','hof-wait']){w.location.hash='#issues/'+id;await settle();const props=[...doc.querySelectorAll('#issue-detail .k')].find(k=>k.textContent==='Status');assert(props,'no Status on the page of '+id);
   assert.deepEqual(markIn(props.nextElementSibling,'page '+id),seen[want[id]],'the page of '+id+' reads differently');

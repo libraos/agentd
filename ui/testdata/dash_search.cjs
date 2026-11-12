@@ -48,7 +48,7 @@ const selected=()=>d.querySelector('#search-list [aria-selected="true"]');
 
  // Two words: grouped by kind in a fixed order, as text; a run has no page and is not an option to open.
  key(d.body,'K',{metaKey:true});assert(box.open,'Cmd+K did not open the box');await type('flamingo rotate');
- assert.deepEqual([...d.querySelectorAll('.search-group-name')].map(n=>n.textContent),['Tasks · 1','Pull requests · 1','Issues · 1','Runs · 1','Messages · 1']);
+ assert.deepEqual([...d.querySelectorAll('.search-group-name')].map(n=>n.textContent),['Tasks · 1','Pull requests · 1','GitHub and Linear issues · 1','Runs · 1','Messages · 1']);
  assert(!$('search-list').querySelector('img'),'result markup became live DOM');assert($('search-list').textContent.includes(evil));
  const run=d.querySelector('[data-kind="run"]');assert.equal(run.getAttribute('aria-disabled'),'true');assert(run.textContent.includes('no page in the dash'));
  // Arrows move through the hits that open, wrapping, skipping the run.
@@ -57,7 +57,7 @@ const selected=()=>d.querySelector('#search-list [aria-selected="true"]');
  key($('search-input'),'ArrowDown');assert.equal(selected().dataset.kind,'handoff','ArrowDown did not wrap');key($('search-input'),'ArrowUp');assert.equal(selected().dataset.kind,'msg','ArrowUp did not wrap');
  assert.equal(d.querySelectorAll('#search-list [aria-selected="true"]').length,1);
  key($('search-input'),'ArrowUp');key($('search-input'),'ArrowUp');assert.equal(selected().dataset.kind,'pr');
- key($('search-input'),'Enter');assert(!box.open);assert.equal(w.location.hash,'#issues/acme/repo/7','a PR opens on its Issues page');
+ key($('search-input'),'Enter');assert(!box.open);assert.equal(w.location.hash,'#issues/acme/repo/7','a PR opens on its Tasks page');
  // A message opens its session's console.
  key(d.body,'k',{ctrlKey:true});await type('flamingo rotate');key($('search-input'),'ArrowUp');assert.equal(selected().dataset.kind,'msg');key($('search-input'),'Enter');await tick();
  assert(requests.some(r=>r.url.startsWith('/api/session?id=claude-alice')),'the message did not open its session');assert(new URLSearchParams(w.location.hash.split('?')[1]).get('console'),'claude-alice');w.eval('closeHistory()');await tick();

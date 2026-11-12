@@ -40,7 +40,7 @@ const open=async()=>{w.eval('newHandoffSheet()');await settle();assert(sheetEl()
  for(const f of ['kind','goal','accept','check','issue','cwd','budget'])assert(field(f),'the sheet lacks '+f);
  assert.equal(field('kind').value,'implement');assert(box('pr').hidden,'the PR picker shows on an implement task');
  assert.equal(box('goal').querySelector('label').textContent,'Goal');
- // The Issues page's open issues are the issue field's choices.
+ // The Tasks page's open issues are the issue field's choices.
  const list=w.document.getElementById(field('issue').getAttribute('list'));assert(list,'the issue field has no choices');
  assert.deepEqual([...list.querySelectorAll('option')].map(o=>o.value),['acme/repo#3'],'issue choices are not the open issues');
  // The first checkout has no task file: the check starts empty, no note.
