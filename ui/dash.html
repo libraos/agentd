@@ -362,6 +362,25 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 @media(max-width:860px){.tablewrap.phone-rows table,.tablewrap.phone-rows tbody,.tablewrap.phone-rows tr,.tablewrap.phone-rows td,#h-table table,#h-table tbody,#h-table tr,#h-table td{display:block;width:100%;min-width:0;max-width:none}.tablewrap.phone-rows thead,#h-table thead{display:none}.tablewrap.phone-rows tr,#h-table tr{border-bottom:1px solid var(--line);padding:12px 0}.tablewrap.phone-rows td,#h-table td{display:grid;grid-template-columns:84px minmax(0,1fr);gap:8px;text-align:left;white-space:normal;padding:4px 0;border:0}.tablewrap.phone-rows td:before,#h-table td:before{content:attr(data-label);font-size:12px;color:var(--mute)}#h-table td.hgoal{min-width:0}#h-table .hgoal a{display:block;min-height:44px}.hsub{display:none}.hfilter{align-items:stretch}.hfilter input{width:100%}.hfilter>label{flex:1 1 120px}.hfilter>select{flex:1 1 140px}}
 .usage-group{display:flex;align-items:center;gap:12px;margin:16px 0 8px;font-size:12px;color:var(--mute)}.runs .runs{border:0;padding:0}.runs table pre{max-width:100%;white-space:pre-wrap}#page-metrics #metrics{padding-top:16px}.hfilter #h-failed[aria-pressed="true"]{background:var(--sel);color:var(--fg);border-color:var(--edge)}
 /* end:css-insights */
+/* region:css-insights-overview: Insights > Metrics' four cards, outcomes per week, failure classes and the table by agent and model (#485) */
+.ins-head{padding:0 0 10px}.ins-head .mrange{margin-left:auto}
+.ins-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.ins-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ins-card .ins-label,.ins-card .ins-note{font-size:12px;color:var(--mute)}.ins-card b{font-size:22px;font-weight:500;line-height:1.2;font-variant-numeric:tabular-nums}.ins-card b.ins-none{font-size:15px;color:var(--mute);font-weight:400}
+.ins-cols{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:12px;align-items:start}.ins-cols>.runs{margin-bottom:12px}
+.ins-chart{display:flex;align-items:flex-end;gap:8px;height:180px;padding:4px 0 0;border-bottom:1px solid var(--line)}
+.ins-week{flex:1;min-width:18px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch}
+.ins-stack{display:flex;flex-direction:column-reverse;border-radius:4px 4px 0 0;overflow:hidden;min-height:0}
+.ins-seg{display:block;min-height:3px}.ins-seg:hover,.ins-seg:focus-visible{filter:brightness(1.15);outline:2px solid var(--fg);outline-offset:-2px}
+.ins-o-accepted{background:var(--green)}.ins-o-auto_completed{background:var(--accent)}.ins-o-not_delivered{background:var(--faint)}.ins-o-failed{background:var(--red)}.ins-o-false_accept{background:var(--amber)}
+.ins-xlabels{display:flex;gap:8px;font-size:12px;color:var(--mute);padding-top:4px}.ins-xlabels span{flex:1;min-width:18px;text-align:center;font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
+.ins-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--mute);padding:8px 0 4px}.ins-key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.ins-tabletoggle{font-size:12px;margin-top:4px}
+.ins-wtable:not(.open){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.ins-wtable caption{text-align:left;font-size:12px;color:var(--mute);padding:6px 0}
+.ins-overview td.num,.ins-overview th.num{text-align:right}.ins-overview .mute{font-size:12px}
+@media(max-width:860px){.ins-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.ins-cols{grid-template-columns:minmax(0,1fr)}}
+/* end:css-insights-overview */
 /* cost strip: figures and one bar per run */
 .cost{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
 .cost b{color:var(--fg);font-weight:400}.cost .fig{white-space:nowrap}.cost .fig i{font-style:normal;color:var(--amber)}
@@ -803,7 +822,7 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
       <select id="h-creator" aria-label="Creator"><option value="">All creators</option></select>
       <label class="mute">From <input id="h-from" type="date" aria-label="Finished from, UTC"></label>
       <label class="mute">To <input id="h-to" type="date" aria-label="Finished to, UTC"></label>
-      </div><button type="button" id="h-clear" hidden>Clear</button>
+      </div><button type="button" class="chip on" id="h-outcome" hidden aria-label="Remove the outcome filter"></button><button type="button" id="h-clear" hidden>Clear</button>
     </form>
     <div class="state" id="h-note" role="status">Loading…</div>
     <div class="tablewrap" id="h-table" hidden><table><thead><tr><th>State</th><th>Goal</th><th>Worker</th><th>End reason</th><th class="num">Min</th><th>Finished</th></tr></thead><tbody id="h-rows"></tbody></table></div>
@@ -811,7 +830,16 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
   </section>
 </div>
 <div id="page-metrics" class="page" hidden>
-  <section class="runs" id="metrics" aria-label="PR metrics" hidden><div class="colhead"><h2>PR metrics</h2><span class="n" id="n-metrics">0</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div><div id="m-body"></div></section>
+  <div class="colhead ins-head" id="ins-head"><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
+  <section class="ins-overview" id="ins-overview" aria-label="Outcomes of dispatched tasks">
+    <div class="ins-cards" id="ins-cards"></div>
+    <div class="ins-cols">
+      <section class="runs" aria-labelledby="ins-weeks-h"><div class="colhead"><h2 id="ins-weeks-h">Outcomes per week</h2><span class="n">A bar opens the finished tasks behind it</span></div><div id="ins-weeks"></div></section>
+      <section class="runs" aria-labelledby="ins-classes-h"><div class="colhead"><h2 id="ins-classes-h">Failure classes</h2><span class="n" id="ins-classes-n"></span></div><div id="ins-classes"></div></section>
+    </div>
+    <section class="runs" aria-labelledby="ins-agents-h"><div class="colhead"><h2 id="ins-agents-h">By agent and model</h2></div><div id="ins-agents"></div></section>
+  </section>
+  <section class="runs" id="metrics" aria-label="PR metrics" hidden><div class="colhead"><h2>PR metrics</h2><span class="n" id="n-metrics">0</span></div><div id="m-body"></div></section>
   <section class="runs" id="now-box" aria-label="Right now"><div class="colhead"><h2>Right now</h2></div><div class="mtiles" id="now-tiles"></div></section>
   <section class="runs" id="factory" aria-label="Factory report" hidden><div class="colhead"><h2>Factory</h2><span class="n" id="n-factory">0</span></div><div id="f-body"></div></section>
   <section class="runs" id="bench" aria-label="Bench rounds" hidden><div class="colhead"><h2>Bench rounds</h2><span class="n" id="n-bench">0</span></div><div id="b-body"></div><div id="b-pick" class="bpickbar" hidden></div><div id="b-compare" class="bround" hidden></div><div id="b-round" class="bround" hidden></div></section>
@@ -3255,22 +3283,24 @@ async function loadFactory(range){const request=++factoryRequest,sec=$('factory'
   let q='since='+encodeURIComponent(range);
   if(range==='dates'){if(!$('m-from').value)return;q='since='+encodeURIComponent($('m-from').value);if($('m-to').value){const d=new Date($('m-to').value+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);q+='&until='+d.toISOString().slice(0,10)}}
   try{const r=await fetch('/api/factory?'+q,{cache:'no-store',headers:auth()});if(request!==factoryRequest)return;
-    if(r.status===401){sec.hidden=true;return}
+    if(r.status===401){sec.hidden=true;$('ins-overview').hidden=true;return}
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
     const f=await r.json();if(request!==factoryRequest)return;
+    INS.f=f;INS.fErr='';$('ins-overview').hidden=false;insDraw();
     sec.hidden=false;$('n-factory').textContent=(f.total||{}).dispatched||0;$('f-body').replaceChildren(...factoryBody(f))}
-  catch(e){if(request!==factoryRequest)return;sec.hidden=false;$('f-body').replaceChildren(el('div',{class:'state error'},'Could not load the factory report: '+e.message))}}
+  catch(e){if(request!==factoryRequest)return;INS.f=null;INS.fErr=e.message;insDraw();sec.hidden=false;$('f-body').replaceChildren(el('div',{class:'state error'},'Could not load the factory report: '+e.message))}}
 function rangeSegments(id){const input=$(id);let group=$(id+'-segments');if(!group){group=el('div',{id:id+'-segments',class:'views',role:'group','aria-label':input.getAttribute('aria-label')});input.before(group);input.hidden=true}group.replaceChildren(...[...input.options].map(o=>el('button',{type:'button',class:o.value===input.value?'on':'','aria-pressed':String(o.value===input.value),onclick:()=>{input.value=o.value;input.dispatchEvent(new Event('change'))}},o.textContent)))}
 function validDates(from,to,note){const invalid=!!from.value&&!!to.value&&from.value>to.value;from.setAttribute('aria-invalid',String(invalid));to.setAttribute('aria-invalid',String(invalid));if(invalid){note.hidden=false;note.classList.add('error');note.textContent='Start date is after end date.'}return !invalid}
-async function loadMetrics(){rangeSegments('m-range');const request=++metricsRequest,sec=$('metrics'),range=$('m-range').value;INS_READ.metrics=Date.now();saveInsightsRoute('metrics');if(range==='dates'&&!validDates($('m-from'),$('m-to'),$('m-body'))){sec.hidden=false;return}loadBench();loadFactory(range);
+async function loadMetrics(){rangeSegments('m-range');const request=++metricsRequest,sec=$('metrics'),range=$('m-range').value;INS_READ.metrics=Date.now();saveInsightsRoute('metrics');if(range==='dates'&&!validDates($('m-from'),$('m-to'),$('m-body'))){sec.hidden=false;return}INS.f=INS.m=null;INS.fErr=INS.mErr='';insDraw();loadBench();loadFactory(range);
   let q='since='+encodeURIComponent(range);
   if(range==='dates'){if(!$('m-from').value)return;q='from='+encodeURIComponent($('m-from').value)+($('m-to').value?'&to='+encodeURIComponent($('m-to').value):'')}
   try{const r=await fetch('/api/metrics?'+q,{cache:'no-store',headers:auth()});
-    if(r.status===401){if(request===metricsRequest)sec.hidden=true;return}
+    if(r.status===401){if(request===metricsRequest){sec.hidden=true;INS.mErr='needs the token or a login link';insCards()}return}
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
     const m=await r.json();if(request!==metricsRequest)return;
+    INS.m=m;INS.mErr='';insCards();
     sec.hidden=false;$('n-metrics').textContent=m.merged;$('m-body').replaceChildren(...metricsBody(m))}
-  catch(e){if(request!==metricsRequest)return;INS_READ.metrics=0;sec.hidden=false;$('m-body').replaceChildren(el('div',{class:'state error'},'Could not load PR metrics: '+e.message))}}
+  catch(e){if(request!==metricsRequest)return;INS.mErr=e.message;insCards();INS_READ.metrics=0;sec.hidden=false;$('m-body').replaceChildren(el('div',{class:'state error'},'Could not load PR metrics: '+e.message))}}
 $('m-range').addEventListener('change',()=>{const dates=$('m-range').value==='dates';$('m-from').hidden=!dates;$('m-to').hidden=!dates;loadMetrics()});
 $('m-from').addEventListener('change',loadMetrics);$('m-to').addEventListener('change',loadMetrics);
 function unpricedRuns(n){return n+' unpriced run'+(n===1?'':'s')}
@@ -3291,9 +3321,60 @@ $('u-range').addEventListener('change',loadUsage);
 // History: finished handoffs from /api/history, a page at a time. cursors holds
 // the cursor of each page up to this one, so Newer goes back to the same rows;
 // a change of filter starts again from the newest.
-const HIST={cursors:[''],failed:false,request:0,timer:0};
+// The overview at the top of Metrics (#485): four cards, outcomes per week as
+// stacked bars, failure classes and the table by agent and model. All of it is
+// the factory report (/api/factory) for the chosen period, except PR workflow
+// latency, from /api/metrics. A value with no data says "not measured", never 0.
+// A bar's part opens History filtered to that week and outcome: the finished
+// tasks behind it, as /api/history?outcome=&since=&until= lists them.
+const INS={f:null,m:null,fErr:'',mErr:''},INS_NONE='not measured';
+const INS_OUT=[['accepted','Accepted'],['auto_completed','Auto completed'],['not_delivered','Not delivered'],['failed','Failed'],['false_accept','False accept']];
+function insOutName(k){const o=INS_OUT.find(x=>x[0]===k);return o?o[1]:k}
+// insCard: a value, or null for not measured with why; undefined while it loads.
+function insCard(key,label,big,note,why,err){const wait=big===undefined,none=big===null;
+  return el('div',{class:'ins-card','data-card':key},el('span',{class:'ins-label'},label),el('b',{class:wait||none?'ins-none':null},wait?(err?'–':'…'):none?INS_NONE:big),el('span',{class:'ins-note'},wait?(err||'Loading…'):none?why||'':note))}
+function insCards(){const f=INS.f,t=f?f.total||{}:null,m=INS.m,val=(have,pick)=>have?pick():undefined;
+  const ac=t&&t.autonomous_completion||{},c=t&&t.cost_per_accepted||{},iv=t&&t.interventions||{},lat=m&&((m.workflow||{}).latency||{}).open_to_merge;
+  $('ins-cards').replaceChildren(
+    insCard('autonomous','Autonomous completion',val(t,()=>ac.not_computable||ac.n===undefined?null:ac.n+' of '+ac.of),'accepted with no intervention · '+Math.round(Number(ac.pct)||0)+'%',ac.not_computable,INS.fErr),
+    insCard('cost','Cost per accepted task',val(t,()=>c.median_usd===undefined?null:'$'+Number(c.median_usd).toFixed(2)),'median of the accepted tasks\' worker cost'+(c.unpriced?' · '+c.unpriced+' unpriced':''),c.not_computable||'no accepted task has a price',INS.fErr),
+    insCard('interventions','Interventions per task',val(t,()=>iv.not_computable||iv.mean===undefined?null:Number(iv.mean).toFixed(2)),'messages, approvals, takeovers · '+iv.with_any+' of '+iv.of+' tasks had one',iv.not_computable,INS.fErr),
+    insCard('latency','PR workflow latency',val(m,()=>!lat||!lat.n?null:Number(lat.median_hours).toFixed(1)+' h'),'open to merge, median · '+(lat&&lat.n)+' merged PRs','no PR merged in this period',INS.mErr))}
+function insWeekHref(w,k){return '#insights/history?'+new URLSearchParams({outcome:k,since:w.since||w.week,until:w.until})}
+function insWeeks(f){const weeks=f.by_week||[];if(!weeks.length)return [el('div',{class:'empty'},'No week in this period.')];
+  const count=w=>{const o=w.outcomes||{};return INS_OUT.reduce((a,[k])=>a+(Number(o[k])||0),0)},most=Math.max(0,...weeks.map(count)),open=weeks.reduce((a,w)=>a+(Number((w.outcomes||{}).open)||0),0);
+  const chart=el('div',{class:'ins-chart',role:'group','aria-label':'Outcomes per week. Each part of a bar opens its tasks; the table below has the same numbers.'},weeks.map(w=>{const o=w.outcomes||{},n=count(w);
+    const stack=el('div',{class:'ins-stack'},INS_OUT.filter(([k])=>Number(o[k])>0).map(([k,name])=>{const text='Week of '+w.week+': '+o[k]+' '+name.toLowerCase();
+      const a=el('a',{class:'ins-seg ins-o-'+k,href:insWeekHref(w,k),'data-outcome':k,'data-week':w.week,title:text,'aria-label':text+'. Open these tasks'});a.style.flex=o[k]+' 1 0';return a}));
+    stack.style.height=(most?100*n/most:0)+'%';return el('div',{class:'ins-week','data-week':w.week},stack)}));
+  const labels=el('div',{class:'ins-xlabels','aria-hidden':'true'},weeks.map(w=>el('span',{},w.week.slice(5))));
+  const key=el('div',{class:'ins-key'},INS_OUT.map(([k,name])=>el('span',{},el('i',{class:'ins-o-'+k}),name)));
+  const table=el('table',{class:'ins-wtable',id:'ins-wtable'},el('caption',{},'Outcomes per week: dispatched tasks by the week they were created'),
+    el('thead',{},el('tr',{},el('th',{scope:'col'},'Week of'),INS_OUT.map(([,name])=>el('th',{class:'num',scope:'col'},name)),el('th',{class:'num',scope:'col'},'Still open'))),
+    el('tbody',{},weeks.map(w=>{const o=w.outcomes||{};return el('tr',{},el('th',{scope:'row'},w.week),INS_OUT.map(([k])=>el('td',{class:'num'},String(Number(o[k])||0))),el('td',{class:'num'},String(Number(o.open)||0)))})));
+  const toggle=el('button',{type:'button',class:'ins-tabletoggle','aria-controls':'ins-wtable','aria-expanded':'false',onclick:e=>{const on=!table.classList.contains('open');table.classList.toggle('open',on);e.target.setAttribute('aria-expanded',String(on));e.target.textContent=on?'Hide the table':'Show as a table'}},'Show as a table');
+  return [key,chart,labels,most?null:el('div',{class:'empty ins-noend'},'No dispatched task ended in this period.'),open?el('div',{class:'mute'},open+' still offered or running, not drawn.'):null,toggle,el('div',{class:'tablewrap'},table)]}
+function insClasses(fc){const n=$('ins-classes-n');n.textContent='';if(!fc)return [];if(fc.not_computable)return [el('div',{class:'empty'},INS_NONE+': '+fc.not_computable+'.')];
+  const ok=(fc.classes||[]).find(c=>c.class==='none'),rows=(fc.classes||[]).filter(c=>c.class!=='none');n.textContent=fc.attempts+' ended attempts'+(ok?', '+ok.attempts+' with no failure':'');
+  return [el('div',{class:'tablewrap'},el('table',{class:'ins-classes'},el('thead',{},el('tr',{},el('th',{},'Class'),el('th',{class:'num'},'Attempts'),el('th',{class:'num'},'$'))),
+    el('tbody',{},rows.map(c=>el('tr',{},el('td',{},c.class),el('td',{class:'num'},String(c.attempts)),el('td',{class:'num'},c.attempts?(c.unpriced?'≥ ':'')+'$'+Number(c.usd).toFixed(2):'–')))))),
+    el('div',{class:'mute'},'Minutes and Console billing per class are under Factory, below.')]}
+function insTokens(r){return r.tokens===undefined?INS_NONE:(r.missing_tokens?'≥ ':'')+fmtTok(Number(r.tokens))}
+function insSpend(r){return r.usd===undefined?INS_NONE:(r.missing_usd?'≥ ':'')+'$'+Number(r.usd).toFixed(2)+(r.missing_usd?' ('+r.missing_usd+' unpriced)':'')}
+function insAgents(rows){if(!rows||!rows.length)return [el('div',{class:'empty'},'No dispatched task in this period.')];
+  const head=['Agent','Model','Tasks','Accepted','Median minutes','Tokens','Spend'];
+  return [el('div',{class:'tablewrap phone-rows'},el('table',{class:'ins-agents'},el('thead',{},el('tr',{},head.map((h,i)=>el('th',{class:i>1?'num':null},h)))),
+    el('tbody',{},rows.map(r=>{const wt=r.wall_time||{},cells=[toolName(r.agent),r.model||'not recorded',String(r.tasks),String(r.accepted),wt.median_min===undefined?INS_NONE:Number(wt.median_min).toFixed(1),insTokens(r),insSpend(r)];
+      return el('tr',{},cells.map((c,i)=>el('td',{class:i>1?'num':null,'data-label':head[i]},c)))}))))]}
+function insDraw(){insCards();const f=INS.f;
+  if(!f){const msg=INS.fErr?el('div',{class:'state error'},'Could not load the factory report: '+INS.fErr):el('div',{class:'state'},'Loading…');for(const id of ['ins-weeks','ins-classes','ins-agents'])$(id).replaceChildren(msg.cloneNode(true));$('ins-classes-n').textContent='';return}
+  $('ins-period').textContent=(f.since||'').slice(0,10)+' to '+(f.until||'').slice(0,10);
+  $('ins-weeks').replaceChildren(...insWeeks(f));$('ins-classes').replaceChildren(...insClasses(f.failure_classes));$('ins-agents').replaceChildren(...insAgents(f.by_agent_model))}
+// History, opened from a bar: the outcome and week it shows, as a chip that removes it.
+function histOutcomeChip(){const b=$('h-outcome'),o=HIST.outcome;b.hidden=!o;b.textContent=o?insOutName(o.outcome)+' · week of '+o.since.slice(0,10)+' ×':''}
+const HIST={cursors:[''],failed:false,outcome:null,request:0,timer:0};
 const HFIELDS={state:'h-state',source:'h-source',creator:'h-creator',from:'h-from',to:'h-to'};
-function histParams(){const p=new URLSearchParams();for(const[k,id]of Object.entries(HFIELDS))if($(id).value)p.set(k,$(id).value);const q=$('h-q').value.trim();if(q)p.set('q',q);if(HIST.failed)p.set('failed','1');return p}
+function histParams(){const p=new URLSearchParams();for(const[k,id]of Object.entries(HFIELDS))if($(id).value)p.set(k,$(id).value);const q=$('h-q').value.trim();if(q)p.set('q',q);if(HIST.failed)p.set('failed','1');if(HIST.outcome)for(const k of ['outcome','since','until'])p.set(k,HIST.outcome[k]);return p}
 function histFill(id,values,label){const box=$(id),cur=box.value,want=[...values];if(cur&&!want.includes(cur))want.push(cur);if([...box.options].slice(1).map(o=>o.value).join('\n')===want.join('\n'))return;box.replaceChildren(el('option',{value:''},label),...(id==='h-creator'?[el('optgroup',{label:'People'},want.filter(v=>! /^(claude|codex|other)-/.test(v)).map(v=>el('option',{value:v},v))),el('optgroup',{label:'Agent sessions'},want.filter(v=>/^(claude|codex|other)-/.test(v)).map(v=>el('option',{value:v},nameOf(v))))]:want.map(v=>el('option',{value:v},word(v)))));box.value=cur}
 function histState(r){const word=r.state==='done'?'Done':r.state==='cancelled'?'Cancelled':r.state==='declined'?'Declined':r.state;
   if(r.failed&&r.state==='done')return el('span',{class:'status',title:'Handoff state: '+r.state+'. A worker ended badly, or its check did not pass.'},el('i',{class:'g failed',role:'img','aria-label':'Failed'}),r.state==='done'?'Failed':word+', failed');
@@ -3307,7 +3388,7 @@ function histRow(r){const open=()=>showWorkItem(r.id),depth=r.depth||0;
     el('td',{class:'hend'+(r.failed?' bad':''),'data-label':'End reason',title:(r.end_reasons||[]).join(' → ')},histEnd(r)),
     el('td',{class:'num','data-label':'Minutes'},r.minutes===undefined?'Not recorded':Number(r.minutes).toFixed(1)),
     el('td',{'data-label':'Finished',title:r.updated||''},(r.updated||'').slice(0,10)||'Not recorded'))}
-function readHistoryRoute(r){const p=r.params||new URLSearchParams();for(const [k,id] of Object.entries(HFIELDS)){if(['state','source','creator'].includes(k)&&p.get(k))histFill(id,[p.get(k)],'All '+k+'s');$(id).value=p.get(k)||''}$('h-q').value=p.get('q')||'';HIST.failed=p.get('failed')==='1';$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));const trail=p.getAll('cursor');HIST.cursors=['',...trail]}
+function readHistoryRoute(r){const p=r.params||new URLSearchParams();for(const [k,id] of Object.entries(HFIELDS)){if(['state','source','creator'].includes(k)&&p.get(k))histFill(id,[p.get(k)],'All '+k+'s');$(id).value=p.get(k)||''}$('h-q').value=p.get('q')||'';HIST.failed=p.get('failed')==='1';$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));HIST.outcome=p.get('outcome')&&p.get('since')&&p.get('until')?{outcome:p.get('outcome'),since:p.get('since'),until:p.get('until')}:null;histOutcomeChip();const trail=p.getAll('cursor');HIST.cursors=['',...trail]}
 function saveHistoryRoute(){const p=histParams();for(const c of HIST.cursors.slice(1))p.append('cursor',c);routeQuery('insights/history',p)}
 async function loadHistory(){const request=++HIST.request,note=$('h-note'),p=histParams(),filtered=[...p.keys()].length>0,cursor=HIST.cursors[HIST.cursors.length-1];
   $('h-clear').hidden=!filtered;if(!validDates($('h-from'),$('h-to'),note)){$('h-table').hidden=true;$('h-pager').hidden=true;return}p.set('limit','50');if(cursor)p.set('cursor',cursor);
@@ -3332,7 +3413,8 @@ for(const id of Object.values(HFIELDS))$(id).addEventListener('change',histResta
 $('h-q').addEventListener('input',()=>{clearTimeout(HIST.timer);HIST.timer=setTimeout(histRestart,250)});
 $('h-filters').addEventListener('submit',e=>{e.preventDefault();histRestart()});
 $('h-failed').onclick=()=>{HIST.failed=!HIST.failed;$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));histRestart()};
-$('h-clear').onclick=()=>{for(const id of Object.values(HFIELDS))$(id).value='';$('h-q').value='';HIST.failed=false;$('h-failed').setAttribute('aria-pressed','false');$('h-failed').setAttribute('aria-checked','false');histRestart()};
+$('h-outcome').onclick=()=>{HIST.outcome=null;histOutcomeChip();histRestart()};
+$('h-clear').onclick=()=>{for(const id of Object.values(HFIELDS))$(id).value='';$('h-q').value='';HIST.failed=false;HIST.outcome=null;histOutcomeChip();$('h-failed').setAttribute('aria-pressed','false');$('h-failed').setAttribute('aria-checked','false');histRestart()};
 // end:insights
 // region:search: one box over the find index (GET /api/search), opened from the
 // top bar or with Ctrl+K / Cmd+K. Results come grouped by kind and limited by the
