@@ -29,7 +29,7 @@ const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),sett
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
  // The board: a card per issue, the Linear one linking to its own item page.
- const page=doc.getElementById('page-work');assert(page,'no Issues page');
+ const page=doc.getElementById('page-work');assert(page,'no Tasks page');
  const card=[...page.querySelectorAll('a')].find(a=>a.getAttribute('href')==='#issues/linear:ENG-12');
  assert(card,'no card links to #issues/linear:ENG-12: '+page.textContent.slice(0,400));
  assert(page.textContent.includes('Linear issue twelve'),'the Linear issue is not on the board');
