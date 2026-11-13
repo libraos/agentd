@@ -697,6 +697,8 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .set-toolbar{gap:12px;align-items:flex-start}.set-desc{margin:4px 0 0}.set-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px;align-items:start}.set-card{border:1px solid var(--line);border-radius:var(--r-s);padding:12px;min-width:0}.set-card h3{margin:0 0 8px}.set-group code{overflow-wrap:anywhere}
 @media(max-width:860px){.set-cards{grid-template-columns:minmax(0,1fr)}}
 /* end:css-settings */
+/* region:css-app-watchdog: agentd app's notice that no watchdog runs (libraos/agentd-core#560), under the top bar like the restart note */
+#appwatchdog{margin:12px 24px 0;border-left:3px solid var(--amber)}#appwatchdog[hidden]{display:none}#appwatchdog code{overflow-wrap:anywhere;user-select:all}
 /* region:css-setup: the first-run wizard (#488), one card of four steps */
 #page-setup{max-width:none;justify-items:center}#setup-body{width:100%;max-width:860px;display:grid;gap:20px;padding:28px 32px;border:1px solid var(--line);border-radius:var(--r-m,10px);background:var(--panel);box-sizing:border-box;min-width:0}
 .setup-head{display:flex;align-items:center;gap:12px}.setup-head .rail-mark{margin:0;pointer-events:none}.setup-head [data-setup-count]{margin-left:auto}.setup-small{font-size:var(--fs-s,12px)}
@@ -792,6 +794,7 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 </header>
 <div id="dasherror" class="state error" role="alert" hidden></div>
 <div id="dashrestart" class="state" role="status" hidden></div>
+<div id="appwatchdog" class="state" role="status" hidden></div>
 <div class="access-note" id="access-note" role="status" hidden></div>
 <main id="main" tabindex="-1">
 <!-- region:page-inbox -->
@@ -960,6 +963,12 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 // region:page-NAME and region:NAME in this script; region:shell, region:core and
 // region:console are shared. A page plugs in from its own script region with
 // dashPage(); see region:shell.
+// region:app-watchdog: agentd app (libraos/agentd-core#560). /api/dash says mode "app" and, in
+// watchdog, whether a watchdog pass ran lately; while none did, offered tasks never start, so the
+// page says so at the top with the command that starts one. The team dash (mode "team") shows nothing.
+function appWatchdog(d){const n=document.getElementById('appwatchdog');if(!n)return;const w=d&&d.mode==='app'?d.watchdog:null;
+ if(!w||w.running!==false){n.hidden=true;n.replaceChildren();return}
+ n.replaceChildren(el('span',{},(w.note||'No watchdog is running: offered tasks do not start')+'. Start one: '),el('code',{},w.start||'agentd init'));n.hidden=false}
 // region:core
 const $=id=>document.getElementById(id);
 document.addEventListener('submit',async e=>{if(e.target.id!=='feedback-form')return;e.preventDefault();const f=e.target,s=$('feedback-status'),v=Object.fromEntries(new FormData(f));if(v.rating)v.rating=Number(v.rating);else delete v.rating;s.textContent='Sending…';try{const r=await fetch('/api/feedback',{method:'POST',headers:{...auth(),'Content-Type':'application/json'},body:JSON.stringify(v)});if(!r.ok)throw new Error(await r.text());f.reset();s.textContent='Thank you — feedback sent.'}catch(err){s.textContent=errorText(err)}});
@@ -3859,7 +3868,7 @@ async function refresh(){
   try{const r=await fetch('/api/dash',{cache:'no-store',headers:auth()});
     if(r.status===401){const wasCookie=COOKIE;dropToken();if(request!==dashRequest||wasCookie&&!TOKEN)return;if(!TOKEN&&!/[?&]unlock\b/.test(location.search)){location.replace('/login');return}lockState();$('now').textContent='locked';$('dasherror').replaceChildren('This dash is public, so reading it needs a sign-in. ',el('a',{href:'/login'},'Sign in with your personal key'),', open a login link from `agentd dash link --user NAME --base URL`, or paste the token from `agentd dash token` above.');$('dasherror').hidden=false;return}
     if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(request!==dashRequest)return;
-    lastDash=d;CONNECTED=true;lastGoodAt=new Date();$('dasherror').hidden=true;$('dashrestart').textContent=d.config_restart||'';$('dashrestart').hidden=!d.config_restart;$('now').textContent=(d.now||'').slice(11,19)+' UTC';$('now').title='refreshes every 10 s';render(d)}
+    lastDash=d;CONNECTED=true;lastGoodAt=new Date();$('dasherror').hidden=true;$('dashrestart').textContent=d.config_restart||'';$('dashrestart').hidden=!d.config_restart;appWatchdog(d);$('now').textContent=(d.now||'').slice(11,19)+' UTC';$('now').title='refreshes every 10 s';render(d)}
   catch(e){if(request!==dashRequest)return;CONNECTED=false;lockState();$('now').textContent='Not connected';$('dasherror').replaceChildren(el('span',{},'Not connected. '+(lastGoodAt?'Showing data from '+lastGoodAt.toLocaleTimeString()+'. ':'No data loaded yet. ')+'Retrying every 10 seconds.'),el('button',{onclick:refresh},'Retry'));$('dasherror').hidden=false}}
 lockState();
 if(TOKEN)fetch('/api/auth',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===401)dropToken()}).catch(()=>{});
