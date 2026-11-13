@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[Docs](https://libraos.com/docs/agentd/) · [Get an activation code](https://console.libraos.com/agentd) · [Releases](https://github.com/libraos/agentd/releases/latest) · [Report a problem](https://github.com/libraos/agentd/issues)
+[Docs](https://libraos.com/docs/agentd/) · [Console](https://console.libraos.com/agentd) · [Releases](https://github.com/libraos/agentd/releases/latest) · [Report a problem](https://github.com/libraos/agentd/issues)
 
 <br />
 
@@ -47,8 +47,7 @@ On Windows, open a new terminal after each install so the new PATH applies.
 
 ## Get Started
 
-1. **Get an activation code.** Redeem your invite at [console.libraos.com/agentd](https://console.libraos.com/agentd) and copy the code.
-2. **Set up your repository.** Start a Claude Code or Codex session in it and paste:
+1. **Set up your repository.** Start a Claude Code or Codex session in it and paste:
 
    > Set up AgentD for this repository. Connect my coding agents, initialize shared project knowledge, and help me run my first verified development task.
 
@@ -56,13 +55,15 @@ On Windows, open a new terminal after each install so the new PATH applies.
 
    ```sh
    cd /path/to/your/repo
-   agentd init      # asks for the activation code and EULA once, then sets up the ledger, services and your agents
+   agentd init      # asks you to accept the EULA once, then sets up the ledger, services and your agents
    agentd doctor    # each failure prints the command that fixes it
    ```
 
    `init` connects every installed client, trusts the repository for Claude Code and adds you as its owner. It is safe to run again, and `--dry-run` shows what it would change. `agentd connect --repo-rule` optionally adds an untracked rule telling your sessions to send implementation work through agentd.
 
-3. **Run a task:**
+   No activation code or invitation is needed. `agentd activate` optionally links this machine to your LibraOS account, for Cloud Workers, the hosted knowledge base and sending feedback or diagnostics; get the code at [console.libraos.com/agentd](https://console.libraos.com/agentd).
+
+2. **Run a task:**
 
    ```sh
    agentd run "Add a test for the parser" --budget 30m --check "go test ./..."
