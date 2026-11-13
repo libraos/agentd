@@ -983,9 +983,14 @@ function words(text){return String(text||'').replace(/\b[a-z]+(?:_[a-z]+)+\b/g,v
 // a task or proposal ID and a commit hash become words, a shell command in
 // parentheses goes, and an ISO time reads as a date. The exact text stays where
 // it is needed: the tooltip, the work item's panel, or Details.
+// A worker's worktree is either under its checkout's .claude/worktrees (before
+// #505) or outside it, <root>/worktrees/<repo>-<8 hex>/<hof-|run-|…name>: the
+// shape agentd makes (agentdWorktreeFor, agentdWorktreePrefixes), so a person's
+// own directory named worktrees keeps its name.
 const PLAIN_ID='[0-9a-f]{6,}',PLAIN_BRANCH='agentd/(?:hof|run)-[\\w-]+';
 function plainText(text){return String(text||'')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\s'"`,;()]+)*\/\.claude\/worktrees\/[^\s'"`,;()]+/g,'the worker’s folder')
+  .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\/\s'"`,;()]+)*\/worktrees\/[^\/\s'"`,;()]+-[0-9a-f]{8}\/(?:hof|run|pr|issue|imp|improve|trigger)-[^\/\s'"`,;()][^\s'"`,;()]*/g,'the worker’s folder')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s'"`,;()]+)((?:\/[^\/\s'"`,;()]+)*)\/?/g,(m,rest)=>rest.split('/').filter(Boolean).pop()||'the home folder')
   .replace(/\s*\((?:[^()]*?:\s*)?(?:git|agentd|gh|claude|codex|npm|npx|go|make|pip)\s[^()]*(?:\)|$)/g,'')
   .replace(new RegExp('\\b(the|a|an|its|this|existing)\\s+branch\\s+'+PLAIN_BRANCH,'gi'),'$1 worker branch')
