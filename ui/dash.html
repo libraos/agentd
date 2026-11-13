@@ -792,6 +792,105 @@ body:not(.app-right-open) .app-right{display:none}
 /* phone: the sidebars are drawers over the centre, one at a time, closed until asked; the status bar keeps its counts */
 @media(max-width:860px){.app-left{position:fixed;top:0;bottom:24px;left:0;z-index:30;width:min(85vw,var(--app-left-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-right{position:fixed;top:0;bottom:24px;right:0;z-index:30;width:min(90vw,var(--app-right-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-shell .app-ibtn,.app-shell .app-sidetoggle,.app-shell .app-rtab{min-width:44px;min-height:44px}.app-tabstrip{height:44px}.app-status{gap:8px;padding:0 8px}}
 /* end:css-app */
+/* region:css-app-sidebar: the app's left sidebar list (libraos/agentd-core#563): repositories as folder rows, each task
+   under its repository as Orca draws a worktree card, others' tasks in their own read-only group, the bell's Needs you
+   list, and the Tasks and Triggers views in the centre. Orca's values (briefs/personal-app-orca/SPEC.md §2.3-§2.5);
+   Orca is MIT (stablyai/orca). Nothing outside #app-shell is styled here. */
+.app-projects{display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
+.app-repo{position:sticky;top:-1px;z-index:2;display:flex;align-items:center;gap:6px;height:28px;flex:none;width:100%;padding:0 8px 0 10px;border:0;border-radius:0;background:var(--o-wsb);color:var(--o-wsb-fg);text-align:left;font-size:13px;font-weight:600;line-height:16px;--app-hover:var(--o-wsb)}
+.app-repo>svg{color:var(--o-mfg)}.app-repo .app-rname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-repo .app-chev{opacity:0;color:var(--o-mfg);transition:transform 150ms}.app-repo:hover .app-chev,.app-repo:focus-visible .app-chev{opacity:1}.app-repo[aria-expanded="false"] .app-chev{transform:rotate(-90deg);opacity:1}
+.app-repo .app-rnote{font-size:11px;font-weight:500;color:var(--o-mfg)}
+.app-task{position:relative;display:flex;gap:2px;width:calc(100% - 8px);margin-left:4px;padding:5px 6px 6px 2px;border:1px solid transparent;border-radius:10px;background:none;color:var(--o-fg);text-align:left;font-size:13px;transition:background-color 200ms,border-color 200ms,box-shadow 200ms;--app-hover:color-mix(in srgb,var(--o-wsb-fg) 4%,transparent)}
+.app-task[aria-current="true"]{border-color:color-mix(in srgb,var(--o-border) 40%,transparent);background:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent);box-shadow:0 1px 2px color-mix(in srgb,var(--o-fg) 4%,transparent);--app-hover:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent)}
+.app-lane{flex:none;display:flex;justify-content:center;align-items:center;width:24px;height:20px}
+.app-tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.app-trow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.app-ttitle{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:20px;font-weight:400}
+.app-task[data-mark="needs_you"] .app-ttitle,.app-task[data-mark="failed"]:not([data-done]) .app-ttitle{font-weight:600}
+.app-tspend{flex:none;font-size:11px;color:var(--o-mfg);font-variant-numeric:tabular-nums}
+.app-tmeta{display:flex;align-items:center;gap:4px;min-width:0;font-size:11px;line-height:1;color:var(--o-mfg)}.app-tmeta>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-tro{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500}
+/* status dots (§2.5): working yellow spinner, needs you an orange question mark, done green, failed red, waiting amber dashed, not started grey */
+.app-dot{display:block;width:8px;height:8px;border-radius:50%;background:rgb(115 115 115/.4)}
+.app-dot[data-dot="done"]{background:#00bb7f}
+.app-dot[data-dot="failed"]{width:6px;height:6px;background:#fb2c36}
+.app-dot[data-dot="working"]{background:none;border:1.5px solid color-mix(in srgb,var(--o-working) 30%,transparent);border-top-color:var(--o-working);animation:app-spin 900ms linear infinite}
+.app-dot[data-dot="waiting"]{width:9px;height:9px;background:none;border:1.5px dashed #f59e0b}
+.app-dot[data-dot="needs_you"]{display:grid;place-items:center;width:12px;height:12px;background:var(--o-question);color:#fff;font:700 9px/1 'Geist',Inter,sans-serif}
+@keyframes app-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.app-dot[data-dot="working"]{animation:none;background:var(--o-working);border:0}}
+.app-bell[aria-pressed="true"]{background:color-mix(in srgb,var(--o-fg) 10%,transparent);color:var(--o-fg)}
+.app-bell .app-bdot{position:absolute;left:50%;top:3px;width:4px;height:4px;margin-left:2px;border-radius:50%;background:var(--o-mfg)}.app-bell.app-hot .app-bdot{background:var(--o-question)}
+.app-listnote{padding:16px 14px;color:var(--o-mfg);font-size:12px;line-height:1.5}
+.app-repo-pop{position:absolute;z-index:40;top:118px;left:8px;width:min(264px,calc(100% - 16px));padding:12px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgb(0 0 0/.18);font-size:12px}
+.app-repo-pop p{margin:0 0 8px;color:var(--o-mfg)}.app-repo-pop code,.app-page code{display:block;padding:6px 8px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font-size:11px;overflow-wrap:anywhere}
+.app-left{position:relative}
+/* another person's task is open: the frame's write controls go (theirs to act on); a control marked data-app-write by the issues that add one goes too */
+#app-shell[data-readonly] [data-app-write],#app-shell[data-readonly] .app-tabstrip [data-app-action="new-tab"],#app-shell[data-readonly] .app-tabstrip [data-app-action="command"]{display:none}
+/* Tasks and Triggers open over the centre, as Orca's pages do */
+body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody{display:none}
+.app-page{flex:1;min-height:0;overflow:auto;padding:16px 32px 32px;background:var(--o-bg)}
+.app-phead{display:flex;align-items:center;gap:8px;height:36px;margin-bottom:12px}
+.app-phead h2{margin:0;font-size:14px;font-weight:600}
+.app-pfilter{flex:1;max-width:420px;height:32px;margin-left:12px;padding:0 10px;border:1px solid var(--o-border);border-radius:8px;background:color-mix(in srgb,var(--o-border) 50%,transparent);color:var(--o-fg);font:inherit;font-size:12px}
+.app-pcard{border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);box-shadow:0 1px 2px rgb(0 0 0/.04);overflow:hidden}
+.app-ptable{width:100%;border-collapse:collapse;font-size:13px}
+.app-ptable th{height:32px;padding:0 12px;border-bottom:1px solid var(--o-border);text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--o-mfg);white-space:nowrap}
+.app-ptable td{height:40px;padding:0 12px;border-bottom:1px solid var(--o-border);color:var(--o-fg);white-space:nowrap}.app-ptable tr:last-child td{border-bottom:0}
+.app-ptable tbody tr{cursor:pointer}.app-ptable tbody tr:hover td{background:color-mix(in srgb,var(--o-fg) 4%,transparent)}
+.app-ptable td.app-pt{max-width:0;width:50%;overflow:hidden;text-overflow:ellipsis}.app-ptable td small{display:block;font-size:11px;color:var(--o-mfg);overflow:hidden;text-overflow:ellipsis}
+.app-ptable .app-pid{font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--o-mfg)}
+.app-pstatus{display:inline-flex;align-items:center;gap:6px}
+.app-pempty{padding:40px 16px;text-align:center;color:var(--o-mfg)}.app-pempty b{display:block;margin-bottom:6px;font-size:15px;color:var(--o-fg)}
+.app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
+@media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
+/* end:css-app-sidebar */
+/* region:css-app-newtask: New task in the personal app (libraos/agentd-core#564), Orca's "Create worktree" dialog
+   (NewWorkspaceComposerModal + shadcn Dialog, Orca 1.4.257, MIT): sm:max-w-lg 512px, p-6, rounded-lg 10px, border black/14
+   (white/14 dark), shadow 0 20px 60px rgba(0,0,0,.28), overlay black/55, dialog surface; title text-base 600; fields
+   space-y-4 with text-xs 500 muted labels; inputs rounded-md, border --input, px-3 py-1.5, text-sm; Advanced a ghost
+   text-xs button; the primary Create at the right of the foot. Tokens are css-app's (--o-*), set on .app-shell. */
+.app-shell{--o-dialog:color-mix(in srgb,var(--o-bg) 96%,transparent);--o-input:#e5e5e5;--o-dialog-border:rgb(0 0 0/.14);--o-dialog-shadow:0 20px 60px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .app-shell{--o-dialog:rgba(23,23,23,.96);--o-input:rgb(255 255 255/.15);--o-dialog-border:rgb(255 255 255/.14);--o-dialog-shadow:0 24px 72px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}}
+:root[data-theme="dark"] .app-shell{--o-dialog:rgba(23,23,23,.96);--o-input:rgb(255 255 255/.15);--o-dialog-border:rgb(255 255 255/.14);--o-dialog-shadow:0 24px 72px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+.appnt{position:fixed;inset:0;margin:auto;width:calc(100% - 2rem);max-width:512px;max-height:calc(100vh - 2rem);height:fit-content;box-sizing:border-box;padding:24px;overflow:hidden;display:none;flex-direction:column;border:1px solid var(--o-dialog-border);border-radius:10px;background:var(--o-dialog);color:var(--o-fg);box-shadow:var(--o-dialog-shadow);font:13px/1.4 'Geist',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.01em}
+.appnt[open]{display:flex}
+.appnt::backdrop{background:rgb(0 0 0/.55)}
+.appnt-x{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:20px;height:20px;padding:0;border:0;border-radius:4px;background:none;color:var(--o-fg);opacity:.7}.appnt-x:hover{opacity:1}
+.appnt-form{display:flex;flex-direction:column;gap:4px;min-height:0;margin:0}
+.appnt-head{display:flex;flex-direction:column;gap:4px;padding-right:24px}
+.appnt-title{margin:0;font-size:16px;line-height:24px;font-weight:600;letter-spacing:normal}
+.appnt-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.appnt-body{display:flex;flex-direction:column;gap:16px;min-height:0;overflow-y:auto;margin:0 -8px;padding:12px 8px 4px}
+.appnt-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.appnt-labelrow{display:flex;align-items:center;justify-content:space-between;gap:8px;height:20px}
+.appnt-label{font-size:12px;font-weight:500;color:var(--o-mfg)}
+.appnt-input{width:100%;min-width:0;box-sizing:border-box;margin:0;padding:6px 12px;border:1px solid var(--o-input);border-radius:8px;background:transparent;color:var(--o-fg);font:inherit;font-size:14px;line-height:20px;box-shadow:0 1px 2px rgb(0 0 0/.05);outline:none;transition:color .15s,box-shadow .15s}
+textarea.appnt-input{resize:none;max-height:160px}
+select.appnt-input{height:34px;padding-right:28px}
+.appnt-input::placeholder{color:var(--o-mfg)}
+.appnt-input:focus-visible{border-color:var(--o-ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--o-ring) 50%,transparent)}
+.appnt-input[aria-invalid="true"]{border-color:var(--o-red)}
+.appnt-short{max-width:160px}
+.appnt-mono,.appnt-cmd{font-family:'SF Mono',SFMono-Regular,ui-monospace,'Cascadia Code',Menlo,Consolas,'Liberation Mono',monospace}
+.appnt-hint{font-size:11px;color:var(--o-mfg)}
+.appnt-err{font-size:11px;color:var(--o-red)}
+.appnt-chips{display:flex;flex-wrap:wrap;gap:6px}
+.app-shell .appnt-chip{display:inline-flex;align-items:center;height:28px;padding:0 10px;border:1px solid var(--o-border);border-radius:8px;background:transparent;color:var(--o-fg);font-size:12px;font-weight:500;--app-hover:var(--o-accent)}
+.app-shell .appnt-chip[aria-checked="true"]{background:color-mix(in srgb,var(--o-fg) 13%,var(--o-bg));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--o-fg) 19%,transparent);--app-hover:color-mix(in srgb,var(--o-fg) 13%,var(--o-bg))}
+.app-shell .appnt-advbtn{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:28px;margin-left:-8px;padding:0 8px;border:0;border-radius:8px;background:none;color:var(--o-fg);font-size:12px;font-weight:500;--app-hover:var(--o-accent)}
+.appnt-chev{display:inline-block;transition:transform .15s}.appnt-advbtn[aria-expanded="true"] .appnt-chev{transform:rotate(90deg)}
+.appnt-advanced{display:flex;flex-direction:column;gap:16px}.appnt-advanced[hidden]{display:none}
+.appnt-cmd{display:block;padding:6px 8px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font-size:11px;line-height:16px;overflow-wrap:anywhere;white-space:pre-wrap;user-select:all}
+.appnt-error{margin-top:8px;padding:8px 12px;border:1px solid color-mix(in srgb,var(--o-red) 30%,transparent);border-radius:8px;background:color-mix(in srgb,var(--o-red) 10%,transparent);color:var(--o-red);font-size:12px}.appnt-error[hidden],.appnt-why[hidden]{display:none}
+.appnt-why{margin:8px 0 0}
+.appnt-foot{display:flex;justify-content:flex-end;gap:8px;padding-top:12px}
+.app-shell .appnt-create{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px;border:0;border-radius:8px;background:var(--o-primary);color:var(--o-primary-fg);font-size:13px;font-weight:500;--app-hover:color-mix(in srgb,var(--o-primary) 90%,transparent)}
+.app-shell .appnt-create:disabled{opacity:.5;cursor:not-allowed}
+.appnt-kbd{padding:0 4px;border:1px solid color-mix(in srgb,var(--o-primary-fg) 30%,transparent);border-radius:4px;font:500 10px/14px 'Geist',Inter,sans-serif;opacity:.8}
+@media(max-width:860px){.appnt{padding:20px 16px;max-height:calc(100dvh - 2rem)}.app-shell .appnt-chip,.app-shell .appnt-advbtn,.app-shell .appnt-create,.appnt-x{min-height:44px}.appnt-x{min-width:44px;top:8px;right:8px}.appnt-input{font-size:16px}}
+/* end:css-app-newtask */
 /* region:css-app-onboard: the personal app's first run (#569), Orca's onboarding unchanged (SPEC.md §7.2 modal shell, §7.3 steps,
    §7.4 toast, §7.5 checklist, §2.7 sidebar entry, §7.6 coach marks). Uses css-app's tokens; drawn only inside #app-shell. */
 .appob-back{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgb(0 0 0/.5);box-sizing:border-box}
@@ -1161,7 +1260,7 @@ body:not(.app-right-open) .app-right{display:none}
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
     <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count">0</span></button>
     <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (agentd repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
-    <button type="button" class="app-ibtn" data-app-action="new-task" aria-disabled="true" aria-label="New task" title="New task (agentd new)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (agentd new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
   </div></div>
   <!-- region:app-projects: repositories as folders, their tasks under them, others' tasks in their own group (#563) -->
   <nav class="app-projects" data-region="projects" id="app-projects" aria-labelledby="app-projects-name"></nav>
@@ -2523,7 +2622,7 @@ function ntDraftClear(){try{localStorage.removeItem(NT_DRAFT)}catch(e){}}
 function ntDraftSave(){if(!NT.ui||NT.busy)return;try{localStorage.setItem(NT_DRAFT,JSON.stringify({values:NT.ui.values(),touched:!!NT.nt.touched,key:NT.key,role:NT.role}))}catch(e){}}
 function ntKey(){return Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('')}
 // ntOpen is where New task, n and Assign work lead: the page, remembering where to go back to.
-function ntOpen(roleName=''){if(ROUTE.item!=='new'){NT.back=location.hash||'#issues';const a=document.activeElement;NT.backId=a&&a.id||''}
+function ntOpen(roleName=''){if(APP.on){appNewTask();return}if(ROUTE.item!=='new'){NT.back=location.hash||'#issues';const a=document.activeElement;NT.backId=a&&a.id||''}
   const hash='#new'+(roleName?'?role='+encodeURIComponent(roleName):'');if(location.hash===hash)ntEnter(parseRoute(hash));else location.hash=hash}
 // ntField draws one field the way a sheet does (label, input, segments, hint, error).
 function ntField(f,ui){const id='nt-'+f.name,hint=el('div',{class:'field-hint',id:id+'-hint'},f.hint||''),err=el('div',{class:'field-error',id:id+'-error',hidden:true});
@@ -4160,8 +4259,8 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
 const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
 try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
 function appShell(d){const on=!!d&&d.mode==='app';
-  if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false)}appSides()}
-  if(on){appStatus(d);appOnboard(d)}return on}
+  if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false);appNewTaskClose(true)}appSides()}
+  if(on){appStatus(appMine(d));appSidebar(d);appOnboard(d)}return on}
 function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
 function appSides(){const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
   for(const n of document.querySelectorAll('#app-shell [data-app-action^="toggle-"]'))n.setAttribute('aria-expanded',String(appOpen(n.dataset.appAction.slice(7))))}
@@ -4196,6 +4295,225 @@ document.addEventListener('keydown',e=>{if(!APP.on)return;
 PHONE.addEventListener('change',()=>{APP.drawer='';appSides()});
 appPanel(APP.panel);
 // end:app
+// region:app-sidebar: the app's left sidebar (libraos/agentd-core#563). It fills region:app-projects
+// and wires the nav (Tasks, Triggers), the Projects header (bell, add a repository, new task) and
+// the sidebar's keys. Orca's layout (briefs/personal-app-orca/SPEC.md §2):
+//   Projects  my tasks by repository: a folder row per repository (click folds it; kept in
+//             localStorage dash-app-collapsed), each task under it as Orca draws a worktree card:
+//             a status dot, the title, the worker's branch on a second line, and the spend
+//   Other people's  others' tasks in their own group, read only. Which are mine is the server's
+//             word (/api/dash's mine on each task in app mode: the handoff's sender user); a task
+//             without it (an older server) counts as mine
+//   bell      how many of my tasks wait on me (the status bar's own count, read from my tasks
+//             only); it toggles the list between Projects and Needs you, as Orca's bell toggles
+//             its list
+//   Tasks     every task as a table over the centre (Orca's Tasks page); Triggers, read only:
+//             they are set from a terminal, so the view gives the commands
+//   keys      ArrowDown and ArrowUp move between tasks while the sidebar has the focus, Enter
+//             opens one (the row is a button), N is New task (it clicks the header's + button)
+// Opening a task (appTaskOpen) is the seam for the centre and right sidebar: APP.task is its id,
+// #app-shell gets data-task (and data-readonly when it is someone else's, which hides the frame's
+// write controls and any marked data-app-write), and document gets an "app-task" event whose
+// detail is {id, mine, readOnly, task}.
+const APPS={view:'projects',page:'',collapsed:new Set(),model:null};
+try{const v=JSON.parse(localStorage.getItem('dash-app-collapsed')||'[]');if(Array.isArray(v))APPS.collapsed=new Set(v.map(String))}catch(e){}
+APP.task='';
+// appMine: the snapshot with my tasks only, for the status bar's and the bell's counts.
+function appMine(d){const l=d.handoff_list||[];return l.some(h=>h.mine===false)?{...d,handoff_list:l.filter(h=>h.mine!==false)}:d}
+function appSpend(h){const a=(h.attempts||[]).filter(x=>typeof x.usd==='number');return a.length?a.reduce((s,x)=>s+x.usd,0):null}
+const APP_DOTS={needs_you:'Needs you',failed:'Failed',working:'Working',waiting:'Waiting',done:'Done',idle:'Not started'};
+function appDot(mark){return Object.hasOwn(APP_DOTS,mark)?mark:'idle'}
+function appIcon(d,size){const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:size||14,height:size||14,fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(k,v);
+  for(const p of [].concat(d)){const n=document.createElementNS(NS,'path');n.setAttribute('d',p);svg.append(n)}return svg}
+const APP_ICONS={folder:'M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z',chev:'m6 9 6 6 6-6',users:['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2','M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8','M22 21v-2a4 4 0 0 0-3-3.87','M16 3.13a4 4 0 0 1 0 7.75'],bell:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0'],lock:['M5 11h14v10H5z','M8 11V7a4 4 0 0 1 8 0v4'],x:['M18 6 6 18','m6 6 12 12']};
+// appSidebarModel: my tasks by repository, others' tasks, and mine that wait on me. Open tasks come
+// from the Agents list's own model (its marks and Needs you rule), the day's finished ones from done.
+function appSidebarModel(d){const m=agentsModel(d),need=new Set(m.need.map(r=>r.id)),rows=[],seen=new Set();
+  for(const r of [...m.need,...m.groups.flatMap(g=>g.rows)])if(r.h&&!seen.has(r.id)){seen.add(r.id);rows.push({...r,mine:r.h.mine!==false,need:need.has(r.id)})}
+  for(const x of d.done||[])if(x.what==='handoff'&&x.ref&&!seen.has(x.ref)){seen.add(x.ref);rows.push({id:x.ref,h:x,mark:x.failed?'failed':'done',done:true,project:projectOf(x),title:cardTitle(x.title||x.ref),full:x.title||x.ref,href:itemHash(null,x.ref),mine:x.mine!==false,need:false})}
+  const mine=new Map(),others=[];
+  for(const r of rows){if(!r.mine){others.push(r);continue}if(!mine.has(r.project))mine.set(r.project,[]);mine.get(r.project).push(r)}
+  const groups=[...mine.keys()].sort((a,b)=>(!a)-(!b)||a.localeCompare(b)).map(k=>({project:k,rows:mine.get(k)}));
+  return {rows,groups,others,need:rows.filter(r=>r.mine&&r.need),byId:new Map(rows.map(r=>[r.id,r]))}}
+function appOwner(r){return r.h.from_user||r.h.claimer_user||'someone else'}
+function appTaskRow(r){const h=r.h,usd=appSpend(h),dot=appDot(r.mark),meta=r.mine?h.branch||agentsState(r):[appOwner(r),h.branch||r.project].filter(Boolean).join(' · ');
+  return el('button',{type:'button',class:'app-task','data-task-id':r.id,'data-mark':r.mark,'data-done':r.done?'':null,'data-readonly':r.mine?null:'','aria-current':APP.task===r.id?'true':null,title:r.full+'\n'+APP_DOTS[dot]+(r.mine?'':' · read only: '+appOwner(r)+'’s task')},
+    el('span',{class:'app-lane'},el('span',{class:'app-dot','data-dot':dot,role:'img','aria-label':APP_DOTS[dot]},dot==='needs_you'?'?':null)),
+    el('span',{class:'app-tbody'},el('span',{class:'app-trow'},el('span',{class:'app-ttitle'},r.title),usd!==null?el('span',{class:'app-tspend',title:'Spent by its workers'},'$'+usd.toFixed(2)):null),
+      el('span',{class:'app-tmeta'},el('span',{},meta),r.mine?null:el('span',{class:'app-tro'},appIcon(APP_ICONS.lock,10),'Read only'))))}
+function appRepoRow(key,name,icon,note){const open=!APPS.collapsed.has(key);
+  return el('button',{type:'button',class:'app-repo','data-repo':key,'aria-expanded':String(open),title:name},appIcon(icon,14),el('span',{class:'app-rname'},name),note?el('span',{class:'app-rnote'},note):null,el('span',{class:'app-chev'},appIcon(APP_ICONS.chev,14)))}
+function appGroup(key,name,icon,rows,note){return [appRepoRow(key,name,icon,note),...(APPS.collapsed.has(key)?[]:rows.map(appTaskRow))]}
+function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects'),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.taskId||a.dataset.repo||'':'',kids=[];
+  const bell=document.querySelector('#app-shell [data-app-action="bell"]');bell.setAttribute('aria-pressed',String(APPS.view==='needs'));
+  if(!bell.querySelector('.app-bdot'))bell.append(el('span',{class:'app-bdot','aria-hidden':'true'}));
+  bell.setAttribute('aria-label',m.need.length+' of your tasks '+(m.need.length===1?'waits':'wait')+' on you'+(APPS.view==='needs'?'; showing them, click for all projects':'; click to list them'));
+  $('app-projects-name').textContent=APPS.view==='needs'?'Needs you':'Projects';
+  if(APPS.view==='needs'){kids.push(...m.need.map(appTaskRow));if(!m.need.length)kids.push(el('p',{class:'app-listnote'},'Nothing waits on you. The bell counts your tasks that need you: a question, a failed worker, a stop or a budget that ran out.'))}
+  else{for(const g of m.groups)kids.push(...appGroup('p:'+g.project,g.project||'No repository',APP_ICONS.folder,g.rows));
+    if(m.others.length)kids.push(...appGroup('others','Other people’s',APP_ICONS.users,m.others,'Read only'));
+    if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: agentd new "GOAL".'))}
+  box.replaceChildren(...kids);
+  if(keep){const n=box.querySelector('[data-task-id="'+CSS.escape(keep)+'"],[data-repo="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
+  if(APPS.page==='tasks')appTasksPage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
+function appReadOnly(r){const s=$('app-shell');if(r&&!r.mine)s.setAttribute('data-readonly','');else s.removeAttribute('data-readonly')}
+// appTaskOpen: the seam the centre and right sidebar listen on (see the region's head).
+function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)return;APP.task=id;appPage('');
+  for(const n of document.querySelectorAll('#app-projects .app-task'))if(n.dataset.taskId===id)n.setAttribute('aria-current','true');else n.removeAttribute('aria-current');
+  $('app-shell').dataset.task=id;appReadOnly(r);if(PHONE.matches&&APP.drawer==='left'){APP.drawer='';appSides()}
+  document.dispatchEvent(new CustomEvent('app-task',{detail:{id,mine:r.mine,readOnly:!r.mine,task:r.h}}))}
+// Tasks and Triggers: a page over the centre, as Orca's pages are; '' puts the workspace back.
+function appPage(name){APPS.page=name;let p=$('app-page');
+  for(const n of document.querySelectorAll('#app-shell [data-app-nav]'))if(n.dataset.appNav===name)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');
+  document.body.classList.toggle('app-paged',!!name);if(!name){if(p)p.hidden=true;return}
+  if(!p){p=el('section',{class:'app-page',id:'app-page','aria-live':'polite'});$('app-center').append(p)}p.hidden=false;
+  if(name==='tasks')appTasksPage();else appTriggersPage()}
+function appPageHead(title,...more){return el('div',{class:'app-phead'},el('button',{type:'button',class:'app-ibtn','data-app-close':'',title:'Close','aria-label':'Close '+title},appIcon(APP_ICONS.x,16)),el('h2',{},title),...more)}
+function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;const m=APPS.model||{rows:[]},old=p.querySelector('.app-pfilter'),q=old?old.value:'',at=document.activeElement===old;
+  const f=el('input',{class:'app-pfilter',type:'search',placeholder:'Filter tasks','aria-label':'Filter tasks',value:q}),ql=q.trim().toLowerCase();
+  const rows=m.rows.filter(r=>!ql||[r.full,r.id,r.project,r.h.branch,appOwner(r)].some(v=>String(v||'').toLowerCase().includes(ql)));
+  const tr=r=>{const usd=appSpend(r.h),dot=appDot(r.mark);return el('tr',{'data-task-id':r.id,tabindex:'0',title:r.full},el('td',{class:'app-pid'},r.id),el('td',{class:'app-pt'},r.title,el('small',{},[r.project||'No repository',r.h.branch].filter(Boolean).join(' · '))),
+    el('td',{class:'app-pcol-opt'},r.mine?'You':appOwner(r)+' · read only'),el('td',{},el('span',{class:'app-pstatus'},el('span',{class:'app-dot','data-dot':dot,'aria-hidden':'true'},dot==='needs_you'?'?':null),APP_DOTS[dot])),
+    el('td',{class:'app-pcol-opt'},usd===null?'—':'$'+usd.toFixed(2)),el('td',{class:'app-pcol-opt'},r.h.updated_ago||r.h.age||''))};
+  p.replaceChildren(appPageHead('Tasks',f),el('div',{class:'app-pcard'},rows.length?el('table',{class:'app-ptable'},el('thead',{},el('tr',{},['ID','Title / context','From','Status','Spend','Updated'].map((h,i)=>el('th',{class:i===2||i>3?'app-pcol-opt':null,scope:'col'},h)))),el('tbody',{},rows.map(tr)))
+    :el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or agentd new "GOAL" in a terminal.')));
+  f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
+function appTriggersPage(){$('app-page').replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{},
+  el('p',{},'Triggers and schedules start tasks on their own, so they are set from a terminal (or the team dash), never from this app. See what is set:'),
+  el('code',{},'agentd schedule list'),el('code',{},'agentd trigger status'),
+  el('p',{},'An owner enables a schedule from a terminal; config.toml’s [triggers] turns triggers on:'),el('code',{},'agentd schedule enable NAME'),el('code',{},'agentd config set triggers.enabled true')))}
+function appRepoPop(open){let pop=$('app-repo-pop');const b=document.querySelector('#app-shell [data-app-action="add-repo"]');
+  if(!open){if(pop)pop.hidden=true;b.setAttribute('aria-expanded','false');return}
+  if(!pop){pop=el('div',{class:'app-repo-pop',id:'app-repo-pop',role:'dialog','aria-label':'Add a repository'},el('p',{},'Repositories are added from a terminal, in the checkout:'),el('code',{},'agentd repo add'),el('p',{style:'margin:8px 0 0'},'Or name it: agentd repo add DIR. It shows here once it has a task.'));$('app-left').append(pop)}
+  pop.hidden=false;b.setAttribute('aria-expanded','true')}
+// Wiring. The frame's buttons were placeholders; the ones this region drives are live now.
+for(const s of ['[data-app-nav="tasks"]','[data-app-nav="triggers"]','[data-app-action="add-repo"]'])document.querySelector('#app-shell '+s).removeAttribute('aria-disabled');
+document.querySelector('#app-shell [data-app-action="add-repo"]').setAttribute('aria-controls','app-repo-pop');
+document.querySelector('#app-shell [data-app-action="bell"]').setAttribute('aria-controls','app-projects');
+$('app-shell').addEventListener('click',e=>{if(!e.target.closest('#app-repo-pop,[data-app-action="add-repo"]'))appRepoPop(false);
+  const t=e.target.closest('.app-task,.app-repo,[data-app-nav],[data-app-close],#app-page tbody tr,[data-app-action="bell"],[data-app-action="add-repo"]');if(!t)return;
+  if(t.matches('.app-task,#app-page tbody tr')){appTaskOpen(t.dataset.taskId);return}
+  if(t.matches('.app-repo')){const k=t.dataset.repo;if(APPS.collapsed.has(k))APPS.collapsed.delete(k);else APPS.collapsed.add(k);try{localStorage.setItem('dash-app-collapsed',JSON.stringify([...APPS.collapsed]))}catch(e){}if(lastDash)appSidebar(lastDash);return}
+  if(t.matches('[data-app-nav]')){appPage(APPS.page===t.dataset.appNav?'':t.dataset.appNav);return}
+  if(t.matches('[data-app-close]')){appPage('');return}
+  if(t.dataset.appAction==='bell'){APPS.view=APPS.view==='needs'?'projects':'needs';if(lastDash)appSidebar(lastDash);return}
+  if(t.dataset.appAction==='add-repo')appRepoPop($('app-repo-pop')?$('app-repo-pop').hidden:true)});
+// Keys, in the capture phase so the team dash's own n and Enter (region:keys) do not run in app mode.
+document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||activeSheet||SEARCH.box&&SEARCH.box.open)return;
+  const t=e.target;if(e.key==='Escape'){if($('app-repo-pop')&&!$('app-repo-pop').hidden){appRepoPop(false);e.stopPropagation();return}if(APPS.page&&!keysTyping(t)){appPage('');e.stopPropagation()}return}
+  if(keysTyping(t))return;
+  if(e.key==='n'||e.key==='N'){e.preventDefault();e.stopPropagation();document.querySelector('#app-shell [data-app-action="new-task"]').click();return}
+  if(e.key==='Enter'&&t.matches&&t.matches('.app-task,#app-page tbody tr')){e.preventDefault();e.stopPropagation();appTaskOpen(t.dataset.taskId);return}
+  if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;const inLeft=$('app-left').contains(t),inTable=t.closest&&t.closest('#app-page tbody');if(!inLeft&&!inTable&&t!==document.body)return;
+  const rows=[...document.querySelectorAll(inTable?'#app-page tbody tr':'#app-projects .app-task,#app-projects .app-repo')];if(!rows.length)return;
+  const i=rows.indexOf(t),cur=i<0?rows.findIndex(n=>n.dataset.taskId===APP.task):i,n=cur<0?(e.key==='ArrowDown'?0:rows.length-1):Math.min(rows.length-1,Math.max(0,cur+(e.key==='ArrowDown'?1:-1)));
+  e.preventDefault();e.stopPropagation();rows[n].focus();if(rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'})},true);
+// end:app-sidebar
+// region:app-newtask: New task in the personal app (libraos/agentd-core#564), Orca's
+// "Create worktree" dialog (NewWorkspaceComposerModal): one goal box; below it the
+// repository (default: the selected one, APP.repo, else the first checkout), the
+// agent (default: the checkout's .agentd/tasks.toml worker, else config's
+// default_tool) and the budget (default: the task file's, else [dispatch] budget,
+// else 30m); acceptance criteria, check and issue under Advanced. Submitting is
+// the team sheet's own request (/api/action offer, kind implement; region:newtask's
+// newTaskValidate and newTaskBody), which the server turns into the handoff
+// `agentd new GOAL --cwd REPO --worker W --budget B` makes; the dialog shows that
+// line as it changes (appNewTaskLine), with --accept, --verify or --no-check and
+// --issue from Advanced. The check field holds the task file's check until it is
+// typed in, as the sheet's does; sent back unchanged it is still the file's (the
+// server keeps its limit), so the line has no --verify for it. The new task is
+// then the selected one: APP.repo and APP.task are set, appSelect(handoff) is
+// called when a region defines it, and an "app:select" event goes to the document
+// ({handoff, repo}), for the task list (#563) and the workspace (#565) to follow.
+// Opened by the + in the Projects header, n (region:keys, through ntOpen) and
+// Ctrl/Cmd+Enter submits, as Orca's does; Escape or the X closes it.
+const APPNT={dlg:null,ui:null,nt:null,busy:false,key:'',opener:null,touched:{},asked:''};
+function appShq(v){v=String(v);return /^[A-Za-z0-9_@%+=:,.\/#-]+$/.test(v)?v:"'"+v.replace(/'/g,"'\\''")+"'"}
+// appNewTaskLine is the agentd new command the dialog's request equals.
+function appNewTaskLine(v,nt){const defs=nt.defaults||{},sent=!!(nt.touched||nt.defaults),parts=['agentd','new',appShq(v.goal||'GOAL'),'--cwd',appShq(v.cwd||'REPO'),'--worker',appShq(v.tool||'W'),'--budget',appShq(v.budget||'B')];
+  for(const line of acceptLinesOf(v.accept))parts.push('--accept',appShq(line));
+  if(sent){if(!v.check)parts.push('--no-check');else if(v.check!==String(defs.check||'').trim())parts.push('--verify',appShq(v.check))}
+  if(v.issue)parts.push('--issue',appShq(v.issue));return parts.join(' ')}
+function acceptLinesOf(text){return String(text||'').split('\n').map(l=>l.trim().replace(/^[-*]\s+/,'').trim()).filter(Boolean)}
+// appNewTaskRepo: the selected repository when it is a known checkout, else the first one.
+function appNewTaskRepo(d){const dirs=d.checkouts||[];return dirs.includes(APP.repo)?APP.repo:dirs[0]||''}
+function appRepoName(dir,dirs){const base=p=>String(p).replace(/\/+$/,'').split('/').pop()||p,b=base(dir);return dirs.filter(x=>base(x)===b).length>1?String(dir).replace(/\/+$/,'').split('/').slice(-2).join('/'):b}
+const APP_AGENTS=[['claude','Claude'],['codex','Codex'],['opencode','OpenCode']];
+function appNewTaskBuild(){const d=lastDash||{},dirs=d.checkouts||[],ui={inputs:{},errors:{}},nt={touched:false,defaults:null};APPNT.ui=ui;APPNT.nt=nt;APPNT.touched={};APPNT.asked='';APPNT.key=ntKey();
+  const field=(name,label,input,opt)=>{const id='appnt-'+name,err=el('div',{class:'appnt-err',id:id+'-error',role:'alert',hidden:true});input.id=id;input.name=name;ui.inputs[name]=input;ui.errors[name]=err;
+    input.addEventListener('input',()=>{err.hidden=true;input.removeAttribute('aria-invalid')});
+    return el('div',{class:'appnt-field appnt-'+name},el('div',{class:'appnt-labelrow'},el('label',{for:id,class:'appnt-label'},label),opt&&opt.extra||null),input,opt&&opt.hint?el('div',{class:'appnt-hint',id:id+'-hint'},opt.hint):null,err)};
+  const goal=el('textarea',{rows:3,maxlength:2000,placeholder:'What should the agent do? Describe the change.','aria-required':'true',autocomplete:'off',class:'appnt-input'});
+  const repo=el('select',{class:'appnt-input'},dirs.length?dirs.map(x=>el('option',{value:x,title:x},appRepoName(x,dirs))):[el('option',{value:''},'No repository known yet: agentd repo add')]);repo.value=appNewTaskRepo(d);
+  // The agent is a hidden input behind Orca's agent chips (role radio).
+  const tool=el('input',{type:'hidden',value:d.default_tool||'claude'}),chips=el('div',{class:'appnt-chips',role:'radiogroup','aria-labelledby':'appnt-tool-label'});
+  const drawChips=()=>chips.replaceChildren(...APP_AGENTS.map(([v,label])=>el('button',{type:'button',role:'radio',class:'appnt-chip','data-agent':v,'aria-checked':String(tool.value===v),tabindex:tool.value===v?'0':'-1',onclick:()=>{tool.value=v;APPNT.touched.tool=true;drawChips();appNewTaskShow();chips.querySelector('[aria-checked="true"]').focus()}},label)));
+  chips.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();const i=APP_AGENTS.findIndex(a=>a[0]===tool.value),n=(i+(e.key==='ArrowRight'||e.key==='ArrowDown'?1:-1)+APP_AGENTS.length)%APP_AGENTS.length;chips.children[n].click()});
+  const budget=el('input',{type:'text',maxlength:100,autocomplete:'off',class:'appnt-input appnt-short',value:d.dispatch_budget||'30m'});
+  const accept=el('textarea',{rows:2,maxlength:2000,placeholder:'One per line',class:'appnt-input'}),check=el('input',{type:'text',maxlength:1000,autocomplete:'off',placeholder:'go test ./...',class:'appnt-input appnt-mono'}),issue=el('input',{type:'text',maxlength:200,autocomplete:'off',placeholder:'OWNER/REPO#N',class:'appnt-input'});
+  const fileNote=el('div',{class:'appnt-hint',id:'appnt-file',hidden:true});
+  const adv=el('div',{class:'appnt-advanced',id:'appnt-advanced',hidden:true},field('accept','Acceptance criteria',accept,{hint:'What done means, one per line.'}),fileNote,field('check','Check command',check,{hint:'A command that exits 0 when the work is right.'}),field('issue','Issue',issue));
+  const advBtn=el('button',{type:'button',class:'appnt-advbtn','aria-expanded':'false','aria-controls':'appnt-advanced'},el('span',{class:'appnt-chev','aria-hidden':'true'},'›'),'Advanced');
+  advBtn.onclick=()=>{adv.hidden=!adv.hidden;advBtn.setAttribute('aria-expanded',String(!adv.hidden))};
+  const cmd=el('code',{id:'appnt-cmd',class:'appnt-cmd'}),error=el('div',{class:'appnt-error',role:'alert',hidden:true}),why=el('p',{class:'appnt-hint appnt-why',hidden:true});
+  const create=el('button',{type:'submit',class:'appnt-create'},'Create',el('kbd',{class:'appnt-kbd','aria-hidden':'true'},/Mac|iPhone|iPad/.test(navigator.platform||'')?'⌘ ↵':'Ctrl ↵'));
+  const close=el('button',{type:'button',class:'appnt-x','aria-label':'Close',title:'Close (Escape)'},appSvg('M18 6 6 18M6 6l12 12'));
+  ui.inputs.tool=tool;ui.submit=create;ui.error=error;
+  const form=el('form',{class:'appnt-form',novalidate:true},
+    el('div',{class:'appnt-head'},el('h2',{id:'appnt-title',class:'appnt-title'},'New task'),el('p',{id:'appnt-desc',class:'appnt-sr'},'Write the goal; choose the repository, agent and budget. It runs the agentd new command shown below.')),
+    el('div',{class:'appnt-body'},field('goal','Goal',goal),field('cwd','Repository',repo),
+      el('div',{class:'appnt-field appnt-tool'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-tool-label'},'Agent')),chips,tool),
+      field('budget','Budget',budget,{hint:'Minutes, dollars or both: 90m,$5. The worker stops at it.'}),advBtn,adv,
+      el('div',{class:'appnt-field'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-cmd-label'},'Same as')),cmd)),
+    why,error,el('div',{class:'appnt-foot'},create));
+  const dlg=el('dialog',{class:'appnt',id:'app-newtask','aria-labelledby':'appnt-title','aria-describedby':'appnt-desc'},close,form);
+  cmd.setAttribute('aria-labelledby','appnt-cmd-label');
+  for(const n of ['goal','budget','accept','check','issue'])ui.inputs[n].addEventListener('input',appNewTaskShow);
+  budget.addEventListener('input',()=>{APPNT.touched.budget=true});check.addEventListener('input',()=>{nt.touched=true});
+  repo.addEventListener('change',()=>{appNewTaskDefaults();appNewTaskShow()});
+  form.onsubmit=e=>{e.preventDefault();appNewTaskSend()};close.onclick=()=>appNewTaskClose();
+  dlg.addEventListener('cancel',e=>{e.preventDefault();appNewTaskClose()});
+  dlg.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&!e.shiftKey&&!e.altKey){e.preventDefault();appNewTaskSend()}else if(e.key==='Escape'){e.preventDefault();appNewTaskClose()}e.stopPropagation()});
+  ui.values=()=>Object.fromEntries(Object.entries(ui.inputs).map(([n,i])=>[n,i.value.trim()]));
+  ui.fieldError=(name,message)=>{const input=ui.inputs[name],err=ui.errors[name];if(!input||!err){error.textContent=message;error.hidden=false;return}if(['accept','check','issue'].includes(name)&&adv.hidden)advBtn.click();err.textContent=message;err.hidden=false;input.setAttribute('aria-invalid','true');input.focus()};
+  ui.fileNote=fileNote;ui.drawChips=drawChips;ui.why=why;
+  drawChips();return dlg}
+function appSvg(d){const ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:'16',height:'16',fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','aria-hidden':'true'}))s.setAttribute(k,v);const p=document.createElementNS(ns,'path');p.setAttribute('d',d);s.append(p);return s}
+// appNewTaskDefaults reads what agentd new would for the chosen repository
+// (GET /api/taskdefaults): the task file's worker, budget, check and criteria.
+async function appNewTaskDefaults(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui)return;const cwd=ui.inputs.cwd.value,d=lastDash||{};if(!cwd||cwd===APPNT.asked)return;APPNT.asked=cwd;nt.defaults=null;let t;
+  try{const r=await fetch('/api/taskdefaults?cwd='+encodeURIComponent(cwd),{cache:'no-store',headers:auth()});t=r.ok?await r.json():{error:(await r.text()).trim()||'HTTP '+r.status}}catch(e){t={error:errorText(e)}}
+  if(APPNT.ui!==ui||APPNT.asked!==cwd)return;
+  if(t.error){ui.fileNote.textContent='The task file could not be read: '+t.error;ui.fileNote.hidden=false;appNewTaskShow();return}
+  nt.defaults=t;if(!nt.touched)ui.inputs.check.value=t.check||'';
+  if(!APPNT.touched.tool){ui.inputs.tool.value=t.worker||d.default_tool||'claude';ui.drawChips()}
+  if(!APPNT.touched.budget)ui.inputs.budget.value=t.budget||d.dispatch_budget||'30m';
+  ui.fileNote.textContent=[(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; ')+'.':'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');ui.fileNote.hidden=!ui.fileNote.textContent;appNewTaskShow()}
+function appNewTaskShow(){const ui=APPNT.ui;if(!ui)return;$('appnt-cmd').textContent=appNewTaskLine(ui.values(),APPNT.nt)}
+// appNewTaskWhy: why Create cannot work here, if it cannot.
+function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+function appNewTask(){if(!APP.on)return;if(APPNT.dlg&&APPNT.dlg.open){APPNT.ui.inputs.goal.focus();return}
+  APPNT.opener=document.activeElement;const dlg=appNewTaskBuild();APPNT.dlg=dlg;$('app-shell').append(dlg);
+  const why=appNewTaskWhy();APPNT.ui.why.textContent=why;APPNT.ui.why.hidden=!why;APPNT.ui.submit.disabled=!!why;if(why)APPNT.ui.submit.title=why;
+  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults()}
+// force: the team dash came back (appShell), so nothing of the app stays open.
+function appNewTaskClose(force){if(APPNT.busy&&!force)return;APPNT.busy=false;const dlg=APPNT.dlg;APPNT.dlg=null;APPNT.ui=null;APPNT.nt=null;if(dlg){if(dlg.open)dlg.close();dlg.remove()}
+  const back=APPNT.opener;APPNT.opener=null;if(back&&back.isConnected&&!back.closest('[hidden]'))back.focus({preventScroll:true})}
+async function appNewTaskSend(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui||APPNT.busy||ui.submit.disabled)return;const v={...ui.values(),kind:'implement'};ui.error.hidden=true;
+  if(!v.goal){ui.fieldError('goal','Goal is required.');return}
+  if(!v.cwd){ui.fieldError('cwd','Choose a repository. Add one from a terminal: agentd repo add DIR.');return}
+  if(!v.budget){ui.fieldError('budget','Budget is required.');return}
+  const invalid=newTaskValidate(v,nt);if(invalid){ui.fieldError(invalid[0],invalid[0]==='accept'?'Write what done means (one per line) under Advanced, or a check command that exits 0 when it is right.':invalid[1]);return}
+  APPNT.busy=true;ui.submit.disabled=true;const label=ui.submit.firstChild.textContent;ui.submit.firstChild.textContent='Creating…';
+  try{const j=await act({action:'offer',kind:'implement',goal:v.goal,cwd:v.cwd,worker:v.tool,budget:v.budget,key:APPNT.key,...newTaskBody(v,nt)});
+    APPNT.busy=false;APP.repo=v.cwd;APP.task=j.handoff||'';appNewTaskClose();
+    toast(j.queued?'Task '+j.handoff+' created: its worker starts when a slot is free':'Task '+j.handoff+' created and its worker requested',true);
+    if(j.handoff){if(typeof appSelect==='function')appSelect(j.handoff);document.dispatchEvent(new CustomEvent('app:select',{detail:{handoff:j.handoff,repo:v.cwd}}))}
+    refresh()}
+  catch(e){ui.error.textContent=errorText(e);ui.error.hidden=false}
+  finally{if(APPNT.ui===ui){APPNT.busy=false;ui.submit.disabled=false;ui.submit.firstChild.textContent=label}}}
+$('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action="new-task"]');if(t){e.preventDefault();appNewTask()}});
+// end:app-newtask
 // region:app-onboard: the personal app's first run (libraos/agentd-core#569), the same as
 // Orca's (briefs/personal-app-orca/SPEC.md section 7). GET /api/onboarding is this person's
 // state (Orca's shape: closedAt, outcome, lastCompletedStep, checklist) and the facts each
