@@ -792,6 +792,222 @@ body:not(.app-right-open) .app-right{display:none}
 /* phone: the sidebars are drawers over the centre, one at a time, closed until asked; the status bar keeps its counts */
 @media(max-width:860px){.app-left{position:fixed;top:0;bottom:24px;left:0;z-index:30;width:min(85vw,var(--app-left-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-right{position:fixed;top:0;bottom:24px;right:0;z-index:30;width:min(90vw,var(--app-right-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-shell .app-ibtn,.app-shell .app-sidetoggle,.app-shell .app-rtab{min-width:44px;min-height:44px}.app-tabstrip{height:44px}.app-status{gap:8px;padding:0 8px}}
 /* end:css-app */
+/* region:css-app-sidebar: the app's left sidebar list (libraos/agentd-core#563): repositories as folder rows, each task
+   under its repository as Orca draws a worktree card, others' tasks in their own read-only group, the bell's Needs you
+   list, and the Tasks and Triggers views in the centre. Orca's values (briefs/personal-app-orca/SPEC.md §2.3-§2.5);
+   Orca is MIT (stablyai/orca). Nothing outside #app-shell is styled here. */
+.app-projects{display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
+.app-repo{position:sticky;top:-1px;z-index:2;display:flex;align-items:center;gap:6px;height:28px;flex:none;width:100%;padding:0 8px 0 10px;border:0;border-radius:0;background:var(--o-wsb);color:var(--o-wsb-fg);text-align:left;font-size:13px;font-weight:600;line-height:16px;--app-hover:var(--o-wsb)}
+.app-repo>svg{color:var(--o-mfg)}.app-repo .app-rname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-repo .app-chev{opacity:0;color:var(--o-mfg);transition:transform 150ms}.app-repo:hover .app-chev,.app-repo:focus-visible .app-chev{opacity:1}.app-repo[aria-expanded="false"] .app-chev{transform:rotate(-90deg);opacity:1}
+.app-repo .app-rnote{font-size:11px;font-weight:500;color:var(--o-mfg)}
+.app-task{position:relative;display:flex;gap:2px;width:calc(100% - 8px);margin-left:4px;padding:5px 6px 6px 2px;border:1px solid transparent;border-radius:10px;background:none;color:var(--o-fg);text-align:left;font-size:13px;transition:background-color 200ms,border-color 200ms,box-shadow 200ms;--app-hover:color-mix(in srgb,var(--o-wsb-fg) 4%,transparent)}
+.app-task[aria-current="true"]{border-color:color-mix(in srgb,var(--o-border) 40%,transparent);background:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent);box-shadow:0 1px 2px color-mix(in srgb,var(--o-fg) 4%,transparent);--app-hover:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent)}
+.app-lane{flex:none;display:flex;justify-content:center;align-items:center;width:24px;height:20px}
+.app-tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.app-trow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.app-ttitle{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:20px;font-weight:400}
+.app-task[data-mark="needs_you"] .app-ttitle,.app-task[data-mark="failed"]:not([data-done]) .app-ttitle{font-weight:600}
+.app-tspend{flex:none;font-size:11px;color:var(--o-mfg);font-variant-numeric:tabular-nums}
+.app-tmeta{display:flex;align-items:center;gap:4px;min-width:0;font-size:11px;line-height:1;color:var(--o-mfg)}.app-tmeta>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-tro{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500}
+/* status dots (§2.5): working yellow spinner, needs you an orange question mark, done green, failed red, waiting amber dashed, not started grey */
+.app-dot{display:block;width:8px;height:8px;border-radius:50%;background:rgb(115 115 115/.4)}
+.app-dot[data-dot="done"]{background:#00bb7f}
+.app-dot[data-dot="failed"]{width:6px;height:6px;background:#fb2c36}
+.app-dot[data-dot="working"]{background:none;border:1.5px solid color-mix(in srgb,var(--o-working) 30%,transparent);border-top-color:var(--o-working);animation:app-spin 900ms linear infinite}
+.app-dot[data-dot="waiting"]{width:9px;height:9px;background:none;border:1.5px dashed #f59e0b}
+.app-dot[data-dot="needs_you"]{display:grid;place-items:center;width:12px;height:12px;background:var(--o-question);color:#fff;font:700 9px/1 'Geist',Inter,sans-serif}
+@keyframes app-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.app-dot[data-dot="working"]{animation:none;background:var(--o-working);border:0}}
+.app-bell[aria-pressed="true"]{background:color-mix(in srgb,var(--o-fg) 10%,transparent);color:var(--o-fg)}
+.app-bell .app-bdot{position:absolute;left:50%;top:3px;width:4px;height:4px;margin-left:2px;border-radius:50%;background:var(--o-mfg)}.app-bell.app-hot .app-bdot{background:var(--o-question)}
+.app-listnote{padding:16px 14px;color:var(--o-mfg);font-size:12px;line-height:1.5}
+.app-repo-pop{position:absolute;z-index:40;top:118px;left:8px;width:min(264px,calc(100% - 16px));padding:12px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgb(0 0 0/.18);font-size:12px}
+.app-repo-pop p{margin:0 0 8px;color:var(--o-mfg)}.app-repo-pop code,.app-page code{display:block;padding:6px 8px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font-size:11px;overflow-wrap:anywhere}
+.app-left{position:relative}
+/* another person's task is open: the frame's write controls go (theirs to act on); a control marked data-app-write by the issues that add one goes too */
+#app-shell[data-readonly] [data-app-write],#app-shell[data-readonly] .app-tabstrip [data-app-action="new-tab"],#app-shell[data-readonly] .app-tabstrip [data-app-action="command"]{display:none}
+/* Tasks and Triggers open over the centre, as Orca's pages do */
+body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody{display:none}
+.app-page{flex:1;min-height:0;overflow:auto;padding:16px 32px 32px;background:var(--o-bg)}
+.app-phead{display:flex;align-items:center;gap:8px;height:36px;margin-bottom:12px}
+.app-phead h2{margin:0;font-size:14px;font-weight:600}
+.app-pfilter{flex:1;max-width:420px;height:32px;margin-left:12px;padding:0 10px;border:1px solid var(--o-border);border-radius:8px;background:color-mix(in srgb,var(--o-border) 50%,transparent);color:var(--o-fg);font:inherit;font-size:12px}
+.app-pcard{border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);box-shadow:0 1px 2px rgb(0 0 0/.04);overflow:hidden}
+.app-ptable{width:100%;border-collapse:collapse;font-size:13px}
+.app-ptable th{height:32px;padding:0 12px;border-bottom:1px solid var(--o-border);text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--o-mfg);white-space:nowrap}
+.app-ptable td{height:40px;padding:0 12px;border-bottom:1px solid var(--o-border);color:var(--o-fg);white-space:nowrap}.app-ptable tr:last-child td{border-bottom:0}
+.app-ptable tbody tr{cursor:pointer}.app-ptable tbody tr:hover td{background:color-mix(in srgb,var(--o-fg) 4%,transparent)}
+.app-ptable td.app-pt{max-width:0;width:50%;overflow:hidden;text-overflow:ellipsis}.app-ptable td small{display:block;font-size:11px;color:var(--o-mfg);overflow:hidden;text-overflow:ellipsis}
+.app-ptable .app-pid{font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--o-mfg)}
+.app-pstatus{display:inline-flex;align-items:center;gap:6px}
+.app-pempty{padding:40px 16px;text-align:center;color:var(--o-mfg)}.app-pempty b{display:block;margin-bottom:6px;font-size:15px;color:var(--o-fg)}
+.app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
+@media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
+/* end:css-app-sidebar */
+/* region:css-app-newtask: New task in the personal app (libraos/agentd-core#564), Orca's "Create worktree" dialog
+   (NewWorkspaceComposerModal + shadcn Dialog, Orca 1.4.257, MIT): sm:max-w-lg 512px, p-6, rounded-lg 10px, border black/14
+   (white/14 dark), shadow 0 20px 60px rgba(0,0,0,.28), overlay black/55, dialog surface; title text-base 600; fields
+   space-y-4 with text-xs 500 muted labels; inputs rounded-md, border --input, px-3 py-1.5, text-sm; Advanced a ghost
+   text-xs button; the primary Create at the right of the foot. Tokens are css-app's (--o-*), set on .app-shell. */
+.app-shell{--o-dialog:color-mix(in srgb,var(--o-bg) 96%,transparent);--o-input:#e5e5e5;--o-dialog-border:rgb(0 0 0/.14);--o-dialog-shadow:0 20px 60px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .app-shell{--o-dialog:rgba(23,23,23,.96);--o-input:rgb(255 255 255/.15);--o-dialog-border:rgb(255 255 255/.14);--o-dialog-shadow:0 24px 72px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}}
+:root[data-theme="dark"] .app-shell{--o-dialog:rgba(23,23,23,.96);--o-input:rgb(255 255 255/.15);--o-dialog-border:rgb(255 255 255/.14);--o-dialog-shadow:0 24px 72px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+.appnt{position:fixed;inset:0;margin:auto;width:calc(100% - 2rem);max-width:512px;max-height:calc(100vh - 2rem);height:fit-content;box-sizing:border-box;padding:24px;overflow:hidden;display:none;flex-direction:column;border:1px solid var(--o-dialog-border);border-radius:10px;background:var(--o-dialog);color:var(--o-fg);box-shadow:var(--o-dialog-shadow);font:13px/1.4 'Geist',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.01em}
+.appnt[open]{display:flex}
+.appnt::backdrop{background:rgb(0 0 0/.55)}
+.appnt-x{position:absolute;top:16px;right:16px;display:grid;place-items:center;width:20px;height:20px;padding:0;border:0;border-radius:4px;background:none;color:var(--o-fg);opacity:.7}.appnt-x:hover{opacity:1}
+.appnt-form{display:flex;flex-direction:column;gap:4px;min-height:0;margin:0}
+.appnt-head{display:flex;flex-direction:column;gap:4px;padding-right:24px}
+.appnt-title{margin:0;font-size:16px;line-height:24px;font-weight:600;letter-spacing:normal}
+.appnt-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.appnt-body{display:flex;flex-direction:column;gap:16px;min-height:0;overflow-y:auto;margin:0 -8px;padding:12px 8px 4px}
+.appnt-field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.appnt-labelrow{display:flex;align-items:center;justify-content:space-between;gap:8px;height:20px}
+.appnt-label{font-size:12px;font-weight:500;color:var(--o-mfg)}
+.appnt-input{width:100%;min-width:0;box-sizing:border-box;margin:0;padding:6px 12px;border:1px solid var(--o-input);border-radius:8px;background:transparent;color:var(--o-fg);font:inherit;font-size:14px;line-height:20px;box-shadow:0 1px 2px rgb(0 0 0/.05);outline:none;transition:color .15s,box-shadow .15s}
+textarea.appnt-input{resize:none;max-height:160px}
+select.appnt-input{height:34px;padding-right:28px}
+.appnt-input::placeholder{color:var(--o-mfg)}
+.appnt-input:focus-visible{border-color:var(--o-ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--o-ring) 50%,transparent)}
+.appnt-input[aria-invalid="true"]{border-color:var(--o-red)}
+.appnt-short{max-width:160px}
+.appnt-mono,.appnt-cmd{font-family:'SF Mono',SFMono-Regular,ui-monospace,'Cascadia Code',Menlo,Consolas,'Liberation Mono',monospace}
+.appnt-hint{font-size:11px;color:var(--o-mfg)}
+.appnt-err{font-size:11px;color:var(--o-red)}
+.appnt-chips{display:flex;flex-wrap:wrap;gap:6px}
+.app-shell .appnt-chip{display:inline-flex;align-items:center;height:28px;padding:0 10px;border:1px solid var(--o-border);border-radius:8px;background:transparent;color:var(--o-fg);font-size:12px;font-weight:500;--app-hover:var(--o-accent)}
+.app-shell .appnt-chip[aria-checked="true"]{background:color-mix(in srgb,var(--o-fg) 13%,var(--o-bg));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--o-fg) 19%,transparent);--app-hover:color-mix(in srgb,var(--o-fg) 13%,var(--o-bg))}
+.app-shell .appnt-advbtn{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;height:28px;margin-left:-8px;padding:0 8px;border:0;border-radius:8px;background:none;color:var(--o-fg);font-size:12px;font-weight:500;--app-hover:var(--o-accent)}
+.appnt-chev{display:inline-block;transition:transform .15s}.appnt-advbtn[aria-expanded="true"] .appnt-chev{transform:rotate(90deg)}
+.appnt-advanced{display:flex;flex-direction:column;gap:16px}.appnt-advanced[hidden]{display:none}
+.appnt-cmd{display:block;padding:6px 8px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font-size:11px;line-height:16px;overflow-wrap:anywhere;white-space:pre-wrap;user-select:all}
+.appnt-error{margin-top:8px;padding:8px 12px;border:1px solid color-mix(in srgb,var(--o-red) 30%,transparent);border-radius:8px;background:color-mix(in srgb,var(--o-red) 10%,transparent);color:var(--o-red);font-size:12px}.appnt-error[hidden],.appnt-why[hidden]{display:none}
+.appnt-why{margin:8px 0 0}
+.appnt-foot{display:flex;justify-content:flex-end;gap:8px;padding-top:12px}
+.app-shell .appnt-create{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 12px;border:0;border-radius:8px;background:var(--o-primary);color:var(--o-primary-fg);font-size:13px;font-weight:500;--app-hover:color-mix(in srgb,var(--o-primary) 90%,transparent)}
+.app-shell .appnt-create:disabled{opacity:.5;cursor:not-allowed}
+.appnt-kbd{padding:0 4px;border:1px solid color-mix(in srgb,var(--o-primary-fg) 30%,transparent);border-radius:4px;font:500 10px/14px 'Geist',Inter,sans-serif;opacity:.8}
+@media(max-width:860px){.appnt{padding:20px 16px;max-height:calc(100dvh - 2rem)}.app-shell .appnt-chip,.app-shell .appnt-advbtn,.app-shell .appnt-create,.appnt-x{min-height:44px}.appnt-x{min-width:44px;top:8px;right:8px}.appnt-input{font-size:16px}}
+/* end:css-app-newtask */
+/* region:css-app-onboard: the personal app's first run (#569), Orca's onboarding unchanged (SPEC.md §7.2 modal shell, §7.3 steps,
+   §7.4 toast, §7.5 checklist, §2.7 sidebar entry, §7.6 coach marks). Uses css-app's tokens; drawn only inside #app-shell. */
+.appob-back{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgb(0 0 0/.5);box-sizing:border-box}
+.appob-back.appob-dim{z-index:110;background:rgb(0 0 0/.35)}
+.appob-modal{display:flex;flex-direction:column;box-sizing:border-box;width:calc(100vw - 32px);max-width:1100px;height:calc(100vh - 32px);max-height:960px;padding:36px 32px 32px;border:1px solid var(--o-border);border-radius:14px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgba(0,0,0,.18);overflow:hidden;transition:max-width 760ms cubic-bezier(.22,1,.36,1);text-align:left}
+.appob-head{display:flex;align-items:center;gap:12px;flex:none}
+.appob-logo{display:grid;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--o-primary);color:var(--o-primary-fg);font:600 17px/1 'Geist',Inter,sans-serif}
+.appob-brand{font-size:16px;font-weight:600;letter-spacing:-.025em}
+.appob-prog{margin-top:40px;display:flex;align-items:center;flex:none}.appob-segs{display:flex;gap:8px}
+.appob-seg{width:24px;height:4px;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--o-mfg) 25%,transparent);--app-hover:color-mix(in srgb,var(--o-mfg) 45%,transparent)}
+.appob-seg.done{background:color-mix(in srgb,var(--o-mfg) 70%,transparent)}.appob-seg[aria-current="step"]{width:40px;background:var(--o-fg);--app-hover:var(--o-fg)}
+.appob-count{margin-left:12px;font-size:12px;font-weight:500;color:var(--o-mfg)}
+.appob-eyebrow{margin-top:34px;margin-bottom:8px;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.18em;color:var(--o-mfg);flex:none}
+.appob-title{margin:32px 0 0;font-size:34px;font-weight:600;line-height:1.15;letter-spacing:-.025em;flex:none}.appob-eyebrow+.appob-title{margin-top:0}
+.appob-sub{margin:12px 0 0;font-size:15px;line-height:1.625;color:var(--o-mfg);flex:none}
+.appob-body{margin-top:36px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:16px;font-size:13px}
+.appob-foot{margin-top:24px;padding-top:20px;border-top:1px solid var(--o-border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}
+.appob-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.appob-end{justify-content:flex-end}
+.appob-later{padding:8px 12px;border:0;border-radius:8px;background:none;font-size:14px;color:var(--o-mfg)}.appob-later:hover{color:var(--o-fg)}
+.appob-backbtn,.appob-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--o-border);border-radius:8px;background:color-mix(in srgb,var(--o-muted) 60%,transparent);font-size:14px;color:var(--o-fg);text-decoration:none;--app-hover:var(--o-accent)}
+.appob-btn{background:var(--o-bg);font-size:13px;padding:6px 10px}
+.appob-ghost{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:0;border-radius:8px;background:none;font-size:13px;font-weight:500;color:var(--o-fg);--app-hover:var(--o-accent)}
+.appob-next{display:inline-flex;align-items:center;gap:8px;padding:8px 20px;border:0;border-radius:8px;background:var(--o-primary);color:var(--o-primary-fg);font-size:14px;font-weight:500;--app-hover:color-mix(in srgb,var(--o-primary) 90%,var(--o-bg))}
+.appob-kbd{margin-left:4px;padding:2px 6px;border:1px solid color-mix(in srgb,var(--o-primary-fg) 20%,transparent);border-radius:4px;font-size:10px}
+.appob-xs{padding:4px 10px;font-size:12px;border-radius:999px}
+.appob-link{padding:0;border:0;background:none;color:var(--o-fg);font-size:12px;font-weight:500;text-decoration:underline;text-underline-offset:2px}
+.appob-mute,.appob-faint{color:var(--o-mfg)}.appob-faint{opacity:.8}
+.appob-mark{display:inline-grid;place-items:center;width:16px;height:16px;margin-left:auto;border:1px solid var(--o-border);border-radius:50%;box-sizing:border-box;flex:none}.appob-mark.on{border:0;background:var(--o-fg);color:var(--o-bg)}
+/* step 1: two radio cards with a preview pane each */
+.appob-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.appob-card,.appob-tile,.appob-theme{white-space:normal}
+.appob-card{display:flex;flex-direction:column;padding:0;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);text-align:left;overflow:hidden;--app-hover:var(--o-card)}
+.appob-card[aria-pressed="true"]{border-color:color-mix(in srgb,var(--o-fg) 60%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--o-fg) 15%,transparent)}
+.appob-prev{height:208px;box-sizing:border-box;padding:20px;background:color-mix(in srgb,var(--o-muted) 40%,transparent);border-bottom:1px solid var(--o-border)}
+.appob-mock{height:100%;box-sizing:border-box;padding:12px 14px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);box-shadow:0 10px 15px -3px rgb(0 0 0/.1);display:flex;flex-direction:column;gap:6px;font-size:11px;overflow:hidden}
+.appob-bubble{align-self:flex-end;padding:4px 10px;border:1px solid var(--o-border);border-radius:999px;background:var(--o-muted)}
+.appob-edit{color:var(--o-mfg)}.appob-edit b{color:var(--o-fg);font-weight:500}.appob-add{color:#16a34a}.appob-del{color:#dc2626}
+.appob-diff{font:10px/1.5 'SF Mono',ui-monospace,Menlo,monospace;border-radius:4px;overflow:hidden}.appob-dl{background:rgb(220 38 38/.13);padding:0 8px}.appob-da{background:rgb(22 163 74/.13);padding:0 8px}
+.appob-compose{margin-top:auto;padding:5px 10px;border:1px solid var(--o-border);border-radius:999px;color:var(--o-mfg)}
+.appob-term{padding:0;background:#0a0a0a;color:#e5e5e5;border-color:#262626}.appob-termbar{display:flex;justify-content:center;position:relative;padding:6px;border-bottom:1px solid #262626;color:#a3a3a3;font:10px 'SF Mono',ui-monospace,monospace}.appob-dots{position:absolute;left:10px;letter-spacing:2px;color:#525252}
+.appob-term pre{margin:0;padding:8px 12px;font:10px/1.55 'SF Mono',ui-monospace,Menlo,monospace;color:#e5e5e5;white-space:pre;overflow:hidden}
+.appob-cardtext{padding:16px 20px 20px;display:flex;flex-direction:column;gap:8px}.appob-cardtext p{margin:0;font-size:12px;color:var(--o-mfg);line-height:1.5}
+.appob-cardhead{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500}
+.appob-foot-note{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;color:var(--o-mfg)}
+/* step 2: agent tiles */
+.appob-pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border:1px solid var(--o-border);border-radius:999px;font-size:12px;font-weight:500;color:var(--o-fg);white-space:nowrap}
+.appob-notice{padding:12px 16px;border:1px solid var(--o-border);border-radius:8px;font-size:12px;color:var(--o-mfg)}.appob-warn{border-color:color-mix(in srgb,var(--o-warn) 40%,transparent);color:var(--o-question-text)}
+.appob-gridhead{display:flex;gap:8px;font-size:12px;font-weight:500}.appob-gridhead span{color:var(--o-mfg);font-weight:400}
+.appob-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.appob-tile{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 12px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);text-align:left;--app-hover:color-mix(in srgb,var(--o-accent) 50%,transparent)}
+.appob-tile[aria-pressed="true"]{border-color:color-mix(in srgb,var(--o-fg) 60%,transparent);background:var(--o-accent);--app-hover:var(--o-accent)}
+.appob-tileicon{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:var(--o-muted);font-weight:600;font-size:12px;flex:none}
+.appob-tiletext{display:flex;flex-direction:column;gap:2px;min-width:0}.appob-tilename{font-size:14px;font-weight:500}.appob-tilenote{font-size:11px;color:var(--o-mfg)}
+.appob-yolo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-top:16px;border-top:1px solid var(--o-border)}.appob-yolotitle{font-size:14px;font-weight:500}.appob-yolo p{margin:4px 0 0;font-size:12px;color:var(--o-mfg)}
+/* step 3: colour mode tiles and the looks */
+.appob-sechead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--o-mfg)}.appob-sechead b{font-size:14px;font-weight:500;color:var(--o-fg)}
+.appob-themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.appob-theme{position:relative;display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--o-border);border-radius:14px;background:var(--o-card);color:var(--o-fg);text-align:left;--app-hover:var(--o-card)}
+.appob-theme[aria-pressed="true"]{border-color:color-mix(in srgb,var(--o-fg) 60%,transparent);background:color-mix(in srgb,var(--o-muted) 60%,var(--o-card))}
+.appob-themecheck{position:absolute;top:20px;right:20px}.appob-themecheck .appob-mark{width:20px;height:20px}
+.appob-themelabel{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:500}.appob-themehint{margin-left:auto;font-size:11px;font-weight:400;color:var(--o-mfg)}
+.appob-mini{display:flex;height:96px;border:1px solid var(--o-border);border-radius:8px;overflow:hidden;background:#fff}.appob-mini.dk{background:#0a0a0a;border-color:#262626}.appob-mini.sp{background:linear-gradient(90deg,#16161a 50%,#f5f5f7 50%)}
+.appob-minileft,.appob-miniright{display:flex;flex-direction:column;gap:5px;padding:10px}.appob-minileft{width:34%;background:rgb(0 0 0/.04)}.appob-mini.dk .appob-minileft,.appob-mini.sp .appob-minileft{background:rgb(255 255 255/.04)}.appob-miniright{flex:1}
+.appob-mini i{display:block;height:3px;border-radius:2px;background:rgb(0 0 0/.12)}.appob-mini.dk i,.appob-mini.sp .appob-minileft i{background:rgb(255 255 255/.18)}
+.appob-seg2{display:inline-flex;margin-left:12px;padding:2px;border:1px solid var(--o-border);border-radius:8px}.appob-seg2 button{padding:3px 12px;border:0;border-radius:6px;background:none;font-size:12px;color:var(--o-mfg)}.appob-seg2 button[aria-pressed="true"]{background:var(--o-muted);color:var(--o-fg);font-weight:500}.appob-seg2 small{margin-left:6px;font-size:10px;color:var(--o-mfg)}
+.appob-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory}
+.appob-look{position:relative;flex:none;width:160px;box-sizing:border-box;padding:6px;border:1px solid var(--o-border);border-radius:10px;display:flex;flex-direction:column;gap:2px;font-size:12px;scroll-snap-align:start}.appob-look .appob-mini{height:72px;margin-bottom:6px}.appob-look span{font-size:11px;color:var(--o-mfg)}.appob-look b{font-weight:500}
+.appob-look.on{border-color:color-mix(in srgb,var(--o-fg) 60%,transparent);background:color-mix(in srgb,var(--o-muted) 60%,var(--o-card))}.appob-look .appob-themecheck{top:12px;right:12px}.appob-more{border-style:dashed;justify-content:center;align-items:center;min-height:118px}
+/* step 4: GitHub */
+.appob-bullets{margin:0;padding:0 0 0 14px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--o-mfg)}.appob-bullets li::marker{font-size:10px}
+.appob-gh{display:flex;align-items:flex-start;gap:16px;padding:20px;border:1px solid var(--o-border);border-radius:14px;background:color-mix(in srgb,var(--o-muted) 20%,transparent)}
+.appob-ghicon{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-card);flex:none}
+.appob-ghtext{flex:1;min-width:0}.appob-ghtext>div{display:flex;align-items:center;gap:8px}.appob-ghtext b{font-size:14px}.appob-ghtext p{margin:6px 0 0;font-size:12px;color:var(--o-mfg)}.appob-ghtext code{display:inline-block;margin-top:8px}
+.appob-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border:1px solid var(--o-border);border-radius:999px;font-size:11px;font-weight:500}.appob-status:before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.appob-status.not_installed,.appob-status.sign_in{color:#c2410c;border-color:rgb(251 146 60/.5);background:rgb(251 146 60/.12)}.appob-status.connected{color:var(--o-ok)}.appob-status.checking{color:var(--o-mfg)}
+.appob-ghacts{display:flex;align-items:center;gap:8px}
+.appob-more-src{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border:1px solid var(--o-border);border-radius:14px;font-size:12px;color:var(--o-mfg)}.appob-more-src b{font-size:14px;font-weight:500;color:var(--o-fg)}
+/* step 5: sound */
+.appob-sound b{font-size:14px;font-weight:600}.appob-sound p{margin:6px 0 16px;font-size:12px;color:var(--o-mfg)}
+.appob-select{position:relative;display:inline-flex;align-items:center;gap:8px;width:224px;height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--o-border);border-radius:8px;color:var(--o-mfg)}.appob-select select{flex:1;min-width:0;height:100%;border:0;background:none;color:var(--o-fg);font:inherit;font-size:14px;appearance:none;-webkit-appearance:none;outline-offset:-2px}
+/* each step's command */
+.appob-cli{margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:8px;font-size:11px;color:var(--o-mfg)}.appob-clihead{font-weight:500;margin-right:2px}.appob-cli p{flex-basis:100%;margin:0}
+.app-shell [id^="appob"] code,.appob-cli code{padding:2px 6px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font:11px 'SF Mono',ui-monospace,Menlo,monospace;overflow-wrap:anywhere;user-select:all}
+/* skip confirmation, add project */
+.appob-small{width:min(360px,100%);box-sizing:border-box;padding:24px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgba(0,0,0,.18)}.appob-small h3{margin:0;font-size:18px;font-weight:600}.appob-small p{margin:8px 0 16px;font-size:13px;color:var(--o-mfg)}
+.appob-addproj{width:min(440px,100%)}.appob-addproj code{display:block;padding:8px 10px}
+/* §2.7 sidebar entry and §7.5 Getting started */
+.appob-entry{display:flex;align-items:center}.appob-entrymain{flex:1}.appob-ring{transform:rotate(-90deg);color:var(--o-mfg)}
+.appob-hide{height:24px;margin-right:4px;padding:0 8px;border:0;border-radius:8px;background:none;font-size:12px;color:var(--o-mfg);--app-hover:var(--o-accent)}
+.appob-guide{width:min(1080px,calc(100vw - 32px));height:min(780px,calc(100vh - 32px));box-sizing:border-box;display:flex;flex-direction:column;gap:20px;padding:28px 32px;border:1px solid var(--o-border);border-radius:14px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgba(0,0,0,.18);overflow-y:auto}
+.appob-guidehead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.appob-guidehead h2{margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em}.appob-guidehead p{margin:6px 0 0;color:var(--o-mfg);font-size:13px}.appob-guidehead .appob-count{margin:0}
+.appob-guidesec h3{margin:0 0 8px;font-size:12px;font-weight:600;color:var(--o-mfg)}.appob-guidesec ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.appob-item{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1px solid var(--o-border);border-radius:10px}.appob-item.done{background:color-mix(in srgb,var(--o-muted) 50%,transparent)}
+.appob-itemmark{display:grid;place-items:center;width:18px;height:18px;margin-top:1px;border:1px solid var(--o-border);border-radius:50%;flex:none}.appob-item.done .appob-itemmark{border:0;background:var(--o-ok);color:#fff}
+.appob-itemtext{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.appob-itemtext b{font-size:13px;font-weight:500}.appob-itemtext p{margin:0;font-size:12px;color:var(--o-mfg)}.appob-itemtext code{align-self:flex-start}
+.appob-tag{font-size:11px;font-weight:500;color:var(--o-mfg);white-space:nowrap}.appob-tag.ok{color:var(--o-ok)}
+/* §7.4 toast */
+.appob-toast{position:fixed;right:16px;bottom:40px;z-index:90;width:340px;max-width:calc(100vw - 32px);box-sizing:border-box;padding:14px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgba(0,0,0,.18)}
+.appob-toasthead{display:flex;align-items:center;gap:8px}.appob-toasthead b{flex:1;font-size:14px}.appob-okcircle{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:rgb(22 163 74/.15);color:#16a34a}
+.appob-toast p{margin:10px 0 12px;font-size:13px;line-height:1.5;color:var(--o-mfg)}.appob-toast code{display:block;margin:-4px 0 12px;padding:6px 8px}
+.appob-amber{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;border:1px solid rgb(251 191 36/.6);border-radius:8px;background:rgb(251 191 36/.15);color:#92400e;font-size:13px;font-weight:500;--app-hover:rgb(251 191 36/.25)}.appob-later84{width:84px;justify-content:center;height:32px}
+/* Help menu (opens upward) */
+.appob-menu{position:fixed;z-index:95;width:208px;padding:4px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);box-shadow:0 10px 24px rgba(0,0,0,.18);display:flex;flex-direction:column}.appob-menu button{padding:6px 8px;border:0;border-radius:6px;background:none;text-align:left;font-size:13px;color:var(--o-fg);--app-hover:var(--o-accent)}
+/* §7.6 coach marks */
+.appob-tour{position:fixed;z-index:70;width:min(20rem,calc(100vw - 1.5rem));box-sizing:border-box;padding:16px;border:1px solid color-mix(in srgb,var(--o-fg) 26%,var(--o-border));border-radius:10px;background:color-mix(in srgb,var(--o-fg) 7%,var(--o-card));color:var(--o-fg);backdrop-filter:blur(2px);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--o-fg) 10%,transparent),0 10px 24px rgba(0,0,0,.18);animation:appob-in 200ms ease-out}
+.appob-tour b{display:block;padding-right:24px;font-size:14px;font-weight:600;letter-spacing:-.01em}.appob-tour p{margin:6px 0 0;font-size:12px;line-height:20px;color:var(--o-mfg)}.appob-tourx{position:absolute;top:8px;right:8px}
+.appob-tourfoot{margin-top:14px;display:flex;align-items:center;gap:6px}.appob-dots2{display:flex;gap:6px;height:6px}.appob-dots2 i{display:block;width:6px;height:6px;border-radius:999px;background:color-mix(in srgb,var(--o-fg) 20%,transparent)}.appob-dots2 i.done{background:color-mix(in srgb,var(--o-fg) 55%,transparent)}.appob-dots2 i.on{width:16px;background:var(--o-fg)}.appob-tourn{font-size:11px;font-weight:500;color:var(--o-mfg)}
+.appob-new{display:inline-block;margin-bottom:6px;padding:1px 6px;border-radius:999px;background:var(--o-primary);color:var(--o-primary-fg);font-size:10px;font-weight:600}
+@keyframes appob-in{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+.appob-pulse{position:relative}.appob-pulse:before{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:0 0 0 2px color-mix(in srgb,var(--o-fg) 35%,transparent);animation:appob-pulse 1.8s ease-out infinite;pointer-events:none}
+@keyframes appob-pulse{from{transform:scale(.68);opacity:1}to{transform:scale(2.4);opacity:0}}
+@media (prefers-reduced-motion:reduce){.appob-pulse:before{animation:none}.appob-tour{animation:none}.appob-modal{transition:none}}
+/* phone: the wizard and checklist fill the screen; tiles one column; touch targets 44px */
+@media(max-width:860px){.appob-back{padding:0}.appob-modal,.appob-guide{width:100vw;height:100dvh;max-height:none;border-radius:0;padding:24px 16px 16px}.appob-title{font-size:26px;margin-top:24px}.appob-prog{margin-top:24px}.appob-eyebrow{margin-top:24px}.appob-body{margin-top:24px}
+  .appob-cards,.appob-themes,.appob-grid{grid-template-columns:minmax(0,1fr)}.appob-prev{height:160px}.appob-gh,.appob-more-src,.appob-yolo{flex-wrap:wrap}
+  .appob-next,.appob-later,.appob-backbtn,.appob-btn,.appob-ghost,.appob-tile,.appob-hide,.appob-menu button,.appob-amber{min-height:44px}.appob-seg{height:12px;background-clip:content-box;padding:4px 0}.appob-toast{right:8px;left:8px;width:auto;bottom:32px}.appob-kbd{display:none}}
+/* end:css-app-onboard */
 /* region:css-app-workspace: the app's task workspace (libraos/agentd-core#565): the centre's editor tabs (Session,
    Terminal N, Log, file and diff tabs, + and Command) and the right sidebar's panels (Files, Details, Changes, Checks).
    Orca's values (briefs/personal-app-orca/SPEC.md §3.1 tab strip, §3.2 terminal, §3.3 diff header, §4.1 Explorer,
@@ -1121,13 +1337,15 @@ body:not(.app-right-open) .app-right{display:none}
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
     <!-- region:app-nav: Tasks (every task as a table) and Triggers (read only) open in the centre; wired by the issues that build them -->
+    <!-- region:app-onboard-entry: Orca's "Onboarding checklist" row (#569), first in the nav; drawn by region:app-onboard -->
+    <div id="appob-entry" data-region="onboard-entry" hidden></div>
     <button type="button" class="app-navrow" data-app-nav="tasks" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13"/></svg>Tasks</button>
     <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers<span class="app-navnote">Read only</span></button>
   </nav>
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
     <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count">0</span></button>
     <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (agentd repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
-    <button type="button" class="app-ibtn" data-app-action="new-task" aria-disabled="true" aria-label="New task" title="New task (agentd new)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (agentd new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
   </div></div>
   <!-- region:app-projects: repositories as folders, their tasks under them, others' tasks in their own group (#563) -->
   <nav class="app-projects" data-region="projects" id="app-projects" aria-labelledby="app-projects-name"></nav>
@@ -1177,6 +1395,8 @@ body:not(.app-right-open) .app-right{display:none}
   <span class="app-sitem" data-app-status="spend" id="app-spend-item" title="What workers spent today"><span>Today</span> <b id="app-spend">—</b></span>
   <div class="app-pop" id="app-watchdog-pop" role="dialog" aria-label="Watchdog" hidden></div>
 </footer>
+<!-- region:app-onboard-layer: the first-run wizard, Getting started, coach marks, the completion toast and Help's menu (#569); drawn by region:app-onboard -->
+<div id="appob-layer" data-region="onboard"></div>
 </div>
 <!-- end:app-shell -->
 <div class="backdrop" id="backdrop"></div>
@@ -2487,7 +2707,7 @@ function ntDraftClear(){try{localStorage.removeItem(NT_DRAFT)}catch(e){}}
 function ntDraftSave(){if(!NT.ui||NT.busy)return;try{localStorage.setItem(NT_DRAFT,JSON.stringify({values:NT.ui.values(),touched:!!NT.nt.touched,key:NT.key,role:NT.role}))}catch(e){}}
 function ntKey(){return Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>b.toString(16).padStart(2,'0')).join('')}
 // ntOpen is where New task, n and Assign work lead: the page, remembering where to go back to.
-function ntOpen(roleName=''){if(ROUTE.item!=='new'){NT.back=location.hash||'#issues';const a=document.activeElement;NT.backId=a&&a.id||''}
+function ntOpen(roleName=''){if(APP.on){appNewTask();return}if(ROUTE.item!=='new'){NT.back=location.hash||'#issues';const a=document.activeElement;NT.backId=a&&a.id||''}
   const hash='#new'+(roleName?'?role='+encodeURIComponent(roleName):'');if(location.hash===hash)ntEnter(parseRoute(hash));else location.hash=hash}
 // ntField draws one field the way a sheet does (label, input, segments, hint, error).
 function ntField(f,ui){const id='nt-'+f.name,hint=el('div',{class:'field-hint',id:id+'-hint'},f.hint||''),err=el('div',{class:'field-error',id:id+'-error',hidden:true});
@@ -4124,8 +4344,8 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
 const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
 try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
 function appShell(d){const on=!!d&&d.mode==='app';
-  if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false)}appSides()}
-  if(on)appStatus(d);return on}
+  if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false);appNewTaskClose(true)}appSides()}
+  if(on){appStatus(appMine(d));appSidebar(d);appOnboard(d)}return on}
 function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
 function appSides(){const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
   for(const n of document.querySelectorAll('#app-shell [data-app-action^="toggle-"]'))n.setAttribute('aria-expanded',String(appOpen(n.dataset.appAction.slice(7))))}
@@ -4151,7 +4371,7 @@ $('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-
   if(t.matches('[role=tab][data-app-panel]')){appPanel(t.dataset.appPanel);return}
   if(t.dataset.appStatus==='watchdog'){appPop($('app-watchdog-pop').hidden);return}
   const a=t.dataset.appAction;if(a==='toggle-left'||a==='toggle-right'){appToggle(a.slice(7));return}
-  if(a==='search'){searchOpenBox();return}if(a==='help'){keysSheet();return}});
+  if(a==='search'){searchOpenBox();return}if(a==='help'){appOnboardHelp();return}});
 $('app-scrim').onclick=()=>{APP.drawer='';appSides()};
 $('app-right').querySelector('[role=tablist]').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;const tabs=[...e.currentTarget.querySelectorAll('[role=tab]')],i=tabs.findIndex(t=>t.dataset.appPanel===APP.panel),n=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;e.preventDefault();appPanel(tabs[n].dataset.appPanel);tabs[n].focus()});
 document.addEventListener('keydown',e=>{if(!APP.on)return;
@@ -4160,6 +4380,472 @@ document.addEventListener('keydown',e=>{if(!APP.on)return;
 PHONE.addEventListener('change',()=>{APP.drawer='';appSides()});
 appPanel(APP.panel);
 // end:app
+// region:app-sidebar: the app's left sidebar (libraos/agentd-core#563). It fills region:app-projects
+// and wires the nav (Tasks, Triggers), the Projects header (bell, add a repository, new task) and
+// the sidebar's keys. Orca's layout (briefs/personal-app-orca/SPEC.md §2):
+//   Projects  my tasks by repository: a folder row per repository (click folds it; kept in
+//             localStorage dash-app-collapsed), each task under it as Orca draws a worktree card:
+//             a status dot, the title, the worker's branch on a second line, and the spend
+//   Other people's  others' tasks in their own group, read only. Which are mine is the server's
+//             word (/api/dash's mine on each task in app mode: the handoff's sender user); a task
+//             without it (an older server) counts as mine
+//   bell      how many of my tasks wait on me (the status bar's own count, read from my tasks
+//             only); it toggles the list between Projects and Needs you, as Orca's bell toggles
+//             its list
+//   Tasks     every task as a table over the centre (Orca's Tasks page); Triggers, read only:
+//             they are set from a terminal, so the view gives the commands
+//   keys      ArrowDown and ArrowUp move between tasks while the sidebar has the focus, Enter
+//             opens one (the row is a button), N is New task (it clicks the header's + button)
+// Opening a task (appTaskOpen) is the seam for the centre and right sidebar: APP.task is its id,
+// #app-shell gets data-task (and data-readonly when it is someone else's, which hides the frame's
+// write controls and any marked data-app-write), and document gets an "app-task" event whose
+// detail is {id, mine, readOnly, task}.
+const APPS={view:'projects',page:'',collapsed:new Set(),model:null};
+try{const v=JSON.parse(localStorage.getItem('dash-app-collapsed')||'[]');if(Array.isArray(v))APPS.collapsed=new Set(v.map(String))}catch(e){}
+APP.task='';
+// appMine: the snapshot with my tasks only, for the status bar's and the bell's counts.
+function appMine(d){const l=d.handoff_list||[];return l.some(h=>h.mine===false)?{...d,handoff_list:l.filter(h=>h.mine!==false)}:d}
+function appSpend(h){const a=(h.attempts||[]).filter(x=>typeof x.usd==='number');return a.length?a.reduce((s,x)=>s+x.usd,0):null}
+const APP_DOTS={needs_you:'Needs you',failed:'Failed',working:'Working',waiting:'Waiting',done:'Done',idle:'Not started'};
+function appDot(mark){return Object.hasOwn(APP_DOTS,mark)?mark:'idle'}
+function appIcon(d,size){const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:size||14,height:size||14,fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(k,v);
+  for(const p of [].concat(d)){const n=document.createElementNS(NS,'path');n.setAttribute('d',p);svg.append(n)}return svg}
+const APP_ICONS={folder:'M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z',chev:'m6 9 6 6 6-6',users:['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2','M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8','M22 21v-2a4 4 0 0 0-3-3.87','M16 3.13a4 4 0 0 1 0 7.75'],bell:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0'],lock:['M5 11h14v10H5z','M8 11V7a4 4 0 0 1 8 0v4'],x:['M18 6 6 18','m6 6 12 12']};
+// appSidebarModel: my tasks by repository, others' tasks, and mine that wait on me. Open tasks come
+// from the Agents list's own model (its marks and Needs you rule), the day's finished ones from done.
+function appSidebarModel(d){const m=agentsModel(d),need=new Set(m.need.map(r=>r.id)),rows=[],seen=new Set();
+  for(const r of [...m.need,...m.groups.flatMap(g=>g.rows)])if(r.h&&!seen.has(r.id)){seen.add(r.id);rows.push({...r,mine:r.h.mine!==false,need:need.has(r.id)})}
+  for(const x of d.done||[])if(x.what==='handoff'&&x.ref&&!seen.has(x.ref)){seen.add(x.ref);rows.push({id:x.ref,h:x,mark:x.failed?'failed':'done',done:true,project:projectOf(x),title:cardTitle(x.title||x.ref),full:x.title||x.ref,href:itemHash(null,x.ref),mine:x.mine!==false,need:false})}
+  const mine=new Map(),others=[];
+  for(const r of rows){if(!r.mine){others.push(r);continue}if(!mine.has(r.project))mine.set(r.project,[]);mine.get(r.project).push(r)}
+  const groups=[...mine.keys()].sort((a,b)=>(!a)-(!b)||a.localeCompare(b)).map(k=>({project:k,rows:mine.get(k)}));
+  return {rows,groups,others,need:rows.filter(r=>r.mine&&r.need),byId:new Map(rows.map(r=>[r.id,r]))}}
+function appOwner(r){return r.h.from_user||r.h.claimer_user||'someone else'}
+function appTaskRow(r){const h=r.h,usd=appSpend(h),dot=appDot(r.mark),meta=r.mine?h.branch||agentsState(r):[appOwner(r),h.branch||r.project].filter(Boolean).join(' · ');
+  return el('button',{type:'button',class:'app-task','data-task-id':r.id,'data-mark':r.mark,'data-done':r.done?'':null,'data-readonly':r.mine?null:'','aria-current':APP.task===r.id?'true':null,title:r.full+'\n'+APP_DOTS[dot]+(r.mine?'':' · read only: '+appOwner(r)+'’s task')},
+    el('span',{class:'app-lane'},el('span',{class:'app-dot','data-dot':dot,role:'img','aria-label':APP_DOTS[dot]},dot==='needs_you'?'?':null)),
+    el('span',{class:'app-tbody'},el('span',{class:'app-trow'},el('span',{class:'app-ttitle'},r.title),usd!==null?el('span',{class:'app-tspend',title:'Spent by its workers'},'$'+usd.toFixed(2)):null),
+      el('span',{class:'app-tmeta'},el('span',{},meta),r.mine?null:el('span',{class:'app-tro'},appIcon(APP_ICONS.lock,10),'Read only'))))}
+function appRepoRow(key,name,icon,note){const open=!APPS.collapsed.has(key);
+  return el('button',{type:'button',class:'app-repo','data-repo':key,'aria-expanded':String(open),title:name},appIcon(icon,14),el('span',{class:'app-rname'},name),note?el('span',{class:'app-rnote'},note):null,el('span',{class:'app-chev'},appIcon(APP_ICONS.chev,14)))}
+function appGroup(key,name,icon,rows,note){return [appRepoRow(key,name,icon,note),...(APPS.collapsed.has(key)?[]:rows.map(appTaskRow))]}
+function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects'),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.taskId||a.dataset.repo||'':'',kids=[];
+  const bell=document.querySelector('#app-shell [data-app-action="bell"]');bell.setAttribute('aria-pressed',String(APPS.view==='needs'));
+  if(!bell.querySelector('.app-bdot'))bell.append(el('span',{class:'app-bdot','aria-hidden':'true'}));
+  bell.setAttribute('aria-label',m.need.length+' of your tasks '+(m.need.length===1?'waits':'wait')+' on you'+(APPS.view==='needs'?'; showing them, click for all projects':'; click to list them'));
+  $('app-projects-name').textContent=APPS.view==='needs'?'Needs you':'Projects';
+  if(APPS.view==='needs'){kids.push(...m.need.map(appTaskRow));if(!m.need.length)kids.push(el('p',{class:'app-listnote'},'Nothing waits on you. The bell counts your tasks that need you: a question, a failed worker, a stop or a budget that ran out.'))}
+  else{for(const g of m.groups)kids.push(...appGroup('p:'+g.project,g.project||'No repository',APP_ICONS.folder,g.rows));
+    if(m.others.length)kids.push(...appGroup('others','Other people’s',APP_ICONS.users,m.others,'Read only'));
+    if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: agentd new "GOAL".'))}
+  box.replaceChildren(...kids);
+  if(keep){const n=box.querySelector('[data-task-id="'+CSS.escape(keep)+'"],[data-repo="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
+  if(APPS.page==='tasks')appTasksPage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
+function appReadOnly(r){const s=$('app-shell');if(r&&!r.mine)s.setAttribute('data-readonly','');else s.removeAttribute('data-readonly')}
+// appTaskOpen: the seam the centre and right sidebar listen on (see the region's head).
+function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)return;APP.task=id;appPage('');
+  for(const n of document.querySelectorAll('#app-projects .app-task'))if(n.dataset.taskId===id)n.setAttribute('aria-current','true');else n.removeAttribute('aria-current');
+  $('app-shell').dataset.task=id;appReadOnly(r);if(PHONE.matches&&APP.drawer==='left'){APP.drawer='';appSides()}
+  document.dispatchEvent(new CustomEvent('app-task',{detail:{id,mine:r.mine,readOnly:!r.mine,task:r.h}}))}
+// Tasks and Triggers: a page over the centre, as Orca's pages are; '' puts the workspace back.
+function appPage(name){APPS.page=name;let p=$('app-page');
+  for(const n of document.querySelectorAll('#app-shell [data-app-nav]'))if(n.dataset.appNav===name)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');
+  document.body.classList.toggle('app-paged',!!name);if(!name){if(p)p.hidden=true;return}
+  if(!p){p=el('section',{class:'app-page',id:'app-page','aria-live':'polite'});$('app-center').append(p)}p.hidden=false;
+  if(name==='tasks')appTasksPage();else appTriggersPage()}
+function appPageHead(title,...more){return el('div',{class:'app-phead'},el('button',{type:'button',class:'app-ibtn','data-app-close':'',title:'Close','aria-label':'Close '+title},appIcon(APP_ICONS.x,16)),el('h2',{},title),...more)}
+function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;const m=APPS.model||{rows:[]},old=p.querySelector('.app-pfilter'),q=old?old.value:'',at=document.activeElement===old;
+  const f=el('input',{class:'app-pfilter',type:'search',placeholder:'Filter tasks','aria-label':'Filter tasks',value:q}),ql=q.trim().toLowerCase();
+  const rows=m.rows.filter(r=>!ql||[r.full,r.id,r.project,r.h.branch,appOwner(r)].some(v=>String(v||'').toLowerCase().includes(ql)));
+  const tr=r=>{const usd=appSpend(r.h),dot=appDot(r.mark);return el('tr',{'data-task-id':r.id,tabindex:'0',title:r.full},el('td',{class:'app-pid'},r.id),el('td',{class:'app-pt'},r.title,el('small',{},[r.project||'No repository',r.h.branch].filter(Boolean).join(' · '))),
+    el('td',{class:'app-pcol-opt'},r.mine?'You':appOwner(r)+' · read only'),el('td',{},el('span',{class:'app-pstatus'},el('span',{class:'app-dot','data-dot':dot,'aria-hidden':'true'},dot==='needs_you'?'?':null),APP_DOTS[dot])),
+    el('td',{class:'app-pcol-opt'},usd===null?'—':'$'+usd.toFixed(2)),el('td',{class:'app-pcol-opt'},r.h.updated_ago||r.h.age||''))};
+  p.replaceChildren(appPageHead('Tasks',f),el('div',{class:'app-pcard'},rows.length?el('table',{class:'app-ptable'},el('thead',{},el('tr',{},['ID','Title / context','From','Status','Spend','Updated'].map((h,i)=>el('th',{class:i===2||i>3?'app-pcol-opt':null,scope:'col'},h)))),el('tbody',{},rows.map(tr)))
+    :el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or agentd new "GOAL" in a terminal.')));
+  f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
+function appTriggersPage(){$('app-page').replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{},
+  el('p',{},'Triggers and schedules start tasks on their own, so they are set from a terminal (or the team dash), never from this app. See what is set:'),
+  el('code',{},'agentd schedule list'),el('code',{},'agentd trigger status'),
+  el('p',{},'An owner enables a schedule from a terminal; config.toml’s [triggers] turns triggers on:'),el('code',{},'agentd schedule enable NAME'),el('code',{},'agentd config set triggers.enabled true')))}
+function appRepoPop(open){let pop=$('app-repo-pop');const b=document.querySelector('#app-shell [data-app-action="add-repo"]');
+  if(!open){if(pop)pop.hidden=true;b.setAttribute('aria-expanded','false');return}
+  if(!pop){pop=el('div',{class:'app-repo-pop',id:'app-repo-pop',role:'dialog','aria-label':'Add a repository'},el('p',{},'Repositories are added from a terminal, in the checkout:'),el('code',{},'agentd repo add'),el('p',{style:'margin:8px 0 0'},'Or name it: agentd repo add DIR. It shows here once it has a task.'));$('app-left').append(pop)}
+  pop.hidden=false;b.setAttribute('aria-expanded','true')}
+// Wiring. The frame's buttons were placeholders; the ones this region drives are live now.
+for(const s of ['[data-app-nav="tasks"]','[data-app-nav="triggers"]','[data-app-action="add-repo"]'])document.querySelector('#app-shell '+s).removeAttribute('aria-disabled');
+document.querySelector('#app-shell [data-app-action="add-repo"]').setAttribute('aria-controls','app-repo-pop');
+document.querySelector('#app-shell [data-app-action="bell"]').setAttribute('aria-controls','app-projects');
+$('app-shell').addEventListener('click',e=>{if(!e.target.closest('#app-repo-pop,[data-app-action="add-repo"]'))appRepoPop(false);
+  const t=e.target.closest('.app-task,.app-repo,[data-app-nav],[data-app-close],#app-page tbody tr,[data-app-action="bell"],[data-app-action="add-repo"]');if(!t)return;
+  if(t.matches('.app-task,#app-page tbody tr')){appTaskOpen(t.dataset.taskId);return}
+  if(t.matches('.app-repo')){const k=t.dataset.repo;if(APPS.collapsed.has(k))APPS.collapsed.delete(k);else APPS.collapsed.add(k);try{localStorage.setItem('dash-app-collapsed',JSON.stringify([...APPS.collapsed]))}catch(e){}if(lastDash)appSidebar(lastDash);return}
+  if(t.matches('[data-app-nav]')){appPage(APPS.page===t.dataset.appNav?'':t.dataset.appNav);return}
+  if(t.matches('[data-app-close]')){appPage('');return}
+  if(t.dataset.appAction==='bell'){APPS.view=APPS.view==='needs'?'projects':'needs';if(lastDash)appSidebar(lastDash);return}
+  if(t.dataset.appAction==='add-repo')appRepoPop($('app-repo-pop')?$('app-repo-pop').hidden:true)});
+// Keys, in the capture phase so the team dash's own n and Enter (region:keys) do not run in app mode.
+document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||activeSheet||SEARCH.box&&SEARCH.box.open)return;
+  const t=e.target;if(e.key==='Escape'){if($('app-repo-pop')&&!$('app-repo-pop').hidden){appRepoPop(false);e.stopPropagation();return}if(APPS.page&&!keysTyping(t)){appPage('');e.stopPropagation()}return}
+  if(keysTyping(t))return;
+  if(e.key==='n'||e.key==='N'){e.preventDefault();e.stopPropagation();document.querySelector('#app-shell [data-app-action="new-task"]').click();return}
+  if(e.key==='Enter'&&t.matches&&t.matches('.app-task,#app-page tbody tr')){e.preventDefault();e.stopPropagation();appTaskOpen(t.dataset.taskId);return}
+  if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;const inLeft=$('app-left').contains(t),inTable=t.closest&&t.closest('#app-page tbody');if(!inLeft&&!inTable&&t!==document.body)return;
+  const rows=[...document.querySelectorAll(inTable?'#app-page tbody tr':'#app-projects .app-task,#app-projects .app-repo')];if(!rows.length)return;
+  const i=rows.indexOf(t),cur=i<0?rows.findIndex(n=>n.dataset.taskId===APP.task):i,n=cur<0?(e.key==='ArrowDown'?0:rows.length-1):Math.min(rows.length-1,Math.max(0,cur+(e.key==='ArrowDown'?1:-1)));
+  e.preventDefault();e.stopPropagation();rows[n].focus();if(rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'})},true);
+// end:app-sidebar
+// region:app-newtask: New task in the personal app (libraos/agentd-core#564), Orca's
+// "Create worktree" dialog (NewWorkspaceComposerModal): one goal box; below it the
+// repository (default: the selected one, APP.repo, else the first checkout), the
+// agent (default: the checkout's .agentd/tasks.toml worker, else config's
+// default_tool) and the budget (default: the task file's, else [dispatch] budget,
+// else 30m); acceptance criteria, check and issue under Advanced. Submitting is
+// the team sheet's own request (/api/action offer, kind implement; region:newtask's
+// newTaskValidate and newTaskBody), which the server turns into the handoff
+// `agentd new GOAL --cwd REPO --worker W --budget B` makes; the dialog shows that
+// line as it changes (appNewTaskLine), with --accept, --verify or --no-check and
+// --issue from Advanced. The check field holds the task file's check until it is
+// typed in, as the sheet's does; sent back unchanged it is still the file's (the
+// server keeps its limit), so the line has no --verify for it. The new task is
+// then the selected one: APP.repo and APP.task are set, appSelect(handoff) is
+// called when a region defines it, and an "app:select" event goes to the document
+// ({handoff, repo}), for the task list (#563) and the workspace (#565) to follow.
+// Opened by the + in the Projects header, n (region:keys, through ntOpen) and
+// Ctrl/Cmd+Enter submits, as Orca's does; Escape or the X closes it.
+const APPNT={dlg:null,ui:null,nt:null,busy:false,key:'',opener:null,touched:{},asked:''};
+function appShq(v){v=String(v);return /^[A-Za-z0-9_@%+=:,.\/#-]+$/.test(v)?v:"'"+v.replace(/'/g,"'\\''")+"'"}
+// appNewTaskLine is the agentd new command the dialog's request equals.
+function appNewTaskLine(v,nt){const defs=nt.defaults||{},sent=!!(nt.touched||nt.defaults),parts=['agentd','new',appShq(v.goal||'GOAL'),'--cwd',appShq(v.cwd||'REPO'),'--worker',appShq(v.tool||'W'),'--budget',appShq(v.budget||'B')];
+  for(const line of acceptLinesOf(v.accept))parts.push('--accept',appShq(line));
+  if(sent){if(!v.check)parts.push('--no-check');else if(v.check!==String(defs.check||'').trim())parts.push('--verify',appShq(v.check))}
+  if(v.issue)parts.push('--issue',appShq(v.issue));return parts.join(' ')}
+function acceptLinesOf(text){return String(text||'').split('\n').map(l=>l.trim().replace(/^[-*]\s+/,'').trim()).filter(Boolean)}
+// appNewTaskRepo: the selected repository when it is a known checkout, else the first one.
+function appNewTaskRepo(d){const dirs=d.checkouts||[];return dirs.includes(APP.repo)?APP.repo:dirs[0]||''}
+function appRepoName(dir,dirs){const base=p=>String(p).replace(/\/+$/,'').split('/').pop()||p,b=base(dir);return dirs.filter(x=>base(x)===b).length>1?String(dir).replace(/\/+$/,'').split('/').slice(-2).join('/'):b}
+const APP_AGENTS=[['claude','Claude'],['codex','Codex'],['opencode','OpenCode']];
+function appNewTaskBuild(){const d=lastDash||{},dirs=d.checkouts||[],ui={inputs:{},errors:{}},nt={touched:false,defaults:null};APPNT.ui=ui;APPNT.nt=nt;APPNT.touched={};APPNT.asked='';APPNT.key=ntKey();
+  const field=(name,label,input,opt)=>{const id='appnt-'+name,err=el('div',{class:'appnt-err',id:id+'-error',role:'alert',hidden:true});input.id=id;input.name=name;ui.inputs[name]=input;ui.errors[name]=err;
+    input.addEventListener('input',()=>{err.hidden=true;input.removeAttribute('aria-invalid')});
+    return el('div',{class:'appnt-field appnt-'+name},el('div',{class:'appnt-labelrow'},el('label',{for:id,class:'appnt-label'},label),opt&&opt.extra||null),input,opt&&opt.hint?el('div',{class:'appnt-hint',id:id+'-hint'},opt.hint):null,err)};
+  const goal=el('textarea',{rows:3,maxlength:2000,placeholder:'What should the agent do? Describe the change.','aria-required':'true',autocomplete:'off',class:'appnt-input'});
+  const repo=el('select',{class:'appnt-input'},dirs.length?dirs.map(x=>el('option',{value:x,title:x},appRepoName(x,dirs))):[el('option',{value:''},'No repository known yet: agentd repo add')]);repo.value=appNewTaskRepo(d);
+  // The agent is a hidden input behind Orca's agent chips (role radio).
+  const tool=el('input',{type:'hidden',value:d.default_tool||'claude'}),chips=el('div',{class:'appnt-chips',role:'radiogroup','aria-labelledby':'appnt-tool-label'});
+  const drawChips=()=>chips.replaceChildren(...APP_AGENTS.map(([v,label])=>el('button',{type:'button',role:'radio',class:'appnt-chip','data-agent':v,'aria-checked':String(tool.value===v),tabindex:tool.value===v?'0':'-1',onclick:()=>{tool.value=v;APPNT.touched.tool=true;drawChips();appNewTaskShow();chips.querySelector('[aria-checked="true"]').focus()}},label)));
+  chips.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();const i=APP_AGENTS.findIndex(a=>a[0]===tool.value),n=(i+(e.key==='ArrowRight'||e.key==='ArrowDown'?1:-1)+APP_AGENTS.length)%APP_AGENTS.length;chips.children[n].click()});
+  const budget=el('input',{type:'text',maxlength:100,autocomplete:'off',class:'appnt-input appnt-short',value:d.dispatch_budget||'30m'});
+  const accept=el('textarea',{rows:2,maxlength:2000,placeholder:'One per line',class:'appnt-input'}),check=el('input',{type:'text',maxlength:1000,autocomplete:'off',placeholder:'go test ./...',class:'appnt-input appnt-mono'}),issue=el('input',{type:'text',maxlength:200,autocomplete:'off',placeholder:'OWNER/REPO#N',class:'appnt-input'});
+  const fileNote=el('div',{class:'appnt-hint',id:'appnt-file',hidden:true});
+  const adv=el('div',{class:'appnt-advanced',id:'appnt-advanced',hidden:true},field('accept','Acceptance criteria',accept,{hint:'What done means, one per line.'}),fileNote,field('check','Check command',check,{hint:'A command that exits 0 when the work is right.'}),field('issue','Issue',issue));
+  const advBtn=el('button',{type:'button',class:'appnt-advbtn','aria-expanded':'false','aria-controls':'appnt-advanced'},el('span',{class:'appnt-chev','aria-hidden':'true'},'›'),'Advanced');
+  advBtn.onclick=()=>{adv.hidden=!adv.hidden;advBtn.setAttribute('aria-expanded',String(!adv.hidden))};
+  const cmd=el('code',{id:'appnt-cmd',class:'appnt-cmd'}),error=el('div',{class:'appnt-error',role:'alert',hidden:true}),why=el('p',{class:'appnt-hint appnt-why',hidden:true});
+  const create=el('button',{type:'submit',class:'appnt-create'},'Create',el('kbd',{class:'appnt-kbd','aria-hidden':'true'},/Mac|iPhone|iPad/.test(navigator.platform||'')?'⌘ ↵':'Ctrl ↵'));
+  const close=el('button',{type:'button',class:'appnt-x','aria-label':'Close',title:'Close (Escape)'},appSvg('M18 6 6 18M6 6l12 12'));
+  ui.inputs.tool=tool;ui.submit=create;ui.error=error;
+  const form=el('form',{class:'appnt-form',novalidate:true},
+    el('div',{class:'appnt-head'},el('h2',{id:'appnt-title',class:'appnt-title'},'New task'),el('p',{id:'appnt-desc',class:'appnt-sr'},'Write the goal; choose the repository, agent and budget. It runs the agentd new command shown below.')),
+    el('div',{class:'appnt-body'},field('goal','Goal',goal),field('cwd','Repository',repo),
+      el('div',{class:'appnt-field appnt-tool'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-tool-label'},'Agent')),chips,tool),
+      field('budget','Budget',budget,{hint:'Minutes, dollars or both: 90m,$5. The worker stops at it.'}),advBtn,adv,
+      el('div',{class:'appnt-field'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-cmd-label'},'Same as')),cmd)),
+    why,error,el('div',{class:'appnt-foot'},create));
+  const dlg=el('dialog',{class:'appnt',id:'app-newtask','aria-labelledby':'appnt-title','aria-describedby':'appnt-desc'},close,form);
+  cmd.setAttribute('aria-labelledby','appnt-cmd-label');
+  for(const n of ['goal','budget','accept','check','issue'])ui.inputs[n].addEventListener('input',appNewTaskShow);
+  budget.addEventListener('input',()=>{APPNT.touched.budget=true});check.addEventListener('input',()=>{nt.touched=true});
+  repo.addEventListener('change',()=>{appNewTaskDefaults();appNewTaskShow()});
+  form.onsubmit=e=>{e.preventDefault();appNewTaskSend()};close.onclick=()=>appNewTaskClose();
+  dlg.addEventListener('cancel',e=>{e.preventDefault();appNewTaskClose()});
+  dlg.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)&&!e.shiftKey&&!e.altKey){e.preventDefault();appNewTaskSend()}else if(e.key==='Escape'){e.preventDefault();appNewTaskClose()}e.stopPropagation()});
+  ui.values=()=>Object.fromEntries(Object.entries(ui.inputs).map(([n,i])=>[n,i.value.trim()]));
+  ui.fieldError=(name,message)=>{const input=ui.inputs[name],err=ui.errors[name];if(!input||!err){error.textContent=message;error.hidden=false;return}if(['accept','check','issue'].includes(name)&&adv.hidden)advBtn.click();err.textContent=message;err.hidden=false;input.setAttribute('aria-invalid','true');input.focus()};
+  ui.fileNote=fileNote;ui.drawChips=drawChips;ui.why=why;
+  drawChips();return dlg}
+function appSvg(d){const ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:'16',height:'16',fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','aria-hidden':'true'}))s.setAttribute(k,v);const p=document.createElementNS(ns,'path');p.setAttribute('d',d);s.append(p);return s}
+// appNewTaskDefaults reads what agentd new would for the chosen repository
+// (GET /api/taskdefaults): the task file's worker, budget, check and criteria.
+async function appNewTaskDefaults(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui)return;const cwd=ui.inputs.cwd.value,d=lastDash||{};if(!cwd||cwd===APPNT.asked)return;APPNT.asked=cwd;nt.defaults=null;let t;
+  try{const r=await fetch('/api/taskdefaults?cwd='+encodeURIComponent(cwd),{cache:'no-store',headers:auth()});t=r.ok?await r.json():{error:(await r.text()).trim()||'HTTP '+r.status}}catch(e){t={error:errorText(e)}}
+  if(APPNT.ui!==ui||APPNT.asked!==cwd)return;
+  if(t.error){ui.fileNote.textContent='The task file could not be read: '+t.error;ui.fileNote.hidden=false;appNewTaskShow();return}
+  nt.defaults=t;if(!nt.touched)ui.inputs.check.value=t.check||'';
+  if(!APPNT.touched.tool){ui.inputs.tool.value=t.worker||d.default_tool||'claude';ui.drawChips()}
+  if(!APPNT.touched.budget)ui.inputs.budget.value=t.budget||d.dispatch_budget||'30m';
+  ui.fileNote.textContent=[(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; ')+'.':'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');ui.fileNote.hidden=!ui.fileNote.textContent;appNewTaskShow()}
+function appNewTaskShow(){const ui=APPNT.ui;if(!ui)return;$('appnt-cmd').textContent=appNewTaskLine(ui.values(),APPNT.nt)}
+// appNewTaskWhy: why Create cannot work here, if it cannot.
+function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+function appNewTask(){if(!APP.on)return;if(APPNT.dlg&&APPNT.dlg.open){APPNT.ui.inputs.goal.focus();return}
+  APPNT.opener=document.activeElement;const dlg=appNewTaskBuild();APPNT.dlg=dlg;$('app-shell').append(dlg);
+  const why=appNewTaskWhy();APPNT.ui.why.textContent=why;APPNT.ui.why.hidden=!why;APPNT.ui.submit.disabled=!!why;if(why)APPNT.ui.submit.title=why;
+  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults()}
+// force: the team dash came back (appShell), so nothing of the app stays open.
+function appNewTaskClose(force){if(APPNT.busy&&!force)return;APPNT.busy=false;const dlg=APPNT.dlg;APPNT.dlg=null;APPNT.ui=null;APPNT.nt=null;if(dlg){if(dlg.open)dlg.close();dlg.remove()}
+  const back=APPNT.opener;APPNT.opener=null;if(back&&back.isConnected&&!back.closest('[hidden]'))back.focus({preventScroll:true})}
+async function appNewTaskSend(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui||APPNT.busy||ui.submit.disabled)return;const v={...ui.values(),kind:'implement'};ui.error.hidden=true;
+  if(!v.goal){ui.fieldError('goal','Goal is required.');return}
+  if(!v.cwd){ui.fieldError('cwd','Choose a repository. Add one from a terminal: agentd repo add DIR.');return}
+  if(!v.budget){ui.fieldError('budget','Budget is required.');return}
+  const invalid=newTaskValidate(v,nt);if(invalid){ui.fieldError(invalid[0],invalid[0]==='accept'?'Write what done means (one per line) under Advanced, or a check command that exits 0 when it is right.':invalid[1]);return}
+  APPNT.busy=true;ui.submit.disabled=true;const label=ui.submit.firstChild.textContent;ui.submit.firstChild.textContent='Creating…';
+  try{const j=await act({action:'offer',kind:'implement',goal:v.goal,cwd:v.cwd,worker:v.tool,budget:v.budget,key:APPNT.key,...newTaskBody(v,nt)});
+    APPNT.busy=false;APP.repo=v.cwd;APP.task=j.handoff||'';appNewTaskClose();
+    toast(j.queued?'Task '+j.handoff+' created: its worker starts when a slot is free':'Task '+j.handoff+' created and its worker requested',true);
+    if(j.handoff){if(typeof appSelect==='function')appSelect(j.handoff);document.dispatchEvent(new CustomEvent('app:select',{detail:{handoff:j.handoff,repo:v.cwd}}))}
+    refresh()}
+  catch(e){ui.error.textContent=errorText(e);ui.error.hidden=false}
+  finally{if(APPNT.ui===ui){APPNT.busy=false;ui.submit.disabled=false;ui.submit.firstChild.textContent=label}}}
+$('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action="new-task"]');if(t){e.preventDefault();appNewTask()}});
+// end:app-newtask
+// region:app-onboard: the personal app's first run (libraos/agentd-core#569), the same as
+// Orca's (briefs/personal-app-orca/SPEC.md section 7). GET /api/onboarding is this person's
+// state (Orca's shape: closedAt, outcome, lastCompletedStep, checklist) and the facts each
+// step's agentd command changes; POST saves the state. Drawn into #appob-layer and #appob-entry
+// (region:app-shell) only in app mode; appShell calls appOnboard on each app render.
+//   wizard     shown while closedAt is null: Orca's steps in Orca's order (agent_surface,
+//              agent, theme, integrations unless gh is installed, windows_terminal on a
+//              Windows host only, notifications), "N of M", Back, Continue (Ctrl/Cmd+Enter),
+//              Set up later, and Esc or the backdrop asks "Skip onboarding?". Each Continue
+//              saves lastCompletedStep; a reopened wizard resumes at the first page past it.
+//              Each step shows the agentd command it stands for; nothing here runs one.
+//   checklist  "Onboarding checklist" in the sidebar (progress ring, Hide) in the session the
+//              wizard closed, opening "Getting started": Orca's eight items, each read from the
+//              facts, with its command; Orca's browser milestone has no agentd equivalent and
+//              keeps its place uncounted
+//   tours      Orca's coach marks, once each, for a person who saw the wizard at first load,
+//              never while a dialog is open; a step counts only when its target is on screen
+//   toast      "Onboarding completed!" once; Help > Onboarding reopens, Help > Milestones
+//              opens the checklist
+const OB={st:null,facts:{},user:'',req:0,asked:false,eligible:false,closedHere:false,page:-1,steps:[],only:false,draft:null,themeBefore:'system',confirm:false,guide:false,menu:false,add:false,toast:false,feedback:false,tour:null,tourRan:false,tries:0,timer:0};
+const OB_STEPS=[
+  {id:'agent_surface',n:1,tip:'Chat or Terminal'},
+  {id:'agent',n:1,tip:'Default Agent'},
+  {id:'theme',n:2,tip:'Appearance'},
+  {id:'integrations',n:3,tip:'Integrations',skip:f=>f.gh!=='not_installed'},
+  {id:'windows_terminal',n:4,tip:'Windows Terminal',skip:f=>f.os!=='windows'},
+  {id:'notifications',n:5,tip:'Notifications'}];
+const OB_AGENTS={claude:'Claude',codex:'Codex',opencode:'opencode'};
+const OB_SOUNDS=[['system','System Default'],['two-tone','Two Tone'],['bong','Bong'],['thump','Thump'],['blip','Blip'],['sonar','Sonar'],['blop','Blop'],['ding','Ding'],['clack','Clack'],['beep','Beep']];
+function obRepos(){return (OB.facts.repositories||[]).length}
+function obClients(){return OB.facts.clients||[]}
+// Orca's eight checklist items (setup-guide), each with agentd's completion and command.
+const OB_ITEMS=[
+  {id:'notifications',sec:'Setup',title:'Turn on notifications',desc:'Know the moment a task finishes, needs you, or gets blocked.',done:()=>!!OB.st.notifications&&notifyOn(),cmd:()=>'Browser notifications for this page',act:['Turn on',()=>{obNotifyOn();obSave({notifications:true})}]},
+  {id:'default-agent',sec:'Setup',title:'Choose your default agent',desc:'Start new work faster with your preferred agent already selected.',done:()=>OB.st.defaultAgent!=null,cmd:()=>'agentd connect '+(OB.st.defaultAgent&&OB.st.defaultAgent!=='blank'?OB.st.defaultAgent:'TOOL'),act:['Choose',()=>{OB.guide=false;obOpen('agent',true)}]},
+  {id:'agent-capabilities',sec:'Setup',title:'Give agents agentd skills',desc:'Install the MCP server, hooks and Skills agents use to report, hand off and coordinate through agentd.',done:()=>obClients().some(c=>c.connected),cmd:()=>'agentd connect'},
+  {id:'task-sources',sec:'Setup',title:'Connect integrations',desc:'Start an agent from an issue in one click and keep PR status in view.',done:()=>OB.facts.gh==='connected'||!!OB.facts.linear,cmd:()=>'gh auth login',act:['Set up',()=>{OB.guide=false;obOpen('integrations',true)}]},
+  {id:'setup-script',sec:'Setup',title:'Automate workspace setup',desc:'Commit .agentd/tasks.toml so every new task in a repository starts with its check, agent and budget.',done:()=>(OB.facts.task_files||0)>0,cmd:()=>'.agentd/tasks.toml  (docs/task-file.md)'},
+  {id:'add-two-repos',sec:'Setup',title:'Start work in multiple repos',desc:'Bring your key repos into agentd so you can start agent work without hunting for folders.',done:()=>obRepos()>=2,cmd:()=>'agentd repo add DIR'},
+  {id:'two-worktrees',sec:'Milestones',title:'Work on two tasks at once',desc:'Each task runs in its own worktree on its own branch (even in the same repository). Perfect for working on two features at once.',done:()=>!!(OB.facts.first_task&&OB.facts.first_task.done),cmd:()=>'agentd new "GOAL" --cwd DIR'},
+  {id:'browser',sec:'Milestones',title:'Use a built-in browser',desc:'Orca has a browser inside the app; agentd has none, so this milestone keeps its place and is not counted.',na:true}];
+function obProgress(){const xs=OB_ITEMS.filter(i=>!i.na);return {done:xs.filter(i=>i.done()).length,total:xs.length}}
+// Orca's coach-mark tours. A target is a selector; one that is not on screen is left out of "N of M".
+const OB_TOURS=[
+  {id:'workspace-agent-sessions',when:()=>!!document.querySelector('#app-tabs [role=tab][aria-selected="true"]'),steps:[
+    {target:'[data-app-action="new-tab"]',place:'below',title:'New agents start here',body:'Click + to open a terminal or another tab on this task.'},
+    {target:'[data-contextual-tour-target="split-pane"]',place:'below',title:'Split a terminal pane',body:'Open a second terminal pane, or right-click the pane for split options.'},
+    {target:'[data-app-action="new-task"]',place:'right',title:'Start another task in parallel',body:'Each task gets its own worktree and branch, so parallel work stays separate.',action:true}/* advances when used; Done while the button is still aria-disabled */]},
+  {id:'tasks',when:()=>!!document.querySelector('[data-app-nav="tasks"][aria-current="page"]'),steps:[
+    {target:'[data-contextual-tour-target="tasks-source"]',place:'below',title:'Choose the work source',body:'Switch between your tasks, issues and pull requests without changing pages.'},
+    {target:'[data-contextual-tour-target="tasks-filter"]',place:'below',title:'Filter to the work you need',body:'Use presets and search to narrow tasks, issues or reviews.'},
+    {target:'[data-contextual-tour-target="tasks-start"]',place:'below',title:'Start from work items',body:'Use Start on an issue to bring its context into a new task (agentd new --issue OWNER/REPO#N).'}]},
+  {id:'automations',when:()=>!!document.querySelector('[data-app-nav="triggers"][aria-current="page"]'),steps:[
+    {target:'[data-contextual-tour-target="triggers-add"]',place:'below',title:'What is a trigger?',body:'Triggers run agent work on a schedule. A repository defines them in .agentd/tasks.toml; agentd schedule enable NAME turns one on.'},
+    {target:'[data-contextual-tour-target="triggers-runs"]',place:'below',title:'Find the results',body:'Runs show when a trigger fired, what happened, and the task it started.'}]},
+  {id:'workspace-creation',when:()=>!!document.querySelector('[data-contextual-tour-target="new-task-repo"]'),steps:[
+    {target:'[data-contextual-tour-target="new-task-repo"]',place:'below',title:'Pick a project',body:'agentd isolates each task in its own worktree, branched off your base.'},
+    {target:'[data-contextual-tour-target="new-task-goal"]',place:'below',title:'Name it, or start from existing work',body:'Write the goal, or start from a linked issue for its title and context.'},
+    {target:'[data-contextual-tour-target="new-task-agent"]',place:'below',title:'Choose what agent starts the work',body:'Pick the agent that should start when this task is created.'}]},
+  {id:'projects-collapse-all',when:()=>!!document.querySelector('#app-projects [aria-expanded="false"]'),steps:[
+    {target:'[data-contextual-tour-target="projects-collapse-all"]',place:'right',title:'Collapse all projects at once',body:'Click this button, or Alt-click any project header.',got:true}]}];
+async function obAPI(body){const r=await fetch('/api/onboarding',{method:body?'POST':'GET',cache:'no-store',headers:{...auth(),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});let d={};try{d=await r.json()}catch(e){}if(!r.ok)throw new Error(d.error||'Could not read your onboarding (HTTP '+r.status+').');return d}
+function obTake(d){if(!d||!d.state||typeof d.state!=='object')return false;OB.st=d.state;OB.facts=d.facts||{};OB.user=d.user||'';return true}
+async function obLoad(){const seq=++OB.req;let d;try{d=await obAPI()}catch(e){return false}if(seq!==OB.req||!obTake(d))return false;obDraw();return true}
+async function obSave(patch){if(!OB.st)return;OB.st={...OB.st,...patch,checklist:{...OB.st.checklist,...(patch.checklist||{})}};obDraw();const seq=++OB.req;
+  try{const d=await obAPI(OB.st);if(seq===OB.req&&obTake(d))obDraw()}catch(e){toast(e.message)}}
+// appOnboard: called by appShell on every app-mode render.
+function appOnboard(){if(OB.asked){obTourTry();return}OB.asked=true;
+  obLoad().then(ok=>{if(!ok)return;if(OB.st.closedAt===null){OB.eligible=true;obOpen()}else obDraw()})}
+function obThemeNow(){try{const t=localStorage.getItem('dash-theme');return t==='light'||t==='dark'?t:'system'}catch(e){return 'system'}}
+function obFirstAgent(){const c=obClients(),t=OB.facts.default_tool;const f=c.find(x=>x.found&&x.tool===t)||c.find(x=>x.found);return f?f.tool:null}
+function obOpen(id,only){if(!OB.st)return;const f=OB.facts||{};OB.steps=OB_STEPS.filter(s=>s.id===id||!(s.skip&&s.skip(f)));
+  let i=id?OB.steps.findIndex(s=>s.id===id):OB.steps.findIndex(s=>s.n>OB.st.lastCompletedStep);if(i<0)i=0;
+  OB.page=i;OB.only=!!only;OB.confirm=false;OB.menu=false;OB.guide=false;OB.themeBefore=obThemeNow();
+  OB.draft={surface:OB.st.surface||'terminal',agent:OB.st.defaultAgent&&OB.st.defaultAgent!=='blank'?OB.st.defaultAgent:obFirstAgent(),theme:OB.themeBefore,sound:OB.st.sound||'system',look:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'};
+  obTourEnd(false);obDraw();const b=document.querySelector('#appob-layer [data-ob="continue"]');if(b)b.focus()}
+function obStep(){return OB.steps[OB.page]}
+function obGo(i){if(i<0||i>=OB.steps.length)return;OB.page=i;obDraw()}
+function obNotifyOn(){try{localStorage.removeItem('dash-notify-off')}catch(e){}
+  if(notifySupported()&&Notification.permission==='default'){try{const r=Notification.requestPermission();if(r&&r.then)r.then(()=>obDraw(),()=>{})}catch(e){}}}
+function obContinue(){const s=obStep();if(!s)return;const n=Math.max(OB.st.lastCompletedStep,s.n),d=OB.draft,p={};
+  if(s.id==='agent')Object.assign(p,{surface:d.surface,defaultAgent:d.agent||'blank',lastCompletedStep:n,checklist:{choseAgent:true}});
+  else if(s.id==='theme')Object.assign(p,{theme:d.theme,lastCompletedStep:n});
+  else if(s.id==='notifications'){obNotifyOn();Object.assign(p,{notifications:true,sound:d.sound,lastCompletedStep:5})}
+  else if(s.id!=='agent_surface')p.lastCompletedStep=n;// agent_surface shares step 1 with the agent page and saves nothing alone
+  if(OB.only||OB.page>=OB.steps.length-1){obFinish(p,'completed');return}
+  if(Object.keys(p).length)obSave(p);OB.page++;obDraw();const b=document.querySelector('#appob-layer [data-ob="continue"]');if(b)b.focus()}
+// Set up later: the page's visible choice is kept (the theme page's goes back, as in Orca), then closed as completed.
+function obLater(){const s=obStep(),d=OB.draft,p={};
+  if(s.id==='agent_surface'||s.id==='agent')p.surface=d.surface;
+  if(s.id==='agent')Object.assign(p,{defaultAgent:d.agent||'blank',checklist:{choseAgent:true}});
+  if(s.id==='theme')setTheme(OB.themeBefore==='system'?'':OB.themeBefore);
+  obFinish(p,'completed')}
+function obFinish(p,outcome){const only=OB.only;OB.page=-1;OB.confirm=false;OB.only=false;
+  if(only){obSave(p);return}
+  const toastNow=outcome==='completed'&&!OB.st.toastShown;
+  OB.closedHere=true;try{sessionStorage.setItem('dash-app-onboard-closed',OB.user)}catch(e){}
+  if(outcome==='completed'){if(!obRepos())OB.add=true;if(toastNow){OB.toast=true;OB.feedback=false}}
+  obSave({...p,closedAt:Date.now(),outcome,...(outcome==='dismissed'?{lastCompletedStep:-1,checklist:{...(p.checklist||{}),dismissed:true}}:{lastCompletedStep:5}),...(toastNow?{toastShown:true}:{})});
+  setTimeout(obTourTry,0)}
+// Help > Onboarding: Orca resets closedAt, outcome and lastCompletedStep and opens it again.
+function obReopen(){OB.menu=false;if(!OB.st)return;obSave({closedAt:null,outcome:null,lastCompletedStep:-1});obOpen()}
+function obGuide(open){OB.guide=!!open;OB.menu=false;if(open){obTourEnd(false);obLoad()}obDraw()}
+function obEntryShown(){if(!OB.st||OB.st.closedAt===null||OB.st.guideHidden)return false;let here=OB.closedHere;try{here=here||sessionStorage.getItem('dash-app-onboard-closed')===OB.user}catch(e){}const p=obProgress();return here&&p.done<p.total}
+// --- drawing ---
+function obSvg(d,size,extra){const ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg');
+  for(const[k,v]of Object.entries({viewBox:'0 0 24 24',width:size||16,height:size||16,fill:'none',stroke:'currentColor','stroke-width':2,'stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true',...(extra||{})}))s.setAttribute(k,v);
+  for(const p of [].concat(d)){const n=document.createElementNS(ns,'path');n.setAttribute('d',p);s.append(n)}return s}
+const OB_I={check:'M20 6 9 17l-5-5',left:'m15 18-6-6 6-6',right:'m9 18 6-6-6-6',x:'M18 6 6 18M6 6l12 12',ext:['M15 3h6v6','M10 14 21 3','M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'],chat:['M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z','M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1'],term:['M4 17l6-6-6-6','M12 19h8'],swap:['m16 3 4 4-4 4','M20 7H4','m8 21-4-4 4-4','M4 17h16'],monitor:['M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z','M8 21h8','M12 17v4'],moon:'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',sun:['M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8','M12 2v2','M12 20v2','m4.93 4.93 1.41 1.41','m17.66 17.66 1.41 1.41','M2 12h2','M20 12h2','m6.34 17.66-1.41 1.41','m19.07 4.93-1.41 1.41'],bell:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0'],ring:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0','M4 2C2.8 3.7 2 5.7 2 8','M22 8c0-2.3-.8-4.3-2-6'],gh:['M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4','M9 18c-4.51 2-5-2-7-2'],plug:['M12 22v-5','M9 8V2','M15 8V2','M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z'],down:'m6 9 6 6 6-6',copy:['M8 8h12v12H8z','M4 16V4h12']};
+function obCheck(){return el('span',{class:'appob-mark on','aria-hidden':'true'},obSvg(OB_I.check,10,{'stroke-width':3}))}
+function obCli(lines,note){return el('div',{class:'appob-cli'},el('span',{class:'appob-clihead'},lines.length?'In the terminal':'In the terminal: no command'),...lines.map(c=>el('code',{},c)),note?el('p',{},note):null)}
+function obKbd(){return /Mac|iPhone|iPad/.test(navigator.platform||'')?'⌘ ↵':'Ctrl ↵'}
+function obPageSurface(){const d=OB.draft,card=(v,icon,name,lines,preview)=>el('button',{type:'button',class:'appob-card','aria-pressed':String(d.surface===v),'data-ob':'surface-'+v,onclick:()=>{d.surface=v;obDraw()}},
+    el('div',{class:'appob-prev'},preview),el('div',{class:'appob-cardtext'},el('div',{class:'appob-cardhead'},obSvg(icon,16),el('span',{},name),d.surface===v?obCheck():el('span',{class:'appob-mark','aria-hidden':'true'})),...lines));
+  const chat=el('div',{class:'appob-mock'},el('div',{class:'appob-bubble'},'Add retry to fetchUser'),el('div',{class:'appob-edit'},'Edited ',el('b',{},'api.ts'),' ',el('span',{class:'appob-add'},'+1'),' ',el('span',{class:'appob-del'},'-1')),
+    el('div',{class:'appob-diff'},el('div',{class:'appob-dl'},'12 - return fetch(url)'),el('div',{class:'appob-da'},'12 + return withRetry(fetch, url)')),el('div',{class:'appob-reply'},'Failed requests now retry up to 3 times.'),el('div',{class:'appob-compose'},'Ask a follow-up…'));
+  const term=el('div',{class:'appob-mock appob-term'},el('div',{class:'appob-termbar'},el('span',{class:'appob-dots','aria-hidden':'true'},'●●●'),el('span',{},'zsh — claude')),
+    el('pre',{},'❯ claude\n> add retry to fetchUser\n● Update(src/api.ts)\n  ⎿ 1 addition, 1 removal\n    12 - return fetch(url)\n    12 + return withRetry(fetch, url)\n● Done. Retries capped at 3.\n█'));
+  return [el('div',{class:'appob-cards'},card('chat',OB_I.chat,'Chat UI',[el('p',{},'Tasks open on their Session tab: the agent’s messages, its diffs, and a box to send it a message.'),el('p',{class:'appob-faint'},'A worker on a host with no session log still opens in a terminal.')],chat),
+      card('terminal',OB_I.term,'Terminal',[el('p',{},'Tasks open on their Terminal tab: each agent’s own CLI, exactly as it ships. Works with every CLI agent.')],term)),
+    el('p',{class:'appob-foot-note'},obSvg(OB_I.swap,14),'Not a permanent choice. Switch any time from a task’s tabs.'),
+    obCli(['agentd handoff show ID'],'Saved for this page only: which tab a task opens on. In the terminal, handoff show is a task’s session.')]}
+function obPageAgent(){const d=OB.draft,cl=obClients(),found=cl.filter(c=>c.found),list=found.length?found:cl,name=t=>OB_AGENTS[t]||t,pick=cl.find(c=>c.tool===d.agent);
+  const tiles=list.map(c=>el('button',{type:'button',class:'appob-tile','aria-pressed':String(d.agent===c.tool),'data-ob':'agent-'+c.tool,onclick:()=>{d.agent=c.tool;obDraw()}},
+    el('span',{class:'appob-tileicon','aria-hidden':'true'},name(c.tool).slice(0,1).toUpperCase()),el('span',{class:'appob-tiletext'},el('span',{class:'appob-tilename'},name(c.tool)),el('span',{class:'appob-tilenote'},c.connected?'Connected':c.found?'Found, not connected':'Not on your PATH')),d.agent===c.tool?obCheck():null));
+  const tool=d.agent||'TOOL';
+  return [el('div',{class:'appob-row'},el('span',{class:'appob-mute'},'Agents open in'),el('span',{class:'appob-pill'},obSvg(d.surface==='chat'?OB_I.chat:OB_I.term,12),d.surface==='chat'?'Chat UI':'Terminal UI')),
+    found.length?null:el('div',{class:'appob-notice',role:'note'},'No agents detected on your PATH. Pick one to install later, or continue with a blank terminal.'),
+    pick&&!pick.found?el('div',{class:'appob-notice appob-warn',role:'note'},name(pick.tool)+' isn’t on your PATH yet. agentd will set it as your default and you can install it any time.'):null,
+    el('div',{class:'appob-gridhead'},found.length?'Detected on your system':'Popular agents',el('span',{},String(list.length))),
+    el('div',{class:'appob-grid'},tiles),
+    d.surface==='chat'?null:el('p',{class:'appob-foot-note'},obSvg(OB_I.chat,14),'Want chat too? Turn it on any time from a task’s tabs. ',el('button',{type:'button',class:'appob-link','data-ob':'chat-now',onclick:()=>{d.surface='chat';obDraw()}},'Turn on now')),
+    el('div',{class:'appob-yolo'},el('div',{},el('div',{class:'appob-yolotitle'},'Worker permissions'),el('p',{},'Dispatched workers run with their tool’s own sandbox and agentd’s worker rules ([dispatch.rules]). Those widen or narrow access, so they change only in config.toml, never from this page.'),el('p',{class:'appob-faint'},'Orca’s Yolo mode switch has no page equivalent here; docs/worker-rules.md describes the rules.')),el('span',{class:'appob-pill'},'Set in config.toml')),
+    obCli(['agentd connect '+tool,'agentd config set dispatch.default_tool '+tool],'connect registers agentd with the agent; the default is saved for this page and set for workers with config set.')]}
+function obMini(kind){const dk=kind==='dark',sp=kind==='system';return el('div',{class:'appob-mini'+(dk?' dk':'')+(sp?' sp':''),'aria-hidden':'true'},el('span',{class:'appob-minileft'},el('i'),el('i'),el('i')),el('span',{class:'appob-miniright'},el('i'),el('i'),el('i')))}
+function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?'':v);obDraw()},
+    tile=(v,icon,name,hint)=>el('button',{type:'button',class:'appob-theme','aria-pressed':String(d.theme===v),'data-ob':'theme-'+v,onclick:()=>set(v)},obMini(v),d.theme===v?el('span',{class:'appob-themecheck'},obCheck()):null,el('span',{class:'appob-themelabel'},obSvg(icon,14),el('span',{},name),el('span',{class:'appob-themehint'},hint)));
+  const osDark=matchMedia('(prefers-color-scheme: dark)').matches,look=d.theme==='system'?d.look:d.theme,
+    card=(v,name)=>el('div',{class:'appob-look'+(look===v?' on':'')},obMini(v),look===v?el('span',{class:'appob-themecheck'},obCheck()):null,el('b',{},name),el('span',{},'Built in'));
+  return [el('div',{class:'appob-sechead'},el('b',{},'Color mode'),el('span',{},'Light, dark, or follow your OS.')),
+    el('div',{class:'appob-themes'},tile('system',OB_I.monitor,'System','Match OS'),tile('dark',OB_I.moon,'Dark','Easy on the eyes'),tile('light',OB_I.sun,'Light','Bright & crisp')),
+    el('div',{class:'appob-sechead'},el('b',{},'Theme'),el('span',{},'Optional. agentd has its light and dark looks.'),d.theme==='system'?el('span',{class:'appob-seg2',role:'group','aria-label':'Look'},...['dark','light'].map(v=>el('button',{type:'button','aria-pressed':String(d.look===v),'data-ob':'look-'+v,onclick:()=>{d.look=v;obDraw()}},v==='dark'?'Dark look':'Light look',(v==='dark')===osDark?el('small',{},'now'):null))):null),
+    el('div',{class:'appob-carousel'},card('light','agentd Light'),card('dark','agentd Dark'),el('div',{class:'appob-look appob-more'},el('b',{},'More themes'),el('span',{},'Not in agentd'))),
+    el('p',{class:'appob-foot-note'},obSvg(OB_I.plug,14),'agentd has no theme plugins, so Orca’s theme gallery keeps its place with the built-in looks.'),
+    obCli([],'Saved in this browser (the same setting as the dash’s theme). The terminal has no theme to set.')]}
+function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not installed',sign_in:'Sign in needed',connected:'Connected'}[g]||'Checking…';
+  return [el('ul',{class:'appob-bullets'},el('li',{},'Start a task from any GitHub issue, prefilled with its title and context'),el('li',{},'Browse GitHub issues and pull requests in agentd without leaving it'),el('li',{},'See review status and CI checks on every task’s pull request'),el('li',{},'Push a worker’s branch and open a draft pull request (agentd never merges)')),
+    el('div',{class:'appob-gh'},el('span',{class:'appob-ghicon','aria-hidden':'true'},obSvg(OB_I.gh,18)),el('div',{class:'appob-ghtext'},el('div',{},el('b',{},'GitHub'),el('span',{class:'appob-status '+(g||'checking')},pill)),el('p',{},'Pull requests, issues, and check status.'),g==='sign_in'?el('code',{},'gh auth login'):null),
+      el('div',{class:'appob-ghacts'},g==='not_installed'?el('a',{class:'appob-btn',href:'https://cli.github.com',target:'_blank',rel:'noopener noreferrer'},obSvg(OB_I.ext,14),'Install gh'):null,g==='sign_in'?el('button',{type:'button',class:'appob-btn','data-ob':'gh-signin',onclick:()=>{const c=document.querySelector('.appob-gh code');if(c)c.focus();copyCmd('gh auth login')}},'Sign in'):null,el('button',{type:'button',class:'appob-ghost','data-ob':'gh-recheck',onclick:obRecheck},'Re-check'))),
+    el('div',{class:'appob-more-src'},el('b',{},'More task sources'),el('span',{},'Linear lives in config.toml [linear] (agentd issue sync-linear).')),
+    obCli(['gh auth login','agentd issue sync-gh','agentd pr sync-gh'],'agentd reads GitHub through gh; this page does not sign you in.')]}
+async function obRecheck(){OB.facts={...OB.facts,gh:'checking'};obDraw();await obLoad();const s=obStep();if(s&&s.id==='integrations'&&OB.facts.gh&&OB.facts.gh!=='not_installed'){if(OB.only||OB.page>=OB.steps.length-1)obFinish({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)},'completed');else{obSave({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)});OB.page++;obDraw()}}}
+function copyCmd(c){try{if(navigator.clipboard)navigator.clipboard.writeText(c).then(()=>toast('Copied: '+c,true),()=>{})}catch(e){}}
+function obPageWindows(){return [el('div',{class:'appob-notice',role:'note'},'agentd’s Terminal tab runs the shell of the account agentd app runs as, so it has no default shell or right-click setting to choose. This step keeps Orca’s place on a Windows host and saves nothing.'),obCli([],'')]}
+function obSound(v){try{const C=window.AudioContext||window.webkitAudioContext;if(!C||v==='system')return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value={'two-tone':660,bong:220,thump:110,blip:880,sonar:520,blop:330,ding:1046,clack:1500,beep:1000}[v]||660;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}}
+function obTestNotify(){if(!notifySupported()){toast('This browser cannot show notifications.');return}
+  const send=()=>{try{new Notification('agentd',{body:'This is a test notification.'})}catch(e){toast('The browser did not show the notification.')}};
+  if(Notification.permission==='granted'){send();return}if(Notification.permission==='denied'){toast('Notifications are blocked for this page in this browser’s site settings.');return}
+  try{const r=Notification.requestPermission();if(r&&r.then)r.then(p=>{if(p==='granted')send();obDraw()},()=>{})}catch(e){}}
+function obPageNotify(){const d=OB.draft;return [el('div',{class:'appob-sound'},el('b',{},'Choose a sound'),el('p',{},'Pick the alert agentd plays after a desktop notification is delivered.'),
+    el('div',{class:'appob-row'},el('label',{class:'appob-select'},obSvg(OB_I.bell,14),el('select',{'aria-label':'Sound','data-ob':'sound',onchange:e=>{d.sound=e.target.value;obSound(d.sound)}},...OB_SOUNDS.map(([v,t])=>el('option',{value:v,selected:d.sound===v},t))),obSvg(OB_I.down,14)),
+      el('button',{type:'button',class:'appob-btn','data-ob':'test-notify',onclick:obTestNotify},obSvg(OB_I.ring,14),'Send test notification'))),
+    obCli([],'Browser notifications for this page: a task that finishes, fails or needs you while the tab is in the background. Continue asks the browser once.')]}
+const OB_COPY={
+  agent_surface:['How do you want to work with agents?','Pick where a task opens.',obPageSurface],
+  agent:['Pick your default agent','agentd works with Claude, Codex and opencode. Choose the one you’ll reach for most.',obPageAgent],
+  theme:['Make it feel like home','Choose light or dark. Change it any time in Settings.',obPageTheme],
+  integrations:['Set up GitHub tasks','Install the GitHub CLI to:',obPageIntegrations],
+  windows_terminal:['Set Windows terminal defaults','Choose the default shell for new panes and how right-click behaves in the terminal.',obPageWindows],
+  notifications:['Set up notifications','agentd will notify you when tasks are done or need you.',obPageNotify]};
+function obWizard(){const s=obStep(),[title,sub,body]=OB_COPY[s.id],last=OB.page>=OB.steps.length-1,first=OB.page===0&&!OB.only,
+    label=s.id==='notifications'&&!obRepos()&&!OB.only?'Add your first project':'Continue';
+  const segs=OB.steps.map((x,i)=>el('button',{type:'button',class:'appob-seg'+(i<OB.page?' done':''),'aria-current':i===OB.page?'step':null,'aria-label':x.tip,title:x.tip,'data-ob':'seg-'+x.id,onclick:()=>obGo(i)}));
+  const modal=el('div',{class:'appob-modal',role:'dialog','aria-modal':'true','aria-labelledby':'appob-title','data-step':s.id,onclick:e=>e.stopPropagation()},
+    el('div',{class:'appob-head'},el('span',{class:'appob-logo','aria-hidden':'true'},'a'),el('span',{class:'appob-brand'},'agentd')),
+    el('div',{class:'appob-prog'},el('div',{class:'appob-segs'},segs),el('span',{class:'appob-count'},(OB.page+1)+' of '+OB.steps.length)),
+    first?el('div',{class:'appob-eyebrow'},'Welcome to agentd'):null,
+    el('h2',{class:'appob-title',id:'appob-title'},title),el('p',{class:'appob-sub'},sub),
+    el('div',{class:'appob-body'},body()),
+    el('div',{class:'appob-foot'},s.id==='notifications'?el('span'):el('button',{type:'button',class:'appob-later','data-ob':'later',onclick:obLater},'Set up later'),
+      el('div',{class:'appob-row'},OB.page>0?el('button',{type:'button',class:'appob-backbtn','data-ob':'back',onclick:()=>obGo(OB.page-1)},obSvg(OB_I.left,14),'Back'):null,
+        el('button',{type:'button',class:'appob-next','data-ob':'continue',onclick:obContinue},label,el('span',{class:'appob-kbd'},obKbd())))));
+  return el('div',{class:'appob-back','data-ob-layer':'wizard',onclick:()=>{if(!OB.confirm){OB.confirm=true;obDraw()}}},modal,OB.confirm?obConfirm():null)}
+function obConfirm(){return el('div',{class:'appob-back appob-dim',onclick:e=>{e.stopPropagation();OB.confirm=false;obDraw()}},el('div',{class:'appob-small',role:'alertdialog','aria-modal':'true','aria-labelledby':'appob-skip-t','aria-describedby':'appob-skip-d',onclick:e=>e.stopPropagation()},
+  el('h3',{id:'appob-skip-t'},'Skip onboarding?'),el('p',{id:'appob-skip-d'},'It won’t take long!'),
+  el('div',{class:'appob-row appob-end'},el('button',{type:'button',class:'appob-btn','data-ob':'skip',onclick:()=>obFinish({},'dismissed')},'Skip'),el('button',{type:'button',class:'appob-next','data-ob':'keep',onclick:()=>{OB.confirm=false;obDraw()}},'No, keep going'))))}
+function obRing(done,total){const ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg'),r=7,c=2*Math.PI*r;for(const[k,v]of Object.entries({viewBox:'0 0 20 20',width:16,height:16,class:'appob-ring','aria-hidden':'true'}))s.setAttribute(k,v);
+  for(const on of [false,true]){const n=document.createElementNS(ns,'circle');for(const[k,v]of Object.entries({cx:10,cy:10,r,fill:'none',stroke:'currentColor','stroke-width':2,opacity:on?1:.25,...(on?{'stroke-linecap':'round','stroke-dasharray':c.toFixed(3),'stroke-dashoffset':(c*(1-done/total)).toFixed(3)}:{})}))n.setAttribute(k,v);s.append(n)}return s}
+function obGuideModal(){const p=obProgress(),row=i=>{const done=!i.na&&i.done();return el('li',{class:'appob-item'+(done?' done':''),'data-ob-item':i.id},
+    el('span',{class:'appob-itemmark','aria-hidden':'true'},done?obSvg(OB_I.check,12,{'stroke-width':3}):null),
+    el('div',{class:'appob-itemtext'},el('b',{},i.title),el('p',{},i.desc),i.cmd?el('code',{},i.cmd()):null),
+    i.na?el('span',{class:'appob-tag'},'Not in agentd'):done?el('span',{class:'appob-tag ok'},'Done'):i.act?el('button',{type:'button',class:'appob-btn','data-ob':'act-'+i.id,onclick:i.act[1]},i.act[0]):null)};
+  return el('div',{class:'appob-back','data-ob-layer':'guide',onclick:()=>obGuide(false)},el('div',{class:'appob-guide',role:'dialog','aria-modal':'true','aria-labelledby':'appob-guide-t',onclick:e=>e.stopPropagation()},
+    el('div',{class:'appob-guidehead'},el('div',{},el('h2',{id:'appob-guide-t'},'Getting started'),el('p',{},'Finish the core workflows that make agentd useful for parallel agent work.'),el('span',{class:'appob-count'},p.done+'/'+p.total)),
+      el('div',{class:'appob-row'},OB.st.guideHidden?null:el('button',{type:'button',class:'appob-ghost','data-ob':'guide-hide',onclick:()=>obSave({guideHidden:true})},'Hide checklist from sidebar'),el('button',{type:'button',class:'app-ibtn','aria-label':'Close','data-ob':'guide-close',onclick:()=>obGuide(false)},obSvg(OB_I.x,14)))),
+    ...['Setup','Milestones'].map(sec=>el('section',{class:'appob-guidesec'},el('h3',{},sec),el('ul',{},OB_ITEMS.filter(i=>i.sec===sec).map(row))))))}
+function obAddModal(){return el('div',{class:'appob-back','data-ob-layer':'add',onclick:()=>{OB.add=false;obDraw()}},el('div',{class:'appob-small appob-addproj',role:'dialog','aria-modal':'true','aria-labelledby':'appob-add-t',onclick:e=>e.stopPropagation()},
+  el('h3',{id:'appob-add-t'},'Add a project'),el('p',{},'Register a repository so agents can work in it. In a terminal, from the repository:'),el('code',{},OB.facts.commands&&OB.facts.commands.repo_add||'agentd repo add DIR'),
+  el('p',{class:'appob-faint'},'The page does not add repositories itself; Re-check reads what the command registered.'),
+  el('div',{class:'appob-row appob-end'},el('button',{type:'button',class:'appob-ghost','data-ob':'add-copy',onclick:()=>copyCmd('agentd repo add DIR')},obSvg(OB_I.copy,14),'Copy'),el('button',{type:'button',class:'appob-btn','data-ob':'add-recheck',onclick:async()=>{await obLoad();if(obRepos()){OB.add=false;obDraw()}else toast('No repository yet. Run agentd repo add DIR, then Re-check.')}},'Re-check'),el('button',{type:'button',class:'appob-next','data-ob':'add-close',onclick:()=>{OB.add=false;obDraw()}},'Done'))))}
+function obToast(){const cmd='agentd feedback "what you think"';return el('div',{class:'appob-toast',role:'status','aria-live':'polite'},
+  el('div',{class:'appob-toasthead'},el('span',{class:'appob-okcircle','aria-hidden':'true'},obSvg(OB_I.check,12,{'stroke-width':3})),el('b',{},'Onboarding completed!'),el('button',{type:'button',class:'app-ibtn','aria-label':'Dismiss','data-ob':'toast-x',onclick:()=>{OB.toast=false;obDraw()}},obSvg(OB_I.x,14))),
+  el('p',{},'If you’re enjoying agentd so far, a line of feedback helps us make it better.'),OB.feedback?el('code',{},cmd):null,
+  el('div',{class:'appob-row'},el('button',{type:'button',class:'appob-amber','data-ob':'toast-feedback',onclick:()=>{OB.feedback=true;copyCmd(cmd);obDraw()}},obSvg(OB_I.ext,14),'Send feedback'),el('button',{type:'button',class:'appob-btn appob-later84','data-ob':'toast-later',onclick:()=>{OB.toast=false;obDraw()}},'Later')))}
+function obMenu(){const b=document.querySelector('#app-left [data-app-action="help"]'),r=b?b.getBoundingClientRect():{left:8,top:innerHeight-40},
+    item=(t,f,key)=>el('button',{type:'button',role:'menuitem','data-ob':'menu-'+key,onclick:()=>{OB.menu=false;obDraw();f()}},t);
+  return el('div',{class:'appob-menu',role:'menu','aria-label':'Help',style:'left:'+Math.max(8,r.left)+'px;bottom:'+Math.max(8,innerHeight-r.top+4)+'px'},
+    item('Keyboard shortcuts',()=>keysSheet(),'keys'),item('Send feedback',()=>{copyCmd('agentd feedback "what you think"');toast('In a terminal: agentd feedback "what you think"',true)},'feedback'),item('Milestones',()=>obGuide(true),'milestones'),item('Onboarding',obReopen,'onboarding'))}
+function obTourPop(){const t=OB.tour,s=t.steps[t.i],n=document.querySelector(s.target),r=n?n.getBoundingClientRect():{left:0,top:0,right:0,bottom:0,width:0,height:0},W=Math.min(320,innerWidth-24);
+  let left=s.place==='right'?r.right+12:r.left+r.width/2-W/2,top=s.place==='right'?r.top:r.bottom+12;left=Math.max(12,Math.min(left,innerWidth-W-12));top=Math.max(12,top);
+  return el('div',{class:'appob-tour',role:'dialog','aria-labelledby':'appob-tour-t','data-tour':t.id,'data-tour-step':String(t.i),style:'left:'+left+'px;top:'+top+'px'},
+    el('button',{type:'button',class:'app-ibtn appob-tourx','aria-label':'Skip tour','data-ob':'tour-x',onclick:()=>obTourEnd(true)},obSvg(OB_I.x,14)),
+    s.got?el('span',{class:'appob-new'},'New'):null,el('b',{id:'appob-tour-t'},s.title),el('p',{},s.body),
+    el('div',{class:'appob-tourfoot'},el('span',{class:'appob-dots2','aria-hidden':'true'},t.steps.map((x,i)=>el('i',{class:i===t.i?'on':i<t.i?'done':''}))),el('span',{class:'appob-tourn'},(t.i+1)+' of '+t.steps.length),el('span',{class:'app-grow'}),
+      t.i>0?el('button',{type:'button',class:'appob-ghost','data-ob':'tour-back',onclick:()=>{t.i--;obDraw()}},'Back'):null,
+      s.action&&!(n&&n.getAttribute('aria-disabled')==='true')?null:el('button',{type:'button',class:'appob-next appob-xs','data-ob':'tour-next',onclick:obTourNext},s.got?'Got it':t.i<t.steps.length-1?'Next →':'Done')))}
+function obDraw(){const layer=$('appob-layer'),entry=$('appob-entry');if(!layer||!entry)return;
+  const focus=document.activeElement&&layer.contains(document.activeElement)?document.activeElement.dataset.ob:null;
+  for(const n of document.querySelectorAll('.appob-pulse'))n.classList.remove('appob-pulse');
+  if(!APP.on||!OB.st){layer.replaceChildren();entry.replaceChildren();entry.hidden=true;return}
+  const showEntry=obEntryShown();entry.hidden=!showEntry;
+  if(showEntry){const p=obProgress();entry.replaceChildren(el('div',{class:'appob-entry'},el('button',{type:'button',class:'app-navrow appob-entrymain','data-ob':'entry',title:p.done+'/'+p.total,onclick:()=>obGuide(true)},obRing(p.done,p.total),'Onboarding checklist'),el('button',{type:'button',class:'appob-hide','data-ob':'entry-hide',onclick:()=>obSave({guideHidden:true})},'Hide')))}else entry.replaceChildren();
+  const kids=[];if(OB.page>=0&&obStep())kids.push(obWizard());else{if(OB.guide)kids.push(obGuideModal());if(OB.add)kids.push(obAddModal());if(OB.toast)kids.push(obToast());if(OB.tour){kids.push(obTourPop());const n=document.querySelector(OB.tour.steps[OB.tour.i].target);if(n)n.classList.add('appob-pulse')}}
+  if(OB.menu)kids.push(obMenu());
+  layer.replaceChildren(...kids);
+  if(focus){const n=layer.querySelector('[data-ob="'+focus+'"]');if(n)n.focus()}}
+// --- tours: Orca's start gate, retried at 250 ms then every 500 ms, up to 20 times ---
+function obVisible(n){if(!n||!n.isConnected)return false;for(let x=n;x&&x.nodeType===1;x=x.parentElement){if(x.hidden)return false;const cs=getComputedStyle(x);if(cs.display==='none'||cs.visibility==='hidden')return false}return true}
+function obTourGate(){return APP.on&&OB.st&&OB.eligible&&OB.page<0&&!OB.tour&&!OB.tourRan&&!OB.guide&&!OB.confirm&&!OB.add&&!OB.menu&&!activeSheet}
+function obTourTry(){clearTimeout(OB.timer);if(!obTourGate())return;const seen=OB.st.toursSeen||[];let waiting=false;
+  for(const t of OB_TOURS){if(seen.includes(t.id)||!t.when())continue;if(!obVisible(document.querySelector(t.steps[0].target))){waiting=true;continue}
+    const steps=t.steps.filter(s=>obVisible(document.querySelector(s.target)));
+    OB.tour={id:t.id,steps,i:0};OB.tourRan=true;OB.tries=0;obDraw();return}
+  if(waiting&&OB.tries<20){OB.timer=setTimeout(obTourTry,OB.tries++?500:250)}}
+function obTourNext(){const t=OB.tour;if(!t)return;if(t.i<t.steps.length-1){t.i++;obDraw()}else obTourEnd(true)}
+function obTourEnd(seen){const t=OB.tour;OB.tour=null;if(t&&seen&&OB.st){const s=OB.st.toursSeen||[];if(!s.includes(t.id))obSave({toursSeen:[...s,t.id]});else obDraw()}else obDraw()}
+// One capture listener for the keys a dialog owns, ahead of the frame's own shortcuts.
+document.addEventListener('keydown',e=>{if(!APP.on||!OB.st)return;const wiz=OB.page>=0,typing=e.target&&e.target.closest&&e.target.closest('input,textarea,select,[contenteditable="true"]');
+  if(e.key==='Escape'){if(wiz){OB.confirm=!OB.confirm;obDraw()}else if(OB.menu){OB.menu=false;obDraw()}else if(OB.add){OB.add=false;obDraw()}else if(OB.guide)obGuide(false);else if(OB.tour)obTourEnd(true);else return;e.preventDefault();e.stopPropagation();return}
+  if(!wiz)return;if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){if(typing)return;e.preventDefault();e.stopPropagation();if(OB.confirm)return;obContinue();return}
+  if(e.ctrlKey||e.metaKey){e.stopPropagation()}},true);
+// Help opens Orca's help menu; an action step of a tour advances when its target is used.
+document.addEventListener('click',e=>{if(!APP.on)return;const t=OB.tour;if(t){const s=t.steps[t.i];if(s.action&&e.target.closest&&e.target.closest(s.target)){obTourEnd(true)}}
+  if(OB.menu&&!e.target.closest('.appob-menu,[data-app-action="help"]')){OB.menu=false;obDraw()}},true);
+function appOnboardHelp(){if(!OB.st){keysSheet();return}OB.menu=!OB.menu;obDraw()}
+new MutationObserver(()=>{if(APP.on&&OB.eligible&&!OB.tour&&!OB.tourRan){clearTimeout(obTourTry.m);obTourTry.m=setTimeout(obTourTry,50)}}).observe($('app-shell'),{subtree:true,childList:true,attributes:true,attributeFilter:['aria-selected','aria-current','aria-expanded','hidden']});
+// end:app-onboard
 // region:app-workspace
 // The app's task workspace (libraos/agentd-core#565): the open task in the centre's editor tabs and the
 // right sidebar's panels, in Orca's layout (briefs/personal-app-orca/SPEC.md §3, §4).
