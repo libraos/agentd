@@ -17,7 +17,7 @@ async function boot(o={}){
   const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
   const dom=new JSDOM(html,{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
     w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');if(srv.session)w.sessionStorage.setItem('dash-app-onboard-closed',srv.session);
-    w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
+    w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
     srv.notes=[];w.Notification=class{constructor(t,o){srv.notes.push(t+': '+(o&&o.body))}static get permission(){return srv.notify}static requestPermission(){srv.notify='granted';return Promise.resolve('granted')}};
     w.fetch=async(url,init)=>{const u=new URL(url,w.location.href);let body={},status=200;
       if(u.pathname==='/api/auth')return {ok:true,status:204};
@@ -112,7 +112,8 @@ async function boot(o={}){
  assert(/New agents start here/.test(tour.textContent),'tour step 1');assert(t.doc.querySelector('[data-app-action="new-tab"]').classList.contains('appob-pulse'),'the target does not pulse');
  const n=phone?1:2;assert(new RegExp('1 of '+n).test(tour.textContent),'N of M counts only targets on screen: '+tour.textContent);
  if(!phone){await t.click('[data-ob="tour-next"]');tour=t.q('.appob-tour');assert(/Start another task in parallel/.test(tour.textContent),'tour step 3');
-  // The New task button is still aria-disabled here (its dialog is #564's): Done, not a dead end.
+  // A disabled action target (New task is aria-disabled until its dialog loads): Done, not a dead end.
+  t.doc.querySelector('[data-app-action="new-task"]').setAttribute('aria-disabled','true');t.w.eval('obDraw()');
   assert(t.q('[data-ob="tour-next"]')&&/Done/.test(t.q('[data-ob="tour-next"]').textContent),'a disabled action target leaves no way on');
   // Once it is enabled, the action step has no Next: using the target advances.
   const nt=t.doc.querySelector('[data-app-action="new-task"]');nt.removeAttribute('aria-disabled');t.w.eval('obDraw()');assert(!t.q('[data-ob="tour-next"]'),'an action step has Next');
