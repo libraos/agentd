@@ -156,4 +156,4 @@ It needs beta access, a cloud key from the Console and the LibraOS GitHub App on
 
 ## License
 
-agentd is licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you activate it with `agentd init`. See [LICENSE](LICENSE). The dashboard front end in [ui/](ui/) is source-available under the Elastic License 2.0. The agentd source is private.
+agentd is licensed under the LibraOS End User Agreement ([EULA.md](EULA.md)), which you accept when you set it up with `agentd init`. See [LICENSE](LICENSE). The dashboard front end in [ui/](ui/) is source-available under the Elastic License 2.0. The agentd source is private.
