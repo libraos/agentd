@@ -718,6 +718,78 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 @media(max-width:860px){.issue-filters-toggle{display:inline-flex;align-items:center}.wfilter .filters:not(.open){display:none}.wfilter .filters.open{flex-basis:100%;order:4;margin:0}.board-pick{display:flex;align-items:center;gap:8px}.board-pick select{flex:1;min-width:0}.wfilter .primary{margin-left:auto}}
 @media(max-width:860px),(pointer:coarse){button.primary,#chat-input,.skip,.chat-icon{min-height:44px;min-width:44px}.skip,aside.side a,.textpage a,.props a,.tm-props a,.tm-head a,.drawer-meta a,.ifields a,.filter-note a{display:inline-flex;align-items:center;min-height:44px;min-width:44px}.chat-ref{min-height:44px;min-width:44px}}
 #chat-voice-cancel,.chat-box #chat-voice{min-width:44px;min-height:44px}#chat-voice[aria-pressed="true"]{color:var(--red);border-color:var(--red)}.chat-voice-status{max-width:720px;margin:4px auto;display:flex;align-items:center;gap:8px;font-size:var(--fs-s)}.chat-voice-status[hidden]{display:none}#chat-voice-error{max-width:720px;margin:4px auto;color:var(--red)}
+/* region:css-app: the personal app's frame (#561), drawn only in app mode (body.app-mode, /api/dash mode "app").
+   Orca's layout and tokens, unchanged (briefs/personal-app-orca/SPEC.md §1 frame, §2 left sidebar, §3.1 tab strip,
+   §4 right sidebar, §5 status bar, §6 tokens). The team dash's styles are not touched. Orca is MIT (stablyai/orca). */
+.app-shell{--app-left-w:280px;--app-right-w:350px;
+  --o-bg:#fff;--o-fg:#0a0a0a;--o-card:#fff;--o-muted:#f5f5f5;--o-mfg:#696969;--o-accent:#f5f5f5;--o-border:#e5e5e5;--o-ring:#a1a1a1;--o-primary:#171717;--o-primary-fg:#fafafa;
+  --o-sidebar:#fafafa;--o-wsb:#f5f5f5;--o-wsb-fg:#0a0a0a;--o-wsb-accent:#eaeaea;--o-tab-active:var(--o-card);--o-tab-inactive:color-mix(in srgb,var(--o-fg) 4%,var(--o-card));
+  --o-warn:#ca8a04;--o-working:#edb200;--o-question:#f05100;--o-question-text:#c53c00;--o-ok:#147638;--o-red:#e40014;--o-scrim:rgba(0,0,0,.32);
+  flex:1;min-height:0;display:flex;flex-direction:column;background:var(--o-bg);color:var(--o-fg);font:13px/1.4 'Geist',Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .app-shell{--o-bg:#0a0a0a;--o-fg:#f0f0f0;--o-card:#171717;--o-muted:#262626;--o-mfg:#acacac;--o-accent:#404040;--o-border:rgb(255 255 255/.07);--o-ring:#737373;--o-primary:#e5e5e5;--o-primary-fg:#171717;--o-sidebar:#171717;--o-wsb:#2a2a2a;--o-wsb-fg:#f0f0f0;--o-wsb-accent:#353535;--o-tab-active:color-mix(in srgb,var(--o-fg) 6%,var(--o-card));--o-tab-inactive:var(--o-card);--o-warn:#eab308;--o-question:#fe6e00;--o-question-text:#ffb96d;--o-ok:#86efac;--o-red:#ff6568;--o-scrim:rgba(0,0,0,.55)}}
+:root[data-theme="dark"] .app-shell{--o-bg:#0a0a0a;--o-fg:#f0f0f0;--o-card:#171717;--o-muted:#262626;--o-mfg:#acacac;--o-accent:#404040;--o-border:rgb(255 255 255/.07);--o-ring:#737373;--o-primary:#e5e5e5;--o-primary-fg:#171717;--o-sidebar:#171717;--o-wsb:#2a2a2a;--o-wsb-fg:#f0f0f0;--o-wsb-accent:#353535;--o-tab-active:color-mix(in srgb,var(--o-fg) 6%,var(--o-card));--o-tab-inactive:var(--o-card);--o-warn:#eab308;--o-question:#fe6e00;--o-question-text:#ffb96d;--o-ok:#86efac;--o-red:#ff6568;--o-scrim:rgba(0,0,0,.55)}
+.app-shell[hidden],.app-shell [hidden]{display:none}
+/* the frame fills the window on a desktop and a phone (the team phone layout lets body grow) */
+body.app-mode{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+/* the page's shared button look (border, shadow, 26px, its hover) is reset here; a control's hover colour is its --app-hover */
+.app-shell button{font-family:inherit;letter-spacing:inherit;box-shadow:none;min-height:0;cursor:pointer}.app-shell button:hover:not(:disabled){background:var(--app-hover,transparent)}.app-shell button:focus-visible{outline:2px solid color-mix(in srgb,var(--o-ring) 50%,transparent);outline-offset:-2px}
+.app-shell svg{display:block;flex:none}
+.app-row{flex:1;min-height:0;display:flex}
+.app-ibtn{--app-hover:var(--o-accent);display:inline-grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:8px;background:none;color:var(--o-mfg)}.app-ibtn:hover{color:var(--o-fg)}
+/* left sidebar (§1.1, §2): 36px title bar, search and nav, Projects, the list, the foot */
+.app-left{width:var(--app-left-w);flex:none;display:flex;flex-direction:column;min-height:0;background:var(--o-wsb);color:var(--o-wsb-fg);border-right:1px solid var(--o-border)}
+body:not(.app-left-open) .app-left{display:none}
+.app-tbleft{height:36px;flex:none;display:flex;align-items:center;box-shadow:inset 0 -1px 0 var(--o-border)}
+.app-logo{display:grid;place-items:center;width:18px;height:18px;margin:0 6px 0 12px;border-radius:5px;background:var(--o-primary);color:var(--o-primary-fg);font:600 11px/1 'Geist',Inter,sans-serif;opacity:.85}
+.app-name{font-size:12px;font-weight:600;color:var(--o-mfg);margin-right:8px}
+.app-sidetoggle{display:inline-grid;place-items:center;padding:4px 8px;border:0;border-radius:4px;background:none;color:var(--o-mfg);transition:background 150ms;--app-hover:var(--o-accent)}.app-sidetoggle:hover{color:var(--o-fg)}
+.app-nav{display:flex;flex-direction:column;gap:2px;padding:8px 8px 4px}
+.app-search,.app-navrow{display:flex;width:100%;align-items:center;gap:8px;padding:6px 8px;border:0;border-radius:8px;background:none;text-align:left;font-size:13px;font-weight:500;letter-spacing:-.01em;color:color-mix(in srgb,var(--o-wsb-fg) 60%,transparent);--app-hover:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent)}
+.app-search{background:color-mix(in srgb,var(--o-wsb-fg) 5%,transparent)}
+.app-search svg,.app-navrow svg{color:color-mix(in srgb,var(--o-wsb-fg) 30%,transparent)}
+.app-navrow[aria-current="page"]{background:var(--o-wsb-accent);--app-hover:var(--o-wsb-accent);color:var(--o-fg)}.app-navrow[aria-current="page"] svg{color:inherit}
+.app-navnote{margin-left:auto;font-size:11px;font-weight:500;color:var(--o-mfg)}
+.app-projhead{margin-top:8px;height:32px;flex:none;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 8px}
+.app-projhead>span{padding-left:8px;font-size:12px;font-weight:600;color:color-mix(in srgb,var(--o-mfg) 80%,transparent)}
+.app-projacts{display:flex;align-items:center;gap:4px}
+.app-bell{position:relative;width:32px}.app-count{position:absolute;right:3px;bottom:1px;font:600 11px/11px 'Geist',Inter,sans-serif;font-variant-numeric:tabular-nums;text-shadow:0 1px 1px var(--o-bg)}
+.app-bell.app-hot{color:var(--o-question-text)}
+.app-projects{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:1px 0 0 4px}
+.app-leftfoot{flex:none;display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-top:1px solid var(--o-border)}.app-leftfoot>div{display:flex;gap:4px}
+/* centre (§3.1): 4px drag strip and a 32px tab strip, + and Command at the right end, the open tab below */
+.app-center{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--o-bg)}
+.app-dragstrip{height:4px;flex:none;background:var(--o-card)}
+.app-tabstrip{height:32px;flex:none;display:flex;align-items:stretch;padding-right:6px;background:var(--o-card);border-bottom:1px solid var(--o-border)}
+.app-tabs{display:flex;align-items:stretch;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}.app-tabs::-webkit-scrollbar{display:none}
+.app-tabs>[role=tab]{position:relative;display:flex;align-items:center;gap:6px;min-width:144px;max-width:300px;height:100%;padding:0 6px;border:0;border-top:1px solid var(--o-border);border-right:1px solid var(--o-border);background:var(--o-tab-inactive);--app-hover:var(--o-tab-inactive);color:var(--o-mfg);font-size:12px}
+.app-tabs>[role=tab][aria-selected="true"]{background:var(--o-tab-active);--app-hover:var(--o-tab-active);color:var(--o-fg)}.app-tabs>[role=tab][aria-selected="true"]:after{content:"";position:absolute;inset:auto 0 0 0;height:2px;background:var(--o-fg)}
+.app-newtab{margin:auto 0 auto 8px;width:28px;height:28px}
+.app-grow{flex:1}
+.app-command{display:flex;align-items:center;gap:4px;height:28px;margin:auto 0 auto 6px;padding:0 6px;border:0;border-radius:8px;background:none;color:var(--o-mfg);font-size:12px;font-weight:500;--app-hover:color-mix(in srgb,var(--o-accent) 50%,transparent)}
+.app-lefttoggle{margin:auto 2px auto 4px}body.app-left-open .app-lefttoggle{display:none}
+.app-righttoggle{margin:auto 0 auto 4px}body.app-right-open .app-righttoggle{display:none}
+.app-tabbody{flex:1;min-height:0;overflow:auto;position:relative}
+.app-empty{display:grid;place-items:center;height:100%;padding:24px;color:var(--o-mfg);font-size:13px;text-align:center}
+/* right sidebar (§4): 36px header with its toggle, 40px row of icon tabs, the panel */
+.app-right{width:var(--app-right-w);flex:none;display:flex;flex-direction:column;min-height:0;background:var(--o-sidebar);border-left:1px solid var(--o-border)}
+body:not(.app-right-open) .app-right{display:none}
+.app-rhead{height:36px;flex:none;display:flex;align-items:center;justify-content:flex-end;padding:0 8px}
+.app-rtabs{height:40px;min-height:40px;flex:none;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--o-border)}
+.app-rtab{position:relative;display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;background:none;color:color-mix(in srgb,var(--o-mfg) 60%,transparent)}.app-rtab:hover{color:var(--o-mfg)}
+.app-rtab[aria-selected="true"]{color:var(--o-fg)}.app-rtab[aria-selected="true"]:after{content:"";position:absolute;left:25%;right:25%;bottom:0;height:2px;border-radius:2px 2px 0 0;background:var(--o-fg)}
+.app-rpanel{flex:1;min-height:0;overflow:auto}.app-rpanel .app-empty{height:auto;padding:32px 16px;font-size:12px}
+/* status bar (§5): 24px, the card colour, a top border; watchdog at the left, counts and today's spend at the right */
+.app-status{position:relative;height:24px;min-height:24px;flex:none;display:flex;align-items:center;gap:16px;padding:0 12px;white-space:nowrap;border-top:1px solid var(--o-border);background:var(--o-card);font-size:12px;user-select:none;overflow:visible}
+.app-sitem{display:inline-flex;align-items:center;gap:4px;height:20px;padding:2px 4px;border:0;border-radius:4px;background:none;color:var(--o-mfg);font-size:11px;font-weight:500;font-variant-numeric:tabular-nums}button.app-sitem{--app-hover:color-mix(in srgb,var(--o-accent) 70%,transparent)}
+.app-sitem b{font-weight:600;color:var(--o-fg)}
+.app-sdot{width:6px;height:6px;margin-right:2px;border-radius:50%;background:var(--o-ok)}.app-warn{color:var(--o-question-text)}.app-warn .app-sdot{background:var(--o-question)}
+.app-sitem.app-hot b{color:var(--o-question-text)}
+.app-pop{position:absolute;left:8px;bottom:28px;z-index:40;width:min(380px,calc(100vw - 16px));padding:12px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgb(0 0 0/.18);white-space:normal;font-size:12px;user-select:text}
+.app-pop p{margin:0 0 8px;color:var(--o-mfg)}.app-pop code{display:block;padding:6px 8px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font-size:11px;overflow-wrap:anywhere}
+.app-scrim{position:fixed;inset:0 0 24px 0;z-index:29;background:var(--o-scrim)}
+/* phone: the sidebars are drawers over the centre, one at a time, closed until asked; the status bar keeps its counts */
+@media(max-width:860px){.app-left{position:fixed;top:0;bottom:24px;left:0;z-index:30;width:min(85vw,var(--app-left-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-right{position:fixed;top:0;bottom:24px;right:0;z-index:30;width:min(90vw,var(--app-right-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-shell .app-ibtn,.app-shell .app-sidetoggle,.app-shell .app-rtab{min-width:44px;min-height:44px}.app-tabstrip{height:44px}.app-status{gap:8px;padding:0 8px}}
+/* end:css-app */
 </style></head><body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
@@ -950,6 +1022,75 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 </main>
 </div>
 </div>
+<!-- region:app-shell: the personal app's frame (#561), shown instead of the team dash when /api/dash says mode "app".
+     Orca's regions: left sidebar, centre tab strip, right sidebar with icon tabs, status bar. Each data-region is a
+     mount point the later issues fill: projects (#563, tasks by repository), tabs and tab-body (#565, Session /
+     Terminal / Log), right-panel (#566, Files / Changes / Checks / Details); region:app in the script draws the frame. -->
+<div class="app-shell" id="app-shell" hidden>
+<div class="app-row">
+<aside class="app-left" id="app-left" aria-label="Tasks and projects">
+  <div class="app-tbleft"><span class="app-logo" aria-hidden="true">a</span><span class="app-name">agentd</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
+  <nav class="app-nav" aria-label="Search and views">
+    <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
+    <!-- region:app-nav: Tasks (every task as a table) and Triggers (read only) open in the centre; wired by the issues that build them -->
+    <button type="button" class="app-navrow" data-app-nav="tasks" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13"/></svg>Tasks</button>
+    <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers<span class="app-navnote">Read only</span></button>
+  </nav>
+  <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
+    <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count">0</span></button>
+    <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (agentd repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="new-task" aria-disabled="true" aria-label="New task" title="New task (agentd new)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+  </div></div>
+  <!-- region:app-projects: repositories as folders, their tasks under them, others' tasks in their own group (#563) -->
+  <nav class="app-projects" data-region="projects" id="app-projects" aria-labelledby="app-projects-name"></nav>
+  <div class="app-leftfoot"><div>
+    <button type="button" class="app-ibtn" data-app-action="settings" aria-disabled="true" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="help" aria-label="Keyboard shortcuts and help" title="Help"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg></button>
+  </div></div>
+</aside>
+<section class="app-center" id="app-center" aria-label="Task workspace">
+  <div class="app-dragstrip"></div>
+  <div class="app-tabstrip">
+    <button type="button" class="app-ibtn app-lefttoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button>
+    <!-- region:app-tabs: Session, Terminal N, Log and file diffs as editor tabs (#565) -->
+    <div class="app-tabs" role="tablist" aria-label="Open tabs" data-region="tabs" id="app-tabs"></div>
+    <button type="button" class="app-ibtn app-newtab" data-app-action="new-tab" aria-disabled="true" aria-label="New tab" title="New tab"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    <span class="app-grow"></span>
+    <button type="button" class="app-command" data-app-action="command" aria-disabled="true" title="Actions on the open task, each with its command"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 14 9-14 9z"/></svg>Command</button>
+    <button type="button" class="app-ibtn app-righttoggle" data-app-action="toggle-right" aria-controls="app-right" aria-label="Toggle right sidebar" title="Toggle right sidebar (Ctrl+L)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg></button>
+  </div>
+  <!-- region:app-tab-body: the open tab's content (#565) -->
+  <div class="app-tabbody" data-region="tab-body" id="app-tab-body"><div class="app-empty">No task open. Pick one on the left.</div></div>
+</section>
+<aside class="app-right" id="app-right" aria-label="The open task's results">
+  <div class="app-rhead"><button type="button" class="app-sidetoggle" data-app-action="toggle-right" aria-controls="app-right" aria-label="Toggle right sidebar" title="Toggle right sidebar (Ctrl+L)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg></button></div>
+  <div class="app-rtabs" role="tablist" aria-label="Results">
+    <button type="button" class="app-rtab" role="tab" id="app-rtab-files" data-app-panel="files" aria-controls="app-panel-files" aria-selected="true" aria-label="Files" title="Files"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"/><path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"/></svg></button>
+    <button type="button" class="app-rtab" role="tab" id="app-rtab-details" data-app-panel="details" aria-controls="app-panel-details" aria-selected="false" aria-label="Details" title="Details: agent, cost and budget, delivery" tabindex="-1"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><circle cx="17.5" cy="6.5" r="3.5"/><circle cx="6.5" cy="17.5" r="3.5"/></svg></button>
+    <button type="button" class="app-rtab" role="tab" id="app-rtab-changes" data-app-panel="changes" aria-controls="app-panel-changes" aria-selected="false" aria-label="Changes" title="Changes" tabindex="-1"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg></button>
+    <button type="button" class="app-rtab" role="tab" id="app-rtab-checks" data-app-panel="checks" aria-controls="app-panel-checks" aria-selected="false" aria-label="Checks" title="Checks" tabindex="-1"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/></svg></button>
+  </div>
+  <!-- region:app-right-panel: one panel per icon tab; their content comes with #566 -->
+  <div class="app-rpanel" data-region="right-panel" id="app-right-panel">
+    <section role="tabpanel" id="app-panel-files" data-app-panel="files" aria-labelledby="app-rtab-files"><div class="app-empty">The open task's files show here.</div></section>
+    <section role="tabpanel" id="app-panel-details" data-app-panel="details" aria-labelledby="app-rtab-details" hidden><div class="app-empty">The open task's agent, cost, budget and delivery show here.</div></section>
+    <section role="tabpanel" id="app-panel-changes" data-app-panel="changes" aria-labelledby="app-rtab-changes" hidden><div class="app-empty">The open task's changes show here.</div></section>
+    <section role="tabpanel" id="app-panel-checks" data-app-panel="checks" aria-labelledby="app-rtab-checks" hidden><div class="app-empty">The open task's checks show here.</div></section>
+  </div>
+</aside>
+</div>
+<div class="app-scrim" id="app-scrim" hidden></div>
+<!-- region:app-status: watchdog, running, waiting on you, today's spend; drawn by appStatus -->
+<footer class="app-status" id="app-status" role="status" aria-label="Status">
+  <button type="button" class="app-sitem" data-app-status="watchdog" aria-controls="app-watchdog-pop" aria-expanded="false"><span class="app-sdot" aria-hidden="true"></span><span id="app-watchdog-text">Watchdog</span></button>
+  <span class="app-grow"></span>
+  <span class="app-sitem" data-app-status="running" title="Your open tasks with a worker running"><b id="app-running">0</b> <span>running</span></span>
+  <span class="app-sitem" data-app-status="waiting" title="Your open tasks waiting on you"><b id="app-waiting">0</b> <span>waiting on you</span></span>
+  <span class="app-sitem" data-app-status="spend" id="app-spend-item" title="What workers spent today"><span>Today</span> <b id="app-spend">—</b></span>
+  <div class="app-pop" id="app-watchdog-pop" role="dialog" aria-label="Watchdog" hidden></div>
+</footer>
+</div>
+<!-- end:app-shell -->
 <div class="backdrop" id="backdrop"></div>
 <div class="grip" id="grip" role="separator" aria-orientation="vertical" aria-label="Resize the session console" title="Drag to resize, double-click to reset"></div>
 <aside class="drawer" id="hist" role="dialog" aria-label="Session console" tabindex="-1"></aside>
@@ -3851,8 +3992,61 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
   render(){const who=USER+'|'+ROLE;if(!setupOwner()||SETUP.asked===who)return;SETUP.asked=who;
     setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
 // end:setup
+// region:app: the personal app's frame (#561). When /api/dash says mode "app" (agentd app,
+// libraos/agentd-core#560), render() hands the snapshot here instead of the team pages:
+// the team shell (rail, Agents list, panel, top bar, pages) is hidden, not removed, and
+// #app-shell (region:app-shell) shows Orca's frame. Its regions are mount points
+// (data-region) for the issues that fill them; this region draws the frame itself:
+//   sidebars  open by default on a desktop, Ctrl/Cmd+B and Ctrl/Cmd+L or the toggles
+//             hide them (kept in localStorage dash-app-sidebars); on a phone both are
+//             drawers over the centre, one at a time, closed until asked
+//   right tabs Files, Details, Changes, Checks (Orca's Explorer, Agents, Source
+//             Control, Checks), one panel each
+//   status bar whether a watchdog runs (the server's watchdog field; not running, it
+//             opens the command that starts one), running and waiting counts (the
+//             Agents list's own: agentsModel), today's spend (spend_today)
+// A snapshot without mode "app" puts the team dash back as it was.
+const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
+try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
+function appShell(d){const on=!!d&&d.mode==='app';
+  if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false)}appSides()}
+  if(on)appStatus(d);return on}
+function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
+function appSides(){const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
+  for(const n of document.querySelectorAll('#app-shell [data-app-action^="toggle-"]'))n.setAttribute('aria-expanded',String(appOpen(n.dataset.appAction.slice(7))))}
+function appToggle(side){if(PHONE.matches)APP.drawer=APP.drawer===side?'':side;else{APP.sides[side]=!APP.sides[side];try{localStorage.setItem('dash-app-sidebars',JSON.stringify(APP.sides))}catch(e){}}appSides()}
+function appPanel(name){APP.panel=name;for(const t of document.querySelectorAll('#app-right [role=tab]')){const on=t.dataset.appPanel===name;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1}
+  for(const p of document.querySelectorAll('#app-right [role=tabpanel]'))p.hidden=p.dataset.appPanel!==name}
+function appMoney(v){return '$'+Number(v||0).toFixed(2)}
+function appStatus(d){const m=agentsModel(d),wd=d.watchdog,sp=d.spend_today,up=!!(wd&&wd.running),item=document.querySelector('[data-app-status="watchdog"]');
+  item.classList.toggle('app-warn',!!wd&&!up);$('app-watchdog-text').textContent=!wd?'Watchdog not reported':up?'Watchdog running':'No watchdog';
+  item.title=!wd?'This server does not say whether a watchdog runs.':up?'A watchdog pass ran in the last 5 minutes: offered tasks start and budgets are enforced.':'No watchdog is running: offered tasks do not start. Click for the command that starts one.';
+  APP.watchdog=wd||null;if(!$('app-watchdog-pop').hidden)appPopDraw();
+  $('app-running').textContent=m.counts.working;$('app-waiting').textContent=m.counts.need;
+  document.querySelector('[data-app-status="waiting"]').classList.toggle('app-hot',m.counts.need>0);
+  $('app-bell-count').textContent=m.counts.need;document.querySelector('[data-app-action="bell"]').classList.toggle('app-hot',m.counts.need>0);
+  const floor=!!sp&&(sp.unpriced>0||sp.pending>0);$('app-spend').textContent=sp?(floor?'≥ ':'')+appMoney(sp.usd):'—';
+  $('app-spend-item').title=sp?'What workers spent today'+(sp.user?', yours':'')+': '+sp.workers+' worker'+(sp.workers===1?'':'s')+(floor?'; '+(sp.unpriced+sp.pending)+' with no dollars yet, so this is at least':'')+'. Estimated from usage logs at configured prices.':'This server does not report today’s spend.'}
+// appPop: the watchdog item's popover, the server's note and start command, as text.
+function appPopDraw(){const wd=APP.watchdog,pop=$('app-watchdog-pop');
+  pop.replaceChildren(...(wd&&wd.running?[el('p',{},'A watchdog is running. It starts offered tasks, notices stuck workers and enforces budgets.')]:[el('p',{},(wd&&wd.note?wd.note:'No watchdog is running')+'. Start one from a terminal:'),el('code',{},wd&&wd.start||'agentd install'),el('p',{style:'margin:8px 0 0'},'The page does not start it for you.')]))}
+function appPop(open){const pop=$('app-watchdog-pop'),item=document.querySelector('[data-app-status="watchdog"]');open=!!open;if(open)appPopDraw();pop.hidden=!open;item.setAttribute('aria-expanded',String(open))}
+$('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action],[data-app-panel][role=tab],[data-app-status="watchdog"]');
+  if(!e.target.closest('#app-watchdog-pop,[data-app-status="watchdog"]'))appPop(false);if(!t)return;
+  if(t.matches('[role=tab][data-app-panel]')){appPanel(t.dataset.appPanel);return}
+  if(t.dataset.appStatus==='watchdog'){appPop($('app-watchdog-pop').hidden);return}
+  const a=t.dataset.appAction;if(a==='toggle-left'||a==='toggle-right'){appToggle(a.slice(7));return}
+  if(a==='search'){searchOpenBox();return}if(a==='help'){keysSheet();return}});
+$('app-scrim').onclick=()=>{APP.drawer='';appSides()};
+$('app-right').querySelector('[role=tablist]').addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;const tabs=[...e.currentTarget.querySelectorAll('[role=tab]')],i=tabs.findIndex(t=>t.dataset.appPanel===APP.panel),n=e.key==='Home'?0:e.key==='End'?tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;e.preventDefault();appPanel(tabs[n].dataset.appPanel);tabs[n].focus()});
+document.addEventListener('keydown',e=>{if(!APP.on)return;
+  if(e.key==='Escape'){if(!$('app-watchdog-pop').hidden){appPop(false);return}if(APP.drawer){APP.drawer='';appSides()}return}
+  if(!(e.ctrlKey||e.metaKey)||e.shiftKey||e.altKey)return;const k=e.key.toLowerCase();if(k!=='b'&&k!=='l')return;e.preventDefault();appToggle(k==='b'?'left':'right')});
+PHONE.addEventListener('change',()=>{APP.drawer='';appSides()});
+appPanel(APP.panel);
+// end:app
 // region:refresh
-function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
+function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();notifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
