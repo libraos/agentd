@@ -70,7 +70,7 @@ console.log('Chat regression: prose documents, bracketed citations, persisted en
 // wherever the root is. A directory named worktrees that agentd did not make is left as it was.
 {const F='the worker’s folder';
 for(const [text,want] of [
- ['check failed in /var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-0a1b2c3d4e/internal/x_test.go','check failed in '+F],
+ ['check failed in /var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-sample/internal/x_test.go','check failed in '+F],
  ['edited /home/alice/.agentd/worktrees/app-0011aabb/run-20261113-1/main.go','edited '+F],
  ['in ~/.agentd/worktrees/my-app-deadbeef/improve-7 now','in '+F+' now'],
  ['log: open /Users/bo/agentd/worktrees/web-12345678/trigger-nightly/a.txt: no such file','log: open '+F+' no such file'],
@@ -83,6 +83,6 @@ for(const [text,want] of [
  ['short hash /srv/worktrees/agentd-core-3f9a1c/hof-1/a.go','short hash /srv/worktrees/agentd-core-3f9a1c/hof-1/a.go'],
  ['home /home/alice/worktrees/proj/main.go','home main.go'],
 ])assert.equal(ctx.plainText(text),want,text);
-assert.equal(ctx.cardTitle('Fix /var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-0a1b2c3d4e/internal/x.go'),'Fix '+F);
+assert.equal(ctx.cardTitle('Fix /var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-sample/internal/x.go'),'Fix '+F);
 assert.equal(ctx.shortTitle('Fix /srv/worktrees/release/notes.md'),'Fix notes.md');}
 console.log('plainText: a worker worktree outside its checkout reads as the worker’s folder; other worktrees directories keep their names passed');

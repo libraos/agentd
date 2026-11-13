@@ -139,12 +139,12 @@ const submitSheet=async(note)=>{const dlg=d.querySelector('dialog');assert(dlg,'
  // reads as the worker's folder in an item's reason and its check line, not as a
  // folder name like agentd-core-3f9a1c2b that looks like another repository; the
  // exact path stays under Details. A person's own directory named worktrees keeps its name.
- const wt='/var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-0a1b2c3d4e';
+ const wt='/var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-sample';
  dash.inbox=dash.inbox.map(x=>x.id==='failed:res-1'?{...x,failure:'check failed in '+wt+'/internal/dash.go, see /srv/worktrees/release/notes.md'}:x);
  item.check={cmd:'go test ./...',result:'failed in '+wt+'/internal/agentd',ago:'1m'};
  await w.eval('refresh()');await settle();
  await go('#inbox/failed');const why=detail().querySelector('.failure-reason').textContent;
- assert(why.includes('Check failed in the worker’s folder, see')&&!why.includes('3f9a1c2b')&&!why.includes('hof-0a1b2c3d4e'),'new-place worktree in the reason: '+why);
+ assert(why.includes('Check failed in the worker’s folder, see')&&!why.includes('3f9a1c2b')&&!why.includes('hof-sample'),'new-place worktree in the reason: '+why);
  assert(why.includes('/srv/worktrees/release/notes.md'),'an ordinary worktrees directory was rewritten: '+why);
  assert(detail().querySelector('.failure-next').textContent.includes(wt+'/internal/dash.go'),'exact path lost from Details');
  await go('#inbox?item=blocked%3Ahof-ask%3A1');await settle();const chk=detail().querySelector('[data-k="check"]');
