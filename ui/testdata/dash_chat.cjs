@@ -64,3 +64,25 @@ run("CHAT.locked=false;CHAT.gatewayReady=false;CHAT.loaded=true;chatRenderThread
 run("CHAT.id='chat-recovery';CHAT.live=null;CHAT.busy=false;CHAT.unsent={id:CHAT.id,text:'Lost send',seq:3};CHAT.msgs=[{role:'user',seq:4,content:'Someone else sent this'}]");ids['chat-input'].value='New typing';ctx.chatUnsentBack();assert.equal(ids['chat-input'].value,'Lost send\n\nNew typing');assert.equal(run('CHAT.unsent'),null);
 run("CHAT.unsent={id:CHAT.id,text:'Accepted send',seq:3};CHAT.msgs=[{role:'user',seq:4,content:'Accepted send'}]");ids['chat-input'].value='New typing';ctx.chatUnsentBack();assert.equal(ids['chat-input'].value,'New typing');
 console.log('Chat regression: prose documents, bracketed citations, persisted endings, setup state and pending text recovery passed');
+// #517: plainText (titles, status and log lines, Inbox reasons) turns a path in a worker's worktree
+// into "the worker's folder": the old place under .claude/worktrees and the new one outside the
+// checkout, <root>/worktrees/<repo>-<8 hex>/<hof-|run-|pr-|issue-|imp-|improve-|trigger-name>,
+// wherever the root is. A directory named worktrees that agentd did not make is left as it was.
+{const F='the worker’s folder';
+for(const [text,want] of [
+ ['check failed in /var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-0a1b2c3d4e/internal/x_test.go','check failed in '+F],
+ ['edited /home/alice/.agentd/worktrees/app-0011aabb/run-20261113-1/main.go','edited '+F],
+ ['in ~/.agentd/worktrees/my-app-deadbeef/improve-7 now','in '+F+' now'],
+ ['log: open /Users/bo/agentd/worktrees/web-12345678/trigger-nightly/a.txt: no such file','log: open '+F+' no such file'],
+ ['working in /var/lib/agentd/worktrees/agentd-core-3f9a1c2b/pr-12','working in '+F],
+ ['still under /src/app/.claude/worktrees/hof-abc123/a.go','still under '+F],
+ ['and ~/src/app/.claude/worktrees/hof-abc123','and '+F],
+ ['a person’s /srv/worktrees/release/notes.md','a person’s /srv/worktrees/release/notes.md'],
+ ['dated /srv/worktrees/release-20261113/notes.md','dated /srv/worktrees/release-20261113/notes.md'],
+ ['not a worker /srv/worktrees/agentd-core-3f9a1c2b/feature-x/a.go','not a worker /srv/worktrees/agentd-core-3f9a1c2b/feature-x/a.go'],
+ ['short hash /srv/worktrees/agentd-core-3f9a1c/hof-1/a.go','short hash /srv/worktrees/agentd-core-3f9a1c/hof-1/a.go'],
+ ['home /home/alice/worktrees/proj/main.go','home main.go'],
+])assert.equal(ctx.plainText(text),want,text);
+assert.equal(ctx.cardTitle('Fix /var/lib/agentd/worktrees/agentd-core-3f9a1c2b/hof-0a1b2c3d4e/internal/x.go'),'Fix '+F);
+assert.equal(ctx.shortTitle('Fix /srv/worktrees/release/notes.md'),'Fix notes.md');}
+console.log('plainText: a worker worktree outside its checkout reads as the worker’s folder; other worktrees directories keep their names passed');
