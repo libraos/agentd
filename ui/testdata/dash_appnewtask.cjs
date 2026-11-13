@@ -111,8 +111,10 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  // Orca's dialog values and its own CSS region.
  assert(/region:css-app-newtask/.test(css),'no css-app-newtask region');
  for(const re of [/\.appnt\{[^}]*max-width:512px/,/\.appnt\{[^}]*padding:24px/,/\.appnt\{[^}]*border-radius:10px/,/\.appnt::backdrop\{background:rgb\(0 0 0\/\.55\)\}/,/\.appnt-title\{[^}]*font-size:16px[^}]*font-weight:600/,/\.appnt-label\{font-size:12px;font-weight:500/,/\.appnt-body\{[^}]*gap:16px/])assert(re.test(css),'css: '+re);
+ // The team dash coming back closes an open dialog with the frame.
+ newBtn().click();await settle();assert(dlg()&&dlg().open,'the dialog does not open again');
  // Team mode: n still opens the New task page.
- snap={...base};await w.refresh();await settle();assert(!doc.body.classList.contains('app-mode'),'team mode did not come back');
+ snap={...base};await w.refresh();await settle();assert(!doc.body.classList.contains('app-mode'),'team mode did not come back');assert(!dlg(),'the dialog stays open in team mode');
  key('n');await settle();assert(/^#new/.test(w.location.hash),'team mode n does not open the New task page: '+w.location.hash);assert(!dlg(),'the app dialog opened in team mode');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_appnewtask: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');
