@@ -792,6 +792,91 @@ body:not(.app-right-open) .app-right{display:none}
 /* phone: the sidebars are drawers over the centre, one at a time, closed until asked; the status bar keeps its counts */
 @media(max-width:860px){.app-left{position:fixed;top:0;bottom:24px;left:0;z-index:30;width:min(85vw,var(--app-left-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-right{position:fixed;top:0;bottom:24px;right:0;z-index:30;width:min(90vw,var(--app-right-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-shell .app-ibtn,.app-shell .app-sidetoggle,.app-shell .app-rtab{min-width:44px;min-height:44px}.app-tabstrip{height:44px}.app-status{gap:8px;padding:0 8px}}
 /* end:css-app */
+/* region:css-app-workspace: the app's task workspace (libraos/agentd-core#565): the centre's editor tabs (Session,
+   Terminal N, Log, file and diff tabs, + and Command) and the right sidebar's panels (Files, Details, Changes, Checks).
+   Orca's values (briefs/personal-app-orca/SPEC.md §3.1 tab strip, §3.2 terminal, §3.3 diff header, §4.1 Explorer,
+   §4.2 Source Control); Orca is MIT (stablyai/orca). Nothing outside #app-shell is styled here. */
+.app-shell{--o-mod:#895503;--o-add:#587c0c;--o-del:#ad0707;--o-unt:#007100;--o-ren:#007acc;--o-term-bg:#fff;--o-term-fg:#2e3434;--o-editor:#fff;--o-mono:'SF Mono',SFMono-Regular,ui-monospace,'DejaVu Sans Mono','Cascadia Code',Menlo,Consolas,'Liberation Mono',monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .app-shell{--o-mod:#e2c08d;--o-add:#81b88b;--o-del:#c74e39;--o-unt:#73c991;--o-ren:#73c991;--o-term-bg:#282c34;--o-term-fg:#fff;--o-editor:#1e1e1e}}
+:root[data-theme="dark"] .app-shell{--o-mod:#e2c08d;--o-add:#81b88b;--o-del:#c74e39;--o-unt:#73c991;--o-ren:#73c991;--o-term-bg:#282c34;--o-term-fg:#fff;--o-editor:#1e1e1e}
+.app-tabs>.app-tab{cursor:pointer;user-select:none;outline-offset:-2px}.app-tabs>.app-tab:hover{color:var(--o-fg)}
+.app-tabs>.app-tab[data-kind="term"]{width:300px;flex:1 1 auto}.app-tabs>.app-tab:not([data-kind="term"]){width:max-content}
+.app-tabs>.app-tab:last-child{border-right-color:transparent}
+.app-tabs>.app-tab:only-child:after{display:none}
+.app-tab>svg{opacity:.7}.app-tab[aria-selected="true"]>svg{opacity:1}
+.app-tlabel{flex:1;min-width:0;margin-right:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-tmark{flex:none;font-size:10px;line-height:1;font-weight:600;letter-spacing:.05em}
+[data-mark="M"]{--o-git:var(--o-mod)}[data-mark="A"]{--o-git:var(--o-add)}[data-mark="D"]{--o-git:var(--o-del)}[data-mark="U"]{--o-git:var(--o-unt)}[data-mark="R"]{--o-git:var(--o-ren)}
+.app-tab[data-mark] .app-tlabel,.app-tab[data-mark] .app-tmark{color:var(--o-git)}
+.app-tclose{flex:none;display:grid;place-items:center;width:16px;height:16px;padding:0;border:0;border-radius:6px;background:none;color:transparent;--app-hover:var(--o-muted)}
+.app-tab:hover .app-tclose,.app-tab[aria-selected="true"] .app-tclose{color:var(--o-mfg)}.app-tclose:hover{color:var(--o-fg)!important}
+.app-center[data-ws] .app-newtab,.app-center[data-ws] .app-command{cursor:pointer}
+/* menus: + (Orca's new tab menu) and Command (the open task's actions, each with its command) */
+.app-menu{position:fixed;z-index:45;width:288px;max-height:min(70vh,520px);overflow:auto;padding:4px;border:1px solid color-mix(in srgb,var(--o-border) 80%,transparent);border-radius:11px;background:var(--o-card);color:var(--o-fg);box-shadow:0 16px 36px rgba(0,0,0,.24);font-size:12px}
+.app-menu[data-menu="command"]{width:340px}
+.app-mitem{display:flex;width:100%;align-items:flex-start;gap:8px;padding:6px 8px;border:0;border-radius:7px;background:none;color:var(--o-fg);text-align:left;font-size:12px;line-height:20px;font-weight:500;--app-hover:var(--o-accent)}
+.app-mitem>svg{margin-top:2px;color:var(--o-mfg)}.app-mitem[aria-disabled="true"]{opacity:.5;cursor:default}
+.app-mitem small{display:block;font-weight:400;color:var(--o-mfg);line-height:16px}.app-mitem code{display:block;margin-top:2px;font:11px/16px var(--o-mono);color:var(--o-mfg);overflow-wrap:anywhere}
+.app-mitem[data-danger]{color:var(--o-red)}
+.app-msep{height:1px;margin:4px -4px;background:var(--o-border)}.app-mnote{padding:6px 8px;color:var(--o-mfg);line-height:16px}
+/* the tab body: Session, Terminal, Log, a file, a diff */
+.app-tabbody>.app-pane{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;background:var(--o-bg)}
+.app-sess{flex:1;min-height:0;overflow:auto;padding:12px 16px 16px}
+.app-sess h2{margin:0 0 4px;font-size:15px;line-height:22px;font-weight:600;letter-spacing:-.01em}
+.app-smeta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:12px;color:var(--o-mfg);font-size:12px}.app-smeta code{font:11px var(--o-mono)}
+.app-sblock{margin:0 0 12px;padding:8px 10px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-card);font-size:12px;line-height:18px;white-space:pre-wrap;overflow-wrap:anywhere}
+.app-sblock b{display:block;margin-bottom:2px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}
+.app-feed{font:13px/1.5 var(--o-mono);color:var(--o-fg)}
+.app-feed>div{padding:2px 0;white-space:pre-wrap;overflow-wrap:anywhere}.app-feed .app-fuser{color:var(--o-mfg)}.app-feed .app-ftool{color:var(--o-mfg);font-size:12px}.app-feed .app-ferr{color:var(--o-red)}
+.app-note{padding:8px 0;color:var(--o-mfg);font-size:12px}
+.app-sess .result,.app-sess .openpr{margin:0 0 12px;font-size:12px}.app-sess .result h5{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.app-msgbar{flex:none;display:flex;gap:8px;align-items:flex-end;padding:8px 12px;border-top:1px solid var(--o-border);background:var(--o-card)}
+.app-msgbar textarea{flex:1;min-height:56px;max-height:160px;resize:vertical;padding:6px 8px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-bg);color:var(--o-fg);font:12px/1.4 inherit}
+.app-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:24px;padding:0 12px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-bg);color:var(--o-fg);font-size:11px;font-weight:500;--app-hover:var(--o-accent)}
+.app-btn[aria-disabled="true"]{opacity:.5;cursor:default}.app-btn.app-primary{background:var(--o-primary);border-color:var(--o-primary);color:var(--o-primary-fg);--app-hover:color-mix(in srgb,var(--o-primary) 88%,var(--o-bg))}
+.app-term{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--o-term-bg);color:var(--o-term-fg)}
+.app-term .app-tscreen{flex:1;min-height:0;padding:4px}.app-term .app-tstatus{flex:none;display:flex;gap:8px;align-items:center;padding:4px 8px;font-size:11px;color:var(--o-mfg);border-top:1px solid var(--o-border)}
+.app-term .xterm{height:100%}.app-term .xterm-viewport{background:var(--o-term-bg)!important}
+.app-pane>.wlog{flex:1;min-height:0;display:flex;flex-direction:column;margin:0;border:0}.app-pane>.wlog>summary{display:none}
+.app-pane .wlog-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:4px 8px}.app-pane .wlog-lines{flex:1;max-height:none;margin:0;font:12px/1.45 var(--o-mono);background:none;border:0}
+.app-edhead{flex:none;display:flex;align-items:center;gap:4px;min-height:32px;padding:3px 14px;background:var(--o-editor);border-bottom:1px solid color-mix(in srgb,var(--o-border) 72%,transparent)}
+.app-edpath{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:12px/1.2 var(--o-mono);color:var(--o-mfg)}
+.app-edbody{flex:1;min-height:0;overflow:auto;background:var(--o-editor)}
+.app-diff{margin:0;padding:4px 0;font:13.5px/19px var(--o-mono);color:var(--o-fg);counter-reset:none}
+.app-diff>span{display:block;padding:0 12px 0 92px;white-space:pre;position:relative}.app-diff>span[data-n]:before{content:attr(data-n);position:absolute;left:0;width:80px;text-align:right;color:#237893}
+.app-diff>.app-dadd{background:color-mix(in srgb,#9bb955 33%,transparent)}.app-diff>.app-ddel{background:color-mix(in srgb,#ff0000 14%,transparent)}.app-diff>.app-dhunk{color:var(--o-mfg);background:color-mix(in srgb,var(--o-fg) 4%,transparent)}
+.app-file{margin:0;padding:8px 14px;font:13px/1.5 var(--o-mono);white-space:pre;color:var(--o-fg)}
+/* right sidebar panels (§4.1 Explorer, §4.2 Source Control) */
+.app-phead{height:32px;display:flex;align-items:center;gap:8px;padding:0 8px;border-bottom:1px solid var(--o-border)}.app-phead>b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500}
+.app-query{display:flex;flex-direction:column;gap:8px;padding:8px;border-bottom:1px solid var(--o-border)}
+.app-seg{display:grid;grid-template-columns:1fr 1fr;height:28px;padding:2px;border-radius:8px;background:var(--o-muted)}
+.app-seg>button{border:0;border-radius:6px;background:none;color:var(--o-mfg);font-size:12px;font-weight:500;--app-hover:color-mix(in srgb,var(--o-fg) 6%,transparent)}.app-seg>button[aria-pressed="true"]{background:color-mix(in srgb,var(--o-fg) 12%,transparent);color:var(--o-fg)}
+.app-find{display:flex;align-items:center;gap:4px;height:32px;padding:0 8px;border:1px solid var(--o-border);border-radius:8px;background:color-mix(in srgb,var(--o-border) 50%,transparent);color:var(--o-mfg)}.app-find:focus-within{border-color:var(--o-ring)}
+.app-find input{flex:1;min-width:0;height:100%;border:0;background:none;color:var(--o-fg);font-size:12px;outline:0}
+.app-flist{padding:4px 0}.app-frow{display:flex;width:100%;align-items:center;gap:4px;padding:4px 8px 4px 16px;border:0;border-radius:6px;background:none;color:var(--o-fg);text-align:left;font-size:12px;--app-hover:var(--o-accent)}
+.app-frow>svg{color:var(--o-mfg)}.app-frow .app-fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.app-frow[data-mark] .app-fname{color:var(--o-git)}
+.app-frow .app-fmark{margin:0 8px 0 auto;font-size:10px;font-weight:600;letter-spacing:.05em;color:var(--o-git)}.app-frow[data-current="true"]{background:color-mix(in srgb,var(--o-fg) 8%,var(--o-accent))}
+.app-frow .app-fdir{margin-left:6px;font-size:11px;color:var(--o-mfg)}.app-fhit{display:block;padding:0 8px 4px 34px;font:11px/16px var(--o-mono);color:var(--o-mfg);white-space:pre;overflow:hidden;text-overflow:ellipsis}
+.app-scm{padding:8px}.app-branch{display:flex;flex-direction:column;gap:2px;margin:0 0 8px;font-size:11px;color:var(--o-mfg)}
+.app-branch>span{display:flex;align-items:center;gap:4px}.app-branch code{font:500 10.5px var(--o-mono);color:var(--o-fg)}.app-branch .app-base code{color:color-mix(in srgb,var(--o-fg) 90%,transparent);text-decoration:underline;text-decoration-color:var(--o-border);text-underline-offset:2px}
+.app-scm .app-btn{width:100%}.app-scm .app-why{margin:6px 0 0;font-size:11px;color:var(--o-mfg);line-height:16px}
+.app-chead{display:flex;align-items:center;gap:4px;padding:12px 12px 4px 4px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}.app-chead span{font-size:11px;font-weight:500;letter-spacing:0;font-variant-numeric:tabular-nums}
+.app-crow{display:flex;width:100%;align-items:center;gap:4px;padding:4px 12px 4px 20px;border:0;border-radius:0;background:none;color:var(--o-fg);text-align:left;font-size:12px;--app-hover:color-mix(in srgb,var(--o-accent) 40%,transparent)}
+.app-crow>svg{color:var(--o-git,var(--o-mfg))}.app-crow .app-fname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.app-crow .app-fdir{flex:1;min-width:0;margin-left:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--o-mfg)}
+.app-crow .app-n{font-size:10px;font-variant-numeric:tabular-nums}.app-crow .app-n.add{color:var(--o-add)}.app-crow .app-n.del{color:var(--o-del)}.app-crow .app-fmark{width:16px;text-align:center;font-size:10px;font-weight:700;color:var(--o-git)}
+.app-crow[data-current="true"]{background:var(--o-accent)}
+.app-psec{padding:10px 12px;border-bottom:1px solid var(--o-border);font-size:12px}.app-psec h4{margin:0 0 6px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}
+.app-psec dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0}.app-psec dt{color:var(--o-mfg)}.app-psec dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.app-psec code,.app-cli{font:11px/16px var(--o-mono);color:var(--o-mfg);overflow-wrap:anywhere}.app-cli{display:block;margin-top:4px}
+.app-meter{height:6px;margin:6px 0 4px;border-radius:3px;background:var(--o-muted);overflow:hidden}.app-meter>i{display:block;height:100%;background:var(--o-ok)}
+.app-psec[data-warn] .app-meter>i{background:var(--o-warn)}.app-psec[data-over] .app-meter>i{background:var(--o-red)}
+.app-bwarn{margin:6px 0 0;padding:6px 8px;border-radius:6px;background:color-mix(in srgb,var(--o-warn) 14%,transparent);color:var(--o-fg);line-height:16px}
+.app-verdict{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;background:var(--o-muted)}
+.app-verdict[data-outcome="auto_completed"],.app-verdict[data-outcome="accepted"]{color:var(--o-ok);background:color-mix(in srgb,var(--o-ok) 12%,transparent)}.app-verdict[data-outcome="failed"],.app-verdict[data-outcome="false_accept"]{color:var(--o-red);background:color-mix(in srgb,var(--o-red) 10%,transparent)}
+.app-rpanel .checks{padding:10px 12px;font-size:12px}.app-rpanel .checks h5{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}.app-rpanel .check-run{padding:6px 0;border-top:1px solid var(--o-border)}
+.app-rpanel .checks-cmd{display:block;margin-bottom:6px;font:11px var(--o-mono);overflow-wrap:anywhere}.app-rpanel .check-noev{color:var(--o-question-text);font-weight:600}
+@media(max-width:860px){.app-tabs>.app-tab[data-kind="term"]{width:auto;min-width:120px}.app-tabs>.app-tab{min-width:112px}.app-tclose{width:28px;height:28px;color:var(--o-mfg)}.app-frow,.app-crow{min-height:40px}.app-menu{left:8px!important;right:8px;width:auto!important}}
+/* end:css-app-workspace */
 </style></head><body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
@@ -4075,6 +4160,242 @@ document.addEventListener('keydown',e=>{if(!APP.on)return;
 PHONE.addEventListener('change',()=>{APP.drawer='';appSides()});
 appPanel(APP.panel);
 // end:app
+// region:app-workspace
+// The app's task workspace (libraos/agentd-core#565): the open task in the centre's editor tabs and the
+// right sidebar's panels, in Orca's layout (briefs/personal-app-orca/SPEC.md §3, §4).
+//   tabs      Session first and always there (the task, its reports and history, a message box to its
+//             worker); Terminal N, a shell in the worker directory (GET /api/terminal?id=&n=, up to 3,
+//             where the dash offers one); Log (GET /api/log); a file or a diff opened from Files or
+//             Changes, labelled `path (diff)` with its M/U/A/D mark. All but Session close; + opens a
+//             terminal or brings back Log; Command lists the actions the task's state allows, each with
+//             its command (Stop, Take over, Start again, Change check, Cancel, Open in editor).
+//   panels    Files (Names, or Contents: a search in the changed files' diffs); Changes (`branch → base`,
+//             CHANGES with +N −N and the mark, Push and open a draft PR after a confirm; no merge);
+//             Checks (each run, a revert test's `not evidence`); Details (GET /api/taskdetail: agent and
+//             model, cost, budget used of its cap with the 85% warning, delivery verdict and reason).
+//   read only another person's task: Session, Log and diffs; no terminal, message box or action.
+// A task opens from the sidebar's app-task event (#563), New task's app:select (#564) or appSelect(id).
+// Every text the server sends goes in as text. The server checks each read and write again.
+const AW={hid:'',ro:false,by:{},detail:{},seg:'names',q:'',menu:null,timer:0,term:{}};
+const AW_TERMS=3,AW_EVERY=10000;
+const AW_SVG={
+  term:'M4 17l6-6-6-6M12 19h8',log:'M4 6h16M4 12h16M4 18h10',session:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+  diff:'M12 3v14M5 10h14M5 21h14',file:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6',x:'M18 6 6 18M6 6l12 12',
+  stop:'M6 6h12v12H6z',hand:'M18 11V6a2 2 0 0 0-4 0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8a8 8 0 0 0 16 0v-2a2 2 0 0 0-4 0',
+  again:'M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5',check:'m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8',ban:'M4.9 4.9l14.2 14.2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',
+  edit:'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',branch:'M6 3v12M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 9a9 9 0 0 1-9 9',
+  arrow:'M5 12h14M13 6l6 6-6 6',filter:'M3 6h18M7 12h10M10 18h4',search:'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5',push:'M12 19V5M5 12l7-7 7 7'};
+function awIcon(k,n){const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('width',String(n||14));s.setAttribute('height',String(n||14));s.setAttribute('fill','none');s.setAttribute('stroke','currentColor');s.setAttribute('stroke-width','1.75');s.setAttribute('stroke-linecap','round');s.setAttribute('stroke-linejoin','round');s.setAttribute('aria-hidden','true');
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',AW_SVG[k]||'');s.append(p);return s}
+// awTask is the open task's row in the snapshot (open, then finished), or just its id.
+function awTask(hid){const d=lastDash||{};return (d.handoff_list||[]).find(h=>h.id===hid)||(d.done||[]).find(h=>h.id===hid)||{id:hid}}
+// awTheirs: the task is another person's, so it is read only here (the sidebar says so in its event).
+function awTheirs(h){return !!(USER&&h.from_user&&h.from_user!==USER)}
+function awState(hid){return AW.by[hid]||(AW.by[hid]={tabs:[{key:'session',kind:'session'}],cur:'session'})}
+function awMark(f){if(!f)return '';if(f.changed)return FILES_MARK[f.changed]||'';if(/^deleted file mode/m.test(f.diff||''))return 'D';if(/^new file mode/m.test(f.diff||''))return 'U';return 'M'}
+function awBase(p){return String(p||'').split('/').pop()}
+function awDir(p){const a=String(p||'').split('/');a.pop();return a.join('/')}
+// appSelect opens task hid in the workspace; readOnly comes from the sidebar's event, else from the row.
+function appSelect(hid,readOnly){hid=String(hid||'');if(!hid)return;const h=awTask(hid);AW.hid=hid;AW.ro=readOnly===undefined?awTheirs(h):!!readOnly;
+  const s=awState(hid);if(AW.ro){s.tabs=s.tabs.filter(t=>t.kind==='session'||t.kind==='log'||t.kind==='diff');if(!s.tabs.some(t=>t.key===s.cur))s.cur='session'}
+  awMenu(null);awDraw();awPanels(true);clearInterval(AW.timer);AW.timer=setInterval(awTick,AW_EVERY)}
+document.addEventListener('app-task',e=>{const x=e.detail||{};if(x.id)appSelect(x.id,x.readOnly)});
+document.addEventListener('app:select',e=>{const x=e.detail||{};if(x.handoff)appSelect(x.handoff)});
+function awTick(){if(!APP.on||!AW.hid||document.hidden)return;awPanels(false);const s=awState(AW.hid),t=s.tabs.find(x=>x.key===s.cur);if(t&&t.kind==='session'&&!awTyping())awBody()}
+function awTyping(){const a=document.activeElement;return !!(a&&a.closest&&a.closest('#app-tab-body textarea'))}
+// The tab strip: Session first, the rest in the order opened.
+function awTabLabel(t,h){if(t.kind==='session')return 'Session';if(t.kind==='log')return 'Log';if(t.kind==='term')return 'Terminal '+t.n;if(t.kind==='diff')return awBase(t.path)+' (diff)';return awBase(t.path)}
+function awDraw(){const strip=$('app-tabs'),center=$('app-center');if(!AW.hid){strip.replaceChildren();return}
+  const h=awTask(AW.hid),s=awState(AW.hid);center.dataset.ws=AW.hid;
+  strip.replaceChildren(...s.tabs.map(t=>{const on=t.key===s.cur,label=awTabLabel(t,h);
+    return el('div',{role:'tab',class:'app-tab',tabindex:on?'0':'-1','aria-selected':String(on),'aria-controls':'app-tab-body','data-tab':t.key,'data-kind':t.kind,'data-mark':t.mark||null,title:t.path?t.path+(t.kind==='diff'?' (diff)':''):label},
+      awIcon(t.kind==='term'?'term':t.kind==='log'?'log':t.kind==='diff'?'diff':t.kind==='file'?'file':'session',13),el('span',{class:'app-tlabel'},label),
+      t.mark?el('span',{class:'app-tmark',title:t.mark==='U'?'new file':t.mark==='D'?'deleted':t.mark==='A'?'added':'modified'},t.mark):null,
+      t.kind==='session'?null:el('button',{type:'button',class:'app-tclose','data-close':t.key,'aria-label':'Close '+label,title:'Close'},awIcon('x',12)))}));
+  const plus=center.querySelector('[data-app-action="new-tab"]'),cmd=center.querySelector('[data-app-action="command"]');
+  for(const b of [plus,cmd]){if(AW.ro){b.setAttribute('aria-disabled','true');b.title='Another person’s task: read only'}else{b.removeAttribute('aria-disabled');b.title=b===plus?'New tab: a terminal, or Log':'Actions on this task, each with its command'}}
+  awBody()}
+function awPick(key){const s=awState(AW.hid);if(!s.tabs.some(t=>t.key===key))return;s.cur=key;awDraw();const n=$('app-tabs').querySelector('[data-tab="'+CSS.escape(key)+'"]');if(n)n.focus({preventScroll:true})}
+function awOpen(t){const s=awState(AW.hid);if(!s.tabs.some(x=>x.key===t.key))s.tabs.push(t);s.cur=t.key;awDraw()}
+function awClose(key){const s=awState(AW.hid),i=s.tabs.findIndex(t=>t.key===key);if(i<1)return;const t=s.tabs[i];if(t.kind==='term')awTermClose(AW.hid,t.n,'');s.tabs.splice(i,1);if(s.cur===key)s.cur=(s.tabs[i]||s.tabs[i-1]).key;awDraw()}
+$('app-tabs').addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(c){e.stopPropagation();awClose(c.dataset.close);return}const t=e.target.closest('[role=tab][data-tab]');if(t)awPick(t.dataset.tab)});
+$('app-tabs').addEventListener('auxclick',e=>{const t=e.target.closest('[role=tab][data-tab]');if(t&&e.button===1)awClose(t.dataset.tab)});
+$('app-tabs').addEventListener('keydown',e=>{if(!AW.hid)return;const s=awState(AW.hid),i=s.tabs.findIndex(t=>t.key===s.cur);
+  if(e.key==='Delete'){awClose(s.cur);return}if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();
+  const n=e.key==='Home'?0:e.key==='End'?s.tabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+s.tabs.length)%s.tabs.length;awPick(s.tabs[n].key)});
+// The body of the chosen tab.
+function awBody(){const box=$('app-tab-body');if(!AW.hid)return;const s=awState(AW.hid),t=s.tabs.find(x=>x.key===s.cur)||s.tabs[0];
+  if(t.kind==='term'){const c=awTermOf(AW.hid,t.n);if(box.firstElementChild&&box.firstElementChild===c.pane)return;box.replaceChildren(awTermPane(AW.hid,t.n));return}
+  const pane=t.kind==='session'?awSession(AW.hid):t.kind==='log'?awLog(AW.hid):t.kind==='diff'?awDiff(AW.hid,t.path):awFile(AW.hid,t.path);
+  box.replaceChildren(pane)}
+function awPane(kind,...kids){return el('div',{class:'app-pane','data-pane':kind,role:'tabpanel','aria-label':kind},...kids)}
+// Session: what the task is, its latest report and its history as lines, and the message box.
+const AW_LOG={};
+function awLogLoad(hid){const c=AW_LOG[hid]||(AW_LOG[hid]={});if(c.loading)return c.loading;if(c.data&&Date.now()-c.at<AW_EVERY-500)return Promise.resolve(c);
+  c.loading=fetch('/api/workitem?ref='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','aria-label':'History'}),c=AW_LOG[hid];
+  const fill=c=>{const it=c&&c.data&&((c.data.tree||[]).find(x=>x.id===hid)||(c.data.tree||[])[0]),log=it&&it.log||[];
+    if(c&&c.error&&!c.data){feed.replaceChildren(el('div',{class:'app-ferr'},'The history could not be read: '+c.error));return}
+    if(!c||!c.data){feed.replaceChildren(el('div',{class:'app-note'},'Loading the history…'));return}
+    feed.replaceChildren(...(log.length?log.map(l=>{const n=String(l.note||l.state||''),rep=/^report: /.test(n),m=/^message \S+ from user (\S+) to its worker \S+: ([\s\S]*)$/.exec(n);
+      return rep?el('div',{class:'app-fline','data-k':'report'},'⏺ ',n.slice(8),el('span',{class:'app-ftool'},'  '+(l.ago||'')+' ago')):
+        m?el('div',{class:'app-fuser','data-k':'message'},'> ',(m[1]===USER?'You':m[1])+': '+m[2]):el('div',{class:'app-ftool','data-k':'step'},'  ⎿  ',(l.actor?nameOf(l.actor)+': ':'')+n,'  '+(l.ago||'')+' ago')}):[el('div',{class:'app-note'},'No history yet.')]))};
+  fill(c);awLogLoad(hid).then(c=>{if(feed.isConnected)fill(c)});
+  const accept=Array.isArray(h.accept)?h.accept.join('\n'):h.accept||'';
+  const meta=[h.state?word(h.state):'',toolName(h.worker_tool||h.worker),h.worker_branch||h.branch?el('code',{},h.worker_branch||h.branch):null,h.updated_ago?'updated '+h.updated_ago+' ago':''].filter(Boolean).map(x=>el('span',{},x));
+  const sess=el('div',{class:'app-sess'},el('h2',{},cardTitle(h.title||h.goal||hid)),el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},'agentd handoff show '+hid)),
+    h.goal?el('div',{class:'app-sblock'},el('b',{},'Goal'),h.goal):null,accept?el('div',{class:'app-sblock'},el('b',{},'Done when'),accept):null,
+    h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,feed);
+  return awPane('session',sess,AW.ro?el('div',{class:'app-msgbar app-ro',role:'note'},el('span',{class:'app-note'},'Another person’s task: read only. Session, Log and diffs are shown; messages and actions are theirs.')):awMsgBar(hid))}
+// The message box goes to the worker's inbox (task_msg), offered as /api/taskmsg says (Stop's rule).
+function awMsgBar(hid){const bar=el('div',{class:'app-msgbar','data-app-write':'',hidden:true}),c=TW.msg[hid];
+  const fill=c=>{const d=c&&c.data;if(!d||!d.may){bar.hidden=true;return}bar.hidden=false;
+    if(!d.live){bar.replaceChildren(el('span',{class:'app-note',role:'note'},d.gone||'The worker has gone, so a message would not be read.'));return}
+    const input=el('textarea',{rows:'2',maxlength:'4000','aria-label':'Message this worker',placeholder:'Message the worker: ask for a change, or answer its question (Ctrl+Enter sends)',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();send()}}});
+    input.value=TW.draft[hid]||'';const btn=el('button',{type:'button',class:'app-btn app-primary',onclick:()=>send()},'Send');
+    const send=async()=>{const body=input.value.trim();if(!body||btn.getAttribute('aria-disabled')==='true')return;btn.setAttribute('aria-disabled','true');btn.textContent='Sending…';
+      try{await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast('Sent to the worker’s inbox',true);delete (AW_LOG[hid]||{}).data;awLogLoad(hid).then(()=>{if(!awTyping())awBody()})}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent='Send'}};
+    bar.replaceChildren(input,btn)};
+  if(c&&c.data)fill(c);twMsgLoad(hid).then(c=>{if(bar.isConnected&&!awTyping())fill(c)});return bar}
+// Log: the worker's log tail, kept live while the worker runs (region:worker-log).
+function awLog(hid){const c=WLOG[hid]||(WLOG[hid]={});c.open=true;const det=wlogPanel(hid);det.open=true;wlogTick(hid);return awPane('log',det)}
+// A diff tab: the change of one file on the worker branch (GET /api/review), new-side line numbers.
+function awDiffLines(diff){const out=[];let n=0;
+  for(const l of String(diff||'').split('\n')){if(/^(diff --git|index |--- |\+\+\+ |new file mode|deleted file mode|similarity|rename )/.test(l))continue;
+    const m=/^@@ -\d+(?:,\d+)? \+(\d+)/.exec(l);if(m){if(out.length)out.push(el('span',{class:'app-dhunk',title:l},'⋯'));n=+m[1];continue}
+    if(l.startsWith('+'))out.push(el('span',{class:'app-dadd','data-n':String(n++)},l));else if(l.startsWith('-'))out.push(el('span',{class:'app-ddel'},l));else if(l||out.length)out.push(el('span',{'data-n':String(n++)},l))}
+  return out}
+function awDiff(hid,path){const c=OPENPR[hid],d=c&&c.data,f=d&&(d.files||[]).find(x=>x.path===path),mark=awMark(f);
+  const head=el('div',{class:'app-edhead'},el('span',{class:'app-edpath',title:path},path+' (diff)'),f?el('span',{class:'app-n add'},'+'+(f.added||0)):null,f?el('span',{class:'app-n del'},' −'+(f.deleted||0)):null);
+  const body=!d?el('div',{class:'app-note',style:'padding:12px 14px'},'Loading the change…'):!f?el('div',{class:'app-note',style:'padding:12px 14px'},'This file is no longer in the change.'):
+    f.binary?el('div',{class:'app-note',style:'padding:12px 14px'},'Binary file: not shown.'):f.too_large||!f.diff?el('div',{class:'app-note',style:'padding:12px 14px'},'Too large to show here. From a terminal: ',el('code',{},d.terminal||'git diff')):el('pre',{class:'app-diff','aria-label':'Diff of '+path},awDiffLines(f.diff));
+  if(!d)openPRLoad(hid).then(()=>{const s=awState(hid);if(AW.hid===hid&&s.cur==='diff:'+path)awBody()});
+  return awPane('diff',head,el('div',{class:'app-edbody'},body),f&&f.truncated?el('div',{class:'app-note',style:'padding:4px 14px'},'The diff is cut here.'):null)}
+// A file tab: the file as it is in the worker directory (GET /api/files?path=), as text.
+function awFile(hid,path){const body=el('div',{class:'app-edbody'},el('div',{class:'app-note',style:'padding:12px 14px'},'Loading…'));
+  filesFetch('/api/files?id='+encodeURIComponent(hid)+'&path='+encodeURIComponent(path)).then(f=>{body.replaceChildren(f.binary?el('div',{class:'app-note',style:'padding:12px 14px'},'Binary file: not shown.'):f.too_large?el('div',{class:'app-note',style:'padding:12px 14px'},'Over '+filesSize(f.limit||0)+': not shown here.'):el('pre',{class:'app-file'},f.text||''))})
+  .catch(e=>body.replaceChildren(el('div',{class:'app-note',style:'padding:12px 14px'},'Not shown: '+errorText(e))));
+  return awPane('file',el('div',{class:'app-edhead'},el('span',{class:'app-edpath',title:path},path)),body)}
+// Terminal N: an owner's shell in the worker directory, one socket per number (?n=), as region:terminal.
+function awTermOf(hid,n){const k=hid+'#'+n;return AW.term[k]||(AW.term[k]={hid,n})}
+function awTermPane(hid,n){const c=awTermOf(hid,n);if(c.pane)return c.pane;
+  c.screen=el('div',{class:'app-tscreen','aria-label':'Terminal '+n});c.status=el('span',{role:'status'},'Starting the shell…');
+  c.pane=awPane('terminal',el('div',{class:'app-term'},c.screen,el('div',{class:'app-tstatus'},c.status)));setTimeout(()=>awTermOpen(hid,n),0);return c.pane}
+function awTermOpen(hid,n){const c=awTermOf(hid,n);if(c.ws)return;
+  termLoad().then(T=>{if(!c.screen||!c.screen.isConnected)return;
+    if(!c.term){c.term=new T({fontSize:13,cursorBlink:true,scrollback:2000,fontFamily:"'SF Mono',ui-monospace,Menlo,Consolas,monospace",theme:awTermColors()});c.term.open(c.screen);c.term.onData(x=>{if(c.ws&&c.ws.readyState===1)c.ws.send(new TextEncoder().encode(x))})}
+    const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/api/terminal?id='+encodeURIComponent(hid)+(n>1?'&n='+n:''));ws.binaryType='arraybuffer';c.ws=ws;
+    const fit=()=>{const z=termSize(c.screen);c.term.resize(z.cols,z.rows);if(ws.readyState===1)ws.send(JSON.stringify(z))};
+    ws.onopen=()=>{fit();c.status.textContent='Connected: a shell in the task’s worker directory, as the dash’s own user on this host, with everything that user can reach. It closes after 15 minutes with nothing typed.';if(c.term.focus)c.term.focus()};
+    ws.onmessage=e=>{if(e.data&&typeof e.data!=='string')c.term.write(new Uint8Array(e.data))};
+    ws.onclose=e=>{if(c.ws!==ws)return;c.ws=null;c.status.textContent=e.reason?'Closed: '+e.reason+'.':e.code===1006?'The terminal was refused or lost. Only an owner may open one, from the dash itself, on a task with a worker directory.':'Closed.'};
+    c.onresize=c.onresize||(()=>{if(c.ws&&c.ws.readyState===1)fit()});window.addEventListener('resize',c.onresize)})
+  .catch(e=>{c.ws=null;if(c.status)c.status.textContent='The terminal could not start: '+errorText(e)})}
+// awTermColors: the app's terminal colours (SPEC §3.2), from its tokens, light or dark.
+function awTermColors(){const cs=getComputedStyle($('app-shell')),v=(n,d)=>(cs.getPropertyValue(n)||'').trim()||d;return {background:v('--o-term-bg','#fff'),foreground:v('--o-term-fg','#2e3434'),cursor:v('--o-term-fg','#2e3434'),selectionBackground:'rgba(0,0,0,.15)'}}
+function awTermClose(hid,n,why){const k=hid+'#'+n,c=AW.term[k];if(!c)return;const ws=c.ws;c.ws=null;if(ws&&ws.readyState<2)ws.close(1000);if(c.onresize)window.removeEventListener('resize',c.onresize);if(c.term&&c.term.dispose)c.term.dispose();delete AW.term[k]}
+window.addEventListener('pagehide',()=>{for(const c of Object.values(AW.term))awTermClose(c.hid,c.n,'')});
+// Menus: + and Command, drawn under their button, closed by Escape or a click elsewhere.
+function awMenu(kind,anchor,items){if(AW.menu){AW.menu.remove();AW.menu=null}if(!kind)return;
+  const r=anchor.getBoundingClientRect(),m=el('div',{class:'app-menu',role:'menu','data-menu':kind,'aria-label':kind==='command'?'Actions on this task':'New tab'},items);
+  m.style.top=Math.round(r.bottom+4)+'px';if(kind==='command')m.style.right=Math.max(8,Math.round(innerWidth-r.right))+'px';else m.style.left=Math.round(r.left)+'px';
+  document.body.append(m);AW.menu=m;const f=m.querySelector('.app-mitem:not([aria-disabled="true"])');if(f)f.focus()}
+function awItem(icon,label,cli,run,o={}){const why=o.why||'';
+  return el('button',{type:'button',class:'app-mitem',role:'menuitem','data-act':o.key||null,'data-cli':cli||null,'data-danger':o.danger?'':null,'aria-disabled':why?'true':null,title:why||null,onclick:()=>{if(why)return;awMenu(null);run()}},
+    awIcon(icon,14),el('span',{},label,o.note?el('small',{},o.note):null,why?el('small',{},why):null,cli?el('code',{},cli):null))}
+function awNewTabItems(hid){const s=awState(hid),used=s.tabs.filter(t=>t.kind==='term').map(t=>t.n),free=[1,2,3].find(n=>!used.includes(n)),items=[];
+  if(!termOffered())items.push(el('div',{class:'app-mnote'},'No terminal here: the dash offers one only to an owner, where [dash] terminal is on.'));
+  else items.push(awItem('term','New terminal','',()=>awOpen({key:'term:'+free,kind:'term',n:free}),{key:'terminal',why:free?'':'Up to '+AW_TERMS+' terminals per task. Close one first.',note:free?'Terminal '+free+', in the worker directory':''}));
+  items.push(awItem('log','Log','',()=>awOpen({key:'log',kind:'log'}),{key:'log',note:'The worker’s log tail'}));
+  items.push(awItem('session','Session','',()=>awPick('session'),{key:'session'}));return items}
+function awQ(w){return typeof taskShellWord==='function'?taskShellWord(w):w}
+// The Command menu: what the task's state allows, each with the command that does the same.
+function awCommandItems(hid){const d=lastDash||{},h=awTask(hid),items=[],live=h.dispatched&&!h.worker_state&&/^(offered|claimed)$/.test(h.state||'');
+  if(d.dispatch&&live)items.push(awItem('stop','Stop the worker','',()=>stopHandoff(h),{key:'stop',danger:true,why:h.may_stop===false?h.why_not||'You cannot stop this worker.':'',note:'The task stays open. No command does this from a terminal: the dash stops the worker’s process.'}));
+  if(h.takeover)items.push(awItem('hand','Take over',h.takeover.cli,()=>takeoverTask(h),{key:'takeover',why:h.takeover.may===false?h.takeover.why_not||'You cannot take this task over.':''}));
+  if(d.dispatch&&h.dispatched&&h.retry)items.push(awItem('again','Start again','agentd handoff dispatch '+hid+(h.retry.tool?' --tool '+h.retry.tool:'')+(h.retry.cwd?' --cwd '+awQ(h.retry.cwd):''),()=>retryHandoff(h),{key:'retry',why:h.retry.may===false?h.retry.why_not||'You cannot start this task again.':'',note:'A new worker on its branch, with the same goal, check and budget'}));
+  if(h.check&&/^(offered|blocked|claimed)$/.test(h.state||''))items.push(awItem('check','Change check','agentd handoff check '+hid+' --check '+awQ(h.check),()=>changeCheck(h),{key:'set_check',why:ROLE==='owner'?'':'Only an owner changes a check.'}),
+    el('div',{class:'app-mnote','data-act':'retry_check'},'Re-run only the check: not from the page. Its claimer runs it with ',el('code',{},'agentd handoff done '+hid+' --run-check'),'.'));
+  const ed=d.editor||{};if(h.editor&&h.editor.dir&&ed.local){const cli=(ed.argv||['$VISUAL']).map(awQ).join(' ')+' '+awQ(h.editor.dir);items.push(awItem('edit','Open in editor',cli,()=>openTaskInEditor(h),{key:'open_editor',why:h.editor.may===false?h.editor.why_not||'You cannot open this task.':ed.why_not||''}))}
+  if(h.cancel)items.push(el('div',{class:'app-msep'}),awItem('ban','Cancel task',h.cancel.cli,()=>cancelTask(h),{key:'cancel',danger:true,why:h.cancel.may===false?h.cancel.why_not||'You cannot cancel this task.':''}));
+  if(!items.length)items.push(el('div',{class:'app-mnote'},/^(done|cancelled|declined)$/.test(h.state||'')?'This task has ended: nothing to act on. ':'Nothing to act on in this state. ','From a terminal: ',el('code',{},'agentd handoff show '+hid)));
+  return items}
+$('app-center').addEventListener('click',e=>{const b=e.target.closest('[data-app-action="new-tab"],[data-app-action="command"]');if(!b||!AW.hid)return;if(AW.ro||b.getAttribute('aria-disabled')==='true')return;
+  const kind=b.dataset.appAction==='command'?'command':'new';if(AW.menu&&AW.menu.dataset.menu===kind){awMenu(null);return}e.stopPropagation();awMenu(kind,b,kind==='command'?awCommandItems(AW.hid):awNewTabItems(AW.hid))});
+document.addEventListener('click',e=>{if(AW.menu&&!e.target.closest('.app-menu,[data-app-action="new-tab"],[data-app-action="command"]'))awMenu(null)});
+document.addEventListener('keydown',e=>{if(!AW.menu)return;if(e.key==='Escape'){const k=AW.menu.dataset.menu;awMenu(null);const b=$('app-center').querySelector('[data-app-action="'+(k==='command'?'command':'new-tab')+'"]');if(b)b.focus()}
+  else if(e.key==='ArrowDown'||e.key==='ArrowUp'){const it=[...AW.menu.querySelectorAll('.app-mitem')],i=it.indexOf(document.activeElement);if(!it.length)return;e.preventDefault();it[(i+(e.key==='ArrowDown'?1:-1)+it.length)%it.length].focus()}});
+// The right sidebar's panels for the open task; load=true reads afresh on opening a task.
+function awPanels(load){const hid=AW.hid;if(!hid)return;awFiles(hid,load);awChanges(hid,load);awChecks(hid,load);awDetails(hid,load)}
+function awSec(id){return $('app-panel-'+id)}
+// Files: Names lists the worker directory's files (changed ones marked); Contents searches the change's diffs.
+function awFiles(hid,load){const box=awSec('files'),fc=FILES[hid]||(FILES[hid]={});
+  const draw=()=>{if(AW.hid!==hid)return;const rc=OPENPR[hid],keep=document.activeElement&&box.contains(document.activeElement)&&document.activeElement.tagName==='INPUT',at=keep&&document.activeElement.selectionStart;
+    const name=(rc2=>rc2&&rc2.data&&rc2.data.repo?String(rc2.data.repo).split('/').pop():'')(OPENPR[hid])||awTask(hid).project||hid;
+    const seg=el('div',{class:'app-seg',role:'group','aria-label':'Search by'},...[['names','Names'],['contents','Contents']].map(([k,t])=>el('button',{type:'button','aria-pressed':String(AW.seg===k),'data-seg':k,onclick:()=>{AW.seg=k;draw()}},t)));
+    const input=el('input',{type:'search',placeholder:AW.seg==='names'?'Find files':'Search the changed lines','aria-label':AW.seg==='names'?'Find files':'Search the changed lines',value:AW.q,oninput:e=>{AW.q=e.target.value;draw()}});
+    const list=el('div',{class:'app-flist',role:'list'}),q=AW.q.trim().toLowerCase();
+    if(AW.seg==='names'){const d=fc.data;
+      if(fc.error)list.append(el('div',{class:'app-note',style:'padding:8px 16px'},'The files could not be read: '+fc.error));
+      else if(!d)list.append(el('div',{class:'app-note',style:'padding:8px 16px'},'Loading the files…'));
+      else{const fs=(d.files||[]).filter(f=>!q||f.path.toLowerCase().includes(q));if(!fs.length)list.append(el('div',{class:'app-note',style:'padding:8px 16px'},q?'No file matches.':d.note||'No files.'));
+        for(const f of fs.slice(0,400)){const mark=(m=>m==='A'?'U':m)(FILES_MARK[f.changed]||''),diff=!!(f.changed&&f.changed!=='untracked'&&rc&&rc.data&&(rc.data.files||[]).some(x=>x.path===f.path));
+          list.append(el('button',{type:'button',class:'app-frow',role:'listitem','data-path':f.path,'data-mark':mark||null,title:f.path,disabled:f.changed==='deleted'&&!diff||null,onclick:()=>diff?awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark}):awOpen({key:'file:'+f.path,kind:'file',path:f.path,mark:mark||''})},
+            awIcon('file',13),el('span',{class:'app-fname'},awBase(f.path)),awDir(f.path)?el('span',{class:'app-fdir'},awDir(f.path)):null,mark?el('span',{class:'app-fmark'},mark):null))}
+        if(d.truncated)list.append(el('div',{class:'app-note',style:'padding:8px 16px'},'The list is cut; changed files are kept.'))}}
+    else{const d=rc&&rc.data,fs=d&&d.files||[];
+      if(!d)list.append(el('div',{class:'app-note',style:'padding:8px 16px'},'Loading the change…'));
+      else if(!q)list.append(el('div',{class:'app-note',style:'padding:8px 16px'},'Searches the lines the worker changed ('+fs.length+' file'+(fs.length===1?'':'s')+'). The whole directory is not searched from the page.'));
+      else{let hits=0;for(const f of fs){const ls=String(f.diff||'').split('\n').filter(l=>/^[+-](?![+-]{2} )/.test(l)&&l.toLowerCase().includes(q));if(!ls.length)continue;hits+=ls.length;const mark=awMark(f);
+        list.append(el('button',{type:'button',class:'app-frow',role:'listitem','data-path':f.path,'data-mark':mark,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},awIcon('file',13),el('span',{class:'app-fname'},f.path),el('span',{class:'app-fmark'},String(ls.length))),
+          ...ls.slice(0,5).map(l=>el('span',{class:'app-fhit'},l)))}
+        if(!hits)list.append(el('div',{class:'app-note',style:'padding:8px 16px'},'No changed line matches.'))}}
+    box.replaceChildren(el('div',{class:'app-phead'},el('b',{title:name},name)),el('div',{class:'app-query'},seg,el('label',{class:'app-find'},awIcon('filter',13),input)),list);
+    if(keep){input.focus();try{input.setSelectionRange(at,at)}catch(x){}}};
+  draw();if(load||!fc.data){delete fc.data;filesLoad(hid).then(draw)}if(load||!OPENPR[hid])openPRLoad(hid).then(draw)}
+// Changes: branch → base, the changed files with their counts and marks, and Push and open a draft PR.
+function awChanges(hid,load){const box=awSec('changes');
+  const draw=c=>{if(AW.hid!==hid)return;const d=c&&c.data;
+    if(c&&c.error&&!d){box.replaceChildren(el('div',{class:'app-empty'},'The change could not be read: '+c.error));return}
+    if(!d){box.replaceChildren(el('div',{class:'app-empty'},'Loading the change…'));return}
+    const files=d.files||[],why=typeof openPRWhy==='function'?openPRWhy(d):'',cur=(()=>{const s=awState(hid),t=s.tabs.find(x=>x.key===s.cur);return t&&t.kind==='diff'?t.path:''})();
+    const branch=d.branch?el('div',{class:'app-branch'},el('span',{},awIcon('branch',12),el('code',{},d.branch)),el('span',{class:'app-base'},awIcon('arrow',12),el('code',{},d.base_branch||'main'))):null;
+    const pr=d.pr?el('p',{class:'app-why'},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():'',': it is merged on GitHub by a person, never from here.'):null;
+    const push=AW.ro||!files.length||d.pr?null:el('div',{'data-app-write':''},el('button',{type:'button',class:'app-btn','data-act':'open_pr','aria-disabled':why?'true':null,title:why||'Same as: agentd handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},awIcon('push',13),'Push and open a draft PR'),
+      el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)));
+    const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
+      awIcon('file',13),el('span',{class:'app-fname'},awBase(f.path)),el('span',{class:'app-fdir'},awDir(f.path)),el('span',{class:'app-n add'},'+'+(f.added||0)),f.deleted?el('span',{class:'app-n del'},'−'+f.deleted):null,el('span',{class:'app-fmark',title:mark==='U'?'new file':mark==='D'?'deleted':'modified'},mark))});
+    box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,pr),
+      el('div',{class:'app-chead'},'Changes',el('span',{'data-n':String(files.length)},String(files.length)),el('span',{class:'app-grow',style:'flex:1'}),d.added!=null&&files.length?el('span',{},'+'+(d.added||0)+' −'+(d.deleted||0)):null),
+      files.length?el('div',{role:'list'},rows):el('div',{class:'app-note',style:'padding:4px 20px'},'No change yet: the worker has not committed on its branch.'),
+      d.too_large?el('div',{class:'app-note',style:'padding:4px 20px'},'Some diffs are too large to show here.'):null)};
+  draw(OPENPR[hid]);openPRLoad(hid,load).then(draw)}
+// Checks: each check run, newest first, with the revert test's `not evidence` mark (region:checks).
+function awChecks(hid,load){const box=awSec('checks');if(load)delete CHECKS[hid];const c=CHECKS[hid];
+  if(c&&c.data&&box.firstElementChild&&box.firstElementChild.dataset.hid===hid&&!load){checksFill(box.firstElementChild,c);checksLoad(hid).then(c=>{if(AW.hid===hid&&box.firstElementChild)checksFill(box.firstElementChild,c)});return}
+  const p=checksPanel(hid);p.dataset.hid=hid;box.replaceChildren(p)}
+// Details: GET /api/taskdetail. Budget used of its cap, warned from 85% (the watchdog's mark), over at 100%.
+const AW_DET={};
+function awDetailLoad(hid){const c=AW_DET[hid]||(AW_DET[hid]={});if(c.loading)return c.loading;
+  c.loading=fetch('/api/taskdetail?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(r.status===404)throw new Error('You cannot see this task, or it is gone.');if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+const AW_OUTCOME={open:'Open',auto_completed:'Delivered on its own',accepted:'Delivered',not_delivered:'Not delivered',failed:'Failed',false_accept:'Wrongly accepted',not_counted:'Not judged'};
+function awDetails(hid,load){const box=awSec('details');
+  const draw=c=>{if(AW.hid!==hid)return;const d=c&&c.data;if(c&&c.error&&!d){box.replaceChildren(el('div',{class:'app-empty'},'The details could not be read: '+c.error));return}
+    if(!d){box.replaceChildren(el('div',{class:'app-empty'},'Loading the details…'));return}
+    const h=awTask(hid),b=d.budget||{},dl=d.delivery||{},cost=d.cost||{},dt=(k,v)=>v===null||v===undefined||v===''?[]:[el('dt',{},k),el('dd',{},v)];
+    const agent=el('section',{class:'app-psec','data-sec':'agent'},el('h4',{},'Agent'),el('dl',{},...dt('Agent',toolName(d.tool)||'none yet'),...dt('Model',d.model?modelName(d.model):''),...dt('Branch',d.branch?el('code',{},d.branch):''),...dt('State',word(d.state))),
+      AW.ro?null:el('div',{style:'margin-top:8px','data-app-write':''},...taskActions(lastDash||{},h).filter(n=>n.dataset&&n.dataset.taskAct==='editor').map(n=>{n.className='app-btn';return n})),el('code',{class:'app-cli'},d.show));
+    const pct=Math.max(0,Math.min(1,Number(b.fraction)||0)),money=v=>'$'+Number(v||0).toFixed(2);
+    const budget=b.none?el('section',{class:'app-psec','data-sec':'budget'},el('h4',{},'Cost and budget'),el('dl',{},...dt('Spent',cost.usd!=null?(cost.floor?'≥ ':'')+money(cost.usd):cost.minutes?fmtMin(cost.minutes):'nothing yet')),el('p',{class:'app-note'},b.none),el('code',{class:'app-cli'},b.set)):
+      el('section',{class:'app-psec','data-sec':'budget','data-warn':b.warn?'':null,'data-over':b.over?'':null},el('h4',{},'Cost and budget'),
+        el('dl',{},...dt('Spent',cost.usd!=null?(cost.floor?'≥ ':'')+money(cost.usd)+(cost.minutes?' · '+fmtMin(cost.minutes):''):cost.minutes?fmtMin(cost.minutes):'nothing yet'),...dt('Budget',b.cap),...dt('Used',b.used)),
+        el('div',{class:'app-meter',role:'meter','aria-label':'Budget used','aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(Math.round(pct*100))},el('i',{style:'width:'+Math.round(pct*100)+'%'})),
+        b.over?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-over'},'At its cap: the watchdog stops the worker. Raise the budget to go on.'):b.warn?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-warn'},'Past '+Math.round((b.warn_at||0.85)*100)+'% of its budget: the worker has been told to commit its best working state and finish.'):null,
+        b.error?el('p',{class:'app-note'},b.error):null,b.raise?el('code',{class:'app-cli',title:'Raise it from a terminal'},b.raise):null);
+    const delivery=el('section',{class:'app-psec','data-sec':'delivery'},el('h4',{},'Delivery'),el('span',{class:'app-verdict','data-outcome':dl.outcome||''},AW_OUTCOME[dl.outcome]||word(dl.outcome)),el('p',{style:'margin:6px 0 0'},dl.reason||''),el('code',{class:'app-cli'},dl.report||'agentd factory report'));
+    box.replaceChildren(agent,budget,delivery)};
+  draw(AW_DET[hid]);awDetailLoad(hid).then(draw)}
+// end:app-workspace
 // region:refresh
 function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();notifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
