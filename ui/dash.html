@@ -1093,6 +1093,16 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-rpanel .checks-cmd{display:block;margin-bottom:6px;font:11px var(--o-mono);overflow-wrap:anywhere}.app-rpanel .check-noev{color:var(--o-question-text);font-weight:600}
 @media(max-width:860px){.app-tabs>.app-tab[data-kind="term"]{width:auto;min-width:120px}.app-tabs>.app-tab{min-width:112px}.app-tclose{width:28px;height:28px;color:var(--o-mfg)}.app-frow,.app-crow{min-height:40px}.app-menu{left:8px!important;right:8px;width:auto!important}}
 /* end:css-app-workspace */
+/* region:css-app-keys: the personal app's keyboard shortcuts overlay (libraos/agentd-core#566): Orca's groups and
+   keycaps (briefs/personal-app-orca/SPEC.md §2 shortcut keycap, §8), on the shared sheet; one column on a phone. */
+#app-keys-sheet .app-keys{display:grid;gap:14px}
+#app-keys-sheet .app-keys h3{margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}
+#app-keys-sheet .app-keys-note{margin:0;color:var(--mute);font-size:12px;line-height:1.45}
+#app-keys-sheet .keys-list{gap:6px 16px}
+#app-keys-sheet .keys-list dd{font-size:13px}
+#app-keys-sheet kbd{font:11px/1.4 'Geist Mono',ui-monospace,monospace;min-width:20px;text-align:center;padding:1px 5px;border-radius:4px;border:1px solid var(--line);border-bottom-width:1px;background:var(--sunk)}
+@media (max-width:860px){#app-keys-sheet .keys-list{grid-template-columns:minmax(0,1fr);gap:2px}#app-keys-sheet .keys-list dd{margin-bottom:8px}}
+/* end:css-app-keys */
 </style></head><body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
@@ -4141,7 +4151,7 @@ const KEYS_LIST=[[['?'],'Show this list of shortcuts'],...Object.entries(KEYS_GO
 const KEYS_ROWS='.ib-row,.kcard,.tm-row,.hrow,.working-table tbody tr,.chat-rowbox';
 let keysPrefix=0;
 function keysTyping(t){return !!(t&&t.closest&&t.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))}
-function keysSheet(){if(activeSheet)return null;
+function keysSheet(){if(APP.on)return appKeysSheet();if(activeSheet)return null;
   const mac=/Mac|iPhone|iPad/.test(navigator.platform||''),kbd=k=>el('kbd',{},mac&&k==='Ctrl'?'⌘':k);
   const list=el('dl',{class:'keys-list',id:'keys-list'},KEYS_LIST.flatMap(([keys,what])=>Array.isArray(what)?[el('dt',{},kbd(keys[0]),el('span',{class:'keys-or'},'or'),...what.map(kbd)),el('dd',{},'Search tasks, PRs, issues and runs')]:[el('dt',{},keys.map(kbd)),el('dd',{},what)]));
   const done=sheet({title:'Keyboard shortcuts',description:'They do nothing while you type in a field. Each one also has a link or button on the page.',cancel:'Close',content:list,setup:ui=>{ui.submit.hidden=true}});
@@ -5082,8 +5092,84 @@ function awDetails(hid,load){const box=awSec('details');
     box.replaceChildren(agent,budget,delivery)};
   draw(AW_DET[hid]);awDetailLoad(hid).then(draw)}
 // end:app-workspace
+// region:app-keys: notifications and keyboard shortcuts in the personal app (libraos/agentd-core#566).
+// Notifications reuse #468's (region:notify): the browser's permission, asked once by Settings or the
+// onboarding's notifications step, dash-notify-off, and the rule that only a tab in the background shows
+// one. In app mode what raises one is a task of mine whose mark (the server's taskMark, the sidebar's
+// dot) turns to
+//   needs_you  "Needs you"     a question, a blocked, stopped or gone worker, a budget stop, an approval
+//   done       "Task done"
+//   failed     "Check failed"  its last worker finished and its check did not pass; else "Task failed"
+// Each task's last mark is remembered in this browser (localStorage dash-app-notified:USER), whether the
+// tab was in front or not, so an event raises at most one notification: never again on a refresh, a
+// reload or in a second tab. The first look in a browser only remembers. Another person's task never
+// raises one. A task that needs me again after it went back to work is a new event and raises again.
+// Clicking one opens the task; the sound picked in the onboarding plays after it is shown.
+// Shortcuts are Orca's (briefs/personal-app-orca/SPEC.md §8; Mod is Cmd on a Mac, Ctrl elsewhere) for
+// the task list and the workspace tabs, listed by ? in an overlay (the Help menu's Keyboard shortcuts
+// opens the same one). Like the team dash's (region:keys) they do nothing while a field, a dialog, the
+// search box or the onboarding has the keys. The frame's Mod+B, Mod+L (region:app), N, the list's arrows
+// and Enter (region:app-sidebar) and the tab strip's arrows and Delete (region:app-workspace) are theirs;
+// the overlay lists them too.
+const APP_NOTIFY={needs_you:'Needs you',done:'Task done',failed:'Task failed'};
+const APP_MAC=/Mac|iPhone|iPad/.test(navigator.platform||'');
+// appNotifyRun: the run a failed mark is about, its last attempt (open tasks) or the done row itself.
+function appNotifyRun(h){const a=h&&h.attempts;return a&&a.length?a[a.length-1]:h||{}}
+function appNotifyTitle(r){if(r.mark!=='failed')return APP_NOTIFY[r.mark];const l=appNotifyRun(r.h),c=String(l.check||'');return l.end_reason==='done'&&c&&c!=='passed'?'Check failed':'Task failed'}
+function appNotifyCheck(d){const m=APPS.model||appSidebarModel(d),key='dash-app-notified:'+(USER||''),fresh=[];
+  try{const old=JSON.parse(localStorage.getItem(key)||'null'),first=!old||typeof old!=='object'||Array.isArray(old),next=first?{}:{...old};let changed=first;
+    for(const r of m.rows){if(!r.mine||next[r.id]===r.mark)continue;if(!first&&Object.hasOwn(APP_NOTIFY,r.mark))fresh.push(r);delete next[r.id];next[r.id]=r.mark;changed=true}
+    if(!changed)return;const ks=Object.keys(next);for(const k of ks.slice(0,Math.max(0,ks.length-500)))delete next[k];localStorage.setItem(key,JSON.stringify(next))}catch(e){return}
+  if(!document.hidden||!notifyOn())return;for(const r of fresh)appNotifyRaise(r)}
+function appNotifyRaise(r){const title=appNotifyTitle(r),c=String(appNotifyRun(r.h).check||''),body=r.title+(title==='Check failed'?' · '+(c.length>120?c.slice(0,119)+'…':c):'');
+  try{const n=new Notification(title,{body,tag:'agentd-app-'+r.id+':'+r.mark});
+    n.onclick=()=>{try{window.focus()}catch(e){}if(APPS.model&&APPS.model.byId.has(r.id))appTaskOpen(r.id);else appSelect(r.id);n.close()};
+    if(OB.st&&OB.st.sound)obSound(OB.st.sound)}catch(e){}}
+// The overlay: Orca's groups, each row its keys (several are alternatives) and what they do.
+const APP_KEYS=[
+  ['Tasks',[[[['N'],['Mod','N']],'New task'],[[['Mod','K']],'Search tasks, PRs, issues and runs'],[[['↑'],['↓']],'Move through the task list while it has the focus'],[[['Enter']],'Open the selected task'],
+    [[['Mod','Shift','↑'],['Mod','Shift','↓']],'Previous or next task'],[[['Mod','1…9']],'Open task 1 to 9 in the list'],[[['Mod','Shift','0']],'Focus the task list'],[[['Mod','B']],'Show or hide the left sidebar']]],
+  ['Workspace',[[[['Mod','Shift',']'],['Mod','Shift','[']],'Next or previous tab'],[[['Mod','Alt',']'],['Mod','Alt','[']],'Next or previous tab of the same kind'],[[['TabMod','1…9']],'Tab 1 to 9'],
+    [[['Mod','T']],'New terminal tab'],[[['Mod','W']],'Close the tab (Session stays)'],[[['←'],['→']],'Move between tabs while the tab strip has the focus; Delete closes one'],
+    [[['Mod','Enter']],'Send the message to the worker'],[[['Mod','L']],'Show or hide the right sidebar'],[[['Mod','Shift','E']],'Files'],[[['Mod','Shift','G']],'Changes']]],
+  ['General',[[[['?']],'Show these shortcuts'],[[['Esc']],'Close a menu, dialog or drawer']]]];
+const APP_KEYCAP={Mod:APP_MAC?'⌘':'Ctrl',Shift:APP_MAC?'⇧':'Shift',Alt:APP_MAC?'⌥':'Alt',TabMod:APP_MAC?'⌃':'Alt'};
+function appKeysSheet(){if(activeSheet)return null;const kbd=t=>el('kbd',{},APP_KEYCAP[t]||t);
+  const box=el('div',{class:'app-keys',id:'app-keys-list'},el('p',{class:'app-keys-note'},(APP_MAC?'⌘ is Command':'Ctrl is Control')+', as in Orca. They do nothing while you type in a field. In a browser tab the browser keeps some for itself (such as '+APP_KEYCAP.Mod+'+N, T, W and 1…9); in the installed app they reach agentd.'),
+    ...APP_KEYS.map(([name,rows])=>el('section',{'data-keys':name.toLowerCase()},el('h3',{},name),el('dl',{class:'keys-list'},rows.flatMap(([alts,what])=>[el('dt',{},alts.flatMap((keys,i)=>[i?el('span',{class:'keys-or'},'or'):null,...keys.map(kbd)]).filter(Boolean)),el('dd',{},what)])))));
+  const done=sheet({title:'Keyboard shortcuts',description:'For the task list and the workspace tabs.',cancel:'Close',content:box,setup:ui=>{ui.submit.hidden=true}});
+  if(activeSheet){activeSheet.dialog.id='app-keys-sheet';const close=activeSheet.dialog.querySelector('.sheet-foot button:not([hidden])');if(close)close.focus()}
+  return done}
+function appMod(e){return APP_MAC?e.metaKey&&!e.ctrlKey:e.ctrlKey&&!e.metaKey}
+function appKeysRows(){return [...document.querySelectorAll('#app-projects .app-task')]}
+function appKeysTask(i){const r=appKeysRows()[i];if(!r)return false;appTaskOpen(r.dataset.taskId)}
+function appKeysStep(step){const rows=appKeysRows();if(!rows.length)return false;const cur=rows.findIndex(n=>n.dataset.taskId===APP.task),n=cur<0?(step>0?0:rows.length-1):(cur+step+rows.length)%rows.length;appTaskOpen(rows[n].dataset.taskId)}
+function appKeysList(){if(!appOpen('left'))appToggle('left');const rows=appKeysRows(),n=rows.find(r=>r.dataset.taskId===APP.task)||rows[0]||document.querySelector('#app-projects .app-repo');if(n)n.focus()}
+function appKeysPanel(name){if(!appOpen('right'))appToggle('right');appPanel(name);const t=document.querySelector('#app-right [role=tab][data-app-panel="'+name+'"]');if(t)t.focus()}
+function appKeysTab(i){if(!AW.hid)return false;const t=awState(AW.hid).tabs[i];if(!t)return false;awPick(t.key)}
+function appKeysTabStep(step,same){if(!AW.hid)return false;const s=awState(AW.hid),cur=s.tabs.find(t=>t.key===s.cur)||s.tabs[0],list=same?s.tabs.filter(t=>t.kind===cur.kind):s.tabs;if(list.length<2)return;
+  awPick(list[(list.indexOf(cur)+step+list.length)%list.length].key)}
+function appKeysTerm(){if(!AW.hid)return false;if(AW.ro){toast('Another person’s task has no terminal here.',false);return}if(!termOffered()){toast('No terminal here: the dash offers one only to an owner, where [dash] terminal is on.',false);return}
+  const s=awState(AW.hid),used=s.tabs.filter(t=>t.kind==='term').map(t=>t.n),n=[1,2,3].slice(0,AW_TERMS).find(x=>!used.includes(x));if(!n){toast('Up to '+AW_TERMS+' terminals per task. Close one first.',false);return}awOpen({key:'term:'+n,kind:'term',n})}
+function appKeysClose(){if(!AW.hid)return false;awClose(awState(AW.hid).cur)}
+document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.isComposing||activeSheet||SEARCH.box&&SEARCH.box.open||OB.st&&OB.page>=0||document.querySelector('dialog[open]')||keysTyping(e.target))return;
+  const code=e.code||'',digit=/^Digit[0-9]$/.test(code)?+code.slice(5):/^[0-9]$/.test(e.key)?+e.key:-1,sh=e.shiftKey,alt=e.altKey,k=String(e.key).toLowerCase(),
+    run=f=>{if(f()!==false){e.preventDefault();e.stopPropagation()}};
+  if(e.key==='?'&&!e.ctrlKey&&!e.metaKey&&!alt){run(appKeysSheet);return}
+  if((APP_MAC?e.ctrlKey&&!e.metaKey&&!alt:alt&&!e.ctrlKey&&!e.metaKey)&&!sh&&digit>=1){run(()=>appKeysTab(digit-1));return}
+  if(!appMod(e))return;
+  if(!sh&&!alt&&digit>=1)run(()=>appKeysTask(digit-1));
+  else if(sh&&!alt&&digit===0)run(appKeysList);
+  else if(sh&&!alt&&(e.key==='ArrowUp'||e.key==='ArrowDown'))run(()=>appKeysStep(e.key==='ArrowDown'?1:-1));
+  else if((code==='BracketRight'||code==='BracketLeft')&&sh!==alt)run(()=>appKeysTabStep(code==='BracketRight'?1:-1,alt));
+  else if(!sh&&!alt&&k==='n')run(()=>{document.querySelector('#app-shell [data-app-action="new-task"]').click()});
+  else if(!sh&&!alt&&k==='t')run(appKeysTerm);
+  else if(!sh&&!alt&&k==='w')run(appKeysClose);
+  else if(sh&&!alt&&(k==='e'||k==='g'))run(()=>appKeysPanel(k==='e'?'files':'changes'))},true);
+document.querySelector('#app-shell [data-app-action="new-task"]').setAttribute('aria-keyshortcuts','N '+(APP_MAC?'Meta':'Control')+'+N');
+// end:app-keys
 // region:refresh
-function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();notifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
+function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();appNotifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
