@@ -2708,9 +2708,30 @@ function twTabs(label,pane,tabs,cur,more){const tab=(k,t,n,p,on,cls)=>el('button
 function twPanel(k,cur,...kids){return el('div',{class:'tw-panel',role:'tabpanel','data-tab':k,hidden:k!==cur||null},...kids)}
 // twActions are the selected handoff's actions for the top: Stop and the others it has, then Push
 // branch and Open a draft PR once its change is ready, from the cached review and filled when it loads.
-function twActions(dash,h,hid){const box=el('span',{class:'kact tw-acts'}),fixed=h&&(dash.handoff_list||[]).some(y=>y.id===h.id)?handoffActions(dash,h):[];
+function twActions(dash,h,hid){const box=el('span',{class:'kact tw-acts'}),fixed=h&&(dash.handoff_list||[]).some(y=>y.id===h.id)?[...handoffActions(dash,h),...taskActions(dash,h)]:[];
   const fill=c=>{const d=c&&c.data,ask=d&&d.proposed&&!d.pr&&(d.files||[]).length;box.replaceChildren(...fixed,...(ask?openPRButtons(d):[]));if(typeof lockState==='function')try{lockState()}catch(e){}};
   fill(OPENPR[hid]);if(hid)openPRLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
+// region:task-actions
+// taskActions are Take over, Open in editor and Cancel task in the workspace's top bar (#562), each where
+// the snapshot offers it (h.takeover, h.editor, h.cancel: may and why_not are the server's rule for this
+// person) and each with its CLI command, on the button and in its confirmation. Open in editor appears only
+// on a dash that may start a program on this host (dash.editor.local: loopback, opened from loopback).
+function taskShellWord(w){w=String(w);return /^[A-Za-z0-9_.\/:=+@%,-]+$/.test(w)?w:"'"+w.replace(/'/g,"'\\''")+"'"}
+function taskActButton(key,label,why,cli,run,cls){const say=why||'Same as: '+cli;return el('button',{class:cls||null,'data-write':true,'data-task-act':key,'data-cli':cli,'data-disabled-reason':why||null,'aria-disabled':why?'true':null,'aria-description':say,title:say,onclick:()=>{if(!why)run()}},label)}
+function taskCliNote(cli){return el('p',{class:'field-hint task-cli'},'Same as: ',el('code',{},cli))}
+function taskActions(d,h){if(!h)return [];if(PENDING[h.id+':task'])return [el('span',{class:'mute'},PENDING[h.id+':task'])];const out=[],ed=d.editor||{};
+  if(h.takeover)out.push(taskActButton('takeover','Take over',h.takeover.may===false?h.takeover.why_not||'You cannot take this task over.':null,h.takeover.cli,()=>takeoverTask(h)));
+  if(h.editor&&h.editor.dir&&ed.local){const cli=(ed.argv||['$VISUAL']).map(taskShellWord).join(' ')+' '+taskShellWord(h.editor.dir);
+    out.push(taskActButton('editor','Open in editor',h.editor.may===false?h.editor.why_not||'You cannot open this task.':ed.why_not||null,cli,()=>openTaskInEditor(h)))}
+  if(h.cancel)out.push(taskActButton('cancel','Cancel task',h.cancel.may===false?h.cancel.why_not||'You cannot cancel this task.':null,h.cancel.cli,()=>cancelTask(h),'no'));
+  return out}
+function takeoverTask(h){return sheet({title:'Take this task over?',description:'Its worker has stopped. You take the task’s claim: the worker’s branch, commits and results stay, and you finish the work yourself, in its directory, with its check.',action:'Take over',pending:'Taking over…',content:taskCliNote(h.takeover.cli),
+  onSubmit:async()=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Taking over…';try{const j=await act({action:'takeover',id:h.id});toast(j.next?'Taken over. Next: '+j.next:'Taken over',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
+function cancelTask(h){return sheet({title:'Cancel this task?',description:'“'+(h.title||h.goal||h.id)+'” is closed as cancelled, with your reason in its history. A running worker is stopped. This cannot be undone.',action:'Cancel task',cancel:'Keep task',danger:true,pending:'Cancelling…',
+  fields:[{name:'reason',label:'Reason',required:true,multiline:true,maxlength:500,hint:'Why it is retired: shown on the task and in handoff show.'}],content:taskCliNote(h.cancel.cli),
+  onSubmit:async v=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Cancelling…';try{await act({action:'cancel',id:h.id,reason:v.reason});toast('Task cancelled',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
+async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening…',{action:'open_editor',id:h.id});if(j)toast('Opened in '+(j.editor||'the editor')+': '+(j.cli||j.dir||''),true)}
+// end:task-actions
 // twChanges is Changes: the worker branch's diff and file list from GET /api/review, there as soon as
 // the worker has commits, running or not; the pull request when one is linked.
 function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-label':'Changes'});
