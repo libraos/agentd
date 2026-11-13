@@ -792,6 +792,60 @@ body:not(.app-right-open) .app-right{display:none}
 /* phone: the sidebars are drawers over the centre, one at a time, closed until asked; the status bar keeps its counts */
 @media(max-width:860px){.app-left{position:fixed;top:0;bottom:24px;left:0;z-index:30;width:min(85vw,var(--app-left-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-right{position:fixed;top:0;bottom:24px;right:0;z-index:30;width:min(90vw,var(--app-right-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-shell .app-ibtn,.app-shell .app-sidetoggle,.app-shell .app-rtab{min-width:44px;min-height:44px}.app-tabstrip{height:44px}.app-status{gap:8px;padding:0 8px}}
 /* end:css-app */
+/* region:css-app-sidebar: the app's left sidebar list (libraos/agentd-core#563): repositories as folder rows, each task
+   under its repository as Orca draws a worktree card, others' tasks in their own read-only group, the bell's Needs you
+   list, and the Tasks and Triggers views in the centre. Orca's values (briefs/personal-app-orca/SPEC.md §2.3-§2.5);
+   Orca is MIT (stablyai/orca). Nothing outside #app-shell is styled here. */
+.app-projects{display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
+.app-repo{position:sticky;top:-1px;z-index:2;display:flex;align-items:center;gap:6px;height:28px;flex:none;width:100%;padding:0 8px 0 10px;border:0;border-radius:0;background:var(--o-wsb);color:var(--o-wsb-fg);text-align:left;font-size:13px;font-weight:600;line-height:16px;--app-hover:var(--o-wsb)}
+.app-repo>svg{color:var(--o-mfg)}.app-repo .app-rname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-repo .app-chev{opacity:0;color:var(--o-mfg);transition:transform 150ms}.app-repo:hover .app-chev,.app-repo:focus-visible .app-chev{opacity:1}.app-repo[aria-expanded="false"] .app-chev{transform:rotate(-90deg);opacity:1}
+.app-repo .app-rnote{font-size:11px;font-weight:500;color:var(--o-mfg)}
+.app-task{position:relative;display:flex;gap:2px;width:calc(100% - 8px);margin-left:4px;padding:5px 6px 6px 2px;border:1px solid transparent;border-radius:10px;background:none;color:var(--o-fg);text-align:left;font-size:13px;transition:background-color 200ms,border-color 200ms,box-shadow 200ms;--app-hover:color-mix(in srgb,var(--o-wsb-fg) 4%,transparent)}
+.app-task[aria-current="true"]{border-color:color-mix(in srgb,var(--o-border) 40%,transparent);background:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent);box-shadow:0 1px 2px color-mix(in srgb,var(--o-fg) 4%,transparent);--app-hover:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent)}
+.app-lane{flex:none;display:flex;justify-content:center;align-items:center;width:24px;height:20px}
+.app-tbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.app-trow{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.app-ttitle{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:20px;font-weight:400}
+.app-task[data-mark="needs_you"] .app-ttitle,.app-task[data-mark="failed"]:not([data-done]) .app-ttitle{font-weight:600}
+.app-tspend{flex:none;font-size:11px;color:var(--o-mfg);font-variant-numeric:tabular-nums}
+.app-tmeta{display:flex;align-items:center;gap:4px;min-width:0;font-size:11px;line-height:1;color:var(--o-mfg)}.app-tmeta>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-tro{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:500}
+/* status dots (§2.5): working yellow spinner, needs you an orange question mark, done green, failed red, waiting amber dashed, not started grey */
+.app-dot{display:block;width:8px;height:8px;border-radius:50%;background:rgb(115 115 115/.4)}
+.app-dot[data-dot="done"]{background:#00bb7f}
+.app-dot[data-dot="failed"]{width:6px;height:6px;background:#fb2c36}
+.app-dot[data-dot="working"]{background:none;border:1.5px solid color-mix(in srgb,var(--o-working) 30%,transparent);border-top-color:var(--o-working);animation:app-spin 900ms linear infinite}
+.app-dot[data-dot="waiting"]{width:9px;height:9px;background:none;border:1.5px dashed #f59e0b}
+.app-dot[data-dot="needs_you"]{display:grid;place-items:center;width:12px;height:12px;background:var(--o-question);color:#fff;font:700 9px/1 'Geist',Inter,sans-serif}
+@keyframes app-spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.app-dot[data-dot="working"]{animation:none;background:var(--o-working);border:0}}
+.app-bell[aria-pressed="true"]{background:color-mix(in srgb,var(--o-fg) 10%,transparent);color:var(--o-fg)}
+.app-bell .app-bdot{position:absolute;left:50%;top:3px;width:4px;height:4px;margin-left:2px;border-radius:50%;background:var(--o-mfg)}.app-bell.app-hot .app-bdot{background:var(--o-question)}
+.app-listnote{padding:16px 14px;color:var(--o-mfg);font-size:12px;line-height:1.5}
+.app-repo-pop{position:absolute;z-index:40;top:118px;left:8px;width:min(264px,calc(100% - 16px));padding:12px;border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);color:var(--o-fg);box-shadow:0 10px 24px rgb(0 0 0/.18);font-size:12px}
+.app-repo-pop p{margin:0 0 8px;color:var(--o-mfg)}.app-repo-pop code,.app-page code{display:block;padding:6px 8px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font-size:11px;overflow-wrap:anywhere}
+.app-left{position:relative}
+/* another person's task is open: the frame's write controls go (theirs to act on); a control marked data-app-write by the issues that add one goes too */
+#app-shell[data-readonly] [data-app-write],#app-shell[data-readonly] .app-tabstrip [data-app-action="new-tab"],#app-shell[data-readonly] .app-tabstrip [data-app-action="command"]{display:none}
+/* Tasks and Triggers open over the centre, as Orca's pages do */
+body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody{display:none}
+.app-page{flex:1;min-height:0;overflow:auto;padding:16px 32px 32px;background:var(--o-bg)}
+.app-phead{display:flex;align-items:center;gap:8px;height:36px;margin-bottom:12px}
+.app-phead h2{margin:0;font-size:14px;font-weight:600}
+.app-pfilter{flex:1;max-width:420px;height:32px;margin-left:12px;padding:0 10px;border:1px solid var(--o-border);border-radius:8px;background:color-mix(in srgb,var(--o-border) 50%,transparent);color:var(--o-fg);font:inherit;font-size:12px}
+.app-pcard{border:1px solid var(--o-border);border-radius:10px;background:var(--o-card);box-shadow:0 1px 2px rgb(0 0 0/.04);overflow:hidden}
+.app-ptable{width:100%;border-collapse:collapse;font-size:13px}
+.app-ptable th{height:32px;padding:0 12px;border-bottom:1px solid var(--o-border);text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--o-mfg);white-space:nowrap}
+.app-ptable td{height:40px;padding:0 12px;border-bottom:1px solid var(--o-border);color:var(--o-fg);white-space:nowrap}.app-ptable tr:last-child td{border-bottom:0}
+.app-ptable tbody tr{cursor:pointer}.app-ptable tbody tr:hover td{background:color-mix(in srgb,var(--o-fg) 4%,transparent)}
+.app-ptable td.app-pt{max-width:0;width:50%;overflow:hidden;text-overflow:ellipsis}.app-ptable td small{display:block;font-size:11px;color:var(--o-mfg);overflow:hidden;text-overflow:ellipsis}
+.app-ptable .app-pid{font-family:'SF Mono',ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--o-mfg)}
+.app-pstatus{display:inline-flex;align-items:center;gap:6px}
+.app-pempty{padding:40px 16px;text-align:center;color:var(--o-mfg)}.app-pempty b{display:block;margin-bottom:6px;font-size:15px;color:var(--o-fg)}
+.app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
+@media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
+/* end:css-app-sidebar */
 </style></head><body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
@@ -4040,7 +4094,7 @@ const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
 try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
 function appShell(d){const on=!!d&&d.mode==='app';
   if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false)}appSides()}
-  if(on)appStatus(d);return on}
+  if(on){appStatus(appMine(d));appSidebar(d)}return on}
 function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
 function appSides(){const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
   for(const n of document.querySelectorAll('#app-shell [data-app-action^="toggle-"]'))n.setAttribute('aria-expanded',String(appOpen(n.dataset.appAction.slice(7))))}
@@ -4075,6 +4129,120 @@ document.addEventListener('keydown',e=>{if(!APP.on)return;
 PHONE.addEventListener('change',()=>{APP.drawer='';appSides()});
 appPanel(APP.panel);
 // end:app
+// region:app-sidebar: the app's left sidebar (libraos/agentd-core#563). It fills region:app-projects
+// and wires the nav (Tasks, Triggers), the Projects header (bell, add a repository, new task) and
+// the sidebar's keys. Orca's layout (briefs/personal-app-orca/SPEC.md §2):
+//   Projects  my tasks by repository: a folder row per repository (click folds it; kept in
+//             localStorage dash-app-collapsed), each task under it as Orca draws a worktree card:
+//             a status dot, the title, the worker's branch on a second line, and the spend
+//   Other people's  others' tasks in their own group, read only. Which are mine is the server's
+//             word (/api/dash's mine on each task in app mode: the handoff's sender user); a task
+//             without it (an older server) counts as mine
+//   bell      how many of my tasks wait on me (the status bar's own count, read from my tasks
+//             only); it toggles the list between Projects and Needs you, as Orca's bell toggles
+//             its list
+//   Tasks     every task as a table over the centre (Orca's Tasks page); Triggers, read only:
+//             they are set from a terminal, so the view gives the commands
+//   keys      ArrowDown and ArrowUp move between tasks while the sidebar has the focus, Enter
+//             opens one (the row is a button), N is New task (it clicks the header's + button)
+// Opening a task (appTaskOpen) is the seam for the centre and right sidebar: APP.task is its id,
+// #app-shell gets data-task (and data-readonly when it is someone else's, which hides the frame's
+// write controls and any marked data-app-write), and document gets an "app-task" event whose
+// detail is {id, mine, readOnly, task}.
+const APPS={view:'projects',page:'',collapsed:new Set(),model:null};
+try{const v=JSON.parse(localStorage.getItem('dash-app-collapsed')||'[]');if(Array.isArray(v))APPS.collapsed=new Set(v.map(String))}catch(e){}
+APP.task='';
+// appMine: the snapshot with my tasks only, for the status bar's and the bell's counts.
+function appMine(d){const l=d.handoff_list||[];return l.some(h=>h.mine===false)?{...d,handoff_list:l.filter(h=>h.mine!==false)}:d}
+function appSpend(h){const a=(h.attempts||[]).filter(x=>typeof x.usd==='number');return a.length?a.reduce((s,x)=>s+x.usd,0):null}
+const APP_DOTS={needs_you:'Needs you',failed:'Failed',working:'Working',waiting:'Waiting',done:'Done',idle:'Not started'};
+function appDot(mark){return Object.hasOwn(APP_DOTS,mark)?mark:'idle'}
+function appIcon(d,size){const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:size||14,height:size||14,fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(k,v);
+  for(const p of [].concat(d)){const n=document.createElementNS(NS,'path');n.setAttribute('d',p);svg.append(n)}return svg}
+const APP_ICONS={folder:'M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z',chev:'m6 9 6 6 6-6',users:['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2','M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8','M22 21v-2a4 4 0 0 0-3-3.87','M16 3.13a4 4 0 0 1 0 7.75'],bell:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0'],lock:['M5 11h14v10H5z','M8 11V7a4 4 0 0 1 8 0v4'],x:['M18 6 6 18','m6 6 12 12']};
+// appSidebarModel: my tasks by repository, others' tasks, and mine that wait on me. Open tasks come
+// from the Agents list's own model (its marks and Needs you rule), the day's finished ones from done.
+function appSidebarModel(d){const m=agentsModel(d),need=new Set(m.need.map(r=>r.id)),rows=[],seen=new Set();
+  for(const r of [...m.need,...m.groups.flatMap(g=>g.rows)])if(r.h&&!seen.has(r.id)){seen.add(r.id);rows.push({...r,mine:r.h.mine!==false,need:need.has(r.id)})}
+  for(const x of d.done||[])if(x.what==='handoff'&&x.ref&&!seen.has(x.ref)){seen.add(x.ref);rows.push({id:x.ref,h:x,mark:x.failed?'failed':'done',done:true,project:projectOf(x),title:cardTitle(x.title||x.ref),full:x.title||x.ref,href:itemHash(null,x.ref),mine:x.mine!==false,need:false})}
+  const mine=new Map(),others=[];
+  for(const r of rows){if(!r.mine){others.push(r);continue}if(!mine.has(r.project))mine.set(r.project,[]);mine.get(r.project).push(r)}
+  const groups=[...mine.keys()].sort((a,b)=>(!a)-(!b)||a.localeCompare(b)).map(k=>({project:k,rows:mine.get(k)}));
+  return {rows,groups,others,need:rows.filter(r=>r.mine&&r.need),byId:new Map(rows.map(r=>[r.id,r]))}}
+function appOwner(r){return r.h.from_user||r.h.claimer_user||'someone else'}
+function appTaskRow(r){const h=r.h,usd=appSpend(h),dot=appDot(r.mark),meta=r.mine?h.branch||agentsState(r):[appOwner(r),h.branch||r.project].filter(Boolean).join(' · ');
+  return el('button',{type:'button',class:'app-task','data-task-id':r.id,'data-mark':r.mark,'data-done':r.done?'':null,'data-readonly':r.mine?null:'','aria-current':APP.task===r.id?'true':null,title:r.full+'\n'+APP_DOTS[dot]+(r.mine?'':' · read only: '+appOwner(r)+'’s task')},
+    el('span',{class:'app-lane'},el('span',{class:'app-dot','data-dot':dot,role:'img','aria-label':APP_DOTS[dot]},dot==='needs_you'?'?':null)),
+    el('span',{class:'app-tbody'},el('span',{class:'app-trow'},el('span',{class:'app-ttitle'},r.title),usd!==null?el('span',{class:'app-tspend',title:'Spent by its workers'},'$'+usd.toFixed(2)):null),
+      el('span',{class:'app-tmeta'},el('span',{},meta),r.mine?null:el('span',{class:'app-tro'},appIcon(APP_ICONS.lock,10),'Read only'))))}
+function appRepoRow(key,name,icon,note){const open=!APPS.collapsed.has(key);
+  return el('button',{type:'button',class:'app-repo','data-repo':key,'aria-expanded':String(open),title:name},appIcon(icon,14),el('span',{class:'app-rname'},name),note?el('span',{class:'app-rnote'},note):null,el('span',{class:'app-chev'},appIcon(APP_ICONS.chev,14)))}
+function appGroup(key,name,icon,rows,note){return [appRepoRow(key,name,icon,note),...(APPS.collapsed.has(key)?[]:rows.map(appTaskRow))]}
+function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects'),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.taskId||a.dataset.repo||'':'',kids=[];
+  const bell=document.querySelector('#app-shell [data-app-action="bell"]');bell.setAttribute('aria-pressed',String(APPS.view==='needs'));
+  if(!bell.querySelector('.app-bdot'))bell.append(el('span',{class:'app-bdot','aria-hidden':'true'}));
+  bell.setAttribute('aria-label',m.need.length+' of your tasks '+(m.need.length===1?'waits':'wait')+' on you'+(APPS.view==='needs'?'; showing them, click for all projects':'; click to list them'));
+  $('app-projects-name').textContent=APPS.view==='needs'?'Needs you':'Projects';
+  if(APPS.view==='needs'){kids.push(...m.need.map(appTaskRow));if(!m.need.length)kids.push(el('p',{class:'app-listnote'},'Nothing waits on you. The bell counts your tasks that need you: a question, a failed worker, a stop or a budget that ran out.'))}
+  else{for(const g of m.groups)kids.push(...appGroup('p:'+g.project,g.project||'No repository',APP_ICONS.folder,g.rows));
+    if(m.others.length)kids.push(...appGroup('others','Other people’s',APP_ICONS.users,m.others,'Read only'));
+    if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: agentd new "GOAL".'))}
+  box.replaceChildren(...kids);
+  if(keep){const n=box.querySelector('[data-task-id="'+CSS.escape(keep)+'"],[data-repo="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
+  if(APPS.page==='tasks')appTasksPage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
+function appReadOnly(r){const s=$('app-shell');if(r&&!r.mine)s.setAttribute('data-readonly','');else s.removeAttribute('data-readonly')}
+// appTaskOpen: the seam the centre and right sidebar listen on (see the region's head).
+function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)return;APP.task=id;appPage('');
+  for(const n of document.querySelectorAll('#app-projects .app-task'))if(n.dataset.taskId===id)n.setAttribute('aria-current','true');else n.removeAttribute('aria-current');
+  $('app-shell').dataset.task=id;appReadOnly(r);if(PHONE.matches&&APP.drawer==='left'){APP.drawer='';appSides()}
+  document.dispatchEvent(new CustomEvent('app-task',{detail:{id,mine:r.mine,readOnly:!r.mine,task:r.h}}))}
+// Tasks and Triggers: a page over the centre, as Orca's pages are; '' puts the workspace back.
+function appPage(name){APPS.page=name;let p=$('app-page');
+  for(const n of document.querySelectorAll('#app-shell [data-app-nav]'))if(n.dataset.appNav===name)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');
+  document.body.classList.toggle('app-paged',!!name);if(!name){if(p)p.hidden=true;return}
+  if(!p){p=el('section',{class:'app-page',id:'app-page','aria-live':'polite'});$('app-center').append(p)}p.hidden=false;
+  if(name==='tasks')appTasksPage();else appTriggersPage()}
+function appPageHead(title,...more){return el('div',{class:'app-phead'},el('button',{type:'button',class:'app-ibtn','data-app-close':'',title:'Close','aria-label':'Close '+title},appIcon(APP_ICONS.x,16)),el('h2',{},title),...more)}
+function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;const m=APPS.model||{rows:[]},old=p.querySelector('.app-pfilter'),q=old?old.value:'',at=document.activeElement===old;
+  const f=el('input',{class:'app-pfilter',type:'search',placeholder:'Filter tasks','aria-label':'Filter tasks',value:q}),ql=q.trim().toLowerCase();
+  const rows=m.rows.filter(r=>!ql||[r.full,r.id,r.project,r.h.branch,appOwner(r)].some(v=>String(v||'').toLowerCase().includes(ql)));
+  const tr=r=>{const usd=appSpend(r.h),dot=appDot(r.mark);return el('tr',{'data-task-id':r.id,tabindex:'0',title:r.full},el('td',{class:'app-pid'},r.id),el('td',{class:'app-pt'},r.title,el('small',{},[r.project||'No repository',r.h.branch].filter(Boolean).join(' · '))),
+    el('td',{class:'app-pcol-opt'},r.mine?'You':appOwner(r)+' · read only'),el('td',{},el('span',{class:'app-pstatus'},el('span',{class:'app-dot','data-dot':dot,'aria-hidden':'true'},dot==='needs_you'?'?':null),APP_DOTS[dot])),
+    el('td',{class:'app-pcol-opt'},usd===null?'—':'$'+usd.toFixed(2)),el('td',{class:'app-pcol-opt'},r.h.updated_ago||r.h.age||''))};
+  p.replaceChildren(appPageHead('Tasks',f),el('div',{class:'app-pcard'},rows.length?el('table',{class:'app-ptable'},el('thead',{},el('tr',{},['ID','Title / context','From','Status','Spend','Updated'].map((h,i)=>el('th',{class:i===2||i>3?'app-pcol-opt':null,scope:'col'},h)))),el('tbody',{},rows.map(tr)))
+    :el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or agentd new "GOAL" in a terminal.')));
+  f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
+function appTriggersPage(){$('app-page').replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{},
+  el('p',{},'Triggers and schedules start tasks on their own, so they are set from a terminal (or the team dash), never from this app. See what is set:'),
+  el('code',{},'agentd schedule list'),el('code',{},'agentd trigger status'),
+  el('p',{},'An owner enables a schedule from a terminal; config.toml’s [triggers] turns triggers on:'),el('code',{},'agentd schedule enable NAME'),el('code',{},'agentd config set triggers.enabled true')))}
+function appRepoPop(open){let pop=$('app-repo-pop');const b=document.querySelector('#app-shell [data-app-action="add-repo"]');
+  if(!open){if(pop)pop.hidden=true;b.setAttribute('aria-expanded','false');return}
+  if(!pop){pop=el('div',{class:'app-repo-pop',id:'app-repo-pop',role:'dialog','aria-label':'Add a repository'},el('p',{},'Repositories are added from a terminal, in the checkout:'),el('code',{},'agentd repo add'),el('p',{style:'margin:8px 0 0'},'Or name it: agentd repo add DIR. It shows here once it has a task.'));$('app-left').append(pop)}
+  pop.hidden=false;b.setAttribute('aria-expanded','true')}
+// Wiring. The frame's buttons were placeholders; the ones this region drives are live now.
+for(const s of ['[data-app-nav="tasks"]','[data-app-nav="triggers"]','[data-app-action="add-repo"]'])document.querySelector('#app-shell '+s).removeAttribute('aria-disabled');
+document.querySelector('#app-shell [data-app-action="add-repo"]').setAttribute('aria-controls','app-repo-pop');
+document.querySelector('#app-shell [data-app-action="bell"]').setAttribute('aria-controls','app-projects');
+$('app-shell').addEventListener('click',e=>{if(!e.target.closest('#app-repo-pop,[data-app-action="add-repo"]'))appRepoPop(false);
+  const t=e.target.closest('.app-task,.app-repo,[data-app-nav],[data-app-close],#app-page tbody tr,[data-app-action="bell"],[data-app-action="add-repo"]');if(!t)return;
+  if(t.matches('.app-task,#app-page tbody tr')){appTaskOpen(t.dataset.taskId);return}
+  if(t.matches('.app-repo')){const k=t.dataset.repo;if(APPS.collapsed.has(k))APPS.collapsed.delete(k);else APPS.collapsed.add(k);try{localStorage.setItem('dash-app-collapsed',JSON.stringify([...APPS.collapsed]))}catch(e){}if(lastDash)appSidebar(lastDash);return}
+  if(t.matches('[data-app-nav]')){appPage(APPS.page===t.dataset.appNav?'':t.dataset.appNav);return}
+  if(t.matches('[data-app-close]')){appPage('');return}
+  if(t.dataset.appAction==='bell'){APPS.view=APPS.view==='needs'?'projects':'needs';if(lastDash)appSidebar(lastDash);return}
+  if(t.dataset.appAction==='add-repo')appRepoPop($('app-repo-pop')?$('app-repo-pop').hidden:true)});
+// Keys, in the capture phase so the team dash's own n and Enter (region:keys) do not run in app mode.
+document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||activeSheet||SEARCH.box&&SEARCH.box.open)return;
+  const t=e.target;if(e.key==='Escape'){if($('app-repo-pop')&&!$('app-repo-pop').hidden){appRepoPop(false);e.stopPropagation();return}if(APPS.page&&!keysTyping(t)){appPage('');e.stopPropagation()}return}
+  if(keysTyping(t))return;
+  if(e.key==='n'||e.key==='N'){e.preventDefault();e.stopPropagation();document.querySelector('#app-shell [data-app-action="new-task"]').click();return}
+  if(e.key==='Enter'&&t.matches&&t.matches('.app-task,#app-page tbody tr')){e.preventDefault();e.stopPropagation();appTaskOpen(t.dataset.taskId);return}
+  if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;const inLeft=$('app-left').contains(t),inTable=t.closest&&t.closest('#app-page tbody');if(!inLeft&&!inTable&&t!==document.body)return;
+  const rows=[...document.querySelectorAll(inTable?'#app-page tbody tr':'#app-projects .app-task,#app-projects .app-repo')];if(!rows.length)return;
+  const i=rows.indexOf(t),cur=i<0?rows.findIndex(n=>n.dataset.taskId===APP.task):i,n=cur<0?(e.key==='ArrowDown'?0:rows.length-1):Math.min(rows.length-1,Math.max(0,cur+(e.key==='ArrowDown'?1:-1)));
+  e.preventDefault();e.stopPropagation();rows[n].focus();if(rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'})},true);
+// end:app-sidebar
 // region:refresh
 function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();notifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
