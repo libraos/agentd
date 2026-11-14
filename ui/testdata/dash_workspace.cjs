@@ -19,6 +19,7 @@ const logs={'hof-run':[{state:'claimed',actor:'s-w',ago:'20m'},{state:'claimed',
 const sessions=[{id:'s-w',tool:'claude',status:'active',host_state:'busy',cwd:'/srv/alpha',user:'alice'}];
 let dash={user:'alice',role:'owner',now,handoff_list:[run,gone,nope],done:[{...done,title:done.goal}],sessions,left:[],waiting:[],claims:[],messages:[],inbox:[],dispatch:true,checkouts:['/srv/alpha'],terminal:false};
 const review={'hof-run':{handoff:'hof-run',enabled:true,state:'claimed',branch:'agentd/hof-run',head:'abc1234',files:[{path:'internal/a.go',added:3,deleted:1,diff:'@@ -1 +1 @@\n-old\n+new '+evil}],added:3,deleted:1,proposed:false,may:false},
+ 'hof-gone':{handoff:'hof-gone',enabled:true,state:'claimed',branch:'todo-clear',foreign:true,why_not:'the worker\'s branch todo-clear is not agentd/hof-gone, the branch agentd made for this handoff, so agentd will not push it',head:'4865e61',commits:1,files:[{path:'todo.js',added:68,deleted:1,diff:'+x'}],added:68,deleted:1,proposed:false,may:false},
  'hof-done':{handoff:'hof-done',enabled:true,state:'done',branch:'agentd/hof-done',head:'def5678',files:[{path:'b.go',added:1,deleted:0,diff:'+b'}],added:1,deleted:0,proposed:true,may:true,may_push:true,title:'t',body:'b'}};
 const taskmsg={'hof-run':{may:true,live:true},'hof-gone':{may:true,live:false,gone:'The worker has gone: its session ended, so a message would not be read.'},'hof-nope':{may:false,why_not:'only the handoff sender, claimer or an owner may message its worker'},'hof-done':{may:true,live:false,gone:'The task is done: no worker is on it any more, so a message would not be read.'}};
 const errors=[],posts=[];
@@ -101,6 +102,9 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  assert.deepEqual(posts.pop(),{action:'task_msg',id:'hof-run',body:'also update the docs'});
  // A worker that has gone: the box says so instead.
  await go('#issues/hof-gone');let mb=panel('session').querySelector('.tw-msgbox');assert(mb&&!mb.hidden&&!mb.querySelector('textarea'),'a box for a gone worker');assert(/worker has gone/.test(mb.textContent));
+ // #603: commits on a branch agentd did not make are its change; only publishing says it is not pushed.
+ const gch=panel('changes');assert(gch.querySelector('.openpr-changes')&&/todo\.js/.test(gch.textContent)&&/branch todo-clear/.test(gch.textContent),'no change on the user\'s branch: '+gch.textContent);
+ assert(!/has not committed/.test(gch.textContent)&&/Not published: .*will not push it/.test(gch.querySelector('[data-k="publish"]').textContent),'Changes: '+gch.textContent);
  // Who may not Stop the task gets no box.
  await go('#issues/hof-nope');mb=panel('session').querySelector('.tw-msgbox');assert(!mb||mb.hidden&&!mb.querySelector('textarea'),'a box for who may not stop the task');
  // A finished change: Push branch and Open a draft PR are in the top bar.

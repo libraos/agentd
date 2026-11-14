@@ -18,7 +18,7 @@ const files={files:[{path:'a.txt',changed:'modified',size:20},{path:'src/new.ts'
 const checks={check:'go test ./...',runs:[{result:'passed',actor:'worker',at:now,tests:'12 tests',revert_test:'not evidence: the added tests pass without the change'}]};
 const detail=(frac,o)=>({handoff:'hof-w1',state:'claimed',show:'agentd handoff show hof-w1',tool:'claude',model:'claude-opus-5-5',branch:'agentd/hof-w1',cost:{minutes:9,usd:1.5},
   budget:{cap:'10m',used:Math.round(frac*10)+' of 10 min',fraction:frac,warn:frac>=0.85,over:frac>=1,warn_at:0.85,raise:'agentd handoff budget hof-w1 --budget 10m'},delivery:{outcome:'open',reason:'Still claimed: it is judged once it ends.',report:'agentd factory report'},...o});
-let frac=0.9,hits={},posts=[];
+let frac=0.9,hits={},posts=[],reviewOver={};
 const workitem=id=>({tree:[{id,log:[{note:'report: tests pass '+evil,ago:'2m',actor:'w-'+id},{note:'message m1 from user alice to its worker w: please add a test',ago:'1m'},{note:'claimed',ago:'5m',actor:'w-'+id}]}]});
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
@@ -31,7 +31,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   if(u.pathname==='/api/auth')return {ok:true,status:204};
   if(u.pathname==='/api/action'){posts.push(JSON.parse(o.body));body={ok:true}}
   else if(u.pathname==='/api/dash')body=snap;
-  else if(u.pathname==='/api/review')body={...review,handoff:id,branch:'agentd/'+id};
+  else if(u.pathname==='/api/review')body=reviewOver[id]||{...review,handoff:id,branch:'agentd/'+id};
   else if(u.pathname==='/api/files')body=u.searchParams.get('path')?{text:'# readme',size:8}:files;
   else if(u.pathname==='/api/checks')body=checks;
   else if(u.pathname==='/api/taskdetail')body=detail(frac,{handoff:id});
@@ -106,6 +106,21 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  click(qa('.app-crow',panel('changes'))[0]);await settle();assert.equal(tabText().pop(),'a.txt (diff)','no diff on another’s task');
  // Back to my task: its tabs are as I left them.
  w.appSelect('hof-w1');await settle();assert.equal(tabText()[1],'Terminal 1');
+ // #603: a worker that committed on the user's own branch: Changes lists that commit's files, and only
+ // publishing says the branch is not agentd's. "has not committed" only with no commit since dispatch.
+ const why='the worker\'s branch todo-clear is not agentd/hof-w1, the branch agentd made for this handoff, so agentd will not push it';
+ reviewOver['hof-w1']={handoff:'hof-w1',enabled:true,may:false,may_why:'',branch:'todo-clear',foreign:true,why_not:why,base_branch:'main',head:'4865e61',base:'1111111',commits:1,state:'done',added:68,deleted:1,proposed:false,
+  files:[{path:'todo.js',added:60,deleted:1,diff:'+x'},{path:'todo.test.js',added:8,deleted:0,diff:'+y'}]};
+ w.awChanges('hof-w1',true);await settle();let cg=panel('changes');
+ assert(/todo-clear/.test(q('.app-branch',cg).textContent),'no worker branch: '+cg.textContent);assert.equal(q('.app-chead [data-n]',cg).textContent,'2');
+ assert.deepEqual(qa('.app-crow',cg).map(r=>r.dataset.path),['todo.js','todo.test.js']);assert(/\+68 −1/.test(q('.app-chead',cg).textContent),'no totals');
+ assert(!/has not committed/.test(cg.textContent),'says has not committed: '+cg.textContent);assert(cg.textContent.includes('will not push it'),'publishing does not say why');
+ assert.equal(q('[data-act="open_pr"]',cg).getAttribute('aria-disabled'),'true','push is offered for a branch agentd did not make');
+ reviewOver['hof-w1']={...reviewOver['hof-w1'],files:[],added:0,deleted:0,commits:0};w.awChanges('hof-w1',true);await settle();cg=panel('changes');
+ assert(/has not committed/.test(q('[data-k="none"]',cg).textContent),'no commit is not said: '+cg.textContent);assert(q('[data-k="publish"]',cg)&&cg.textContent.includes('will not push it'));
+ reviewOver['hof-w1']={handoff:'hof-w1',enabled:true,branch:null,why_not:'no worker ran for this handoff'};w.awChanges('hof-w1',true);await settle();cg=panel('changes');
+ assert(!/has not committed/.test(cg.textContent),'has not committed without a count: '+cg.textContent);assert(/no worker ran/.test(cg.textContent));
+ delete reviewOver['hof-w1'];w.awChanges('hof-w1',true);await settle();
  assert(!errors.length,errors.join('\n'));
  // The page's own phone layout: tabs scroll, the right panels are the drawer the frame already has.
  if(phone)assert(doc.body.classList.contains('app-mode'));
