@@ -1047,6 +1047,8 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-feed>div{padding:2px 0;white-space:pre-wrap;overflow-wrap:anywhere}.app-feed .app-fuser{color:var(--o-mfg)}.app-feed .app-ftool{color:var(--o-mfg);font-size:12px}.app-feed .app-ferr{color:var(--o-red)}
 /* region: app-session (#602): the worker's own conversation in the Session tab, as its terminal shows it */
 .app-shead{display:block;margin:14px 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}
+/* region: app-session-messages (#677): a message sent to the worker, with its delivery state, in the conversation */
+.app-conv .app-fsent{color:var(--o-fg)}.app-conv .app-fstate{color:var(--o-mfg);font-size:12px}.app-conv .app-fsent[data-state="unread"] .app-fstate,.app-conv .app-fsent[data-state="delivered"] .app-fstate{font-style:italic}
 .app-conv .app-fcall{font-weight:600}.app-conv .app-fprompt{max-height:12em;overflow:auto;color:var(--o-mfg)}.app-conv .app-ftool,.app-conv .app-ferr{padding-left:2ch}
 .app-note{padding:8px 0;color:var(--o-mfg);font-size:12px}
 .app-sess .result,.app-sess .openpr{margin:0 0 12px;font-size:12px}.app-sess .result h5{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
@@ -4971,11 +4973,22 @@ function awConvLine(t){const x=String(t.text||'');
   if(t.role==='assistant')return el('div',{class:'app-fline','data-role':'assistant'},'⏺ ',x);
   if(t.role==='tool')return el('div',{class:'app-fcall','data-role':'tool'},'⏺ ',x);
   return el('div',{class:t.role==='error'?'app-ferr':'app-ftool','data-role':t.role==='error'?'error':'result'},'⎿  ',x)}
+// A message sent to the worker (#677), from /api/taskmsg's sent: who sent it, its text, and msg
+// status's word for it, so a send shows it went and whether the worker read or answered it.
+const AW_SENT={unread:'sent, not fetched yet',delivered:'fetched, not read yet',read:'read',answered:'answered',parked:'parked: the worker left',expired:'expired unread',unknown:'sent'};
+function awSentLine(m){const st=AW_SENT[m.state]?m.state:'unknown';
+  return el('div',{class:'app-fuser app-fsent','data-role':'sent','data-state':st},'> ',(m.user&&m.user!==USER?m.user:'You')+': '+String(m.body||''),
+    el('span',{class:'app-fstate',title:'The same from a terminal: agentd msg status '+(m.message||'')},'  '+AW_SENT[st]+(m.ago?' · '+m.ago+' ago':'')))}
+// awConvItems puts the sent messages among the worker's turns by time; a turn with no time keeps its place.
+function awConvItems(turns,sent){const out=[],rest=[...(sent||[])],at=x=>{const t=Date.parse(x||'');return isNaN(t)?null:t};
+  for(const t of turns){const ta=at(t.at);while(ta!==null&&rest.length&&(at(rest[0].sent)??Infinity)<=ta)out.push(awSentLine(rest.shift()));out.push(awConvLine(t))}
+  return out.concat(rest.map(awSentLine))}
 function awConv(hid){const box=el('div',{class:'app-feed app-conv','aria-label':'Conversation','data-k':'conversation'});
-  const fill=c=>{if(c&&c.error&&!c.data){box.replaceChildren(el('div',{class:'app-ferr'},'The conversation could not be read: '+c.error));return}
-    if(!c||!c.data){box.replaceChildren(el('div',{class:'app-note'},'Loading the conversation…'));return}
-    const turns=c.data.turns||[];box.replaceChildren(...(turns.length?turns.map(awConvLine):[el('div',{class:'app-note'},c.data.note||'No conversation yet.')]))};
-  fill(AW_CONV[hid]);awConvLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
+  const fill=c=>{const m=TW.msg[hid],sent=m&&m.data&&m.data.sent||[];
+    if(c&&c.error&&!c.data){box.replaceChildren(el('div',{class:'app-ferr'},'The conversation could not be read: '+c.error),...sent.map(awSentLine));return}
+    if(!c||!c.data){box.replaceChildren(el('div',{class:'app-note'},'Loading the conversation…'),...sent.map(awSentLine));return}
+    const turns=c.data.turns||[];box.replaceChildren(...(turns.length||sent.length?awConvItems(turns,sent):[el('div',{class:'app-note'},c.data.note||'No conversation yet.')]))};
+  fill(AW_CONV[hid]);Promise.all([awConvLoad(hid),twMsgLoad(hid)]).then(([c])=>{if(box.isConnected)fill(c)});return box}
 function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','aria-label':'History'}),c=AW_LOG[hid],head=el('h2',{},awTitle(h,hid));
   const fill=c=>{const it=c&&c.data&&((c.data.tree||[]).find(x=>x.id===hid)||(c.data.tree||[])[0]),log=it&&it.log||[];
     if(it&&it.goal&&!h.title&&!h.goal)head.textContent=awTitle(h,hid,it.goal);
@@ -4992,14 +5005,18 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
     h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,
     el('b',{class:'app-shead'},'Conversation'),awConv(hid),el('b',{class:'app-shead'},'History'),feed);
   return awPane('session',sess,AW.ro?el('div',{class:'app-msgbar app-ro',role:'note'},el('span',{class:'app-note'},'Another person’s task: read only. Session, Log and diffs are shown; messages and actions are theirs.')):awMsgBar(hid))}
+// awSessRedraw draws the Session above its message box again (after a send: the new message in the
+// conversation and the history), leaving the box, its text and its focus as they are.
+function awSessRedraw(hid){const old=document.querySelector('#app-tab-body [data-pane="session"] .app-sess');if(AW.hid!==hid||!old)return;
+  const fresh=awSession(hid).querySelector('.app-sess');if(fresh)old.replaceWith(fresh)}
 // The message box goes to the worker's inbox (task_msg), offered as /api/taskmsg says (Stop's rule).
 function awMsgBar(hid){const bar=el('div',{class:'app-msgbar','data-app-write':'',hidden:true}),c=TW.msg[hid];
   const fill=c=>{const d=c&&c.data;if(!d||!d.may){bar.hidden=true;return}bar.hidden=false;
     if(!d.live){bar.replaceChildren(el('span',{class:'app-note',role:'note'},d.gone||'The worker has gone, so a message would not be read.'));return}
-    const input=el('textarea',{rows:'2',maxlength:'4000','aria-label':'Message this worker',placeholder:'Message the worker: ask for a change, or answer its question (Ctrl+Enter sends)',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();send()}}});
+    const input=el('textarea',{rows:'2',maxlength:'4000','aria-label':'Message this worker',placeholder:'Message the worker: ask for a change, or answer its question (Enter sends, Shift+Enter adds a line)',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.altKey&&!e.isComposing){e.preventDefault();send()}}});
     input.value=TW.draft[hid]||'';const btn=el('button',{type:'button',class:'app-btn app-primary',onclick:()=>send()},'Send');
     const send=async()=>{const body=input.value.trim();if(!body||btn.getAttribute('aria-disabled')==='true')return;btn.setAttribute('aria-disabled','true');btn.textContent='Sending…';
-      try{await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast('Sent to the worker’s inbox',true);delete (AW_LOG[hid]||{}).data;awLogLoad(hid).then(()=>{if(!awTyping())awBody()})}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent='Send'}};
+      try{await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast('Sent to the worker’s inbox',true);delete (AW_LOG[hid]||{}).data;Promise.all([awLogLoad(hid),twMsgLoad(hid,true)]).then(()=>awSessRedraw(hid))}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent='Send'}};
     bar.replaceChildren(input,btn)};
   if(c&&c.data)fill(c);twMsgLoad(hid).then(c=>{if(bar.isConnected&&!awTyping())fill(c)});return bar}
 // Log: the worker's log tail, kept live while the worker runs (region:worker-log).
