@@ -2,7 +2,7 @@
 // are listed by repository, each as the reference app's worktree card (status dot, title, branch, spend);
 // others' tasks are in their own read-only group (the server's mine on each task); the bell
 // counts my tasks waiting on me and toggles the list to them; Tasks is every task as a table over
-// the centre and Triggers is read only; ArrowUp/ArrowDown, Enter and N work in the sidebar.
+// the centre and Triggers is an owner's page (dash_apptriggers.cjs); ArrowUp/ArrowDown, Enter and N work in the sidebar.
 // Opening another person's task marks the frame read only. Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_appsidebar.cjs dash.html
 const fs=require('fs'),assert=require('assert');
@@ -118,10 +118,11 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert.deepEqual([...$('app-page').querySelectorAll('tbody tr')].map(n=>n.dataset.taskId).sort(),['hof-b2','hof-f1','hof-o1','hof-q1'],'filter');
  $('app-page').querySelector('tr[data-task-id="hof-q1"]').click();await tick();
  assert(!shown($('app-page'))&&!body.classList.contains('app-paged'),'opening a task leaves Tasks open');assert.equal(seen[seen.length-1].id,'hof-q1');
- // Triggers: read only, the commands, no request to the routes an app does not serve.
+ // Triggers: a page over the centre, read from /api/triggers (libraos/agentd-core#680; dash_apptriggers.cjs
+ // tests what it draws and sends).
  await openLeft();doc.querySelector('#app-shell [data-app-nav="triggers"]').click();await tick();
- assert(shown($('app-page'))&&/agentd schedule list/.test($('app-page').textContent)&&/Read only/.test($('app-page').textContent),'Triggers: '+$('app-page').textContent);
- assert(!$('app-page').querySelector('input,textarea,select,form'),'Triggers has a control');assert(!hits['/api/triggers'],'Triggers asked /api/triggers');
+ assert(shown($('app-page'))&&/Triggers/.test($('app-page').querySelector('h2').textContent),'Triggers: '+$('app-page').textContent);
+ assert.equal(hits['/api/triggers'],1,'Triggers did not ask /api/triggers');
  key('Escape',{},doc.body);await tick();assert(!shown($('app-page')),'Escape does not close Triggers');
  // Add a repository: the terminal's command, never a request.
  await openLeft();doc.querySelector('#app-shell [data-app-action="add-repo"]').click();await tick();
