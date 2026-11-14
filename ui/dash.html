@@ -1043,6 +1043,8 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-smeta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:12px;color:var(--o-mfg);font-size:12px}.app-smeta code{font:11px var(--o-mono)}
 .app-sblock{margin:0 0 12px;padding:8px 10px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-card);font-size:12px;line-height:18px;white-space:pre-wrap;overflow-wrap:anywhere}
 .app-sblock b{display:block;margin-bottom:2px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}
+/* region:start-failure (#658) */
+.app-sfail{border-color:color-mix(in srgb,var(--o-red) 45%,var(--o-border))}.app-sfail .app-snext{margin-top:4px;color:var(--o-mfg)}.app-sfail .app-sact{display:flex;align-items:center;gap:8px;margin-top:8px;white-space:normal}.app-sfail .app-sact small{color:var(--o-mfg)}
 .app-feed{font:13px/1.5 var(--o-mono);color:var(--o-fg)}
 .app-feed>div{padding:2px 0;white-space:pre-wrap;overflow-wrap:anywhere}.app-feed .app-fuser{color:var(--o-mfg)}.app-feed .app-ftool{color:var(--o-mfg);font-size:12px}.app-feed .app-ferr{color:var(--o-red)}
 /* region: app-session (#602): the worker's own conversation in the Session tab, as its terminal shows it */
@@ -4989,9 +4991,16 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
   const meta=[h.state?word(h.state):'',toolName(h.worker_tool||h.worker),h.worker_branch||h.branch?el('code',{},h.worker_branch||h.branch):null,h.updated_ago?'updated '+h.updated_ago+' ago':''].filter(Boolean).map(x=>el('span',{},x));
   const sess=el('div',{class:'app-sess'},head,el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},'agentd handoff show '+hid)),
     h.goal?el('div',{class:'app-sblock'},el('b',{},'Goal'),h.goal):null,accept?el('div',{class:'app-sblock'},el('b',{},'Done when'),accept):null,
-    h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,
+    h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,awStartFailure(h),
     el('b',{class:'app-shead'},'Conversation'),awConv(hid),el('b',{class:'app-shead'},'History'),feed);
   return awPane('session',sess,AW.ro?el('div',{class:'app-msgbar app-ro',role:'note'},el('span',{class:'app-note'},'Another person’s task: read only. Session, Log and diffs are shown; messages and actions are theirs.')):awMsgBar(hid))}
+// region:start-failure (#658): why the task's worker did not start, from the snapshot's start_failure
+// (its history's newest "dispatch failed" line), with Start again beside it where the Command menu has it.
+function awStartFailure(h){const f=h.start_failure;if(!f||!f.why)return null;const d=lastDash||{},r=h.retry;
+  const why=r&&r.may===false?r.why_not||'You cannot start this task again.':'';
+  const again=d.dispatch&&h.dispatched&&r&&!AW.ro?el('button',{type:'button',class:'app-btn app-primary','data-act':'retry','data-write':true,'aria-disabled':why?'true':null,title:why||null,'aria-description':why||null,onclick:()=>{if(!why)retryHandoff(h)}},'Start again'):null;
+  return el('div',{class:'app-sblock app-sfail','data-k':'start-failure',role:'note'},el('b',{},'The worker did not start'),f.why,
+    f.next?el('div',{class:'app-snext'},f.next):null,again?el('div',{class:'app-sact'},again,why?el('small',{},why):null):null)}
 // The message box goes to the worker's inbox (task_msg), offered as /api/taskmsg says (Stop's rule).
 function awMsgBar(hid){const bar=el('div',{class:'app-msgbar','data-app-write':'',hidden:true}),c=TW.msg[hid];
   const fill=c=>{const d=c&&c.data;if(!d||!d.may){bar.hidden=true;return}bar.hidden=false;
