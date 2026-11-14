@@ -847,6 +847,12 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
 @media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
 /* end:css-app-sidebar */
+/* region:css-app-settings */
+.app-preferences .app-pref{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--o-border)}
+.app-pref h3{margin:0;font-size:13px;font-weight:600;color:var(--o-fg)}.app-pref p{margin:5px 0 0;font-size:12px}.app-pref .app-btn{flex-shrink:0}
+.app-preferences .app-pref-note{margin-top:24px;font-size:12px}
+@media(max-width:860px){.app-pref .app-btn{min-height:44px}.app-preferences .app-pref{gap:12px}}
+/* end:css-app-settings */
 /* region:css-app-newtask: New task in the personal app (libraos/agentd-core#564), the reference app's "Create worktree" dialog
    (NewWorkspaceComposerModal + shadcn Dialog, MIT): sm:max-w-lg 512px, p-6, rounded-lg 10px, border black/14
    (white/14 dark), shadow 0 20px 60px rgba(0,0,0,.28), overlay black/55, dialog surface; title text-base 600; fields
@@ -4485,7 +4491,7 @@ function appPage(name){APPS.page=name;let p=$('app-page');
   for(const n of document.querySelectorAll('#app-shell [data-app-nav]'))if(n.dataset.appNav===name)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');
   document.body.classList.toggle('app-paged',!!name);if(!name){if(p)p.hidden=true;return}
   if(!p){p=el('section',{class:'app-page',id:'app-page','aria-live':'polite'});$('app-center').append(p)}p.hidden=false;
-  if(name==='tasks')appTasksPage();else appTriggersPage()}
+  if(name==='tasks')appTasksPage();else if(name==='settings')appSettingsPage();else appTriggersPage()}
 function appPageHead(title,...more){return el('div',{class:'app-phead'},el('button',{type:'button',class:'app-ibtn','data-app-close':'',title:'Close','aria-label':'Close '+title},appIcon(APP_ICONS.x,16)),el('h2',{},title),...more)}
 function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;const m=APPS.model||{rows:[]},old=p.querySelector('.app-pfilter'),q=old?old.value:'',at=document.activeElement===old;
   const f=el('input',{class:'app-pfilter',type:'search',placeholder:'Filter tasks','aria-label':'Filter tasks',value:q}),ql=q.trim().toLowerCase();
@@ -4720,7 +4726,8 @@ function obContinue(){const s=obStep();if(!s)return;const n=Math.max(OB.st.lastC
   if(s.id==='agent')Object.assign(p,{surface:d.surface,defaultAgent:d.agent||'blank',lastCompletedStep:n,checklist:{choseAgent:true}});
   else if(s.id==='theme')Object.assign(p,{theme:d.theme,lastCompletedStep:n});
   else if(s.id==='notifications'){obNotifyOn();Object.assign(p,{notifications:true,sound:d.sound,lastCompletedStep:5})}
-  else if(s.id!=='agent_surface')p.lastCompletedStep=n;// agent_surface shares step 1 with the agent page and saves nothing alone
+  else if(s.id==='agent_surface'&&OB.only)p.surface=d.surface;
+  else if(s.id!=='agent_surface')p.lastCompletedStep=n;// agent_surface shares step 1 with the agent page and saves nothing alone in the wizard
   if(OB.only||OB.page>=OB.steps.length-1){obFinish(p,'completed');return}
   if(Object.keys(p).length)obSave(p);OB.page++;obDraw();const b=document.querySelector('#appob-layer [data-ob="continue"]');if(b)b.focus()}
 // Set up later: the page's visible choice is kept (the theme page's goes back, as in the reference app), then closed as completed.
@@ -4729,8 +4736,8 @@ function obLater(){const s=obStep(),d=OB.draft,p={};
   if(s.id==='agent')Object.assign(p,{defaultAgent:d.agent||'blank',checklist:{choseAgent:true}});
   if(s.id==='theme')setTheme(OB.themeBefore==='system'?'':OB.themeBefore);
   obFinish(p,'completed')}
-function obFinish(p,outcome){const only=OB.only;OB.page=-1;OB.confirm=false;OB.only=false;
-  if(only){obSave(p);return}
+function obFinish(p,outcome){const only=OB.only,pref=only&&APPS.page==='settings'?obStep()?.id:null;OB.page=-1;OB.confirm=false;OB.only=false;
+  if(only){obSave(p).then(()=>{if(pref&&APPS.page==='settings')$('app-page')?.querySelector('[data-app-pref="'+pref+'"]')?.focus()});return}
   const toastNow=outcome==='completed'&&!OB.st.toastShown;
   OB.closedHere=true;try{sessionStorage.setItem('dash-app-onboard-closed',OB.user)}catch(e){}
   if(outcome==='completed'){if(!obRepos())OB.add=true;if(toastNow){OB.toast=true;OB.feedback=false}}
@@ -4861,7 +4868,8 @@ function obDraw(){const layer=$('appob-layer'),entry=$('appob-entry');if(!layer|
   const kids=[];if(OB.page>=0&&obStep())kids.push(obWizard());else{if(OB.guide)kids.push(obGuideModal());if(OB.add)kids.push(obAddModal());if(OB.toast)kids.push(obToast());if(OB.tour){kids.push(obTourPop());const n=document.querySelector(OB.tour.steps[OB.tour.i].target);if(n)n.classList.add('appob-pulse')}}
   if(OB.menu)kids.push(obMenu());
   layer.replaceChildren(...kids);
-  if(focus){const n=layer.querySelector('[data-ob="'+focus+'"]');if(n)n.focus()}}
+  if(focus){const n=layer.querySelector('[data-ob="'+focus+'"]');if(n)n.focus()}
+  if(APPS.page==='settings')appSettingsPage()}
 // --- tours: the reference app's start gate, retried at 250 ms then every 500 ms, up to 20 times ---
 function obVisible(n){if(!n||!n.isConnected)return false;for(let x=n;x&&x.nodeType===1;x=x.parentElement){if(x.hidden)return false;const cs=getComputedStyle(x);if(cs.display==='none'||cs.visibility==='hidden')return false}return true}
 function obTourGate(){return APP.on&&OB.st&&OB.eligible&&OB.page<0&&!OB.tour&&!OB.tourRan&&!OB.guide&&!OB.confirm&&!OB.add&&!OB.menu&&!activeSheet}
@@ -4883,6 +4891,33 @@ document.addEventListener('click',e=>{if(!APP.on)return;const t=OB.tour;if(t){co
 function appOnboardHelp(){if(!OB.st){keysSheet();return}OB.menu=!OB.menu;obDraw()}
 new MutationObserver(()=>{if(APP.on&&OB.eligible&&!OB.tour&&!OB.tourRan){clearTimeout(obTourTry.m);obTourTry.m=setTimeout(obTourTry,50)}}).observe($('app-shell'),{subtree:true,childList:true,attributes:true,attributeFilter:['aria-selected','aria-current','aria-expanded','hidden']});
 // end:app-onboard
+// region:app-settings: personal preferences use onboarding's existing single-step
+// editors and per-person state. They do not write server settings or restart setup.
+let appSettingsLoading=false,appSettingsError='';
+function appSettingsPage(){const p=$('app-page');if(!APP.on||APPS.page!=='settings'||!p)return;
+  const st=OB.st,active=document.activeElement,keep=p.contains(active)?active.dataset.appPref:null;
+  const row=(id,title,value)=>el('div',{class:'app-pref'},el('div',{},el('h3',{},title),el('p',{},value)),el('button',{type:'button',class:'app-btn','data-app-pref':id,'aria-label':'Change '+title.toLowerCase(),onclick:()=>obOpen(id,true)},'Change'));
+  p.replaceChildren(appPageHead('Settings'),el('section',{class:'app-preferences','aria-label':'Personal settings'},
+    el('p',{},'Your personal preferences. Theme is saved in this browser; first-run choices are saved for your sign-in.'),
+    st?[
+      row('theme','Appearance',{system:'System',light:'Light',dark:'Dark'}[obThemeNow()]),
+      row('agent_surface','Work style',st.surface==='chat'?'Chat UI':'Terminal UI'),
+      row('agent','Default agent',st.defaultAgent==='blank'?'Blank terminal':OB_AGENTS[st.defaultAgent]||'Not chosen'),
+      row('integrations','Integrations',OB.facts.gh==='connected'?'GitHub connected':OB.facts.gh==='sign_in'?'GitHub sign-in needed':'GitHub CLI not installed'),
+      row('notifications','Notifications',(notifyOn()?'On in this browser':'Off in this browser')+' · '+(OB_SOUNDS.find(([v])=>v===st.sound)||OB_SOUNDS[0])[1]),
+      el('p',{class:'app-pref-note'},'Worker defaults and connections are set from a terminal:'),
+      el('code',{},'agentd config set dispatch.default_tool '+(OB_AGENTS[st.defaultAgent]?st.defaultAgent:'TOOL')),el('code',{},'agentd connect TOOL'),
+      OB.facts.os==='windows'?row('windows_terminal','Windows terminal','Uses the shell of the account running agentd app'):null
+    ]:[el('p',{role:appSettingsError?'alert':'status'},appSettingsError||'Loading personal preferences…'),el('button',{type:'button',class:'app-btn',disabled:appSettingsLoading,onclick:appSettingsLoad},'Try again')]));
+  if(keep){const n=p.querySelector('[data-app-pref="'+keep+'"]');if(n)n.focus({preventScroll:true})}}
+async function appSettingsLoad(){if(appSettingsLoading)return;appSettingsLoading=true;appSettingsError='';appSettingsPage();
+  const ok=await obLoad();appSettingsLoading=false;if(!ok)appSettingsError='Could not load personal preferences. Try again.';appSettingsPage()}
+const appSettingsButton=document.querySelector('#app-shell [data-app-action="settings"]');
+appSettingsButton.removeAttribute('aria-disabled');appSettingsButton.setAttribute('aria-controls','app-page');
+appSettingsButton.onclick=()=>{if(!APP.on)return;const open=APPS.page!=='settings';appPage(open?'settings':'');
+  if(PHONE.matches&&APP.drawer){APP.drawer='';appSides()}
+  if(open){OB.menu=false;obTourEnd(false);if(!OB.st)appSettingsLoad();const close=$('app-page').querySelector('[data-app-close]');if(close)close.focus()}};
+// end:app-settings
 // region:app-workspace
 // The app's task workspace (libraos/agentd-core#565): the open task in the centre's editor tabs and the
 // right sidebar's panels, in the reference app's layout (SPEC.md §3, §4).
