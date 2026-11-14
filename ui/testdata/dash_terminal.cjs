@@ -1,6 +1,6 @@
 // The Terminal section of a task (region:terminal): DASH_UI_DOM_MODULE=/path/to/jsdom node testdata/dash_terminal.cjs dash.html
 // Shown only when /api/dash says terminal; opening it starts nothing until the person asks for a shell; the
-// widget comes from /vendor/ on the dash, never another host; keystrokes go out as binary on a same-host
+// widget comes from /vendor/ on the server, never another host; keystrokes go out as binary on a same-host
 // socket, the shell's bytes go to the widget, the close reason is drawn as text, and closing the section closes
 // the socket. Run in the phone layout and both themes (DASH_UI_PHONE, DASH_UI_THEME).
 const fs=require('fs'),assert=require('assert');
@@ -73,7 +73,7 @@ const tick=(ms=25)=>new Promise(r=>setTimeout(r,ms));
  d.open=true;d.dispatchEvent(new w.Event('toggle'));[...panel().querySelectorAll('button')].find(b=>b.textContent==='Open again').click();await tick();await tick();
  sockets[2].readyState=1;sockets[2].onopen();w.dispatchEvent(new w.Event('pagehide'));assert.equal(sockets[2].closed,1000,'leaving the page left the socket open');
  dom.window.close();
- // Without the widget in the page yet, it is fetched from the dash's own /vendor/, never another host.
+ // Without the widget in the page yet, it is fetched from the server's own /vendor/, never another host.
  withWidget=false;dom=page(true);w=dom.window;await tick();await tick();w.eval("showWorkItem('hof-test')");await tick();await tick();
  d=panel();d.open=true;d.dispatchEvent(new w.Event('toggle'));[...panel().querySelectorAll('button')].find(b=>b.textContent==='Open a shell').click();await tick();
  const sc=w.document.querySelector('script[data-xterm]'),ln=w.document.querySelector('link[data-xterm]');

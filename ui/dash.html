@@ -1,9 +1,9 @@
 <!doctype html>
 <!-- agentd dash. Copyright (c) 2026 Nebula Nova Inc. Source available under the Elastic License 2.0 (LICENSE in this directory): use and change it inside your own organization; do not redistribute it, offer it as a managed service, or circumvent agentd activation. -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>agentd dash</title>
+<title>AgentD Server</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='17 14 170 170'%3E%3Cdefs%3E%3ClinearGradient id='b' gradientUnits='userSpaceOnUse' x1='50' y1='70' x2='150' y2='180'%3E%3Cstop offset='0' stop-color='%23406CC6'/%3E%3Cstop offset='1' stop-color='%2376A5FF'/%3E%3C/linearGradient%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='16' x2='0' y2='178'%3E%3Cstop offset='0' stop-color='%23F1D07F'/%3E%3Cstop offset='1' stop-color='%23D3A036'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57' fill='none' stroke='url(%23b)' stroke-width='17'/%3E%3Crect x='147.5' y='16' width='17' height='166.5' fill='url(%23g)'/%3E%3C/svg%3E">
-<!-- region:install-head: the dash as an installable app (#465): its manifest and icons are served by agentd -->
+<!-- region:install-head: the server as an installable app (#465): its manifest and icons are served by agentd -->
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="application-name" content="agentd">
@@ -1111,8 +1111,8 @@ select.appnt-input{height:34px;padding-right:28px}
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
 <!-- region:rail -->
-<nav class="rail" id="rail" aria-label="Dash">
-  <a class="rail-mark" href="#inbox" title="agentd dash" aria-label="agentd dash, go to Inbox"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
+<nav class="rail" id="rail" aria-label="Server">
+  <a class="rail-mark" href="#inbox" title="AgentD Server" aria-label="AgentD Server, go to Inbox"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
   <a class="rail-item" data-rail="inbox" href="#inbox"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 5 4.5h10l2 7v4H3z"/><path d="M3 11.5h4.2l1 2h3.6l1-2H17"/></svg><span class="rail-badge" id="inbox-badge" hidden></span></span><span class="rail-label">Inbox</span></a>
   <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg></span><span class="rail-label">Tasks</span></a>
   <a class="rail-item" data-rail="chat" href="#chat"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-3.5 2.8V14a2 2 0 0 1-2-2z"/></svg></span><span class="rail-label">Chat</span></a>
@@ -1340,7 +1340,7 @@ select.appnt-input{height:34px;padding-right:28px}
 </main>
 </div>
 </div>
-<!-- region:app-shell: the personal app's frame (#561), shown instead of the team dash when /api/dash says mode "app".
+<!-- region:app-shell: the personal app's frame (#561), shown instead of the team server when /api/dash says mode "app".
      The reference app's regions: left sidebar, centre tab strip, right sidebar with icon tabs, status bar. Each data-region is a
      mount point the later issues fill: projects (#563, tasks by repository), tabs and tab-body (#565, Session /
      Terminal / Log), right-panel (#566, Files / Changes / Checks / Details); region:app in the script draws the frame. -->
@@ -1493,7 +1493,7 @@ function toolTag(t){return el('span',{class:'tool'},toolName(t))}
 function isDash(s){return s.tool==='other'&&s.label==='user'}
 // A single sheet owns confirmation, fields, validation and focus for every write.
 let activeSheet=null,sheetSerial=0,CONNECTED=true,lastGoodAt=null;
-function errorText(e){const text=String(e&&e.message||e||'');if(/Failed to fetch|NetworkError|Load failed|fetch failed/i.test(text))return 'The dash did not answer. Refresh to check whether the change went through, then try again.';return text.replace(/^Error: /,'')||'The request failed. Try again.'}
+function errorText(e){const text=String(e&&e.message||e||'');if(/Failed to fetch|NetworkError|Load failed|fetch failed/i.test(text))return 'The server did not answer. Refresh to check whether the change went through, then try again.';return text.replace(/^Error: /,'')||'The request failed. Try again.'}
 function toast(msg,good){const t=$('toast');clearTimeout(toast.h);t.replaceChildren(...[good?null:el('span',{class:'toast-icon','aria-hidden':'true'},'!'),el('span',{},errorText(msg)),el('button',{class:'quiet','aria-label':'Dismiss message',onclick:()=>t.style.display='none'},'×')].filter(Boolean));t.style.display='flex';t.classList.toggle('bad',!good);if(good)toast.h=setTimeout(()=>t.style.display='none',5000)}
 function focusBack(target){if(target&&target.closest('aside.side')&&PHONE.matches&&!document.body.classList.contains('panel-open'))target=$('panel-toggle');if(target&&target.isConnected&&!target.disabled&&!target.closest('[hidden]')){const closed=target.closest('details:not([open])');target=closed?closed.querySelector('summary'):target}else target=document.querySelector('.page:not([hidden]) h2')||$('page-title')||document.querySelector('main');if(target){if(!target.matches('button,a,input,textarea,select,summary,[tabindex]'))target.setAttribute('tabindex','-1');target.focus({preventScroll:true})}}
 function sheet(o){if(activeSheet)return Promise.resolve(null);return new Promise(resolve=>{
@@ -1523,7 +1523,7 @@ function sheet(o){if(activeSheet)return Promise.resolve(null);return new Promise
 })}
 function moreMenu(actions,label='More'){const items=actions.filter(Boolean);if(!items.length)return null;const summary=el('summary',{'aria-label':label},label==='More'?'More ⋯':label),menu=el('details',{class:'row-more'},summary,el('div',{class:'menu-items'},items));menu.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();menu.open=false;summary.focus()}});menu.addEventListener('click',e=>{if(e.target.closest('button,a'))menu.open=false});return menu}
 document.addEventListener('click',e=>{for(const n of document.querySelectorAll('.row-more[open]'))if(!n.contains(e.target))n.open=false});
-function writeReason(){return !CONNECTED?'Not connected. Wait for the dash to reconnect.':!CAN()?USER&&ROLE==='viewer'?'Your role is read-only. Ask an owner to act.':!USER&&TOKEN&&ON_TEAM?'The shared token is read-only on a team. Sign in with your personal key to act.':'Read-only. Unlock to act.':''}
+function writeReason(){return !CONNECTED?'Not connected. Wait for the server to reconnect.':!CAN()?USER&&ROLE==='viewer'?'Your role is read-only. Ask an owner to act.':!USER&&TOKEN&&ON_TEAM?'The shared token is read-only on a team. Sign in with your personal key to act.':'Read-only. Unlock to act.':''}
 function lockState(){const can=CAN(),reason=writeReason();$('userstate').textContent=USER?USER+' · '+(ROLE||'…'):TOKEN?'Signed in with the shared token'+(ON_TEAM?' (read-only on a team)':''):'Not signed in';$('tokstate').textContent=can?'Can make changes':'Read-only';$('tokset').textContent=USER?'Use token':'Unlock';$('tokset').hidden=can;$('tokclear').hidden=!TOKEN&&!COOKIE;$('tokclear').textContent=COOKIE?'Sign out':'Lock';
   document.querySelectorAll('[data-write]').forEach(b=>{const why=b.dataset.disabledReason||reason;b.disabled=false;b.setAttribute('aria-disabled',String(!!why));if(why){if(!b.dataset.lockTitle)b.dataset.lockTitle=b.title||'';b.title=why}else if(b.dataset.lockTitle!==undefined){b.title=b.dataset.lockTitle;delete b.dataset.lockTitle}if(why&&!b.dataset.disabledReason)b.setAttribute('aria-describedby','access-note');else b.removeAttribute('aria-describedby')});
   const note=$('access-note');note.hidden=!reason;note.textContent=reason;if(reason&&!CAN()&&ROLE!=='viewer')note.append(!USER&&TOKEN&&ON_TEAM?el('a',{href:'/login'},'Sign in'):el('button',{class:'quiet',onclick:unlockSheet},'Unlock'));
@@ -1533,7 +1533,7 @@ document.addEventListener('click',e=>{const n=e.target.closest('[aria-disabled="
 function auth(){return TOKEN?{'X-Dash-Token':TOKEN}:{}}
 function setToken(t){const changed=TOKEN!==t;TOKEN=t;if(changed)chatAuthChanged();try{t?localStorage.setItem('dash-token',t):localStorage.removeItem('dash-token')}catch(e){}lockState();refresh();{const p=PAGES[ROUTE.item];if(p&&p.unlock)p.unlock(ROUTE)}if(selectedSession&&!selectedSession.item)showHistory(selectedSession.id,selectedSession.host,true)}
 function dropToken(){if(COOKIE&&!TOKEN){COOKIE=false;chatAuthChanged();lockState();toast('Your session has ended. Sign in again.',false);location.assign('/login?ended');return}if(!TOKEN)return;setToken('');toast('The token was rejected. Unlock with a current token.',false)}
-function unlockSheet(){return sheet({title:'Unlock the dash',description:'Ask the host owner for a dash token, or sign in with your personal key at /login. If you run this host, use agentd dash token.',action:'Unlock',pending:'Checking…',fields:[{name:'token',label:'Dash token',type:'password',required:true}],onSubmit:async(v,ui)=>{const r=await fetch('/api/auth',{cache:'no-store',headers:{'X-Dash-Token':v.token}});if(r.status!==204){ui.inputs.token.value='';ui.inputs.token.focus();return 'That token was not accepted. Check it and try again.'}setToken(v.token);toast('Unlocked',true)}})}
+function unlockSheet(){return sheet({title:'Unlock the server',description:'Ask the host owner for a server token, or sign in with your personal key at /login. If you run this host, use agentd dash token.',action:'Unlock',pending:'Checking…',fields:[{name:'token',label:'Server token',type:'password',required:true}],onSubmit:async(v,ui)=>{const r=await fetch('/api/auth',{cache:'no-store',headers:{'X-Dash-Token':v.token}});if(r.status!==204){ui.inputs.token.value='';ui.inputs.token.focus();return 'That token was not accepted. Check it and try again.'}setToken(v.token);toast('Unlocked',true)}})}
 $('tokset').onclick=unlockSheet;
 $('tokclear').onclick=async()=>{try{if(COOKIE){const r=await fetch('/api/logout',{method:'POST',headers:auth()});if(!r.ok)throw new Error('Could not sign out. Try again.');COOKIE=false;USER=ROLE='';chatAuthChanged()}setToken('');toast('Signed out',true);location.reload()}catch(e){toast(errorText(e),false)}};
 const PENDING={};
@@ -1553,7 +1553,7 @@ function meter(ctx,win,text){
   return el('span',{class:'meter',title:'context '+text},el('span',{class:'bar'},el('i',{class:cls,style:'width:'+Math.max(pct,2)+'%'})),el('code',{},text))}
 // sessLink names a session by its host name or label; one with neither reads as
 // its tool's session ("Claude session"), never as its ID, which is the tooltip.
-// A person's own session (the dash, or one started for them) reads as that person's
+// A person's own session (the server, or one started for them) reads as that person's
 // name; a worker agentd started (host name "agentd hof-…") as its tool's worker.
 const WORKER_HOST=/^agentd (?:hof|run)-/;
 function sessLabel(id){const s=sessionRow(id),n=nameOf(id),t=toolName(toolOf(id));
@@ -1606,7 +1606,7 @@ function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.re
   for(const n of document.querySelectorAll('[data-rail]')){if(n.dataset.rail===r.item)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
   if(r.view)for(const n of $('panel-'+r.item).querySelectorAll('a.pitem')){if(n.getAttribute('href')===path)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
   const sub=r.view&&def.viewTitle?def.viewTitle[r.view]:'';
-  $('side-title').textContent=({inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · agentd dash';
+  $('side-title').textContent=({inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · AgentD Server';
   if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}
   agentsApply();if(lastDash)agentsDraw(lastDash);
   if(def.enter)def.enter(r);syncDrawerRoute(r)}
@@ -1640,10 +1640,10 @@ const SET_SECTIONS=[
   {id:'models',group:'This host',title:'Models and prices',sub:'configured, used, price list',desc:'The models each agent and role is set to, the ones runs actually used, and their prices.'},
   {id:'workers',group:'This host',title:'Workers',sub:'limits, budgets, sandbox, rules',desc:'How many workers run at once, their default tool and budget, and what they may reach.'},
   {id:'connections',group:'This host',title:'Connections',sub:'GitHub, Linear, gateway, Runtime',desc:'What agentd reads from and talks to. Changed from the terminal.'},
-  {id:'terminal',group:'This host',title:'Terminal',sub:'set in config.toml',desc:'An owner’s shell on a task, in the dash. Off unless config.toml turns it on.'},
+  {id:'terminal',group:'This host',title:'Terminal',sub:'set in config.toml',desc:'An owner’s shell on a task, in the server. Off unless config.toml turns it on.'},
   {id:'diagnostics',group:'This host',title:'Diagnostics',sub:'agentd doctor',desc:'agentd doctor and the services, read here. Owners only.'},
   {id:'personal',group:'You',title:'Personal',sub:'notifications, theme, shortcuts',desc:'Your theme, sign-in and notifications. These are yours and change nothing for others.'},
-  {id:'app',group:'You',title:'Install as an app',sub:'desktop and phone',desc:'Open the dash in its own window, from the dock or the home screen.'},
+  {id:'app',group:'You',title:'Install as an app',sub:'desktop and phone',desc:'Open the server in its own window, from the dock or the home screen.'},
   {id:'members',group:'Team',title:'Members and roles',sub:'invite, roles; opens Team',desc:'Who can sign in and with which role. Team has each member’s work.'},
   {id:'history',group:'Team',title:'Change history',sub:'who changed what',desc:'Every change made from Settings or agentd config set. Owners only.'}],SET_IDS=SET_SECTIONS.map(x=>x.id);
 function settingsIdentity(){return [TOKEN,COOKIE,USER,ROLE].join('|')}
@@ -1654,7 +1654,7 @@ async function settingsLoad(){const seq=++SETTINGS.request,identity=settingsIden
 // settingsShow shows one section, marks it in the panel, and names it in the top bar.
 function settingsShow(id){const sec=SET_SECTIONS.find(x=>x.id===id)||SET_SECTIONS[0];id=sec.id;SETTINGS.section=id;for(const g of SET_IDS)$('set-'+g).hidden=g!==id;
   for(const a of $('settings-sections').querySelectorAll('a[data-section]')){if(a.dataset.section===id)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}
-  $('set-title').textContent=sec.title;$('set-desc').textContent=sec.desc;if(ROUTE.item==='settings'){$('page-title').replaceChildren('Settings',el('span',{},' / '+sec.title));document.title=sec.title+' · agentd dash'}
+  $('set-title').textContent=sec.title;$('set-desc').textContent=sec.desc;if(ROUTE.item==='settings'){$('page-title').replaceChildren('Settings',el('span',{},' / '+sec.title));document.title=sec.title+' · AgentD Server'}
   if(id==='diagnostics'&&SETTINGS.data)settingsDiagnostics();if(id==='agents'&&SETTINGS.data)settingsAgentsLoad()}
 function settingsSections(){const groups=[...new Set(SET_SECTIONS.map(x=>x.group))];$('settings-sections').replaceChildren(...groups.map(g=>el('div',{class:'pgroup',role:'group','aria-label':g},el('div',{class:'pgroup-name'},g),...SET_SECTIONS.filter(x=>x.group===g).map(x=>el('a',{class:'pitem set-item',href:'#settings/'+x.id,'data-section':x.id},el('span',{class:'set-item-t'},el('span',{},x.title),el('small',{class:'set-item-sub'},x.sub)))))))}
 function settingsTable(head,rows){return el('div',{class:'tablewrap phone-rows'},el('table',{},el('thead',{},el('tr',{},head.map(h=>el('th',{},h)))),el('tbody',{},rows.length?rows.map(row=>el('tr',{},row.map((v,i)=>el('td',{'data-label':head[i]},v===null||v===undefined||v===''?'—':v)))):el('tr',{},el('td',{colspan:head.length,class:'mute'},'Nothing recorded yet.')))))}
@@ -1674,8 +1674,8 @@ function settingsRender(){const d=SETTINGS.data;if(!d)return;const cfg=d.config|
   $('set-members-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Members'),owner?button('Invite member',settingsInvite,true):null),el('p',{class:'mute'},'Each member’s work, roles and sessions are on ',el('a',{href:'#team/members'},'Team'),'.'),settingsTable(['Name','Role'],(d.members||[]).map(u=>[u.name,u.role])),owner?settingsSection('Invitations',settingsTable(['Person','Email','Status','Actions'],(d.invites||[]).map(i=>[i.user,i.email,i.state,['pending','expired'].includes(i.state)?el('span',{class:'set-actions'},button('Resend',()=>settingsResend(i)),button('Revoke',()=>settingsRevoke(i))):'—']))):el('p',{class:'mute'},'An owner can invite members.'));
   $('set-workers-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Workers')),settingsTable(['Setting','Value',...(owner?['']:[])],[['Max workers',cfg['dispatch.max_workers'],...(owner?[button('Edit',()=>settingsEdit('dispatch.max_workers','Max workers',cfg['dispatch.max_workers']))]:[])],['Default tool',cfg['dispatch.default_tool'],...(owner?[button('Edit',()=>settingsEdit('dispatch.default_tool','Default tool',cfg['dispatch.default_tool'],['claude','codex']))]:[])],['Default budget',cfg['dispatch.budget']||'No default limit',...(owner?[button('Edit',()=>settingsEdit('dispatch.budget','Default budget',cfg['dispatch.budget']))]:[])],['Codex network',cfg['dispatch.codex_network']?'On':'Off',...(owner?[button('Edit',()=>settingsEdit('dispatch.codex_network','Codex network',cfg['dispatch.codex_network'],['true','false']))]:[])]]),el('p',{class:'mute'},'Task and role budgets take precedence over the default. Use a duration such as 90m, a dollar limit such as $5, or both.'),el('p',{class:'mute'},'Codex network gives every Codex worker on a workspace-write sandbox network access and listeners, with GitHub commands that push, merge or comment forbidden. A role with network: false stays off.'),el('p',{class:'mute'},'Worker rules ([dispatch.rules]: what a worker may run, block and ask rules) and a role’s sandbox and network (agents/NAME.md) are set in files, never from this page: see docs/worker-rules.md.'));
   $('set-history-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Change history')),owner?settingsTable(['When','Who','Setting','Value','Result'],(d.history||[]).map(h=>[h.created,h.actor,h.key,h.new_value,h.state])):el('p',{class:'mute'},'An owner sees who changed which setting and when.'));
-  $('set-dispatch').textContent='Start workers from the dash: '+(cfg['dash.dispatch']?'On.':'Off.')+' Change from the terminal with agentd config set dash.dispatch true|false.';
-  $('set-connections-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Connections')),settingsPairs([['Synced repos',(cfg['sync.repos']||[]).join(', ')||'None'],['MCP tools',cfg['mcp.tools']||'core'],['MCP origins',(cfg['mcp.allowed_origins']||[]).join(', ')||'None'],['Gateway',cfg['gateway.url']],['Gateway credential',cfg['gateway.key_file']],['Runtime',cfg['runtime.url']],['Runtime credential',cfg['runtime.password_file']],['Dash address',cfg['dash.base_url']],['Strict users',cfg['users.strict']],['Prompt forwarding',cfg['dash.push_prompts']]]),el('p',{class:'mute'},'Connections and settings that widen access are changed from the terminal.'),settingsSection('Chat roles and tools',settingsTable(['Role','Model','Tools'],(d.chat_roles||[]).map(r=>[r.name,r.model,(r.tools||[]).join(', ')]))));
+  $('set-dispatch').textContent='Start workers from the server: '+(cfg['dash.dispatch']?'On.':'Off.')+' Change from the terminal with agentd config set dash.dispatch true|false.';
+  $('set-connections-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Connections')),settingsPairs([['Synced repos',(cfg['sync.repos']||[]).join(', ')||'None'],['MCP tools',cfg['mcp.tools']||'core'],['MCP origins',(cfg['mcp.allowed_origins']||[]).join(', ')||'None'],['Gateway',cfg['gateway.url']],['Gateway credential',cfg['gateway.key_file']],['Runtime',cfg['runtime.url']],['Runtime credential',cfg['runtime.password_file']],['Server address',cfg['dash.base_url']],['Strict users',cfg['users.strict']],['Prompt forwarding',cfg['dash.push_prompts']]]),el('p',{class:'mute'},'Connections and settings that widen access are changed from the terminal.'),settingsSection('Chat roles and tools',settingsTable(['Role','Model','Tools'],(d.chat_roles||[]).map(r=>[r.name,r.model,(r.tools||[]).join(', ')]))));
   $('set-diagnostics-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Diagnostics')),el('p',{class:'mute'},owner?'Open this group to run doctor and read service status.':'Diagnostics require an owner.'));
   settingsTerminal(cfg);settingsApp();settingsAgentsRest(cfg,m,owner);
   settingsShow(SETTINGS.section);settingsAccess()}
@@ -1704,10 +1704,10 @@ function settingsAgentsTable(d,pending){const cfg=SETTINGS.data?.config||{},owne
 // Settings that widen access, each with its value and the terminal command.
 function settingsWiden(cfg){const onoff=v=>v?'On':'Off';
   return settingsTable(['Setting','Value','Change from a terminal'],[
-    [el('a',{href:'#settings/terminal'},'Terminal in the dash'),onoff(cfg['dash.terminal']),el('code',{},'[dash] terminal = true in config.toml, then restart the dash')],
+    [el('a',{href:'#settings/terminal'},'Terminal in the server'),onoff(cfg['dash.terminal']),el('code',{},'[dash] terminal = true in config.toml, then restart the server')],
     [el('a',{href:'#triggers'},'Triggers'),'On the Triggers page',el('code',{},'agentd config set triggers.enabled true')],
-    ['Start workers from the dash',onoff(cfg['dash.dispatch']),el('code',{},'agentd config set dash.dispatch true')],
-    ['Dash address',cfg['dash.base_url']||'Loopback only',el('code',{},'[dash] base_url in config.toml')],
+    ['Start workers from the server',onoff(cfg['dash.dispatch']),el('code',{},'agentd config set dash.dispatch true')],
+    ['Server address',cfg['dash.base_url']||'Loopback only',el('code',{},'[dash] base_url in config.toml')],
     ['Prompt forwarding',onoff(cfg['dash.push_prompts']),el('code',{},'agentd config set dash.push_prompts true')],
     ['Strict users',onoff(cfg['users.strict']),el('code',{},'agentd config set users.strict true')],
     ['Worker rules','In config.toml',el('code',{},'[dispatch.rules] in config.toml (docs/worker-rules.md)')],
@@ -1718,12 +1718,12 @@ function settingsAgentsRest(cfg,m,owner){const tool=cfg['dispatch.default_tool']
     el('div',{class:'set-card'},el('h3',{},'Settings that widen access'),el('p',{class:'mute'},'The terminal, triggers, a dash address beyond loopback and worker rules are changed from a terminal, never from this page. Each shows its current value and the command.'),settingsWiden(cfg))));
 }
 function settingsTerminal(cfg){$('set-terminal-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Terminal')),
-  settingsPairs([['Terminal in the dash',cfg['dash.terminal']?'On: owners get a shell on a task, on loopback only':'Off (the default)'],['Beyond loopback',cfg['dash.terminal_remote']?'On: a dash listening beyond loopback (--public) also offers it':'Off']]),
-  el('p',{class:'mute'},'This widens access, so it is never changed from this page. To change it, set ',el('code',{},'terminal = true'),' (and only if you must, ',el('code',{},'terminal_remote = true'),') under [dash] in config.toml, then restart the dash. ',el('code',{},'agentd doctor'),' shows it as dash-terminal.'))}
+  settingsPairs([['Terminal in the server',cfg['dash.terminal']?'On: owners get a shell on a task, on loopback only':'Off (the default)'],['Beyond loopback',cfg['dash.terminal_remote']?'On: a server listening beyond loopback (--public) also offers it':'Off']]),
+  el('p',{class:'mute'},'This widens access, so it is never changed from this page. To change it, set ',el('code',{},'terminal = true'),' (and only if you must, ',el('code',{},'terminal_remote = true'),') under [dash] in config.toml, then restart the server. ',el('code',{},'agentd doctor'),' shows it as dash-terminal.'))}
 function settingsApp(){const standalone=!!(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
-  $('set-app-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Install as an app')),el('p',{role:'status'},standalone?'This dash is open as an app.':'This dash is open in a browser tab.'),
+  $('set-app-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Install as an app')),el('p',{role:'status'},standalone?'This server is open as an app.':'This server is open in a browser tab.'),
     settingsPairs([['Desktop (Chrome, Edge)','The install icon at the right of the address bar, or the browser menu, Install'],['iPhone and iPad (Safari)','Share, then Add to Home Screen'],['Android (Chrome)','The browser menu, Install app or Add to Home screen']]),
-    el('p',{class:'mute'},'Installing needs this dash on HTTPS or on this computer. The app is the same dash: the same sign-in, and the theme chosen under Personal.'))}
+    el('p',{class:'mute'},'Installing needs this server on HTTPS or on this computer. The app is the same server: the same sign-in, and the theme chosen under Personal.'))}
 $('set-refresh').onclick=()=>{SETTINGS.agents=null;settingsLoad()};$('set-keys').onclick=()=>keysSheet();
 settingsSections();
 dashPage('settings',{title:'Settings',enter(r){const t=document.documentElement.dataset.theme||'system';for(const n of document.querySelectorAll('[name=theme]'))n.checked=n.value===t;settingsAccess();settingsShow(r&&r.rest[0]||'agents');if(!SETTINGS.loading)settingsLoad()},unlock(){settingsAccess();if(!SETTINGS.loading)settingsLoad()},render(){settingsAccess()},leave(){SETTINGS.request++;SETTINGS.agentsRequest++;SETTINGS.loading=false;$('set-invite-once').replaceChildren();$('set-invite-once').hidden=true}});
@@ -1845,11 +1845,11 @@ function unlinked(d){
 const TEAM={activity:{},activityAt:0,activityReq:0,activityError:'',lists:null,listsErr:'',listsAt:0,detail:null,detailErr:'',detailKey:'',detailAt:0,detailReq:0,listsReq:0,form:null,problemsOpen:false};
 function teamTarget(r){const kind=(r||ROUTE).rest&&(r||ROUTE).rest[0],raw=(r||ROUTE).rest&&(r||ROUTE).rest[1];if(!raw||!['role','member','session'].includes(kind))return null;let name=raw;try{name=decodeURIComponent(raw)}catch(e){}return {kind,name,key:kind+'='+encodeURIComponent(name)}}
 function teamHref(kind,name){return '#team/'+kind+'/'+encodeURIComponent(name)}
-async function teamFetch(query){const r=await fetch('/api/team'+query,{cache:'no-store',headers:auth()});if(r.status===401){dropToken();throw new Error('this dash needs the token')}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);return r.json()}
+async function teamFetch(query){const r=await fetch('/api/team'+query,{cache:'no-store',headers:auth()});if(r.status===401){dropToken();throw new Error('this server needs the token')}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);return r.json()}
 async function teamLoadLists(){const req=++TEAM.listsReq;TEAM.listsAt=Date.now();try{const j=await teamFetch('');if(req!==TEAM.listsReq)return;TEAM.lists=j;TEAM.listsErr=''}catch(e){if(req!==TEAM.listsReq)return;TEAM.listsErr=e.message}teamDraw()}
 async function teamLoadDetail(){const t=teamTarget();if(!t)return;const req=++TEAM.detailReq;TEAM.detailAt=Date.now();try{const j=await teamFetch('?'+t.key);if(req!==TEAM.detailReq)return;TEAM.detail=j;TEAM.detailErr=''}catch(e){if(req!==TEAM.detailReq)return;TEAM.detail=null;TEAM.detailErr=e.message}teamDraw()}
 function teamMoved(r){const t=teamTarget(r),key=t?t.key:'';if(key!==TEAM.detailKey){TEAM.detailKey=key;TEAM.detail=null;TEAM.detailErr='';teamFormClose(false);TEAM.detailReq++;const m=document.querySelector('main');if(m)m.scrollTop=0}
-  if(t){$('page-title').append(el('span',{},' / '+t.name));document.title=t.name+' · agentd dash'}
+  if(t){$('page-title').append(el('span',{},' / '+t.name));document.title=t.name+' · AgentD Server'}
   teamLoadLists();if(t)teamLoadDetail();if(lastDash)teamLoadActivity(lastDash);teamDraw()}
 // keep: redraw a box without losing the keyboard focus inside it.
 function teamKeep(box,kids){const a=document.activeElement,k=box.contains(a)&&a.dataset?a.dataset.tk:'';box.replaceChildren(...kids);if(k){const n=box.querySelector('[data-tk="'+CSS.escape(k)+'"]');if(n)n.focus()}}
@@ -1895,7 +1895,7 @@ function teamSec(name,n,kids){return [el('div',{class:'tm-sec'},el('h3',{},name)
 function teamProps(pairs){const out=[];for(const [k,v] of pairs)if(v!==null&&v!==undefined&&v!=='')out.push(el('dt',{},k),el('dd',{},v));return el('dl',{class:'tm-props'},out)}
 function teamRoleLink(name){return el('a',{href:teamHref('role',name)},name)}
 // teamAssignAct: Assign work on a page with a role, behind the same [dash] dispatch as the New handoff form.
-function teamAssignAct(d,roleName){if(!(lastDash||{}).dispatch)return [el('span',{class:'tm-note',title:'Set [dash] dispatch = true in config.toml on the host; it is not changed from the dash on purpose.'},'Starting workers from the dash is turned off. An owner can turn it on from the host’s terminal.')];
+function teamAssignAct(d,roleName){if(!(lastDash||{}).dispatch)return [el('span',{class:'tm-note',title:'Set [dash] dispatch = true in config.toml on the host; it is not changed from the server on purpose.'},'Starting workers from the server is turned off. An owner can turn it on from the host’s terminal.')];
   const b=el('button',{type:'button',class:'ok','data-write':true,'data-tk':'assign',title:'Open New task'+(roleName?' for '+roleName:''),onclick:e=>teamFormOpen(roleName,e.currentTarget)},'Assign work');b.disabled=!CAN();
   return [b,CAN()?null:el('span',{class:'tm-note'},'Read-only: unlock to assign work.')]}
 function teamDetailView(d){const dash=lastDash||{},u=d.runs_7d,runs=u&&u.workers?String(u.workers):'0';const common=[['Runs (7d)',runs],['Success',teamRate(u)],['Spend (7d)',teamUsd(u)],['Tokens (7d)',teamTok(u)]];
@@ -1922,7 +1922,7 @@ async function teamLoadActivity(d){const req=++TEAM.activityReq;TEAM.activityAt=
   try{for(let i=0;i<ids.length;i+=24){const j=await teamFetch('?activity='+encodeURIComponent(ids.slice(i,i+24).join(',')));Object.assign(activity,j.activity||{})}if(req!==TEAM.activityReq||identity!==[TOKEN,COOKIE,USER].join('|'))return;TEAM.activity=activity;TEAM.activityError=''}catch(e){if(req!==TEAM.activityReq)return;TEAM.activity={};TEAM.activityError='Activity could not refresh.'}if(ROUTE.item==='team')teamDraw();if(lastDash)agentsDraw(lastDash)}
 // memberSessions counts a person's sessions as the header counts them (Claude
 // sessions on this host, working or idle), so "1 of 3 sessions working" and a
-// member's line add up; the dash's own tab is not a session.
+// member's line add up; the server's own tab is not a session.
 function memberSessions(d,name){const xs=(d.sessions||[]).filter(s=>s.user===name&&(s.host_state==='busy'||s.host_state==='idle')),busy=xs.filter(s=>s.host_state==='busy').length;
   return xs.length?xs.length+' session'+(xs.length>1?'s':'')+', '+busy+' working':''}
 function teamOverview(d){const l=TEAM.lists,working=teamWorking(d),row=(href,tk,name,sub,side,onclick)=>href?el('a',{class:'tm-row',href,'data-tk':tk},el('span',{class:'tm-main'},name,sub?el('span',{class:'tm-why'},sub):null),side?el('span',{class:'tm-fig'},side):null):el('div',{class:'tm-row'},el('span',{class:'tm-main'},el('button',{type:'button',class:'linkish','data-tk':tk,onclick},name),sub?el('span',{class:'tm-why'},sub):null),side?el('span',{class:'tm-fig'},side):null);
@@ -1962,12 +1962,12 @@ dashPage('team',{title:'Team',panel:false,enter(r){teamMoved(r)},unlock(){teamLo
    terminal first. Every repository-derived string is text, set through el(). */
 const REPOS={data:null,err:'',at:0,req:0};
 const REPO_CHECKS={trust:'Claude trust',sync:'GitHub sync',commit:'First commit',gh:'gh access',origin:'Up to date with GitHub'};
-async function reposLoad(){const req=++REPOS.req;REPOS.at=Date.now();try{const r=await fetch('/api/repositories',{cache:'no-store',headers:auth()});if(r.status===401){dropToken();throw new Error('this dash needs the token')}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);const j=await r.json();if(req!==REPOS.req)return;REPOS.data=j;REPOS.err=''}catch(e){if(req!==REPOS.req)return;REPOS.err=e.message}if(ROUTE.item==='team')teamDraw()}
+async function reposLoad(){const req=++REPOS.req;REPOS.at=Date.now();try{const r=await fetch('/api/repositories',{cache:'no-store',headers:auth()});if(r.status===401){dropToken();throw new Error('this server needs the token')}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);const j=await r.json();if(req!==REPOS.req)return;REPOS.data=j;REPOS.err=''}catch(e){if(req!==REPOS.req)return;REPOS.err=e.message}if(ROUTE.item==='team')teamDraw()}
 function reposStale(){return Date.now()-REPOS.at>(REPOS.err?3000:8000)}
 function repoCopy(text){if(typeof chatCopy==='function')return chatCopy(text)}
 // A check's detail is the server's sentence, read as plain text: "[sync] repos" is
 // GitHub sync, an ISO time a relative one; the config name stays in the tooltip.
-function repoDetail(t){return plainText(String(t||'').replace(/\bis in \[sync\] repos: its PRs and issues are pulled, and Merge shows\b/,'is kept up to date here: its pull requests and issues are pulled, and they can be merged from the dashboard').replace(/\[sync\] repos/g,'GitHub sync'))}
+function repoDetail(t){return plainText(String(t||'').replace(/\bis in \[sync\] repos: its PRs and issues are pulled, and Merge shows\b/,'is kept up to date here: its pull requests and issues are pulled, and they can be merged from the serverboard').replace(/\[sync\] repos/g,'GitHub sync'))}
 function repoCheckItem(c,r){const state=c.ok===true?'ok':c.ok===false?'bad':'unknown',label=c.name==='origin'&&r&&!r.github?'Up to date with origin':REPO_CHECKS[c.name]||c.name,said=state==='ok'?'OK':state==='bad'?'Needs a fix':c.name==='sync'?'Does not apply':c.name==='gh'?'Checking…':c.name==='origin'?(/^does not apply/.test(c.detail||'')?'Does not apply':/could not/.test(c.detail||'')?'Not known':'Checking…'):'Not checked';
   return el('li',{class:'repo-check'},el('span',{class:'repo-chip repo-'+state,title:label+': '+said},el('span',{'aria-hidden':'true'},state==='ok'?'✓':state==='bad'?'!':'–'),label+': '+said),el('span',{class:'tm-why',title:c.detail||''},repoDetail(c.detail)),
     c.fix?el('span',{class:'repo-fix'},el('code',{},c.fix),el('button',{type:'button',class:'repo-copy','aria-label':'Copy the command for '+label,onclick:()=>repoCopy(c.fix)},'Copy')):null)}
@@ -2011,8 +2011,8 @@ function repoAddBuild(){const f=$('repo-add'),local=REPO_ADD.mode==='local',chip
   const kids=[el('h3',{},'Add a repository'),el('div',{class:'repo-modes',role:'group','aria-label':'Where the repository comes from'},chip('local','A checkout on this host'),chip('clone','Clone from URL'))];
   if(local){const dir=el('input',{type:'text',id:'repo-add-dir',name:'dir',class:'mono',placeholder:'/path/to/repo',required:true,autocomplete:'off',spellcheck:'false'}),route=el('select',{id:'repo-add-route',name:'route'},el('option',{value:'on'},'On'),el('option',{value:'off'},'Off'));
     kids.push(el('div',{class:'repo-fields'},el('label',{class:'repo-dir'},el('span',{},'Directory'),dir),el('label',{},el('span',{},'Route work through agentd'),route),el('span',{class:'tm-acts'},el('button',{type:'submit',class:'ok',id:'repo-add-go'},'Add'),el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel'))),
-      el('p',{class:'tm-why'},'Same as ',el('code',{},'agentd repo add DIR --route on|off'),'. It must be a git checkout the dash’s user can write. Workers get their own worktree under it; the main checkout is not touched.'))}
-  else kids.push(el('p',{class:'tm-why','data-clone':''},'Cloning from a URL is not done from the dash. Clone it in a terminal on this host first, then add the folder as a checkout on this host:'),el('span',{class:'repo-fix'},el('code',{},'git clone URL DIR'),el('button',{type:'button',class:'repo-copy','aria-label':'Copy the clone command',onclick:()=>repoCopy('git clone URL DIR')},'Copy')),el('span',{class:'tm-acts'},el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel')));
+      el('p',{class:'tm-why'},'Same as ',el('code',{},'agentd repo add DIR --route on|off'),'. It must be a git checkout the server’s user can write. Workers get their own worktree under it; the main checkout is not touched.'))}
+  else kids.push(el('p',{class:'tm-why','data-clone':''},'Cloning from a URL is not done from the server. Clone it in a terminal on this host first, then add the folder as a checkout on this host:'),el('span',{class:'repo-fix'},el('code',{},'git clone URL DIR'),el('button',{type:'button',class:'repo-copy','aria-label':'Copy the clone command',onclick:()=>repoCopy('git clone URL DIR')},'Copy')),el('span',{class:'tm-acts'},el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel')));
   kids.push(el('p',{class:'repo-add-msg',id:'repo-add-msg',role:'alert',hidden:true}));f.replaceChildren(...kids)}
 async function repoAddSubmit(e){e.preventDefault();if(REPO_ADD.busy||REPO_ADD.mode!=='local')return;const dir=$('repo-add-dir').value.trim(),route=$('repo-add-route').value,msg=$('repo-add-msg'),go=$('repo-add-go'),show=t=>{msg.textContent=t;msg.hidden=!t};
   if(!dir){show('Enter the directory of a checkout on this host.');$('repo-add-dir').focus();return}
@@ -2269,10 +2269,10 @@ function termOpen(hid){const c=TERM[hid]||(TERM[hid]={});if(c.ws)return;c.used=t
     if(!c.term){c.term=new T({fontSize:13,cursorBlink:true,convertEol:false,scrollback:2000,theme:termColors()});c.term.open(c.screen);c.term.onData(d=>{if(c.ws&&c.ws.readyState===1)c.ws.send(new TextEncoder().encode(d))})}
     const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/api/terminal?id='+encodeURIComponent(hid));ws.binaryType='arraybuffer';c.ws=ws;termButtons(c,hid);
     const fit=()=>{const z=termSize(c.screen);c.term.resize(z.cols,z.rows);if(ws.readyState===1)ws.send(JSON.stringify(z))};
-    ws.onopen=()=>{fit();termSay(c,'Connected: a shell that starts in the task’s worker directory, as the dash’s own user on this host. What you type runs there, with everything that user can reach, not only this directory. It closes after 15 minutes with nothing typed; a process you detach may keep running.');if(c.term.focus)c.term.focus()};
+    ws.onopen=()=>{fit();termSay(c,'Connected: a shell that starts in the task’s worker directory, as the server’s own user on this host. What you type runs there, with everything that user can reach, not only this directory. It closes after 15 minutes with nothing typed; a process you detach may keep running.');if(c.term.focus)c.term.focus()};
     ws.onmessage=e=>{if(e.data&&typeof e.data!=='string')c.term.write(new Uint8Array(e.data))};
     ws.onclose=e=>{if(c.ws!==ws)return;c.ws=null;if(c.watch){clearInterval(c.watch);c.watch=0}
-      termSay(c,e.reason?'Closed: '+e.reason+'.':e.code===1006?'The terminal was refused or lost. Only an owner may open one, from the dash itself (over HTTPS when the dash is reachable beyond this machine), on a task with a worker directory, one at a time.':'Closed.',!e.reason);termButtons(c,hid)};
+      termSay(c,e.reason?'Closed: '+e.reason+'.':e.code===1006?'The terminal was refused or lost. Only an owner may open one, from the server itself (over HTTPS when the server is reachable beyond this machine), on a task with a worker directory, one at a time.':'Closed.',!e.reason);termButtons(c,hid)};
     c.onresize=c.onresize||(()=>{if(c.ws&&c.ws.readyState===1)fit()});window.addEventListener('resize',c.onresize);
     // Leaving the task (its section no longer on the page) closes the shell too.
     c.watch=setInterval(()=>{if(!c.screen||!c.screen.isConnected)termClose(hid,'')},TERM_WATCH)})
@@ -2280,7 +2280,7 @@ function termOpen(hid){const c=TERM[hid]||(TERM[hid]={});if(c.ws)return;c.used=t
 // termPanels is [] or the Terminal section of task hid; a redraw moves the open screen into the new section.
 function termPanels(hid){if(!termOffered()||!hid)return [];const c=TERM[hid]||(TERM[hid]={});
   const screen=c.screen||el('div',{class:'tterm-screen','aria-label':'Terminal'});c.screen=screen;
-  c.status=el('p',{class:'mute tterm-status',role:'status'},c.ws?'Connected.':'Opens an interactive shell that starts in this task’s worker directory, as the dash’s own user, with that user’s whole access to this host. Owners only.');
+  c.status=el('p',{class:'mute tterm-status',role:'status'},c.ws?'Connected.':'Opens an interactive shell that starts in this task’s worker directory, as the server’s own user, with that user’s whole access to this host. Owners only.');
   c.actions=el('div',{class:'tterm-actions'});termButtons(c,hid);
   const det=el('details',{class:'tterm','data-terminal':hid},el('summary',{},'Terminal'),c.status,c.actions,screen);
   if(c.open)det.open=true;
@@ -2581,7 +2581,7 @@ const INBOX_DRAFT={};
 function inboxAnswer(x){const h=((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff)||{},who=x.claimer||h.claimer,s=who&&who!=='any'?sessionRow(who):null,box=el('div',{class:'ib-answer'});
   if(!s||s.status!=='active')return box.appendChild(el('p',{class:'mute'},'This session cannot be reached, so it cannot receive an answer here.')),box;
   if(CAN()&&s.may_prompt===false)return box.appendChild(el('p',{class:'mute'},s.prompt_why_not||'You cannot answer this worker.')),box;
-  if(!CAN())return box.appendChild(el('p',{class:'mute'},ROLE==='viewer'?(h.claimer_user?h.claimer_user+' can answer with owner or developer access.':'The session owner can answer with owner or developer access.'):'Unlock the dash to answer.')),box;
+  if(!CAN())return box.appendChild(el('p',{class:'mute'},ROLE==='viewer'?(h.claimer_user?h.claimer_user+' can answer with owner or developer access.':'The session owner can answer with owner or developer access.'):'Unlock the server to answer.')),box;
   const input=el('textarea',{rows:4,maxlength:4000,'aria-label':'Your answer',placeholder:'The worker gets this as a message and carries on'}),send=el('button',{type:'button',class:'primary','data-write':true},'Send answer');
   input.value=INBOX_DRAFT[x.id]||'';input.addEventListener('input',()=>{INBOX_DRAFT[x.id]=input.value});
   const submit=async()=>{const text=input.value.trim();if(!text||input.readOnly)return;input.readOnly=send.disabled=true;try{const j=await act({action:'prompt',to:who,text});if(input.value.trim()===text){input.value='';delete INBOX_DRAFT[x.id]}toast(promptToast(j,who),true)}catch(e){toast('Failed: '+errorText(e),false)}finally{input.readOnly=send.disabled=false}};
@@ -2774,7 +2774,7 @@ function ntBuild(roleName){const page=$('page-new'),d=lastDash||{},l=TEAM.lists|
   for(const ev of ['input','change'])form.addEventListener(ev,()=>ntDraftSave());
   ui.inputs.kind.addEventListener('input',ntEstimate);ui.inputs.budget.addEventListener('change',ntEstimate);ntEstimate();
   form.onsubmit=e=>{e.preventDefault();ntSend(true)};save.onclick=()=>ntSend(false);cancel.onclick=ntCancel;
-  const note=$('nt-note'),why=!d.dispatch?'New tasks need dispatch on for this dash: agentd config set dash.dispatch true.':'';note.textContent=why;note.hidden=!why;if(why)start.dataset.disabledReason=save.dataset.disabledReason=why;
+  const note=$('nt-note'),why=!d.dispatch?'New tasks need dispatch on for this server: agentd config set dash.dispatch true.':'';note.textContent=why;note.hidden=!why;if(why)start.dataset.disabledReason=save.dataset.disabledReason=why;
   lockState()}
 async function ntSend(startIt){const ui=NT.ui,nt=NT.nt;if(!ui||NT.busy)return;const v=ui.values();
   if(!v.budget){ui.fieldError('budget','Budget is required.');return}
@@ -2825,7 +2825,7 @@ function handoffWorkerActions(d,h){
 }
 // board draws the page's cards, by status (Board) or by project (List). Each
 // item knows its project, status, whether it is mine (started by or claimed
-// by this dash's session) and whether a worker is on it, for the views. On the
+// by this server's session) and whether a worker is on it, for the views. On the
 // Board a GitHub issue is one card: what it folds in stays in items, marked
 // folded, so a session on it does not also count as working on nothing.
 function board(d){keepFocus($('board'),()=>drawCards(d))}
@@ -2950,7 +2950,7 @@ function blockedWorkerReply(h,who){if(!h||h.worker_state!=='blocked')return null
   if(who&&who!=='any')box.append(el('div',{class:'kmeta'},el('a',{href:teamHref('session',who)},'Open session')));
   if(!s||s.status!=='active'){box.append(el('p',{class:'mute'},'This session cannot be reached, so it cannot receive a reply here.'));return box}
   if(CAN()&&s.may_prompt===false){box.append(el('p',{class:'mute'},s.prompt_why_not||'You cannot reply to this worker.'));return box}
-  if(!CAN()){box.append(el('p',{class:'mute'},ROLE==='viewer'?(h.claimer_user?h.claimer_user+' can reply with owner or developer access.':'The session owner can reply with owner or developer access.'):'Unlock the dash to reply.'));return box}
+  if(!CAN()){box.append(el('p',{class:'mute'},ROLE==='viewer'?(h.claimer_user?h.claimer_user+' can reply with owner or developer access.':'The session owner can reply with owner or developer access.'):'Unlock the server to reply.'));return box}
   const input=el('textarea',{class:'cc-input',rows:2,maxlength:4000,'aria-label':'Reply to blocked worker',placeholder:'Reply to this worker'}),send=el('button',{type:'button','data-write':true},'Reply');
   const submit=async()=>{const text=input.value.trim();if(!text||input.readOnly)return;input.readOnly=send.disabled=true;try{const j=await act({action:'prompt',to:who,text});if(input.value.trim()===text)input.value='';toast(promptToast(j,who),true)}catch(e){toast('Failed: '+e.message,false)}finally{input.readOnly=send.disabled=false}};
   input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();submit()}});send.onclick=submit;box.append(el('div',{class:'cc-box'},input,send));return box}
@@ -3019,7 +3019,7 @@ function scoreRow(r,id){const head=[id?wkLink(id):null,el('span',{style:'color:v
 async function embedRun(sid,wf){
   wf.replaceChildren(el('div',{class:'cc-note',style:'padding:14px 16px'},'Loading the run…'));
   try{const r=await fetch('/api/session?id='+encodeURIComponent(sid)+(hostOf(sid)?'&host='+encodeURIComponent(hostOf(sid)):''),{cache:'no-store',headers:auth()});
-    if(r.status===401)dropToken();if(!r.ok)throw new Error(r.status===401?'this dash needs the token':'HTTP '+r.status);const d=await r.json();
+    if(r.status===401)dropToken();if(!r.ok)throw new Error(r.status===401?'this server needs the token':'HTTP '+r.status);const d=await r.json();
     if(!wf.isConnected)return;if(!(d.console&&d.console.turns||[]).some(t=>t.at)){const host=wf.closest('.wi-exec');if(host){if(host.previousElementSibling)host.previousElementSibling.remove();host.remove()}return}DR={id:sid,wf,d,canSend:true,wfPick:null};renderWaterfall(d)}
   catch(e){wf.replaceChildren(el('div',{class:'cc-note',style:'padding:14px 16px'},'Could not load the run: '+e.message))}}
 let wiRequest=0;
@@ -3032,7 +3032,7 @@ async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',r
   const show=(b,d)=>{if(d)head=headFor(d);if(request===wiRequest&&selectedSession&&selectedSession.item)h.replaceChildren(head,el('div',{class:'drawer-scroll'},b))};
   show(el('div',{class:'state'},'Loading…'));h.focus();
   try{const r=await fetch('/api/workitem?ref='+encodeURIComponent(ref),{cache:'no-store',headers:auth()});
-    if(r.status===401)dropToken();if(!r.ok)throw new Error(r.status===401?'this dash needs the token':(await r.text())||'HTTP '+r.status);
+    if(r.status===401)dropToken();if(!r.ok)throw new Error(r.status===401?'this server needs the token':(await r.text())||'HTTP '+r.status);
     const d=await r.json();d.goal=((d.tree||[]).find(x=>x.focus||x.id===ref)||{}).goal;show(workItemBody(d),d)}
   catch(e){show(el('div',{class:'state error'},'Could not load this work item: '+e.message))}}
 // dispatchHandoff starts a Claude or Codex worker that claims the handoff.
@@ -3048,7 +3048,7 @@ function depsNote(ui,check){const d=lastDash||{},n=el('p',{class:'field-error',r
   for(const k of ['cwd','tool'])if(ui.inputs[k]){ui.inputs[k].addEventListener('input',sync);ui.inputs[k].addEventListener('change',sync)}sync();return sync}
 function workerFields(d){return [{name:'tool',label:'Worker',required:true,segment:true,value:'claude',options:[{value:'claude',label:'Claude'},{value:'codex',label:'Codex'},{value:'opencode',label:'opencode'}]},{name:'cwd',label:'Checkout',required:true,value:(d.checkouts||[])[0]||'',options:d.checkouts||[],hint:'The worker uses this checkout and branch.'}]}
 function dispatchHandoff(h){const d=lastDash||{};return actionSheet({title:'Start a worker for this task?',description:h.title||h.goal||h.id,action:'Dispatch',pending:'Starting…',fields:workerFields(d),setup:ui=>{depsNote(ui,h.check||'')}},h.id,v=>({action:'dispatch',id:h.id,tool:v.tool,cwd:v.cwd}),'Worker requested')}
-function prDisabledReason(d,x){const repo=x.ref.split('#')[0];return d.pr_owner===false?'Only an owner can merge or close a pull request.':!(d.merge_repos||[]).includes(repo)?'Merging or closing from the dash needs this repo in [sync] repos in config.toml.':x.mergeable==='CONFLICTING'?'Resolve the merge conflicts before merging.':''}
+function prDisabledReason(d,x){const repo=x.ref.split('#')[0];return d.pr_owner===false?'Only an owner can merge or close a pull request.':!(d.merge_repos||[]).includes(repo)?'Merging or closing from the server needs this repo in [sync] repos in config.toml.':x.mergeable==='CONFLICTING'?'Resolve the merge conflicts before merging.':''}
 function prDecision(x,close){const [repo,num]=x.ref.split('#'),draft=!close&&x.draft;return actionSheet({title:close?'Close '+x.ref+'?':draft?'Mark ready for review, then merge '+x.ref+'?':'Merge '+x.ref+'?',description:close?'Your reason is posted as a GitHub comment, then the pull request is closed.':(x.title?'“'+x.title+'”. ':'')+(draft?'This pull request is a draft: it is marked ready for review, then merged on GitHub. Branch protection still applies; agentd never bypasses it.':'The changes will be merged on GitHub.')+(x.pr_state?' State: '+x.pr_state+'.':''),action:close?'Close PR':draft?'Mark ready and merge':'Merge',danger:close,caution:!close,pending:close?'Closing…':'Merging…',fields:close?[{name:'reason',label:'Reason',required:true,multiline:true}]:[]},x.ref,v=>({action:close?'pr_close':'pr_merge',repo,number:+num,...(close?{reason:v.reason}:{})}),close?'Pull request closed':'Pull request merged')}
 // prStateText leads with what blocks a pull request; "ready" beside "checks failing" or "blocked" contradicts them.
 function prStateText(t){const parts=String(t||'').split(' · ').filter(Boolean),stop=parts.filter(p=>/failing|blocked|conflict/i.test(p));return stop.length?capFirst([...stop,...parts.filter(p=>!stop.includes(p)&&p!=='ready')].join(' · ')):String(t||'')}
@@ -3099,7 +3099,7 @@ function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear
 async function loadIssues(){if(ISS.busy)return;ISS.busy=true;
   let changed=false;
   try{const r=await fetch('/api/issues',{cache:'no-store',headers:auth()});
-    if(!r.ok)throw new Error(r.status===401?'this dash needs the token':'HTTP '+r.status);
+    if(!r.ok)throw new Error(r.status===401?'this server needs the token':'HTTP '+r.status);
     const text=await r.text();changed=text!==ISS.key||!!ISS.error;ISS.key=text;ISS.d=JSON.parse(text);noteLinearURLs(ISS.d.issues);ISS.error=''}
   catch(e){changed=ISS.error!==e.message;ISS.error=e.message}
   finally{ISS.busy=false}
@@ -3108,7 +3108,7 @@ async function loadIssues(){if(ISS.busy)return;ISS.busy=true;
 async function loadDetail(ref,fresh){if(fresh){DET.ref=ref;DET.d=null;DET.error='';DET.text=null;DET.at=0;drawDetail()}
   const request=++DET.request;DET.at=Date.now();
   try{const r=await fetch('/api/issue?ref='+encodeURIComponent(ref),{cache:'no-store',headers:auth()});
-    if(!r.ok)throw new Error(r.status===401?'this dash needs the token':(await r.text()).trim()||'HTTP '+r.status);
+    if(!r.ok)throw new Error(r.status===401?'this server needs the token':(await r.text()).trim()||'HTTP '+r.status);
     const d=await r.json();if(request!==DET.request||DET.ref!==ref)return;DET.d=d;DET.error='';noteLinearURLs([d.issue,...(d.issues||[])]);
     if(d.kind==='issue'&&!DET.text)loadIssueText(ref)}
   catch(e){if(request!==DET.request||DET.ref!==ref)return;DET.error=e.message}
@@ -3156,7 +3156,7 @@ function twConv(hid,log,openIds){if(!log.length)return null;const old=log.slice(
     old.length?el('details',{'data-log':hid,open:openIds.has(hid)||null},el('summary',{},old.length+' earlier'),el('ol',{class:'ilog tw-conv'},old.map(twLine))):null,
     el('ol',{class:'ilog tw-conv'},last.map(twLine)))}
 // The task workspace (#480): an open task is two panes. Centre: Session, Log and Terminal
-// (Terminal only where the dash offers one); right: Changes, Files, Checks and Details. The tabs are
+// (Terminal only where the server offers one); right: Changes, Files, Checks and Details. The tabs are
 // remembered per browser; on a phone the right pane's tabs join the centre's. The tabs show one
 // handoff of the item, picked at the top when more than one has had a worker.
 const TW_MAIN=[['session','Session'],['log','Log'],['terminal','Terminal']],TW_SIDE=[['changes','Changes'],['files','Files'],['checks','Checks'],['details','Details']];
@@ -3670,7 +3670,7 @@ async function sendPrompt(){
 async function loadSession(){
   if(!selectedSession||document.hidden)return;const {id,host}=selectedSession,request=++historyRequest,h=$('hist');
   try{const r=await fetch('/api/session?id='+encodeURIComponent(id)+(host?'&host='+encodeURIComponent(host):''),{cache:'no-store',headers:auth()});
-    if(r.status===401)dropToken();if(!r.ok)throw new Error(r.status===401?'this dash needs the token':'HTTP '+r.status);const d=await r.json();if(request!==historyRequest)return;
+    if(r.status===401)dropToken();if(!r.ok)throw new Error(r.status===401?'this server needs the token':'HTTP '+r.status);const d=await r.json();if(request!==historyRequest)return;
     if(!DR||DR.id!==id||DR.bodies!==d.bodies)buildDrawer(d);updateDrawer(d);DR.okAt=new Date();DR.stale.hidden=true}
   catch(e){if(request!==historyRequest)return;
     // Keep what is on screen, but say it is not live any more.
@@ -3959,7 +3959,7 @@ function usageRows(id,rows){$(id).replaceChildren(...(rows||[]).map(r=>el('tr',{
 let usageRequest=0;const USAGE_NOTE=$('u-note').textContent;
 function usageShow(on){USAGE_VISIBLE=on;$('usage-group').parentElement.hidden=!on;$('u-totals').hidden=!on;for(const id of ['u-daily','u-users','u-projects','u-tools','u-models','u-errors'])$(id).closest('section').hidden=!on;usageGroup(USAGE_GROUP)}
 async function loadUsage(){rangeSegments('u-range');const request=++usageRequest;INS_READ.usage=Date.now();saveInsightsRoute('usage');
-  try{const r=await fetch('/api/usage?since='+encodeURIComponent($('u-range').value),{cache:'no-store',headers:auth()});if(r.status===401){if(request!==usageRequest)return;dropToken();usageShow(false);$('u-note').classList.add('error');$('u-note').textContent='This dash is public, so reading its usage needs the token or a login link.';return}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);const u=await r.json();if(request!==usageRequest)return;const t=u.totals||{},none=!(t.workers>0);usageShow(!none);$('u-note').classList.remove('error');const needPrice=(u.unpriced_models||[]).map(x=>x.name+' ('+x.workers+')').join(', ');$('u-note').replaceChildren(none?'No worker finished in this range. Usage appears here after a dispatched worker finishes.':USAGE_NOTE,...(needPrice?[el('details',{id:'usage-prices'},el('summary',{},(u.unpriced_models||[]).length+' models have no price. How to add.'),el('div',{},ROLE==='owner'||TOKEN&&!ROLE?'Add prices to [budget.prices] in config.toml. Recorded runs are priced on the next update.':'Ask the host owner to add model prices.',el('p',{},needPrice)))]:[]));
+  try{const r=await fetch('/api/usage?since='+encodeURIComponent($('u-range').value),{cache:'no-store',headers:auth()});if(r.status===401){if(request!==usageRequest)return;dropToken();usageShow(false);$('u-note').classList.add('error');$('u-note').textContent='This server is public, so reading its usage needs the token or a login link.';return}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);const u=await r.json();if(request!==usageRequest)return;const t=u.totals||{},none=!(t.workers>0);usageShow(!none);$('u-note').classList.remove('error');const needPrice=(u.unpriced_models||[]).map(x=>x.name+' ('+x.workers+')').join(', ');$('u-note').replaceChildren(none?'No worker finished in this range. Usage appears here after a dispatched worker finishes.':USAGE_NOTE,...(needPrice?[el('details',{id:'usage-prices'},el('summary',{},(u.unpriced_models||[]).length+' models have no price. How to add.'),el('div',{},ROLE==='owner'||TOKEN&&!ROLE?'Add prices to [budget.prices] in config.toml. Recorded runs are priced on the next update.':'Ask the host owner to add model prices.',el('p',{},needPrice)))]:[]));
     $('u-totals').replaceChildren(metricsTile(t.workers||0,'Workers','finished runs'),metricsTile(usageNumber(t,'tokens',false),'Tokens',t.missing_tokens?String(t.missing_tokens)+' run'+(t.missing_tokens===1?'':'s')+' missing':'all reported'),metricsTile(t.usd===undefined?'Unknown':usageNumber({...t,missing_usd:0},'usd',true)+(t.missing_usd?' + unpriced':''),'Estimated cost',t.missing_usd?unpricedRuns(t.missing_usd)+'; '+(t.usd===undefined?'no prices set':'a lower bound'):'all priced'));
     usageRows('u-daily',u.daily);usageRows('u-users',u.by_user);usageRows('u-projects',u.by_project);usageRows('u-tools',u.by_tool);usageRows('u-models',u.by_model);
     $('u-errors').replaceChildren(...(u.errors||[]).map(x=>el('tr',{},el('td',{title:x.name},word(x.name)),el('td',{class:'num'},x.workers))))}
@@ -4040,7 +4040,7 @@ function saveHistoryRoute(){const p=histParams();for(const c of HIST.cursors.sli
 async function loadHistory(){const request=++HIST.request,note=$('h-note'),p=histParams(),filtered=[...p.keys()].length>0,cursor=HIST.cursors[HIST.cursors.length-1];
   $('h-clear').hidden=!filtered;if(!validDates($('h-from'),$('h-to'),note)){$('h-table').hidden=true;$('h-pager').hidden=true;return}p.set('limit','50');if(cursor)p.set('cursor',cursor);
   try{const r=await fetch('/api/history?'+p,{cache:'no-store',headers:auth()});
-    if(r.status===401){if(request!==HIST.request)return;dropToken();note.classList.add('error');note.hidden=false;note.textContent='This dash is public, so reading its history needs the token or a login link.';$('h-table').hidden=true;$('h-pager').hidden=true;return}
+    if(r.status===401){if(request!==HIST.request)return;dropToken();note.classList.add('error');note.hidden=false;note.textContent='This server is public, so reading its history needs the token or a login link.';$('h-table').hidden=true;$('h-pager').hidden=true;return}
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
     const h=await r.json();if(request!==HIST.request)return;
     const f=h.facets||{};histFill('h-state',f.states||[],'All states');histFill('h-source',f.sources||[],'All sources');histFill('h-creator',f.creators||[],'All creators');
@@ -4088,13 +4088,13 @@ function searchOpen(x){searchClose(false);if(x.kind==='msg'||x.kind==='compactio
 async function searchRun(){const q=SEARCH.input.value.trim(),request=++SEARCH.request;
   if(!q){SEARCH.items=[];SEARCH.list.replaceChildren();SEARCH.status.textContent='';SEARCH.input.setAttribute('aria-expanded','false');searchMark(-1);return}
   SEARCH.status.textContent='Searching…';
-  try{const r=await fetch('/api/search?q='+encodeURIComponent(q),{cache:'no-store',headers:auth()});if(!r.ok)throw new Error(r.status===401?'Sign in to search this dash.':(await r.text()).trim()||'HTTP '+r.status);const d=await r.json();if(request!==SEARCH.request)return;searchDraw(d.results||[])}
+  try{const r=await fetch('/api/search?q='+encodeURIComponent(q),{cache:'no-store',headers:auth()});if(!r.ok)throw new Error(r.status===401?'Sign in to search this server.':(await r.text()).trim()||'HTTP '+r.status);const d=await r.json();if(request!==SEARCH.request)return;searchDraw(d.results||[])}
   catch(e){if(request!==SEARCH.request)return;SEARCH.items=[];SEARCH.list.replaceChildren();SEARCH.input.setAttribute('aria-expanded','false');searchMark(-1);SEARCH.status.textContent=errorText(e)}}
 function searchDraw(results){const items=[],groups=[];let n=0;
   for(const [kind,label] of SEARCH_KINDS){const rows=results.filter(x=>x.kind===kind);if(!rows.length)continue;const gid='search-group-'+kind;
     groups.push(el('div',{role:'group','aria-labelledby':gid},el('div',{class:'search-group-name',id:gid,role:'presentation'},label+' · '+rows.length),rows.map(x=>{
       const opens=kind==='msg'||kind==='compaction'?!!x.session:!!searchHref(x),title=x.title||(kind==='msg'?'Message':kind==='compaction'?'Session summary':x.ref);
-      const meta=[x.ref!==title?x.ref:'',x.state?word(x.state):'',opens?'':'no page in the dash'].filter(Boolean).join(' · ');
+      const meta=[x.ref!==title?x.ref:'',x.state?word(x.state):'',opens?'':'no page in the server'].filter(Boolean).join(' · ');
       const node=el('div',{class:'search-opt'+(opens?'':' no-page'),role:'option',id:'search-opt-'+(n++),'aria-selected':'false','aria-disabled':opens?null:'true','data-kind':kind,'data-ref':x.ref},el('span',{class:'search-title'},title),meta?el('span',{class:'search-meta'},meta):null,x.snippet?el('span',{class:'search-snip'},x.snippet):null);
       if(opens){const item={...x,node};items.push(item);node.addEventListener('click',()=>searchOpen(item));node.addEventListener('mousemove',()=>{const i=items.indexOf(item);if(i!==SEARCH.at)searchMark(i)})}
       return node}))) }
@@ -4149,7 +4149,7 @@ function notifySettings(){
     redraw=()=>{const cur=$('set-browser-notify');if(cur)cur.replaceWith(notifySettings())},btn=(t,f)=>box.append(el('button',{type:'button',onclick:f},t));
   if(!notifySupported()){say('This browser cannot show notifications. Use email or Telegram instead.');return box}
   const p=Notification.permission;
-  if(p==='denied')say('Notifications are blocked for this dash in this browser. To get them, allow notifications in the browser’s site settings (they need HTTPS or this computer), then reload.');
+  if(p==='denied')say('Notifications are blocked for this server in this browser. To get them, allow notifications in the browser’s site settings (they need HTTPS or this computer), then reload.');
   else if(p!=='granted'){say('Off. Turn on to get a notification when a worker is blocked, an approval is asked, or a task of yours finishes or fails while this tab is in the background. The browser asks once.');
     btn('Turn on notifications',()=>{try{localStorage.removeItem('dash-notify-off')}catch(e){}let r;try{r=Notification.requestPermission(redraw)}catch(e){redraw()}if(r&&r.then)r.then(redraw,redraw)})}
   else if(notifyOff()){say('Off in this browser.');btn('Turn on notifications',()=>{try{localStorage.removeItem('dash-notify-off')}catch(e){}redraw()})}
@@ -4174,7 +4174,7 @@ function keysSheet(){if(APP.on)return appKeysSheet();if(activeSheet)return null;
   const done=sheet({title:'Keyboard shortcuts',description:'They do nothing while you type in a field. Each one also has a link or button on the page.',cancel:'Close',content:list,setup:ui=>{ui.submit.hidden=true}});
   if(activeSheet){activeSheet.dialog.id='keys-sheet';const close=activeSheet.dialog.querySelector('.sheet-foot button:not([hidden])');if(close)close.focus()}
   return done}
-function keysNew(){if(!lastDash||!lastDash.dispatch){toast('New tasks need dispatch on for this dash.',false);return}const why=writeReason();if(why){toast(why,false);return}newHandoffSheet()}
+function keysNew(){if(!lastDash||!lastDash.dispatch){toast('New tasks need dispatch on for this server.',false);return}const why=writeReason();if(why){toast(why,false);return}newHandoffSheet()}
 function keysShown(n){return !n.closest('[hidden]')&&n.getClientRects().length>0}
 // The rows j and k move through: the page's own list, else the open panel's (Chat's conversations).
 function keysRows(){const page=document.querySelector('main .page:not([hidden])'),own=page?[...page.querySelectorAll(KEYS_ROWS)].filter(keysShown):[];if(own.length)return own;
@@ -4320,7 +4320,7 @@ function setupRepository(){const r=(SETUP.data&&SETUP.data.steps||{}).repository
 function setupTask(){const t=(SETUP.data&&SETUP.data.steps||{}).task||{},s=SETUP.data&&SETUP.data.steps||{},repos=((s.repository||{}).repositories||[]).map(x=>x.path),tools=((s.agents||{}).clients||[]).filter(c=>c.connected).map(c=>c.tool),msg=el('p',{id:'setup-task-msg',role:'alert',hidden:true});
   const out=[setupCommand(t.command||'agentd run "GOAL" --budget 30m')];
   if(t.done&&t.handoff)out.push(el('p',{'data-setup-first':''},'A first task has started: ',el('a',{href:'#issues/'+t.handoff},'open its workspace'),'.'));
-  if(!t.dispatch){out.push(el('p',{'data-setup-off':''},'Starting workers from the dash is off. Turn it on in a terminal: ',el('code',{},'agentd config set dash.dispatch true'),', or run the command above there.'));return out}
+  if(!t.dispatch){out.push(el('p',{'data-setup-off':''},'Starting workers from the server is off. Turn it on in a terminal: ',el('code',{},'agentd config set dash.dispatch true'),', or run the command above there.'));return out}
   if(!repos.length){out.push(el('p',{class:'mute'},'Add a repository first (step 3).'));return out}
   const cwd=el('select',{id:'setup-task-cwd'},repos.map(p=>el('option',{value:p},p))),tool=el('select',{id:'setup-task-tool'},(tools.length?tools:[t.default_tool||'claude']).map(x=>el('option',{value:x},toolName(x))));
   const goal=el('textarea',{id:'setup-task-goal',rows:3,maxlength:2000}),accept=el('textarea',{id:'setup-task-accept',rows:2,maxlength:2000});
@@ -4367,7 +4367,7 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
 //   status bar whether a watchdog runs (the server's watchdog field; not running, it
 //             opens the command that starts one), running and waiting counts (the
 //             Agents list's own: agentsModel), today's spend (spend_today)
-// A snapshot without mode "app" puts the team dash back as it was.
+// A snapshot without mode "app" puts the team server back as it was.
 const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
 try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
 function appShell(d){const on=!!d&&d.mode==='app';
@@ -4493,7 +4493,7 @@ function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;
     :el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or agentd new "GOAL" in a terminal.')));
   f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
 function appTriggersPage(){$('app-page').replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{},
-  el('p',{},'Triggers and schedules start tasks on their own, so they are set from a terminal (or the team dash), never from this app. See what is set:'),
+  el('p',{},'Triggers and schedules start tasks on their own, so they are set from a terminal (or the team server), never from this app. See what is set:'),
   el('code',{},'agentd schedule list'),el('code',{},'agentd trigger status'),
   el('p',{},'An owner enables a schedule from a terminal; config.toml’s [triggers] turns triggers on:'),el('code',{},'agentd schedule enable NAME'),el('code',{},'agentd config set triggers.enabled true')))}
 function appRepoPop(open){let pop=$('app-repo-pop');const b=document.querySelector('#app-shell [data-app-action="add-repo"]');
@@ -4512,7 +4512,7 @@ $('app-shell').addEventListener('click',e=>{if(!e.target.closest('#app-repo-pop,
   if(t.matches('[data-app-close]')){appPage('');return}
   if(t.dataset.appAction==='bell'){APPS.view=APPS.view==='needs'?'projects':'needs';if(lastDash)appSidebar(lastDash);return}
   if(t.dataset.appAction==='add-repo')appRepoPop($('app-repo-pop')?$('app-repo-pop').hidden:true)});
-// Keys, in the capture phase so the team dash's own n and Enter (region:keys) do not run in app mode.
+// Keys, in the capture phase so the team server's own n and Enter (region:keys) do not run in app mode.
 document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||activeSheet||SEARCH.box&&SEARCH.box.open)return;
   const t=e.target;if(e.key==='Escape'){if($('app-repo-pop')&&!$('app-repo-pop').hidden){appRepoPop(false);e.stopPropagation();return}if(APPS.page&&!keysTyping(t)){appPage('');e.stopPropagation()}return}
   if(keysTyping(t))return;
@@ -4610,7 +4610,7 @@ function appNewTask(){if(!APP.on)return;if(APPNT.dlg&&APPNT.dlg.open){APPNT.ui.i
   APPNT.opener=document.activeElement;const dlg=appNewTaskBuild();APPNT.dlg=dlg;$('app-shell').append(dlg);
   const why=appNewTaskWhy();APPNT.ui.why.textContent=why;APPNT.ui.why.hidden=!why;APPNT.ui.submit.disabled=!!why;if(why)APPNT.ui.submit.title=why;
   dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults()}
-// force: the team dash came back (appShell), so nothing of the app stays open.
+// force: the team server came back (appShell), so nothing of the app stays open.
 function appNewTaskClose(force){if(APPNT.busy&&!force)return;APPNT.busy=false;const dlg=APPNT.dlg;APPNT.dlg=null;APPNT.ui=null;APPNT.nt=null;if(dlg){if(dlg.open)dlg.close();dlg.remove()}
   const back=APPNT.opener;APPNT.opener=null;if(back&&back.isConnected&&!back.closest('[hidden]'))back.focus({preventScroll:true})}
 async function appNewTaskSend(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui||APPNT.busy||ui.submit.disabled)return;const v={...ui.values(),kind:'implement'};ui.error.hidden=true;
@@ -4772,7 +4772,7 @@ function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?
     el('div',{class:'appob-sechead'},el('b',{},'Theme'),el('span',{},'Optional. agentd has its light and dark looks.'),d.theme==='system'?el('span',{class:'appob-seg2',role:'group','aria-label':'Look'},...['dark','light'].map(v=>el('button',{type:'button','aria-pressed':String(d.look===v),'data-ob':'look-'+v,onclick:()=>{d.look=v;obDraw()}},v==='dark'?'Dark look':'Light look',(v==='dark')===osDark?el('small',{},'now'):null))):null),
     el('div',{class:'appob-carousel'},card('light','agentd Light'),card('dark','agentd Dark'),el('div',{class:'appob-look appob-more'},el('b',{},'More themes'),el('span',{},'Not in agentd'))),
     el('p',{class:'appob-foot-note'},obSvg(OB_I.plug,14),'agentd has no theme plugins, so the theme gallery step keeps its place with the built-in looks.'),
-    obCli([],'Saved in this browser (the same setting as the dash’s theme). The terminal has no theme to set.')]}
+    obCli([],'Saved in this browser (the same setting as the server’s theme). The terminal has no theme to set.')]}
 function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not installed',sign_in:'Sign in needed',connected:'Connected'}[g]||'Checking…';
   return [el('ul',{class:'appob-bullets'},el('li',{},'Start a task from any GitHub issue, prefilled with its title and context'),el('li',{},'Browse GitHub issues and pull requests in agentd without leaving it'),el('li',{},'See review status and CI checks on every task’s pull request'),el('li',{},'Push a worker’s branch and open a draft pull request (agentd never merges)')),
     el('div',{class:'appob-gh'},el('span',{class:'appob-ghicon','aria-hidden':'true'},obSvg(OB_I.gh,18)),el('div',{class:'appob-ghtext'},el('div',{},el('b',{},'GitHub'),el('span',{class:'appob-status '+(g||'checking')},pill)),el('p',{},'Pull requests, issues, and check status.'),g==='sign_in'?el('code',{},'gh auth login'):null),
@@ -4880,7 +4880,7 @@ new MutationObserver(()=>{if(APP.on&&OB.eligible&&!OB.tour&&!OB.tourRan){clearTi
 // right sidebar's panels, in the reference app's layout (SPEC.md §3, §4).
 //   tabs      Session first and always there (the task, its reports and history, a message box to its
 //             worker); Terminal N, a shell in the worker directory (GET /api/terminal?id=&n=, up to 3,
-//             where the dash offers one); Log (GET /api/log); a file or a diff opened from Files or
+//             where the server offers one); Log (GET /api/log); a file or a diff opened from Files or
 //             Changes, labelled `path (diff)` with its M/U/A/D mark. All but Session close; + opens a
 //             terminal or brings back Log; Command lists the actions the task's state allows, each with
 //             its command (Stop, Take over, Start again, Change check, Cancel, Open in editor).
@@ -5023,9 +5023,9 @@ function awTermOpen(hid,n){const c=awTermOf(hid,n);if(c.ws)return;
     if(!c.term){c.term=new T({fontSize:13,cursorBlink:true,scrollback:2000,fontFamily:"'SF Mono',ui-monospace,Menlo,Consolas,monospace",theme:awTermColors()});c.term.open(c.screen);c.term.onData(x=>{if(c.ws&&c.ws.readyState===1)c.ws.send(new TextEncoder().encode(x))})}
     const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/api/terminal?id='+encodeURIComponent(hid)+(n>1?'&n='+n:''));ws.binaryType='arraybuffer';c.ws=ws;
     const fit=()=>{const z=termSize(c.screen);c.term.resize(z.cols,z.rows);if(ws.readyState===1)ws.send(JSON.stringify(z))};
-    ws.onopen=()=>{fit();c.status.textContent='Connected: a shell in the task’s worker directory, as the dash’s own user on this host, with everything that user can reach. It closes after 15 minutes with nothing typed.';if(c.term.focus)c.term.focus()};
+    ws.onopen=()=>{fit();c.status.textContent='Connected: a shell in the task’s worker directory, as the server’s own user on this host, with everything that user can reach. It closes after 15 minutes with nothing typed.';if(c.term.focus)c.term.focus()};
     ws.onmessage=e=>{if(e.data&&typeof e.data!=='string')c.term.write(new Uint8Array(e.data))};
-    ws.onclose=e=>{if(c.ws!==ws)return;c.ws=null;c.status.textContent=e.reason?'Closed: '+e.reason+'.':e.code===1006?'The terminal was refused or lost. Only an owner may open one, from the dash itself, on a task with a worker directory.':'Closed.'};
+    ws.onclose=e=>{if(c.ws!==ws)return;c.ws=null;c.status.textContent=e.reason?'Closed: '+e.reason+'.':e.code===1006?'The terminal was refused or lost. Only an owner may open one, from the server itself, on a task with a worker directory.':'Closed.'};
     c.onresize=c.onresize||(()=>{if(c.ws&&c.ws.readyState===1)fit()});window.addEventListener('resize',c.onresize)})
   .catch(e=>{c.ws=null;if(c.status)c.status.textContent='The terminal could not start: '+errorText(e)})}
 // awTermColors: the app's terminal colours (SPEC §3.2), from its tokens, light or dark.
@@ -5041,14 +5041,14 @@ function awItem(icon,label,cli,run,o={}){const why=o.why||'';
   return el('button',{type:'button',class:'app-mitem',role:'menuitem','data-act':o.key||null,'data-cli':cli||null,'data-danger':o.danger?'':null,'aria-disabled':why?'true':null,title:why||null,onclick:()=>{if(why)return;awMenu(null);run()}},
     awIcon(icon,14),el('span',{},label,o.note?el('small',{},o.note):null,why?el('small',{},why):null,cli?el('code',{},cli):null))}
 function awNewTabItems(hid){const s=awState(hid),used=s.tabs.filter(t=>t.kind==='term').map(t=>t.n),free=[1,2,3].find(n=>!used.includes(n)),items=[];
-  if(!termOffered())items.push(el('div',{class:'app-mnote'},'No terminal here: the dash offers one only to an owner, where [dash] terminal is on.'));
+  if(!termOffered())items.push(el('div',{class:'app-mnote'},'No terminal here: the server offers one only to an owner, where [dash] terminal is on.'));
   else items.push(awItem('term','New terminal','',()=>awOpen({key:'term:'+free,kind:'term',n:free}),{key:'terminal',why:free?'':'Up to '+AW_TERMS+' terminals per task. Close one first.',note:free?'Terminal '+free+', in the worker directory':''}));
   items.push(awItem('log','Log','',()=>awOpen({key:'log',kind:'log'}),{key:'log',note:'The worker’s log tail'}));
   items.push(awItem('session','Session','',()=>awPick('session'),{key:'session'}));return items}
 function awQ(w){return typeof taskShellWord==='function'?taskShellWord(w):w}
 // The Command menu: what the task's state allows, each with the command that does the same.
 function awCommandItems(hid){const d=lastDash||{},h=awTask(hid),items=[],live=h.dispatched&&!h.worker_state&&/^(offered|claimed)$/.test(h.state||'');
-  if(d.dispatch&&live)items.push(awItem('stop','Stop the worker','',()=>stopHandoff(h),{key:'stop',danger:true,why:h.may_stop===false?h.why_not||'You cannot stop this worker.':'',note:'The task stays open. No command does this from a terminal: the dash stops the worker’s process.'}));
+  if(d.dispatch&&live)items.push(awItem('stop','Stop the worker','',()=>stopHandoff(h),{key:'stop',danger:true,why:h.may_stop===false?h.why_not||'You cannot stop this worker.':'',note:'The task stays open. No command does this from a terminal: the server stops the worker’s process.'}));
   if(h.takeover)items.push(awItem('hand','Take over',h.takeover.cli,()=>takeoverTask(h),{key:'takeover',why:h.takeover.may===false?h.takeover.why_not||'You cannot take this task over.':''}));
   if(d.dispatch&&h.dispatched&&h.retry)items.push(awItem('again','Start again','agentd handoff dispatch '+hid+(h.retry.tool?' --tool '+h.retry.tool:'')+(h.retry.cwd?' --cwd '+awQ(h.retry.cwd):''),()=>retryHandoff(h),{key:'retry',why:h.retry.may===false?h.retry.why_not||'You cannot start this task again.':'',note:'A new worker on its branch, with the same goal, check and budget'}));
   if(h.check&&/^(offered|blocked|claimed)$/.test(h.state||''))items.push(awItem('check','Change check','agentd handoff check '+hid+' --check '+awQ(h.check),()=>changeCheck(h),{key:'set_check',why:ROLE==='owner'?'':'Only an owner changes a check.'}),
@@ -5148,7 +5148,7 @@ function awDetails(hid,load){const box=awSec('details');
 // Clicking one opens the task; the sound picked in the onboarding plays after it is shown.
 // Shortcuts are the reference app's (SPEC.md §8; Mod is Cmd on a Mac, Ctrl elsewhere) for
 // the task list and the workspace tabs, listed by ? in an overlay (the Help menu's Keyboard shortcuts
-// opens the same one). Like the team dash's (region:keys) they do nothing while a field, a dialog, the
+// opens the same one). Like the team server's (region:keys) they do nothing while a field, a dialog, the
 // search box or the onboarding has the keys. The frame's Mod+B, Mod+L (region:app), N, the list's arrows
 // and Enter (region:app-sidebar) and the tab strip's arrows and Delete (region:app-workspace) are theirs;
 // the overlay lists them too.
@@ -5190,7 +5190,7 @@ function appKeysPanel(name){if(!appOpen('right'))appToggle('right');appPanel(nam
 function appKeysTab(i){if(!AW.hid)return false;const t=awState(AW.hid).tabs[i];if(!t)return false;awPick(t.key)}
 function appKeysTabStep(step,same){if(!AW.hid)return false;const s=awState(AW.hid),cur=s.tabs.find(t=>t.key===s.cur)||s.tabs[0],list=same?s.tabs.filter(t=>t.kind===cur.kind):s.tabs;if(list.length<2)return;
   awPick(list[(list.indexOf(cur)+step+list.length)%list.length].key)}
-function appKeysTerm(){if(!AW.hid)return false;if(AW.ro){toast('Another person’s task has no terminal here.',false);return}if(!termOffered()){toast('No terminal here: the dash offers one only to an owner, where [dash] terminal is on.',false);return}
+function appKeysTerm(){if(!AW.hid)return false;if(AW.ro){toast('Another person’s task has no terminal here.',false);return}if(!termOffered()){toast('No terminal here: the server offers one only to an owner, where [dash] terminal is on.',false);return}
   const s=awState(AW.hid),used=s.tabs.filter(t=>t.kind==='term').map(t=>t.n),n=[1,2,3].slice(0,AW_TERMS).find(x=>!used.includes(x));if(!n){toast('Up to '+AW_TERMS+' terminals per task. Close one first.',false);return}awOpen({key:'term:'+n,kind:'term',n})}
 function appKeysClose(){if(!AW.hid)return false;awClose(awState(AW.hid).cur)}
 document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.isComposing||activeSheet||SEARCH.box&&SEARCH.box.open||OB.st&&OB.page>=0||document.querySelector('dialog[open]')||keysTyping(e.target))return;
@@ -5215,7 +5215,7 @@ let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
   try{const r=await fetch('/api/dash',{cache:'no-store',headers:auth()});
-    if(r.status===401){const wasCookie=COOKIE;dropToken();if(request!==dashRequest||wasCookie&&!TOKEN)return;if(!TOKEN&&!/[?&]unlock\b/.test(location.search)){location.replace('/login');return}lockState();$('now').textContent='locked';$('dasherror').replaceChildren('This dash is public, so reading it needs a sign-in. ',el('a',{href:'/login'},'Sign in with your personal key'),', open a login link from `agentd dash link --user NAME --base URL`, or paste the token from `agentd dash token` above.');$('dasherror').hidden=false;return}
+    if(r.status===401){const wasCookie=COOKIE;dropToken();if(request!==dashRequest||wasCookie&&!TOKEN)return;if(!TOKEN&&!/[?&]unlock\b/.test(location.search)){location.replace('/login');return}lockState();$('now').textContent='locked';$('dasherror').replaceChildren('This server is public, so reading it needs a sign-in. ',el('a',{href:'/login'},'Sign in with your personal key'),', open a login link from `agentd dash link --user NAME --base URL`, or paste the token from `agentd dash token` above.');$('dasherror').hidden=false;return}
     if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(request!==dashRequest)return;
     lastDash=d;CONNECTED=true;lastGoodAt=new Date();$('dasherror').hidden=true;$('dashrestart').textContent=d.config_restart||'';$('dashrestart').hidden=!d.config_restart;appWatchdog(d);$('now').textContent=(d.now||'').slice(11,19)+' UTC';$('now').title='refreshes every 10 s';render(d)}
   catch(e){if(request!==dashRequest)return;CONNECTED=false;lockState();$('now').textContent='Not connected';$('dasherror').replaceChildren(el('span',{},'Not connected. '+(lastGoodAt?'Showing data from '+lastGoodAt.toLocaleTimeString()+'. ':'No data loaded yet. ')+'Retrying every 10 seconds.'),el('button',{onclick:refresh},'Retry'));$('dasherror').hidden=false}}
@@ -5266,7 +5266,7 @@ async function chatCopy(text){try{await navigator.clipboard.writeText(text);toas
 function chatAPI(path,opts){return fetch('/api/chat'+path,{cache:'no-store',...opts,headers:{...auth(),...(opts&&opts.headers||{})}})}
 function chatUnlocked(r){if(r.status!==401)return true;CHAT.locked=true;CHAT.fail={list:'',thread:null,search:''};chatRenderFail();chatRenderSide();chatRenderThread();return false}
 // chatWhy says what failed in words: a fetch that got no answer says only "Failed to fetch".
-function chatWhy(e){return e instanceof TypeError?'the dash did not answer':e.message}
+function chatWhy(e){return e instanceof TypeError?'the server did not answer':e.message}
 async function chatRefused(r){const d=await r.json().catch(()=>({}));return new Error(d.error||'HTTP '+r.status)}
 function chatScrollWith(fn){const t=$('chat-thread'),end=t.scrollHeight-t.scrollTop-t.clientHeight<80;fn();if(end)t.scrollTop=t.scrollHeight}
 function chatAuthChanged(){VOICE.available=false;VOICE.checked=false;VOICE.request++;CHAT.authSeq++;CHAT.listReq++;CHAT.openReq++;CHAT.searchReq++;CHAT.loaded=false;CHAT.chats=[];CHAT.roles=[];CHAT.results=null;CHAT.locked=!TOKEN&&!COOKIE;chatClear();TEAM.activityReq++;TEAM.activity={};TEAM.activityAt=0}
@@ -5296,7 +5296,7 @@ function chatRenderSide(){
   // Drawing over a name being typed would lose it; chatRow's finish clears renaming first.
   if(CHAT.renaming&&document.querySelector('.chat-rename input'))return;
   const newRole=chatNewRole(),newButton=$('chat-new');newButton.disabled=CHAT.locked||!newRole||!(CAN()&&CONNECTED&&CHAT.gatewayReady);newButton.title=CHAT.locked?'Chat needs a login.':!CHAT.gatewayReady?'Chat is not set up on this host.':newRole?'Start a conversation with '+roleTitle(newRole.name):'No one is set up to chat yet.';
-  if(CHAT.locked){$('chat-roles').replaceChildren(el('div',{class:'mute'},'Chat needs a login. Use a sign-in link from the host owner, or unlock with a dash token.'));$('chat-list').replaceChildren();return}
+  if(CHAT.locked){$('chat-roles').replaceChildren(el('div',{class:'mute'},'Chat needs a login. Use a sign-in link from the host owner, or unlock with a server token.'));$('chat-list').replaceChildren();return}
   const canWrite=CAN()&&CONNECTED&&CHAT.gatewayReady;
   $('chat-roles').replaceChildren(...CHAT.roles.map(r=>el('button',{class:'chat-role',disabled:!canWrite,'data-write':true,'data-disabled-reason':!CHAT.gatewayReady?'Chat is not set up on this host.':null,title:'Start a conversation with '+r.name,onclick:()=>chatCreate(r.name)},el('b',{title:r.name},roleTitle(r.name)),el('small',{},r.description||''),el('small',{title:r.model},modelName(r.model)))),...(CHAT.roles.length||!CHAT.loaded?[]:[chatNoRoles()]),...(CHAT.problems||[]).map(p=>el('div',{class:'chat-problem'},p)));
   const fail=CHAT.fail.list||CHAT.fail.search,failNode=fail?[el('div',{class:'state error'},(CHAT.fail.list?'Could not load chats: ':'Could not search: ')+fail,el('button',{type:'button',onclick:chatRetry},'Retry'))]:[];
@@ -5308,10 +5308,10 @@ function chatRenderSide(){
   $('chat-list').replaceChildren(...nodes);chatFocusRename()}
 function chatFocusRename(){const i=CHAT.renaming&&document.querySelector('.chat-rename input');if(i&&document.activeElement!==i){i.focus();i.select()}}
 async function chatRunSearch(){const q=CHAT.q,req=++CHAT.searchReq;if(!q){CHAT.results=null;CHAT.fail.search='';chatRenderSide();return}try{const r=await chatAPI('/search?q='+encodeURIComponent(q));if(req!==CHAT.searchReq||!chatUnlocked(r))return;if(!r.ok)throw await chatRefused(r);const d=await r.json();if(req!==CHAT.searchReq)return;CHAT.fail.search='';CHAT.results=d.chats||[]}catch(e){if(req!==CHAT.searchReq)return;CHAT.fail.search=chatWhy(e);CHAT.results=CHAT.results||[]}chatRenderSide()}
-async function chatPatch(c,patch){const focusID=document.activeElement&&document.activeElement.getAttribute('data-chat-more');const r=await chatAPI('/'+encodeURIComponent(c.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(()=>null);if(!r||!r.ok){const why=r?(await chatRefused(r)).message:'the dash did not answer';toast('Could not change it: '+why,false);chatRenderSide();return}const d=await r.json();if(CHAT.id===c.id){CHAT.chat=d;chatRenderThread()}await chatLoad();if(CHAT.q)await chatRunSearch();else chatRenderSide();if(focusID===c.id)focusBack(document.querySelector('[data-chat-more="'+CSS.escape(c.id)+'"]'))}
+async function chatPatch(c,patch){const focusID=document.activeElement&&document.activeElement.getAttribute('data-chat-more');const r=await chatAPI('/'+encodeURIComponent(c.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(patch)}).catch(()=>null);if(!r||!r.ok){const why=r?(await chatRefused(r)).message:'the server did not answer';toast('Could not change it: '+why,false);chatRenderSide();return}const d=await r.json();if(CHAT.id===c.id){CHAT.chat=d;chatRenderThread()}await chatLoad();if(CHAT.q)await chatRunSearch();else chatRenderSide();if(focusID===c.id)focusBack(document.querySelector('[data-chat-more="'+CSS.escape(c.id)+'"]'))}
 function chatCreate(role){if(!CAN()||!CHAT.gatewayReady)return;chatClear();CHAT.draft=role;CHAT.chat={role,title:'New conversation'};history.pushState(null,'','#chat?role='+encodeURIComponent(role));ROUTE=parseRoute(location.hash);chatRenderThread();if(!PHONE.matches)$('chat-input').focus()}
 async function chatStartDraft(){if(CHAT.creating)return false;const seq=CHAT.authSeq,draft=CHAT.draft;CHAT.creating=true;chatComposerState();try{const r=await chatAPI('',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:draft})});if(!r.ok)throw await chatRefused(r);const c=await r.json();if(seq!==CHAT.authSeq||CHAT.draft!==draft||CHAT.id)return false;CHAT.draft=null;CHAT.id=c.id;CHAT.chat=c;CHAT.msgs=[];history.replaceState(null,'','#chat/'+encodeURIComponent(c.id));ROUTE=parseRoute(location.hash);chatLoad();return true}catch(e){if(seq!==CHAT.authSeq)return false;CHAT.error='Could not start a conversation: '+chatWhy(e);chatRenderThread();return false}finally{CHAT.creating=false;chatComposerState()}}
-async function chatDelete(c){return sheet({title:'Delete '+(c.title||'New conversation')+'?',description:'This cannot be undone. Archive it instead to keep it. Handoffs it started stay on the board.',action:'Delete conversation',danger:true,pending:'Deleting…',onSubmit:async()=>{const r=await chatAPI('/'+encodeURIComponent(c.id),{method:'DELETE'}).catch(()=>null);if(!r||!r.ok){const why=r?(await chatRefused(r)).message:'the dash did not answer';throw new Error('Could not delete: '+why)}if(CHAT.id===c.id){chatClose();if(ROUTE.item==='chat')history.replaceState(null,'','#chat')}await chatLoad();if(CHAT.q)chatRunSearch();toast('Conversation deleted',true)}})}
+async function chatDelete(c){return sheet({title:'Delete '+(c.title||'New conversation')+'?',description:'This cannot be undone. Archive it instead to keep it. Handoffs it started stay on the board.',action:'Delete conversation',danger:true,pending:'Deleting…',onSubmit:async()=>{const r=await chatAPI('/'+encodeURIComponent(c.id),{method:'DELETE'}).catch(()=>null);if(!r||!r.ok){const why=r?(await chatRefused(r)).message:'the server did not answer';throw new Error('Could not delete: '+why)}if(CHAT.id===c.id){chatClose();if(ROUTE.item==='chat')history.replaceState(null,'','#chat')}await chatLoad();if(CHAT.q)chatRunSearch();toast('Conversation deleted',true)}})}
 function chatClear(){chatVoiceCancel();chatDropAttachments();if(CHAT.live&&CHAT.ctrl)CHAT.ctrl.abort();Object.assign(CHAT,{draft:null,id:null,chat:null,msgs:[],handoffs:[],proposals:[],dispatch:false,files:[],live:null,error:'',busy:false,filesKey:'',cardsKey:'',unsent:null,answer:null,pane:'sources'});CHAT.fail.thread=null;$('chat-input').value='';chatSetView(null);chatRenderFail();chatRenderThread();chatRenderCards();chatRenderFiles();chatRenderSide()}
 function chatClose(){CHAT.missing=false;chatClear()}
 // chatGo opens a conversation and the address follows, so it can be linked and Back
@@ -5342,9 +5342,9 @@ async function chatReclaim(manual=false){const m=chatDangling(),input=$('chat-in
 async function chatResend(){const m=chatDangling(),input=$('chat-input');if(!m||chatWithdrawReason())return;const draft=input.value;input.value='';await chatReclaim(true);if(CHAT.msgs.includes(m)){input.value=draft;chatGrow();return}
   if((m.attachments||[]).length){if(draft)input.value+='\n\n'+draft;chatGrow();return}
   const sent=chatSend();input.value=draft;chatGrow();await sent}
-// A send the dash never got (it was down) is not in the thread to take back.
+// A send the server never got (it was down) is not in the thread to take back.
 function chatRestoreText(text,hint){const input=$('chat-input');input.value=input.value.trim()?text+'\n\n'+input.value:text;chatGrow();chatHint(hint)}
-function chatUnsentBack(){const u=CHAT.unsent;if(!u||u.id!==CHAT.id||CHAT.live||CHAT.busy)return;const received=CHAT.msgs.some(m=>m.role==='user'&&m.seq>u.seq&&m.content===u.text);if(!received)chatRestoreText(u.text,'The dash did not confirm your message, so it is here again.');CHAT.unsent=null}
+function chatUnsentBack(){const u=CHAT.unsent;if(!u||u.id!==CHAT.id||CHAT.live||CHAT.busy)return;const received=CHAT.msgs.some(m=>m.role==='user'&&m.seq>u.seq&&m.content===u.text);if(!received)chatRestoreText(u.text,'The server did not confirm your message, so it is here again.');CHAT.unsent=null}
 function chatHint(text){$('chat-hint').textContent=text||''}
 function chatGrow(){const t=$('chat-input');if(!t.offsetParent)return;t.style.height='auto';t.style.height=t.scrollHeight+2+'px'}
 function chatFill(text){const t=$('chat-input');t.value=text;chatGrow();t.focus();t.setSelectionRange(text.length,text.length)}
@@ -5376,7 +5376,7 @@ function chatRenderHead(){chatRenderRoleHint();const has=!!CHAT.id&&!!CHAT.chat,
   head.replaceChildren(el('div',{class:'chat-head-main'},title,c.role?el('span',{class:'chat-head-role',title:role&&role.description||null},roleName(c.role)):null),...(c.can_take_over?[el('button',{type:'button','data-write':true,onclick:chatTakeOver},'Take ownership')]:[]),details)}
 const CHAT_STARTERS=['What needs my attention right now?','Summarize what changed in the last day','Help me plan a change before we start it','Explain how this works in plain words'];
 function chatStartNode(){const c=CHAT.chat||{},role=CHAT.roles.find(r=>r.name===c.role)||{},can=!(c.archived||!CAN()||!CHAT.gatewayReady),own=role.starters||[],starters=[...own,...CHAT_STARTERS.filter(t=>!own.includes(t))].slice(0,4);return el('div',{class:'chat-start'},el('h2',{},'What should we do?'),role.description?el('p',{},role.description):null,can?el('div',{class:'chat-starters'},starters.map(t=>el('button',{type:'button',class:'chat-starter','data-write':true,onclick:()=>chatFill(t)},t))):null)}
-function chatHomeNode(){if(CHAT.locked)return el('div',{class:'chat-start'},el('h2',{},'Chat needs a login'),el('p',{},'Open a sign-in link from the host owner, or unlock with a dash token.'),el('button',{class:'primary',onclick:unlockSheet},'Unlock'));if(!CHAT.loaded)return el('div',{class:'chat-empty'},CHAT.fail.list?'':'Loading…');
+function chatHomeNode(){if(CHAT.locked)return el('div',{class:'chat-start'},el('h2',{},'Chat needs a login'),el('p',{},'Open a sign-in link from the host owner, or unlock with a server token.'),el('button',{class:'primary',onclick:unlockSheet},'Unlock'));if(!CHAT.loaded)return el('div',{class:'chat-empty'},CHAT.fail.list?'':'Loading…');
   if(!CAN()||!CHAT.gatewayReady)return el('div',{class:'chat-start'},el('h2',{},'Conversations'),el('p',{},'Open a conversation from the list.'));
   return el('div',{class:'chat-start'},el('h2',{},'Start a conversation'),el('p',{},'Pick who to talk to, or open a conversation from the list.'),CHAT.roles.map(r=>el('button',{type:'button',class:'chat-card','data-write':true,'data-disabled-reason':!CHAT.gatewayReady?'Chat is not set up on this host.':null,disabled:!CAN()||!CHAT.gatewayReady,onclick:()=>chatCreate(r.name)},el('b',{title:r.name},roleTitle(r.name)),el('small',{},r.description||''))),CHAT.roles.length?null:chatNoRoles())}
 // roleTitle: a role's file name as a name (implementer → Implementer); chatNoRoles: the empty state in words, the setting in its tooltip.
@@ -5385,7 +5385,7 @@ function chatNoRoles(){return el('div',{class:'mute',title:'A role is offered he
 function chatRenderThread(){const has=!!CHAT.id||!!CHAT.draft,archived=has&&CHAT.chat&&!!CHAT.chat.archived;chatRenderHead();$('chat-composer').hidden=!has||archived;$('chat-archived').hidden=!archived;
   chatScrollWith(()=>{const empty=has&&!CHAT.msgs.length&&!CHAT.live,nodes=CHAT.missing?[el('div',{class:'chat-empty'},'Not found or not yours.')]:!has?[chatHomeNode()]:empty?[chatStartNode()]:chatAnswerTurns(chatTurns(CHAT.msgs)).map((t,i,turns)=>{const n=chatTurnNode({...t,running:CHAT.busy&&i===turns.length-1});n.chatTurn=t.kind;n.chatAt=chatTime(t.created);return n});if(has&&!CHAT.busy&&!CHAT.live&&chatDangling())nodes.push(el('div',{class:'chat-meta chat-noreply chat-unanswered'},el('span',{},'No reply came back'),el('span',{'aria-hidden':'true'},' · '),el('button',{id:'chat-retry',type:'button',class:'linkish',onclick:chatResend},'Retry'),el('span',{'aria-hidden':'true'},' · '),el('button',{id:'chat-withdraw',type:'button',class:'linkish',onclick:()=>chatReclaim(true)},'Remove')));if(CHAT.live)nodes.push(CHAT.live.node);$('chat-msgs').replaceChildren(...nodes);$('chat-error').hidden=!CHAT.error;$('chat-error').textContent=CHAT.error;chatPlaceCards()});chatComposerState();chatRenderCards();chatRenderSources();chatCanvas();chatGrow()}
 function chatWorkerStatus(h){if(h.state==='cancelled')return 'Cancelled';if(h.dispatch_failed)return 'Worker could not start';if(h.budget_state==='stopped')return 'Stopped at its budget';if(h.state==='done')return 'Done';if(h.worker_state)return WORDS[h.worker_state]||words(h.worker_state);if(h.state==='blocked')return 'Waiting for another task';if(!h.worker&&!h.dispatched)return h.state==='offered'?'Not started: no worker was requested':WORDS[h.state]||words(h.state);return h.dispatched?'Running':'Waiting to start: other workers are running, or its checkout is in use'}
-function chatProposalReason(){return !CAN()||!CONNECTED?writeReason():CHAT.chat&&CHAT.chat.can_take_over?'This conversation was started before sign-in. Take ownership to continue.':CHAT.chat&&CHAT.chat.archived?'Unarchive this chat first.':CHAT.busy||CHAT.live?'Wait for the reply to finish.':!CHAT.dispatch?'Starting workers from the dash is off.':''}
+function chatProposalReason(){return !CAN()||!CONNECTED?writeReason():CHAT.chat&&CHAT.chat.can_take_over?'This conversation was started before sign-in. Take ownership to continue.':CHAT.chat&&CHAT.chat.archived?'Unarchive this chat first.':CHAT.busy||CHAT.live?'Wait for the reply to finish.':!CHAT.dispatch?'Starting workers from the server is off.':''}
 // chatProposalDetails: what a person confirms (goal, what done means, where, the
 // limit) first; the check command, paths and the worker's notes under Technical details.
 const PROPOSAL_LABELS={goal:'Goal',accept:'Acceptance criteria',cwd:'Checkout',role:'Role',worker:'Worker',budget:'Budget',check:'Check',state:'Context',decisions:'Instructions',open:'Open items',paths:'Paths'};
@@ -5487,14 +5487,14 @@ async function chatSend(){if(CHAT.live){await chatStopElsewhere();return}if(CHAT
     if(CHAT.live!==live)return;
     if(!r.ok){const d=await r.json().catch(()=>({}));if(CHAT.live!==live)return;CHAT.msgs.pop();chatRestoreText(text,'Your message was not sent.');CHAT.unsent=null;error=r.status===401?'The login expired; unlock again.':(d.error||'HTTP '+r.status);ended=true}
     else{CHAT.unsent=null;chatDropAttachments();const reader=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';for(;;){const{value,done}=await reader.read();if(done)break;buf+=value;let cut;while((cut=buf.indexOf('\n\n'))>=0){const block=buf.slice(0,cut);buf=buf.slice(cut+2);let event='message',data='';for(const line of block.split('\n')){if(line.startsWith('event: '))event=line.slice(7);else if(line.startsWith('data: '))data+=line.slice(6)}try{on(event,JSON.parse(data))}catch(e){}}}}}
-  catch(e){if(e.name==='AbortError')ended=true;else{error='The connection to the dash was lost, so the reply stopped.';if(!reached)CHAT.unsent={id,text,seq}}}
-  if(!ended&&!error)error='The connection to the dash was lost, so the reply stopped.';
+  catch(e){if(e.name==='AbortError')ended=true;else{error='The connection to the server was lost, so the reply stopped.';if(!reached)CHAT.unsent={id,text,seq}}}
+  if(!ended&&!error)error='The connection to the server was lost, so the reply stopped.';
   clearTimeout(live.timer);if(CHAT.live!==live)return;CHAT.live=null;CHAT.error=error;CHAT.busy=true;if(truncated)toast('The model stopped at its length limit',false);chatRenderThread();await chatSettle(id);chatLoad();if(CHAT.id===id&&!PHONE.matches)$('chat-input').focus()}
 // chatSettle reads the thread once the server has stored what the reply left, which
-// takes it a moment after a stop. If the dash is away the retry takes over from here.
+// takes it a moment after a stop. If the server is away the retry takes over from here.
 async function chatSettle(id){for(let i=0;i<12&&CHAT.id===id;i++){await chatOpen(id,true);if(!CHAT.busy||CHAT.fail.thread||CHAT.id!==id)return;await new Promise(f=>setTimeout(f,250))}}
 const CHAT_STOPPED_HINT='Stopped. Your message is kept; send a new one to correct it.';
-async function chatStopElsewhere(){const id=CHAT.id,r=await chatAPI('/'+encodeURIComponent(id)+'/stop',{method:'POST'}).catch(()=>null);if(!r||!r.ok){toast('Could not stop it: '+(r?(await chatRefused(r)).message:'the dash did not answer'),false);return}await chatSettle(id);if(CHAT.id===id)chatHint(CHAT_STOPPED_HINT)}
+async function chatStopElsewhere(){const id=CHAT.id,r=await chatAPI('/'+encodeURIComponent(id)+'/stop',{method:'POST'}).catch(()=>null);if(!r||!r.ok){toast('Could not stop it: '+(r?(await chatRefused(r)).message:'the server did not answer'),false);return}await chatSettle(id);if(CHAT.id===id)chatHint(CHAT_STOPPED_HINT)}
 async function chatCardsNow(id){try{const r=await chatAPI('/'+encodeURIComponent(id));if(!r.ok||CHAT.id!==id)return;const d=await r.json();if(CHAT.id!==id)return;CHAT.handoffs=d.handoffs||[];CHAT.proposals=d.proposals||[];CHAT.dispatch=!!d.dispatch;chatRenderCards()}catch(e){}}
 async function chatLoadFiles(opened=false){const id=CHAT.id,seq=CHAT.authSeq,req=CHAT.openReq;if(!id)return;try{const r=await chatAPI('/'+encodeURIComponent(id)+'/files');if(!r.ok||CHAT.id!==id)return;const d=await r.json();if(CHAT.id!==id||seq!==CHAT.authSeq||req!==CHAT.openReq)return;const previous=new Set(CHAT.files.map(f=>f.path));CHAT.files=d.files||[];chatRenderFiles();chatRenderCards();const files=chatOutputFiles(),arrived=files.some(f=>!previous.has(f.path)),closed=CHAT.canvasClosed.has(id);if(!PHONE.matches&&ROUTE.item==='chat'&&((closed&&arrived)||(!closed&&!CHAT.view&&(opened||arrived)))){if(closed)CHAT.canvasClosed.delete(id);const f=chatLatestWorkerFile(files);if(f)await chatOpenFile(f);else chatCanvas()}}catch(e){}}
 function chatSize(n){return n<1024?n+' B':n<1<<20?(n/1024).toFixed(0)+' KB':(n/(1<<20)).toFixed(1)+' MB'}
@@ -5622,7 +5622,7 @@ function chatSources(t){const out=new Map(),add=(id,extra)=>{const p=chatSourceP
 function chatAnswerTurns(turns){const n=turns.filter(t=>t.kind==='reply').length,at=CHAT.answer===null||CHAT.answer>=n?n-1:CHAT.answer;let i=0;return turns.map(t=>t.kind==='reply'?{...t,answer:i,on:i++===at}:t)}
 function chatHasAnswer(){return !!CHAT.id&&!CHAT.missing&&CHAT.msgs.some(m=>m.role==='assistant')}
 function chatShowSources(i){CHAT.answer=i;CHAT.pane='sources';if(CHAT.id)CHAT.canvasClosed.delete(CHAT.id);for(const n of document.querySelectorAll('#chat-msgs .chat-reply[data-answer]')){const on=n.dataset.answer===String(i);n.classList.toggle('chat-answer-on',on);const b=n.querySelector('.chat-sources-open');if(b)b.setAttribute('aria-pressed',String(on))}chatRenderSources();chatCanvas();if(PHONE.matches)chatCanvasSheet()}
-function chatSourceNode(x){const href=chatSourceHref(x.kind,x.ref),name=x.title||x.ref||x.key,meta=[x.ref&&x.ref!==name?x.ref:'',x.note,!x.read?'cited in the answer, not among what it read':x.cited?'cited in the answer':'',href?'':'no page in the dash'].filter(Boolean).join(' · ');
+function chatSourceNode(x){const href=chatSourceHref(x.kind,x.ref),name=x.title||x.ref||x.key,meta=[x.ref&&x.ref!==name?x.ref:'',x.note,!x.read?'cited in the answer, not among what it read':x.cited?'cited in the answer':'',href?'':'no page in the server'].filter(Boolean).join(' · ');
   return el(href?'a':'div',{class:'chat-source',href:href||null,'data-kind':x.kind,'data-ref':x.ref||null},el('strong',{},(CHAT_SOURCE_KINDS[x.kind]||x.kind)+' · '+name),meta?el('small',{},meta):null)}
 function chatRenderSources(){const box=$('chat-sources'),turns=chatAnswerTurns(chatTurns(CHAT.msgs));let question='',t=null;for(const x of turns){if(x.kind==='user')question=x.text||'';if(x.on){t=x;break}}
   const list=t?chatSources(t):null,key=JSON.stringify([CHAT.id,t&&t.answer,question,list,PHONE.matches]);if(key===box.dataset.key)return;box.dataset.key=key;

@@ -11,7 +11,7 @@ const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<
 const client=(tool,found,connected)=>({tool,found,connected});
 const state=o=>({show:true,reason:'no_repository',later:null,steps:{host:{command:'agentd doctor'},agents:{done:false,clients:[client('claude',true,false),client('codex',true,false),client('opencode',false,false)],command:'agentd connect'},repository:{done:false,repositories:[],command:'agentd repo add DIR --route on'},task:{done:false,handoff:null,budget:'30m',dispatch:true,default_tool:'claude',command:'agentd run "GOAL" --budget 30m'}},...o});
 const doctor={doctor:[{id:'ledger',status:'pass',detail:'ok'},{id:'claude-mcp',status:'fail',detail:'not registered',fix:'agentd connect claude'}],services:[],connect:[{tool:'claude',found:true}],checked_at:now};
-// boot opens the dash at url as user/role; srv is the server's state, changed by the posts.
+// boot opens the server at url as user/role; srv is the server's state, changed by the posts.
 function boot(url,user,role,srv){const requests=[],posts=[],errors=[];
   const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
   const json=(body,status=200)=>({ok:status<400,status,json:async()=>body,text:async()=>JSON.stringify(body)});

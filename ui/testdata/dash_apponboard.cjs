@@ -185,8 +185,8 @@ async function boot(o={}){
  // Every counted item done: the entry goes away by itself.
  t=await boot({state:{...fresh(),closedAt:Date.now()-1000,outcome:'completed',lastCompletedStep:5,notifications:true,defaultAgent:'codex'},session:'alice',notify:'granted',facts:{gh:'connected',task_files:1,clients:[{tool:'codex',found:true,connected:true}],repositories:[{path:'/r/a'},{path:'/r/b'}],first_task:{done:true,handoff:'hof-1',count:1}}});
  assert(!t.shown(t.$('appob-entry')),'the entry stays with the checklist complete');t.w.close();
- // --- the team dash: no onboarding, no read ---
- t=await boot({snap:snapBase});assert(!t.doc.body.classList.contains('app-mode'));assert.equal(t.srv.gets,0,'the team dash reads /api/onboarding');assert(!t.doc.querySelector('#appob-layer .appob-modal'),'the wizard in team mode');t.ok();t.w.close();
+ // --- the team server: no onboarding, no read ---
+ t=await boot({snap:snapBase});assert(!t.doc.body.classList.contains('app-mode'));assert.equal(t.srv.gets,0,'the team server reads /api/onboarding');assert(!t.doc.querySelector('#appob-layer .appob-modal'),'the wizard in team mode');t.ok();t.w.close();
  // Its own CSS region, the reference app's sizes.
  const css=html.match(/region:css-app-onboard[\s\S]*?end:css-app-onboard/);assert(css,'no css-app-onboard region');
  for(const re of [/max-width:1100px/,/max-height:960px/,/font-size:34px/,/rgb\(0 0 0\/\.5\)/,/width:340px/,/width:min\(20rem/,/@media\(max-width:860px\)/])assert(re.test(css[0]),'css: '+re);
