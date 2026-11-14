@@ -7,8 +7,16 @@ const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const now=new Date().toISOString(),errors=[],requests=[],evil='<img src=x onerror=alert(1)>';
 const dash={user:'alice',role:'owner',now,handoff_list:[],handoff_sources:[],handoff_stages:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],done:[],runs:[],host_states:{},counts:{},handoffs:{},checkouts:[]};
 const task={kind:'handoff',ref:'hof-abc123',title:'Rotate the flamingo ledger keys',state:'claimed',snippet:'Rotate the flamingo ledger keys before Friday'};
+const other={kind:'handoff',ref:'hof-def456',title:'Review the flamingo ledger',state:'claimed'};
+const archived={kind:'handoff',ref:'hof-789abc',title:'Archive the flamingo ledger',state:'done',from_user:'alice'};
+const archivedOther={...archived,ref:'hof-789def',title:'Review the archived ledger',from_user:'bob'};
+const unavailable={...archived,ref:'hof-789bad',title:'Unavailable task'};
 const results={
  'hof-abc123':[task],
+ 'app tasks':[task,other],
+ 'archived':[archived],
+ 'archived other':[archivedOther],
+ 'unavailable':[unavailable],
  'flamingo rotate':[{kind:'msg',ref:'msg-1',session:'claude-alice',snippet:'flamingo '+evil},{kind:'run',ref:'run-9',title:'app main',state:'fail',snippet:'flamingo run'},task,{kind:'pr',ref:'acme/repo#7',title:'Rotate keys '+evil,state:'OPEN',snippet:'flamingo pr'},{kind:'issue',ref:'acme/repo#5',title:'Flamingo keys',state:'OPEN',snippet:'flamingo issue'}],
  'nothing':[]};
 let status=200;
@@ -21,7 +29,8 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   if(u.pathname==='/api/auth')return {ok:true,status:204};
   if(u.pathname==='/api/search'){if(status!==200)return {ok:false,status,json:async()=>({}),text:async()=>'this server is public: reads need the token\n'};body={query:u.searchParams.get('q'),results:results[u.searchParams.get('q')]||[]}}
   else if(u.pathname==='/api/dash')body=dash;
-  else if(u.pathname==='/api/issue'||u.pathname==='/api/workitem')body={kind:'handoff',ref:'hof-abc123',title:task.title,body:{goal:task.title},tree:[{id:'hof-abc123',goal:task.title,state:'claimed',focus:true}],prs:[]};
+  else if(u.pathname==='/api/workitem'&&u.searchParams.get('ref')===unavailable.ref)return {ok:false,status:404,text:async()=>'Task unavailable'};
+  else if(u.pathname==='/api/issue'||u.pathname==='/api/workitem'){const hit=[task,other,archived,archivedOther].find(x=>x.ref===u.searchParams.get('ref'))||task;body={kind:'handoff',ref:hit.ref,title:hit.title,body:{goal:hit.title},tree:[{id:hit.ref,goal:hit.title,state:hit.state,from_user:hit.from_user,focus:true}],prs:[]}}
   else if(u.pathname==='/api/issues')body={issues:[]};
   return {ok:true,status:200,json:async()=>body,text:async()=>JSON.stringify(body)}};
 }});
@@ -70,6 +79,39 @@ const selected=()=>d.querySelector('#search-list [aria-selected="true"]');
  status=401;open.click();await type('hof-abc123');assert(/Sign in to search/.test($('search-status').textContent));assert.equal(d.querySelectorAll('#search-list [role="option"]').length,0);status=200;key($('search-input'),'Escape');
  // Ctrl+K does not open over a sheet that is already open.
  w.eval("activeSheet={dialog:null,cancel(){}}");key(d.body,'k',{ctrlKey:true});assert(!box.open,'search opened over a sheet');w.eval('activeSheet=null');
+
+ // App Search must open the real workspace, including a hit outside the current snapshot.
+ dash.mode='app';dash.handoff_list=[
+  {id:task.ref,goal:task.title,state:'claimed',from_user:'alice',mine:true},
+  {id:other.ref,goal:other.title,state:'claimed',from_user:'bob',mine:false}];
+ await w.refresh();await tick();await tick();assert(d.body.classList.contains('app-mode'));
+ const appOpen=d.querySelector('#app-shell [data-app-action="search"]'),shell=$('app-shell'),center=$('app-center');
+ const openApp=async q=>{if(process.env.DASH_UI_PHONE==='1'&&!d.body.classList.contains('app-left-open'))w.appToggle('left');appOpen.click();await type(q)};
+ const workspace=async hit=>{await tick();await tick();assert.equal(center.dataset.ws,hit.ref,'Search did not open the app workspace');assert($('app-tab-body').textContent.includes(hit.title),'Search opened the wrong task');assert(!d.body.classList.contains('app-paged'),'Search left the Tasks page over the workspace');if(process.env.DASH_UI_PHONE==='1')assert(!d.body.classList.contains('app-left-open'),'Search left the phone drawer open')};
+ w.appPage('tasks');await openApp('app tasks');assert.equal(selected().dataset.ref,task.ref);
+ key($('search-input'),'Enter',{isComposing:true});assert(box.open,'IME confirmation opened a result');assert(!center.dataset.ws);
+ const beforeApp=requests.length;
+ key($('search-input'),'Enter');assert(!box.open);await workspace(task);
+ assert.equal(shell.dataset.task,task.ref);assert.equal(d.querySelector('#app-projects [aria-current="true"]').dataset.taskId,task.ref);
+ assert(!shell.hasAttribute('data-readonly'));
+ // Arrows change the highlighted hit; Enter opens that hit with the sidebar's read-only state.
+ await openApp('app tasks');key($('search-input'),'ArrowUp');assert.equal(selected().dataset.ref,other.ref);
+ key($('search-input'),'ArrowDown');assert.equal(selected().dataset.ref,task.ref);
+ key($('search-input'),'ArrowDown');assert.equal(selected().dataset.ref,other.ref);
+ assert.equal($('search-input').getAttribute('aria-activedescendant'),selected().id);
+ key($('search-input'),'Enter');await workspace(other);assert.equal(shell.dataset.task,other.ref);assert(shell.hasAttribute('data-readonly'));
+ // Clicking uses the same activation path, and empty results keep Search open.
+ await openApp('app tasks');selected().click();assert(!box.open);await workspace(task);
+ await openApp('nothing');key($('search-input'),'ArrowDown');key($('search-input'),'ArrowUp');key($('search-input'),'Enter');assert(box.open);assert.equal(center.dataset.ws,task.ref);key($('search-input'),'Escape');
+ w.appPage('tasks');await openApp('archived other');key($('search-input'),'Enter');assert(!box.open);await workspace(archivedOther);
+ assert.equal(shell.dataset.task,archivedOther.ref);assert(shell.hasAttribute('data-readonly'));assert($('app-tab-body').querySelector('.app-ro'));
+ assert(!d.querySelector('#app-projects [aria-current="true"]'),'an unrelated sidebar task stayed selected');
+ w.appPage('tasks');await openApp('archived');key($('search-input'),'Enter');assert(!box.open);await workspace(archived);
+ assert.equal(shell.dataset.task,archived.ref);assert(!shell.hasAttribute('data-readonly'),'an older task kept the previous task’s read-only state');
+ await openApp('unavailable');key($('search-input'),'Enter');await tick();await tick();
+ assert.equal(center.dataset.ws,unavailable.ref);assert(shell.hasAttribute('data-readonly'),'a failed ownership lookup enabled actions');
+ assert($('app-tab-body').querySelector('.app-ro'));assert($('app-tab-body').textContent.includes('The history could not be read: Task unavailable'));
+ assert(!requests.slice(beforeApp).some(r=>r.url.startsWith('/api/issue?')),'app Search opened the hidden team page');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_search ok');process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1)});

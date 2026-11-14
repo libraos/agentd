@@ -4088,7 +4088,17 @@ function searchBuild(){if(SEARCH.box)return SEARCH.box;
 function searchOpenBox(){if(activeSheet)return;const box=searchBuild();if(box.open){SEARCH.input.focus();SEARCH.input.select();return}SEARCH.opener=document.activeElement;box.showModal();SEARCH.input.focus();SEARCH.input.select()}
 function searchClose(back=true){const box=SEARCH.box;if(!box||!box.open)return;clearTimeout(SEARCH.timer);SEARCH.request++;box.close();if(back)focusBack(SEARCH.opener&&SEARCH.opener.isConnected?SEARCH.opener:$('search-open'));SEARCH.opener=null}
 function searchMark(i){SEARCH.at=i;SEARCH.items.forEach((x,j)=>x.node.setAttribute('aria-selected',String(j===i)));const x=SEARCH.items[i];if(x){SEARCH.input.setAttribute('aria-activedescendant',x.node.id);x.node.scrollIntoView({block:'nearest'})}else SEARCH.input.removeAttribute('aria-activedescendant')}
-function searchOpen(x){searchClose(false);if(x.kind==='msg'||x.kind==='compaction'){if(x.session)showHistory(x.session,'');return}const href=searchHref(x);if(href)location.hash=href}
+function searchOpen(x){searchClose(false);
+  if(APP.on&&x.kind==='handoff'){searchAppTask(x.ref);return}
+  if(x.kind==='msg'||x.kind==='compaction'){if(x.session)showHistory(x.session,'');return}const href=searchHref(x);if(href)location.hash=href}
+function searchAppTask(id){if(APPS.model&&APPS.model.byId.has(id)){appTaskOpen(id);return}
+  // Search also finds older tasks outside the sidebar's current snapshot.
+  appPage('');APP.task=id;$('app-shell').dataset.task=id;
+  for(const n of document.querySelectorAll('#app-projects [aria-current]'))n.removeAttribute('aria-current');
+  appReadOnly({mine:false});appSelect(id,true);
+  if(PHONE.matches&&APP.drawer==='left'){APP.drawer='';appSides()}
+  awLogLoad(id).then(c=>{if(!APP.on||APP.task!==id)return;const h=c.data&&(c.data.tree||[]).find(h=>h.id===id);if(!h)return;
+    const mine=!awTheirs(h);appReadOnly({mine});appSelect(id,!mine)})}
 async function searchRun(){const q=SEARCH.input.value.trim(),request=++SEARCH.request;
   if(!q){SEARCH.items=[];SEARCH.list.replaceChildren();SEARCH.status.textContent='';SEARCH.input.setAttribute('aria-expanded','false');searchMark(-1);return}
   SEARCH.status.textContent='Searching…';
