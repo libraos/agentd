@@ -34,6 +34,10 @@ const bars=()=>[...head.querySelectorAll('meta[name="theme-color"]')].map(m=>[(m
  assert.equal(one('link[rel="manifest"]').getAttribute('href'),'/manifest.webmanifest');
  assert.equal(one('link[rel="apple-touch-icon"]').getAttribute('href'),'/icons/apple-touch-icon.png');
  assert(one('link[rel="icon"]').getAttribute('href').startsWith('data:image/svg+xml'),'the tab icon changed');
+ // The AgentD mark: a blue ring and a gold stem, on the tab and in the rail; no trace of the old 'a' tile.
+ {const href=decodeURIComponent(one('link[rel="icon"]').getAttribute('href'));assert(/stroke='url\(#b\)'/.test(href)&&/#D3A036/.test(href)&&/<rect x='147.5'/.test(href),'the tab icon is not the AgentD mark');assert(!/0a66d6|M9 22V13/.test(href),'the tab icon still has the old mark');
+  const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'17 14 170 170',what);assert(s.querySelector('path[stroke^="url(#"]')&&s.querySelector('rect[fill^="url(#"]'),what+': not the ring and stem');for(const ref of [...s.querySelectorAll('[stroke^="url(#"],[fill^="url(#"]')].map(n=>(n.getAttribute('stroke')||n.getAttribute('fill')).slice(5,-1)))assert.equal(d.querySelectorAll('[id="'+ref+'"]').length,1,what+': gradient '+ref+' is not one of a kind')};
+  isMark(d.querySelector('.rail-mark'),'the rail');isMark(d.querySelector('.app-logo'),'the app header')}
  // Its own window, with its own name, on Android, iOS and desktop.
  for(const [name,want] of [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-title','agentd'],['application-name','agentd'],['apple-mobile-web-app-status-bar-style','default']])
   assert.equal(one('meta[name="'+name+'"]').content,want,name);
