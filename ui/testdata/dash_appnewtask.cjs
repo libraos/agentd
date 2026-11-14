@@ -1,4 +1,4 @@
-// libraos/agentd-core#564: New task in the personal app, Orca's "Create worktree" dialog.
+// libraos/agentd-core#564: New task in the personal app, the reference app's "Create worktree" dialog.
 // One goal box; below it repository (default: the selected one), agent (default: the
 // checkout's task file, else config's default_tool) and budget (default 30m);
 // acceptance criteria, check and issue under Advanced. The dialog shows the
@@ -108,7 +108,7 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  snap=app({role:'viewer'});await w.refresh();await settle();newBtn().click();await settle();
  assert(dlg().querySelector('.appnt-create').disabled,'a viewer can press Create');assert(/read-only/i.test(dlg().querySelector('.appnt-why').textContent),'no reason shown');
  key('Escape',{},dlg());await tick();
- // Orca's dialog values and its own CSS region.
+ // The reference app's dialog values and its own CSS region.
  assert(/region:css-app-newtask/.test(css),'no css-app-newtask region');
  for(const re of [/\.appnt\{[^}]*max-width:512px/,/\.appnt\{[^}]*padding:24px/,/\.appnt\{[^}]*border-radius:10px/,/\.appnt::backdrop\{background:rgb\(0 0 0\/\.55\)\}/,/\.appnt-title\{[^}]*font-size:16px[^}]*font-weight:600/,/\.appnt-label\{font-size:12px;font-weight:500/,/\.appnt-body\{[^}]*gap:16px/])assert(re.test(css),'css: '+re);
  // The team dash coming back closes an open dialog with the frame.

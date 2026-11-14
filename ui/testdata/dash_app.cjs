@@ -1,5 +1,5 @@
 // #561: the dash page's personal mode. When /api/dash says mode "app" (agentd app,
-// libraos/agentd-core#560) the page draws Orca's frame instead of the team dash: a
+// libraos/agentd-core#560) the page draws the reference app's frame instead of the team dash: a
 // left sidebar, a centre with an editor-style tab strip, a right sidebar with icon
 // tabs, and a status bar (watchdog, running, waiting, today's spend). No rail and
 // no team page shows. The regions are empty mount points the later issues fill.
@@ -49,7 +49,7 @@ const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
  assert.equal(left.querySelector('[data-app-action="bell"] .app-count').textContent,'1','the bell counts the tasks waiting on you');
  // Centre: the tab strip with its + and Command at the right end.
  assert(center.querySelector('.app-tabstrip [data-app-action="new-tab"]')&&/Command/.test(center.querySelector('.app-tabstrip [data-app-action="command"]').textContent),'the tab strip has no + or Command');
- // Right sidebar: icon tabs at the top in Orca's order (Explorer, Agents, Source Control, Checks) as Files, Details, Changes, Checks.
+ // Right sidebar: icon tabs at the top in the reference app's order (Explorer, Agents, Source Control, Checks) as Files, Details, Changes, Checks.
  const tabs=[...right.querySelectorAll('[role=tab]')];
  assert.deepEqual(tabs.map(t=>t.dataset.appPanel),['files','details','changes','checks'],'right sidebar tabs');
  assert.deepEqual(tabs.map(t=>t.getAttribute('aria-label')),['Files','Details','Changes','Checks']);
@@ -83,7 +83,7 @@ const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
   key('Escape');await tick();assert(!open('right'),'Escape does not close the drawer');
   shell.querySelector('[data-app-action="toggle-left"]').click();await tick();$('app-scrim').click();await tick();assert(!open('left'),'the scrim does not close the drawer');
  }
- // Orca's sizes and its own CSS region.
+ // The reference app's sizes and its own CSS region.
  assert(/region:css-app/.test(css),'no css-app region');
  for(const re of [/--app-left-w:280px/,/--app-right-w:350px/,/\.app-status\{[^}]*height:24px/,/\.app-tabstrip\{[^}]*height:32px/,/\.app-dragstrip\{[^}]*height:4px/,/\.app-rtabs\{[^}]*height:40px/,/'Geist'/,/@media\(max-width:860px\)\{[^@]*\.app-left\{/])assert(re.test(css),'css: '+re);
  // Back to the team dash: the frame goes, the team shell is back as it was.

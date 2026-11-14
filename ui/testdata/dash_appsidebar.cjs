@@ -1,5 +1,5 @@
 // libraos/agentd-core#563: the app's left sidebar. In app mode (/api/dash mode "app") my tasks
-// are listed by repository, each as Orca's worktree card (status dot, title, branch, spend);
+// are listed by repository, each as the reference app's worktree card (status dot, title, branch, spend);
 // others' tasks are in their own read-only group (the server's mine on each task); the bell
 // counts my tasks waiting on me and toggles the list to them; Tasks is every task as a table over
 // the centre and Triggers is read only; ArrowUp/ArrowDown, Enter and N work in the sidebar.
@@ -63,7 +63,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  // Others' rows say whose they are, and read only.
  const b1=row('hof-b1');assert(b1.hasAttribute('data-readonly')&&/bob · agentd\/hof-b1/.test(b1.textContent)&&/Read only/.test(b1.textContent),'others row: '+b1.textContent);
  assert(!w1.hasAttribute('data-readonly')&&!/Read only/.test(w1.textContent),'my row reads as read only');
- // Status dots, one per state, as Orca's: working, needs you (with its question mark), failed, waiting, not started, done.
+ // Status dots, one per state, as the reference app's: working, needs you (with its question mark), failed, waiting, not started, done.
  const dot=id=>row(id).querySelector('.app-dot');
  for(const [id,d] of [['hof-w1','working'],['hof-n1','needs_you'],['hof-f1','failed'],['hof-q1','waiting'],['hof-o1','idle'],['hof-d1','done'],['hof-b1','working']])assert.equal(dot(id).dataset.dot,d,id+' dot');
  assert.equal(dot('hof-n1').textContent,'?');assert.equal(dot('hof-w1').getAttribute('aria-label'),'Working');

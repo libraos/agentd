@@ -721,8 +721,8 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 @media(max-width:860px),(pointer:coarse){button.primary,#chat-input,.skip,.chat-icon{min-height:44px;min-width:44px}.skip,aside.side a,.textpage a,.props a,.tm-props a,.tm-head a,.drawer-meta a,.ifields a,.filter-note a{display:inline-flex;align-items:center;min-height:44px;min-width:44px}.chat-ref{min-height:44px;min-width:44px}}
 #chat-voice-cancel,.chat-box #chat-voice{min-width:44px;min-height:44px}#chat-voice[aria-pressed="true"]{color:var(--red);border-color:var(--red)}.chat-voice-status{max-width:720px;margin:4px auto;display:flex;align-items:center;gap:8px;font-size:var(--fs-s)}.chat-voice-status[hidden]{display:none}#chat-voice-error{max-width:720px;margin:4px auto;color:var(--red)}
 /* region:css-app: the personal app's frame (#561), drawn only in app mode (body.app-mode, /api/dash mode "app").
-   Orca's layout and tokens, unchanged (briefs/personal-app-orca/SPEC.md §1 frame, §2 left sidebar, §3.1 tab strip,
-   §4 right sidebar, §5 status bar, §6 tokens). The team dash's styles are not touched. Orca is MIT (stablyai/orca). */
+   The reference app's layout and tokens, unchanged (SPEC.md §1 frame, §2 left sidebar, §3.1 tab strip,
+   §4 right sidebar, §5 status bar, §6 tokens). The team dash's styles are not touched. */
 .app-shell{--app-left-w:280px;--app-right-w:350px;
   --o-bg:#fff;--o-fg:#0a0a0a;--o-card:#fff;--o-muted:#f5f5f5;--o-mfg:#696969;--o-accent:#f5f5f5;--o-border:#e5e5e5;--o-ring:#a1a1a1;--o-primary:#171717;--o-primary-fg:#fafafa;
   --o-sidebar:#fafafa;--o-wsb:#f5f5f5;--o-wsb-fg:#0a0a0a;--o-wsb-accent:#eaeaea;--o-tab-active:var(--o-card);--o-tab-inactive:color-mix(in srgb,var(--o-fg) 4%,var(--o-card));
@@ -793,9 +793,9 @@ body:not(.app-right-open) .app-right{display:none}
 @media(max-width:860px){.app-left{position:fixed;top:0;bottom:24px;left:0;z-index:30;width:min(85vw,var(--app-left-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-right{position:fixed;top:0;bottom:24px;right:0;z-index:30;width:min(90vw,var(--app-right-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-shell .app-ibtn,.app-shell .app-sidetoggle,.app-shell .app-rtab{min-width:44px;min-height:44px}.app-tabstrip{height:44px}.app-status{gap:8px;padding:0 8px}}
 /* end:css-app */
 /* region:css-app-sidebar: the app's left sidebar list (libraos/agentd-core#563): repositories as folder rows, each task
-   under its repository as Orca draws a worktree card, others' tasks in their own read-only group, the bell's Needs you
-   list, and the Tasks and Triggers views in the centre. Orca's values (briefs/personal-app-orca/SPEC.md §2.3-§2.5);
-   Orca is MIT (stablyai/orca). Nothing outside #app-shell is styled here. */
+   under its repository as the reference app draws a worktree card, others' tasks in their own read-only group, the bell's Needs you
+   list, and the Tasks and Triggers views in the centre. The reference app's values (SPEC.md §2.3-§2.5);
+   Nothing outside #app-shell is styled here. */
 .app-projects{display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
 .app-repo{position:sticky;top:-1px;z-index:2;display:flex;align-items:center;gap:6px;height:28px;flex:none;width:100%;padding:0 8px 0 10px;border:0;border-radius:0;background:var(--o-wsb);color:var(--o-wsb-fg);text-align:left;font-size:13px;font-weight:600;line-height:16px;--app-hover:var(--o-wsb)}
 .app-repo>svg{color:var(--o-mfg)}.app-repo .app-rname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -828,7 +828,7 @@ body:not(.app-right-open) .app-right{display:none}
 .app-left{position:relative}
 /* another person's task is open: the frame's write controls go (theirs to act on); a control marked data-app-write by the issues that add one goes too */
 #app-shell[data-readonly] [data-app-write],#app-shell[data-readonly] .app-tabstrip [data-app-action="new-tab"],#app-shell[data-readonly] .app-tabstrip [data-app-action="command"]{display:none}
-/* Tasks and Triggers open over the centre, as Orca's pages do */
+/* Tasks and Triggers open over the centre, as the reference app's pages do */
 body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody{display:none}
 .app-page{flex:1;min-height:0;overflow:auto;padding:16px 32px 32px;background:var(--o-bg)}
 .app-phead{display:flex;align-items:center;gap:8px;height:36px;margin-bottom:12px}
@@ -846,8 +846,8 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
 @media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
 /* end:css-app-sidebar */
-/* region:css-app-newtask: New task in the personal app (libraos/agentd-core#564), Orca's "Create worktree" dialog
-   (NewWorkspaceComposerModal + shadcn Dialog, Orca 1.4.257, MIT): sm:max-w-lg 512px, p-6, rounded-lg 10px, border black/14
+/* region:css-app-newtask: New task in the personal app (libraos/agentd-core#564), the reference app's "Create worktree" dialog
+   (NewWorkspaceComposerModal + shadcn Dialog, MIT): sm:max-w-lg 512px, p-6, rounded-lg 10px, border black/14
    (white/14 dark), shadow 0 20px 60px rgba(0,0,0,.28), overlay black/55, dialog surface; title text-base 600; fields
    space-y-4 with text-xs 500 muted labels; inputs rounded-md, border --input, px-3 py-1.5, text-sm; Advanced a ghost
    text-xs button; the primary Create at the right of the foot. Tokens are css-app's (--o-*), set on .app-shell. */
@@ -891,7 +891,7 @@ select.appnt-input{height:34px;padding-right:28px}
 .appnt-kbd{padding:0 4px;border:1px solid color-mix(in srgb,var(--o-primary-fg) 30%,transparent);border-radius:4px;font:500 10px/14px 'Geist',Inter,sans-serif;opacity:.8}
 @media(max-width:860px){.appnt{padding:20px 16px;max-height:calc(100dvh - 2rem)}.app-shell .appnt-chip,.app-shell .appnt-advbtn,.app-shell .appnt-create,.appnt-x{min-height:44px}.appnt-x{min-width:44px;top:8px;right:8px}.appnt-input{font-size:16px}}
 /* end:css-app-newtask */
-/* region:css-app-onboard: the personal app's first run (#569), Orca's onboarding unchanged (SPEC.md §7.2 modal shell, §7.3 steps,
+/* region:css-app-onboard: the personal app's first run (#569), the reference app's onboarding unchanged (SPEC.md §7.2 modal shell, §7.3 steps,
    §7.4 toast, §7.5 checklist, §2.7 sidebar entry, §7.6 coach marks). Uses css-app's tokens; drawn only inside #app-shell. */
 .appob-back{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;background:rgb(0 0 0/.5);box-sizing:border-box}
 .appob-back.appob-dim{z-index:110;background:rgb(0 0 0/.35)}
@@ -1010,8 +1010,8 @@ select.appnt-input{height:34px;padding-right:28px}
 /* end:css-app-onboard */
 /* region:css-app-workspace: the app's task workspace (libraos/agentd-core#565): the centre's editor tabs (Session,
    Terminal N, Log, file and diff tabs, + and Command) and the right sidebar's panels (Files, Details, Changes, Checks).
-   Orca's values (briefs/personal-app-orca/SPEC.md §3.1 tab strip, §3.2 terminal, §3.3 diff header, §4.1 Explorer,
-   §4.2 Source Control); Orca is MIT (stablyai/orca). Nothing outside #app-shell is styled here. */
+   The reference app's values (SPEC.md §3.1 tab strip, §3.2 terminal, §3.3 diff header, §4.1 Explorer,
+   §4.2 Source Control). Nothing outside #app-shell is styled here. */
 .app-shell{--o-mod:#895503;--o-add:#587c0c;--o-del:#ad0707;--o-unt:#007100;--o-ren:#007acc;--o-term-bg:#fff;--o-term-fg:#2e3434;--o-editor:#fff;--o-mono:'SF Mono',SFMono-Regular,ui-monospace,'DejaVu Sans Mono','Cascadia Code',Menlo,Consolas,'Liberation Mono',monospace}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .app-shell{--o-mod:#e2c08d;--o-add:#81b88b;--o-del:#c74e39;--o-unt:#73c991;--o-ren:#73c991;--o-term-bg:#282c34;--o-term-fg:#fff;--o-editor:#1e1e1e}}
 :root[data-theme="dark"] .app-shell{--o-mod:#e2c08d;--o-add:#81b88b;--o-del:#c74e39;--o-unt:#73c991;--o-ren:#73c991;--o-term-bg:#282c34;--o-term-fg:#fff;--o-editor:#1e1e1e}
@@ -1027,7 +1027,7 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-tclose{flex:none;display:grid;place-items:center;width:16px;height:16px;padding:0;border:0;border-radius:6px;background:none;color:transparent;--app-hover:var(--o-muted)}
 .app-tab:hover .app-tclose,.app-tab[aria-selected="true"] .app-tclose{color:var(--o-mfg)}.app-tclose:hover{color:var(--o-fg)!important}
 .app-center[data-ws] .app-newtab,.app-center[data-ws] .app-command{cursor:pointer}
-/* menus: + (Orca's new tab menu) and Command (the open task's actions, each with its command) */
+/* menus: + (the reference app's new tab menu) and Command (the open task's actions, each with its command) */
 .app-menu{position:fixed;z-index:45;width:288px;max-height:min(70vh,520px);overflow:auto;padding:4px;border:1px solid color-mix(in srgb,var(--o-border) 80%,transparent);border-radius:11px;background:var(--o-card);color:var(--o-fg);box-shadow:0 16px 36px rgba(0,0,0,.24);font-size:12px}
 .app-menu[data-menu="command"]{width:340px}
 .app-mitem{display:flex;width:100%;align-items:flex-start;gap:8px;padding:6px 8px;border:0;border-radius:7px;background:none;color:var(--o-fg);text-align:left;font-size:12px;line-height:20px;font-weight:500;--app-hover:var(--o-accent)}
@@ -1096,8 +1096,8 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-rpanel .checks-cmd{display:block;margin-bottom:6px;font:11px var(--o-mono);overflow-wrap:anywhere}.app-rpanel .check-noev{color:var(--o-question-text);font-weight:600}
 @media(max-width:860px){.app-tabs>.app-tab[data-kind="term"]{width:auto;min-width:120px}.app-tabs>.app-tab{min-width:112px}.app-tclose{width:28px;height:28px;color:var(--o-mfg)}.app-frow,.app-crow{min-height:40px}.app-menu{left:8px!important;right:8px;width:auto!important}}
 /* end:css-app-workspace */
-/* region:css-app-keys: the personal app's keyboard shortcuts overlay (libraos/agentd-core#566): Orca's groups and
-   keycaps (briefs/personal-app-orca/SPEC.md §2 shortcut keycap, §8), on the shared sheet; one column on a phone. */
+/* region:css-app-keys: the personal app's keyboard shortcuts overlay (libraos/agentd-core#566): the reference app's groups and
+   keycaps (SPEC.md §2 shortcut keycap, §8), on the shared sheet; one column on a phone. */
 #app-keys-sheet .app-keys{display:grid;gap:14px}
 #app-keys-sheet .app-keys h3{margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}
 #app-keys-sheet .app-keys-note{margin:0;color:var(--mute);font-size:12px;line-height:1.45}
@@ -1340,7 +1340,7 @@ select.appnt-input{height:34px;padding-right:28px}
 </div>
 </div>
 <!-- region:app-shell: the personal app's frame (#561), shown instead of the team dash when /api/dash says mode "app".
-     Orca's regions: left sidebar, centre tab strip, right sidebar with icon tabs, status bar. Each data-region is a
+     The reference app's regions: left sidebar, centre tab strip, right sidebar with icon tabs, status bar. Each data-region is a
      mount point the later issues fill: projects (#563, tasks by repository), tabs and tab-body (#565, Session /
      Terminal / Log), right-panel (#566, Files / Changes / Checks / Details); region:app in the script draws the frame. -->
 <div class="app-shell" id="app-shell" hidden>
@@ -1350,7 +1350,7 @@ select.appnt-input{height:34px;padding-right:28px}
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
     <!-- region:app-nav: Tasks (every task as a table) and Triggers (read only) open in the centre; wired by the issues that build them -->
-    <!-- region:app-onboard-entry: Orca's "Onboarding checklist" row (#569), first in the nav; drawn by region:app-onboard -->
+    <!-- region:app-onboard-entry: the reference app's "Onboarding checklist" row (#569), first in the nav; drawn by region:app-onboard -->
     <div id="appob-entry" data-region="onboard-entry" hidden></div>
     <button type="button" class="app-navrow" data-app-nav="tasks" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13"/></svg>Tasks</button>
     <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers<span class="app-navnote">Read only</span></button>
@@ -4350,12 +4350,12 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
 // region:app: the personal app's frame (#561). When /api/dash says mode "app" (agentd app,
 // libraos/agentd-core#560), render() hands the snapshot here instead of the team pages:
 // the team shell (rail, Agents list, panel, top bar, pages) is hidden, not removed, and
-// #app-shell (region:app-shell) shows Orca's frame. Its regions are mount points
+// #app-shell (region:app-shell) shows the reference app's frame. Its regions are mount points
 // (data-region) for the issues that fill them; this region draws the frame itself:
 //   sidebars  open by default on a desktop, Ctrl/Cmd+B and Ctrl/Cmd+L or the toggles
 //             hide them (kept in localStorage dash-app-sidebars); on a phone both are
 //             drawers over the centre, one at a time, closed until asked
-//   right tabs Files, Details, Changes, Checks (Orca's Explorer, Agents, Source
+//   right tabs Files, Details, Changes, Checks (the reference app's Explorer, Agents, Source
 //             Control, Checks), one panel each
 //   status bar whether a watchdog runs (the server's watchdog field; not running, it
 //             opens the command that starts one), running and waiting counts (the
@@ -4404,17 +4404,17 @@ appPanel(APP.panel);
 // end:app
 // region:app-sidebar: the app's left sidebar (libraos/agentd-core#563). It fills region:app-projects
 // and wires the nav (Tasks, Triggers), the Projects header (bell, add a repository, new task) and
-// the sidebar's keys. Orca's layout (briefs/personal-app-orca/SPEC.md §2):
+// the sidebar's keys. The reference app's layout (SPEC.md §2):
 //   Projects  my tasks by repository: a folder row per repository (click folds it; kept in
-//             localStorage dash-app-collapsed), each task under it as Orca draws a worktree card:
+//             localStorage dash-app-collapsed), each task under it as the reference app draws a worktree card:
 //             a status dot, the title, the worker's branch on a second line, and the spend
 //   Other people's  others' tasks in their own group, read only. Which are mine is the server's
 //             word (/api/dash's mine on each task in app mode: the handoff's sender user); a task
 //             without it (an older server) counts as mine
 //   bell      how many of my tasks wait on me (the status bar's own count, read from my tasks
-//             only); it toggles the list between Projects and Needs you, as Orca's bell toggles
+//             only); it toggles the list between Projects and Needs you, as the reference app's bell toggles
 //             its list
-//   Tasks     every task as a table over the centre (Orca's Tasks page); Triggers, read only:
+//   Tasks     every task as a table over the centre (the reference app's Tasks page); Triggers, read only:
 //             they are set from a terminal, so the view gives the commands
 //   keys      ArrowDown and ArrowUp move between tasks while the sidebar has the focus, Enter
 //             opens one (the row is a button), N is New task (it clicks the header's + button)
@@ -4469,7 +4469,7 @@ function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)retur
   for(const n of document.querySelectorAll('#app-projects .app-task'))if(n.dataset.taskId===id)n.setAttribute('aria-current','true');else n.removeAttribute('aria-current');
   $('app-shell').dataset.task=id;appReadOnly(r);if(PHONE.matches&&APP.drawer==='left'){APP.drawer='';appSides()}
   document.dispatchEvent(new CustomEvent('app-task',{detail:{id,mine:r.mine,readOnly:!r.mine,task:r.h}}))}
-// Tasks and Triggers: a page over the centre, as Orca's pages are; '' puts the workspace back.
+// Tasks and Triggers: a page over the centre, as the reference app's pages are; '' puts the workspace back.
 function appPage(name){APPS.page=name;let p=$('app-page');
   for(const n of document.querySelectorAll('#app-shell [data-app-nav]'))if(n.dataset.appNav===name)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');
   document.body.classList.toggle('app-paged',!!name);if(!name){if(p)p.hidden=true;return}
@@ -4516,7 +4516,7 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKe
   const i=rows.indexOf(t),cur=i<0?rows.findIndex(n=>n.dataset.taskId===APP.task):i,n=cur<0?(e.key==='ArrowDown'?0:rows.length-1):Math.min(rows.length-1,Math.max(0,cur+(e.key==='ArrowDown'?1:-1)));
   e.preventDefault();e.stopPropagation();rows[n].focus();if(rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'})},true);
 // end:app-sidebar
-// region:app-newtask: New task in the personal app (libraos/agentd-core#564), Orca's
+// region:app-newtask: New task in the personal app (libraos/agentd-core#564), the reference app's
 // "Create worktree" dialog (NewWorkspaceComposerModal): one goal box; below it the
 // repository (default: the selected one, APP.repo, else the first checkout), the
 // agent (default: the checkout's .agentd/tasks.toml worker, else config's
@@ -4533,7 +4533,7 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKe
 // called when a region defines it, and an "app:select" event goes to the document
 // ({handoff, repo}), for the task list (#563) and the workspace (#565) to follow.
 // Opened by the + in the Projects header, n (region:keys, through ntOpen) and
-// Ctrl/Cmd+Enter submits, as Orca's does; Escape or the X closes it.
+// Ctrl/Cmd+Enter submits, as the reference app's does; Escape or the X closes it.
 const APPNT={dlg:null,ui:null,nt:null,busy:false,key:'',opener:null,touched:{},asked:''};
 function appShq(v){v=String(v);return /^[A-Za-z0-9_@%+=:,.\/#-]+$/.test(v)?v:"'"+v.replace(/'/g,"'\\''")+"'"}
 // appNewTaskLine is the agentd new command the dialog's request equals.
@@ -4552,7 +4552,7 @@ function appNewTaskBuild(){const d=lastDash||{},dirs=d.checkouts||[],ui={inputs:
     return el('div',{class:'appnt-field appnt-'+name},el('div',{class:'appnt-labelrow'},el('label',{for:id,class:'appnt-label'},label),opt&&opt.extra||null),input,opt&&opt.hint?el('div',{class:'appnt-hint',id:id+'-hint'},opt.hint):null,err)};
   const goal=el('textarea',{rows:3,maxlength:2000,placeholder:'What should the agent do? Describe the change.','aria-required':'true',autocomplete:'off',class:'appnt-input'});
   const repo=el('select',{class:'appnt-input'},dirs.length?dirs.map(x=>el('option',{value:x,title:x},appRepoName(x,dirs))):[el('option',{value:''},'No repository known yet: agentd repo add')]);repo.value=appNewTaskRepo(d);
-  // The agent is a hidden input behind Orca's agent chips (role radio).
+  // The agent is a hidden input behind the reference app's agent chips (role radio).
   const tool=el('input',{type:'hidden',value:d.default_tool||'claude'}),chips=el('div',{class:'appnt-chips',role:'radiogroup','aria-labelledby':'appnt-tool-label'});
   const drawChips=()=>chips.replaceChildren(...APP_AGENTS.map(([v,label])=>el('button',{type:'button',role:'radio',class:'appnt-chip','data-agent':v,'aria-checked':String(tool.value===v),tabindex:tool.value===v?'0':'-1',onclick:()=>{tool.value=v;APPNT.touched.tool=true;drawChips();appNewTaskShow();chips.querySelector('[aria-checked="true"]').focus()}},label)));
   chips.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key))return;e.preventDefault();const i=APP_AGENTS.findIndex(a=>a[0]===tool.value),n=(i+(e.key==='ArrowRight'||e.key==='ArrowDown'?1:-1)+APP_AGENTS.length)%APP_AGENTS.length;chips.children[n].click()});
@@ -4622,21 +4622,21 @@ async function appNewTaskSend(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui||APPNT.busy
 $('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action="new-task"]');if(t){e.preventDefault();appNewTask()}});
 // end:app-newtask
 // region:app-onboard: the personal app's first run (libraos/agentd-core#569), the same as
-// Orca's (briefs/personal-app-orca/SPEC.md section 7). GET /api/onboarding is this person's
-// state (Orca's shape: closedAt, outcome, lastCompletedStep, checklist) and the facts each
+// The reference app's (SPEC.md section 7). GET /api/onboarding is this person's
+// state (the reference app's shape: closedAt, outcome, lastCompletedStep, checklist) and the facts each
 // step's agentd command changes; POST saves the state. Drawn into #appob-layer and #appob-entry
 // (region:app-shell) only in app mode; appShell calls appOnboard on each app render.
-//   wizard     shown while closedAt is null: Orca's steps in Orca's order (agent_surface,
+//   wizard     shown while closedAt is null: the reference app's steps in its order (agent_surface,
 //              agent, theme, integrations unless gh is installed, windows_terminal on a
 //              Windows host only, notifications), "N of M", Back, Continue (Ctrl/Cmd+Enter),
 //              Set up later, and Esc or the backdrop asks "Skip onboarding?". Each Continue
 //              saves lastCompletedStep; a reopened wizard resumes at the first page past it.
 //              Each step shows the agentd command it stands for; nothing here runs one.
 //   checklist  "Onboarding checklist" in the sidebar (progress ring, Hide) in the session the
-//              wizard closed, opening "Getting started": Orca's eight items, each read from the
-//              facts, with its command; Orca's browser milestone has no agentd equivalent and
+//              wizard closed, opening "Getting started": the reference app's eight items, each read from the
+//              facts, with its command; the reference app's browser milestone has no agentd equivalent and
 //              keeps its place uncounted
-//   tours      Orca's coach marks, once each, for a person who saw the wizard at first load,
+//   tours      the reference app's coach marks, once each, for a person who saw the wizard at first load,
 //              never while a dialog is open; a step counts only when its target is on screen
 //   toast      "Onboarding completed!" once; Help > Onboarding reopens, Help > Milestones
 //              opens the checklist
@@ -4652,7 +4652,7 @@ const OB_AGENTS={claude:'Claude',codex:'Codex',opencode:'opencode'};
 const OB_SOUNDS=[['system','System Default'],['two-tone','Two Tone'],['bong','Bong'],['thump','Thump'],['blip','Blip'],['sonar','Sonar'],['blop','Blop'],['ding','Ding'],['clack','Clack'],['beep','Beep']];
 function obRepos(){return (OB.facts.repositories||[]).length}
 function obClients(){return OB.facts.clients||[]}
-// Orca's eight checklist items (setup-guide), each with agentd's completion and command.
+// The reference app's eight checklist items (setup-guide), each with agentd's completion and command.
 const OB_ITEMS=[
   {id:'notifications',sec:'Setup',title:'Turn on notifications',desc:'Know the moment a task finishes, needs you, or gets blocked.',done:()=>!!OB.st.notifications&&notifyOn(),cmd:()=>'Browser notifications for this page',act:['Turn on',()=>{obNotifyOn();obSave({notifications:true})}]},
   {id:'default-agent',sec:'Setup',title:'Choose your default agent',desc:'Start new work faster with your preferred agent already selected.',done:()=>OB.st.defaultAgent!=null,cmd:()=>'agentd connect '+(OB.st.defaultAgent&&OB.st.defaultAgent!=='blank'?OB.st.defaultAgent:'TOOL'),act:['Choose',()=>{OB.guide=false;obOpen('agent',true)}]},
@@ -4661,9 +4661,9 @@ const OB_ITEMS=[
   {id:'setup-script',sec:'Setup',title:'Automate workspace setup',desc:'Commit .agentd/tasks.toml so every new task in a repository starts with its check, agent and budget.',done:()=>(OB.facts.task_files||0)>0,cmd:()=>'.agentd/tasks.toml  (docs/task-file.md)'},
   {id:'add-two-repos',sec:'Setup',title:'Start work in multiple repos',desc:'Bring your key repos into agentd so you can start agent work without hunting for folders.',done:()=>obRepos()>=2,cmd:()=>'agentd repo add DIR'},
   {id:'two-worktrees',sec:'Milestones',title:'Work on two tasks at once',desc:'Each task runs in its own worktree on its own branch (even in the same repository). Perfect for working on two features at once.',done:()=>!!(OB.facts.first_task&&OB.facts.first_task.done),cmd:()=>'agentd new "GOAL" --cwd DIR'},
-  {id:'browser',sec:'Milestones',title:'Use a built-in browser',desc:'Orca has a browser inside the app; agentd has none, so this milestone keeps its place and is not counted.',na:true}];
+  {id:'browser',sec:'Milestones',title:'Use a built-in browser',desc:'Desktop coding apps have a browser inside the app; agentd has none, so this milestone keeps its place and is not counted.',na:true}];
 function obProgress(){const xs=OB_ITEMS.filter(i=>!i.na);return {done:xs.filter(i=>i.done()).length,total:xs.length}}
-// Orca's coach-mark tours. A target is a selector; one that is not on screen is left out of "N of M".
+// The reference app's coach-mark tours. A target is a selector; one that is not on screen is left out of "N of M".
 const OB_TOURS=[
   {id:'workspace-agent-sessions',when:()=>!!document.querySelector('#app-tabs [role=tab][aria-selected="true"]'),steps:[
     {target:'[data-app-action="new-tab"]',place:'below',title:'New agents start here',body:'Click + to open a terminal or another tab on this task.'},
@@ -4708,7 +4708,7 @@ function obContinue(){const s=obStep();if(!s)return;const n=Math.max(OB.st.lastC
   else if(s.id!=='agent_surface')p.lastCompletedStep=n;// agent_surface shares step 1 with the agent page and saves nothing alone
   if(OB.only||OB.page>=OB.steps.length-1){obFinish(p,'completed');return}
   if(Object.keys(p).length)obSave(p);OB.page++;obDraw();const b=document.querySelector('#appob-layer [data-ob="continue"]');if(b)b.focus()}
-// Set up later: the page's visible choice is kept (the theme page's goes back, as in Orca), then closed as completed.
+// Set up later: the page's visible choice is kept (the theme page's goes back, as in the reference app), then closed as completed.
 function obLater(){const s=obStep(),d=OB.draft,p={};
   if(s.id==='agent_surface'||s.id==='agent')p.surface=d.surface;
   if(s.id==='agent')Object.assign(p,{defaultAgent:d.agent||'blank',checklist:{choseAgent:true}});
@@ -4721,7 +4721,7 @@ function obFinish(p,outcome){const only=OB.only;OB.page=-1;OB.confirm=false;OB.o
   if(outcome==='completed'){if(!obRepos())OB.add=true;if(toastNow){OB.toast=true;OB.feedback=false}}
   obSave({...p,closedAt:Date.now(),outcome,...(outcome==='dismissed'?{lastCompletedStep:-1,checklist:{...(p.checklist||{}),dismissed:true}}:{lastCompletedStep:5}),...(toastNow?{toastShown:true}:{})});
   setTimeout(obTourTry,0)}
-// Help > Onboarding: Orca resets closedAt, outcome and lastCompletedStep and opens it again.
+// Help > Onboarding: the reference app resets closedAt, outcome and lastCompletedStep and opens it again.
 function obReopen(){OB.menu=false;if(!OB.st)return;obSave({closedAt:null,outcome:null,lastCompletedStep:-1});obOpen()}
 function obGuide(open){OB.guide=!!open;OB.menu=false;if(open){obTourEnd(false);obLoad()}obDraw()}
 function obEntryShown(){if(!OB.st||OB.st.closedAt===null||OB.st.guideHidden)return false;let here=OB.closedHere;try{here=here||sessionStorage.getItem('dash-app-onboard-closed')===OB.user}catch(e){}const p=obProgress();return here&&p.done<p.total}
@@ -4753,7 +4753,7 @@ function obPageAgent(){const d=OB.draft,cl=obClients(),found=cl.filter(c=>c.foun
     el('div',{class:'appob-gridhead'},found.length?'Detected on your system':'Popular agents',el('span',{},String(list.length))),
     el('div',{class:'appob-grid'},tiles),
     d.surface==='chat'?null:el('p',{class:'appob-foot-note'},obSvg(OB_I.chat,14),'Want chat too? Turn it on any time from a task’s tabs. ',el('button',{type:'button',class:'appob-link','data-ob':'chat-now',onclick:()=>{d.surface='chat';obDraw()}},'Turn on now')),
-    el('div',{class:'appob-yolo'},el('div',{},el('div',{class:'appob-yolotitle'},'Worker permissions'),el('p',{},'Dispatched workers run with their tool’s own sandbox and agentd’s worker rules ([dispatch.rules]). Those widen or narrow access, so they change only in config.toml, never from this page.'),el('p',{class:'appob-faint'},'Orca’s Yolo mode switch has no page equivalent here; docs/worker-rules.md describes the rules.')),el('span',{class:'appob-pill'},'Set in config.toml')),
+    el('div',{class:'appob-yolo'},el('div',{},el('div',{class:'appob-yolotitle'},'Worker permissions'),el('p',{},'Dispatched workers run with their tool’s own sandbox and agentd’s worker rules ([dispatch.rules]). Those widen or narrow access, so they change only in config.toml, never from this page.'),el('p',{class:'appob-faint'},'A desktop coding app’s Yolo mode switch has no page equivalent here; docs/worker-rules.md describes the rules.')),el('span',{class:'appob-pill'},'Set in config.toml')),
     obCli(['agentd connect '+tool,'agentd config set dispatch.default_tool '+tool],'connect registers agentd with the agent; the default is saved for this page and set for workers with config set.')]}
 function obMini(kind){const dk=kind==='dark',sp=kind==='system';return el('div',{class:'appob-mini'+(dk?' dk':'')+(sp?' sp':''),'aria-hidden':'true'},el('span',{class:'appob-minileft'},el('i'),el('i'),el('i')),el('span',{class:'appob-miniright'},el('i'),el('i'),el('i')))}
 function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?'':v);obDraw()},
@@ -4764,7 +4764,7 @@ function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?
     el('div',{class:'appob-themes'},tile('system',OB_I.monitor,'System','Match OS'),tile('dark',OB_I.moon,'Dark','Easy on the eyes'),tile('light',OB_I.sun,'Light','Bright & crisp')),
     el('div',{class:'appob-sechead'},el('b',{},'Theme'),el('span',{},'Optional. agentd has its light and dark looks.'),d.theme==='system'?el('span',{class:'appob-seg2',role:'group','aria-label':'Look'},...['dark','light'].map(v=>el('button',{type:'button','aria-pressed':String(d.look===v),'data-ob':'look-'+v,onclick:()=>{d.look=v;obDraw()}},v==='dark'?'Dark look':'Light look',(v==='dark')===osDark?el('small',{},'now'):null))):null),
     el('div',{class:'appob-carousel'},card('light','agentd Light'),card('dark','agentd Dark'),el('div',{class:'appob-look appob-more'},el('b',{},'More themes'),el('span',{},'Not in agentd'))),
-    el('p',{class:'appob-foot-note'},obSvg(OB_I.plug,14),'agentd has no theme plugins, so Orca’s theme gallery keeps its place with the built-in looks.'),
+    el('p',{class:'appob-foot-note'},obSvg(OB_I.plug,14),'agentd has no theme plugins, so the theme gallery step keeps its place with the built-in looks.'),
     obCli([],'Saved in this browser (the same setting as the dash’s theme). The terminal has no theme to set.')]}
 function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not installed',sign_in:'Sign in needed',connected:'Connected'}[g]||'Checking…';
   return [el('ul',{class:'appob-bullets'},el('li',{},'Start a task from any GitHub issue, prefilled with its title and context'),el('li',{},'Browse GitHub issues and pull requests in agentd without leaving it'),el('li',{},'See review status and CI checks on every task’s pull request'),el('li',{},'Push a worker’s branch and open a draft pull request (agentd never merges)')),
@@ -4774,7 +4774,7 @@ function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not i
     obCli(['gh auth login','agentd issue sync-gh','agentd pr sync-gh'],'agentd reads GitHub through gh; this page does not sign you in.')]}
 async function obRecheck(){OB.facts={...OB.facts,gh:'checking'};obDraw();await obLoad();const s=obStep();if(s&&s.id==='integrations'&&OB.facts.gh&&OB.facts.gh!=='not_installed'){if(OB.only||OB.page>=OB.steps.length-1)obFinish({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)},'completed');else{obSave({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)});OB.page++;obDraw()}}}
 function copyCmd(c){try{if(navigator.clipboard)navigator.clipboard.writeText(c).then(()=>toast('Copied: '+c,true),()=>{})}catch(e){}}
-function obPageWindows(){return [el('div',{class:'appob-notice',role:'note'},'agentd’s Terminal tab runs the shell of the account agentd app runs as, so it has no default shell or right-click setting to choose. This step keeps Orca’s place on a Windows host and saves nothing.'),obCli([],'')]}
+function obPageWindows(){return [el('div',{class:'appob-notice',role:'note'},'agentd’s Terminal tab runs the shell of the account agentd app runs as, so it has no default shell or right-click setting to choose. This step keeps its place for a Windows host and saves nothing.'),obCli([],'')]}
 function obSound(v){try{const C=window.AudioContext||window.webkitAudioContext;if(!C||v==='system')return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value={'two-tone':660,bong:220,thump:110,blip:880,sonar:520,blop:330,ding:1046,clack:1500,beep:1000}[v]||660;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}}
 function obTestNotify(){if(!notifySupported()){toast('This browser cannot show notifications.');return}
   const send=()=>{try{new Notification('agentd',{body:'This is a test notification.'})}catch(e){toast('The browser did not show the notification.')}};
@@ -4847,7 +4847,7 @@ function obDraw(){const layer=$('appob-layer'),entry=$('appob-entry');if(!layer|
   if(OB.menu)kids.push(obMenu());
   layer.replaceChildren(...kids);
   if(focus){const n=layer.querySelector('[data-ob="'+focus+'"]');if(n)n.focus()}}
-// --- tours: Orca's start gate, retried at 250 ms then every 500 ms, up to 20 times ---
+// --- tours: the reference app's start gate, retried at 250 ms then every 500 ms, up to 20 times ---
 function obVisible(n){if(!n||!n.isConnected)return false;for(let x=n;x&&x.nodeType===1;x=x.parentElement){if(x.hidden)return false;const cs=getComputedStyle(x);if(cs.display==='none'||cs.visibility==='hidden')return false}return true}
 function obTourGate(){return APP.on&&OB.st&&OB.eligible&&OB.page<0&&!OB.tour&&!OB.tourRan&&!OB.guide&&!OB.confirm&&!OB.add&&!OB.menu&&!activeSheet}
 function obTourTry(){clearTimeout(OB.timer);if(!obTourGate())return;const seen=OB.st.toursSeen||[];let waiting=false;
@@ -4862,7 +4862,7 @@ document.addEventListener('keydown',e=>{if(!APP.on||!OB.st)return;const wiz=OB.p
   if(e.key==='Escape'){if(wiz){OB.confirm=!OB.confirm;obDraw()}else if(OB.menu){OB.menu=false;obDraw()}else if(OB.add){OB.add=false;obDraw()}else if(OB.guide)obGuide(false);else if(OB.tour)obTourEnd(true);else return;e.preventDefault();e.stopPropagation();return}
   if(!wiz)return;if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){if(typing)return;e.preventDefault();e.stopPropagation();if(OB.confirm)return;obContinue();return}
   if(e.ctrlKey||e.metaKey){e.stopPropagation()}},true);
-// Help opens Orca's help menu; an action step of a tour advances when its target is used.
+// Help opens the reference app's help menu; an action step of a tour advances when its target is used.
 document.addEventListener('click',e=>{if(!APP.on)return;const t=OB.tour;if(t){const s=t.steps[t.i];if(s.action&&e.target.closest&&e.target.closest(s.target)){obTourEnd(true)}}
   if(OB.menu&&!e.target.closest('.appob-menu,[data-app-action="help"]')){OB.menu=false;obDraw()}},true);
 function appOnboardHelp(){if(!OB.st){keysSheet();return}OB.menu=!OB.menu;obDraw()}
@@ -4870,7 +4870,7 @@ new MutationObserver(()=>{if(APP.on&&OB.eligible&&!OB.tour&&!OB.tourRan){clearTi
 // end:app-onboard
 // region:app-workspace
 // The app's task workspace (libraos/agentd-core#565): the open task in the centre's editor tabs and the
-// right sidebar's panels, in Orca's layout (briefs/personal-app-orca/SPEC.md §3, §4).
+// right sidebar's panels, in the reference app's layout (SPEC.md §3, §4).
 //   tabs      Session first and always there (the task, its reports and history, a message box to its
 //             worker); Terminal N, a shell in the worker directory (GET /api/terminal?id=&n=, up to 3,
 //             where the dash offers one); Log (GET /api/log); a file or a diff opened from Files or
@@ -5139,7 +5139,7 @@ function awDetails(hid,load){const box=awSec('details');
 // reload or in a second tab. The first look in a browser only remembers. Another person's task never
 // raises one. A task that needs me again after it went back to work is a new event and raises again.
 // Clicking one opens the task; the sound picked in the onboarding plays after it is shown.
-// Shortcuts are Orca's (briefs/personal-app-orca/SPEC.md §8; Mod is Cmd on a Mac, Ctrl elsewhere) for
+// Shortcuts are the reference app's (SPEC.md §8; Mod is Cmd on a Mac, Ctrl elsewhere) for
 // the task list and the workspace tabs, listed by ? in an overlay (the Help menu's Keyboard shortcuts
 // opens the same one). Like the team dash's (region:keys) they do nothing while a field, a dialog, the
 // search box or the onboarding has the keys. The frame's Mod+B, Mod+L (region:app), N, the list's arrows
@@ -5159,7 +5159,7 @@ function appNotifyRaise(r){const title=appNotifyTitle(r),c=String(appNotifyRun(r
   try{const n=new Notification(title,{body,tag:'agentd-app-'+r.id+':'+r.mark});
     n.onclick=()=>{try{window.focus()}catch(e){}if(APPS.model&&APPS.model.byId.has(r.id))appTaskOpen(r.id);else appSelect(r.id);n.close()};
     if(OB.st&&OB.st.sound)obSound(OB.st.sound)}catch(e){}}
-// The overlay: Orca's groups, each row its keys (several are alternatives) and what they do.
+// The overlay: the reference app's groups, each row its keys (several are alternatives) and what they do.
 const APP_KEYS=[
   ['Tasks',[[[['N'],['Mod','N']],'New task'],[[['Mod','K']],'Search tasks, PRs, issues and runs'],[[['↑'],['↓']],'Move through the task list while it has the focus'],[[['Enter']],'Open the selected task'],
     [[['Mod','Shift','↑'],['Mod','Shift','↓']],'Previous or next task'],[[['Mod','1…9']],'Open task 1 to 9 in the list'],[[['Mod','Shift','0']],'Focus the task list'],[[['Mod','B']],'Show or hide the left sidebar']]],
@@ -5169,7 +5169,7 @@ const APP_KEYS=[
   ['General',[[[['?']],'Show these shortcuts'],[[['Esc']],'Close a menu, dialog or drawer']]]];
 const APP_KEYCAP={Mod:APP_MAC?'⌘':'Ctrl',Shift:APP_MAC?'⇧':'Shift',Alt:APP_MAC?'⌥':'Alt',TabMod:APP_MAC?'⌃':'Alt'};
 function appKeysSheet(){if(activeSheet)return null;const kbd=t=>el('kbd',{},APP_KEYCAP[t]||t);
-  const box=el('div',{class:'app-keys',id:'app-keys-list'},el('p',{class:'app-keys-note'},(APP_MAC?'⌘ is Command':'Ctrl is Control')+', as in Orca. They do nothing while you type in a field. In a browser tab the browser keeps some for itself (such as '+APP_KEYCAP.Mod+'+N, T, W and 1…9); in the installed app they reach agentd.'),
+  const box=el('div',{class:'app-keys',id:'app-keys-list'},el('p',{class:'app-keys-note'},(APP_MAC?'⌘ is Command':'Ctrl is Control')+', as in desktop coding apps. They do nothing while you type in a field. In a browser tab the browser keeps some for itself (such as '+APP_KEYCAP.Mod+'+N, T, W and 1…9); in the installed app they reach agentd.'),
     ...APP_KEYS.map(([name,rows])=>el('section',{'data-keys':name.toLowerCase()},el('h3',{},name),el('dl',{class:'keys-list'},rows.flatMap(([alts,what])=>[el('dt',{},alts.flatMap((keys,i)=>[i?el('span',{class:'keys-or'},'or'):null,...keys.map(kbd)]).filter(Boolean)),el('dd',{},what)])))));
   const done=sheet({title:'Keyboard shortcuts',description:'For the task list and the workspace tabs.',cancel:'Close',content:box,setup:ui=>{ui.submit.hidden=true}});
   if(activeSheet){activeSheet.dialog.id='app-keys-sheet';const close=activeSheet.dialog.querySelector('.sheet-foot button:not([hidden])');if(close)close.focus()}
