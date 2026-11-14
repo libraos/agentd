@@ -6,7 +6,7 @@
 // permission; clicking one opens the task. Shortcuts follow the reference app's (SPEC.md §8, Mod = Ctrl here): Mod+1…9,
 // Mod+Shift+Up/Down and Mod+Shift+0 for the task list, Alt+1…9, Mod+Shift+]/[, Mod+Alt+]/[, Mod+T and
 // Mod+W for the workspace tabs, Mod+Shift+E/G for Files and Changes, Mod+N for New task; ? opens the app's
-// own overlay (also from Help's Keyboard shortcuts), not the team dash's; nothing fires while typing.
+// own overlay (also from Help's Keyboard shortcuts), not the team server's; nothing fires while typing.
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_appkeys.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
@@ -85,9 +85,9 @@ const key=(w,k,o={})=>{const t=o.target||w.document.activeElement||w.document.bo
  const $=id=>doc.getElementById(id),q=s=>doc.querySelector(s),qa=s=>[...doc.querySelectorAll(s)];
  const rows=()=>qa('#app-projects .app-task').map(n=>n.dataset.taskId),tabs=()=>qa('#app-tabs [role=tab]').map(t=>t.dataset.tab),curTab=()=>{const t=q('#app-tabs [aria-selected="true"]');return t&&t.dataset.tab};
  assert.deepEqual(rows(),['hof-a','hof-b','hof-c','hof-bob'],'unexpected list order: '+rows());
- // ? opens the app's overlay, listing the list's and the tabs' keys; it is not the team dash's.
+ // ? opens the app's overlay, listing the list's and the tabs' keys; it is not the team server's.
  let e=key(w,'?',{shift:true});await settle();assert(e.defaultPrevented,'? was not taken');
- let sh=$('app-keys-sheet');assert(sh&&sh.open,'? did not open the app’s shortcuts');assert(!$('keys-sheet'),'the team dash’s sheet opened');
+ let sh=$('app-keys-sheet');assert(sh&&sh.open,'? did not open the app’s shortcuts');assert(!$('keys-sheet'),'the team server’s sheet opened');
  for(const s of ['tasks','workspace','general'])assert(sh.querySelector('[data-keys="'+s+'"]'),'no '+s+' group');
  assert(/Previous or next task/.test(sh.textContent)&&/Next or previous tab/.test(sh.textContent)&&/New terminal tab/.test(sh.textContent),'the overlay misses list or tab keys');
  assert(qa('#app-keys-sheet kbd').some(n=>n.textContent==='Ctrl'),'keycaps are not Ctrl off a Mac');
@@ -135,5 +135,5 @@ const key=(w,k,o={})=>{const t=o.target||w.document.activeElement||w.document.bo
  mac.w.keysSheet();await settle();assert([...mac.doc.querySelectorAll('#app-keys-sheet kbd')].some(n=>n.textContent==='⌘'),'no ⌘ keycap on a Mac');
  // The team dash keeps its own sheet: outside app mode keysSheet is #457's.
  const t=browser();const team=t.load({mode:'team'});await settle();assert(!team.doc.body.classList.contains('app-mode'));team.w.keysSheet();await settle();
- assert(team.doc.getElementById('keys-sheet')&&!team.doc.getElementById('app-keys-sheet'),'the team dash lost its shortcuts sheet');
+ assert(team.doc.getElementById('keys-sheet')&&!team.doc.getElementById('app-keys-sheet'),'the team server lost its shortcuts sheet');
  console.log('dash app keys ok');process.exit(0)})().catch(e=>{console.error(e);process.exit(1)});

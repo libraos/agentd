@@ -1,6 +1,6 @@
 // Take over, Cancel task and Open in editor in the task workspace's top bar (libraos/agentd-core#562).
 // Each appears only in the state the snapshot offers it (h.takeover once the worker has stopped,
-// h.cancel on an open task, h.editor where the worker's directory is on this host and the dash may
+// h.cancel on an open task, h.editor where the worker's directory is on this host and the server may
 // start a program here: dash.editor.local), is disabled with the server's reason for a person who may
 // not, carries its CLI command, and posts its action: takeover and cancel after a confirmation, cancel
 // only with a reason. Run in every mode:
@@ -10,7 +10,7 @@ const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const base={from:'s-alice',from_user:'alice',to:'any',updated_ago:'1m',age:'1m',project:'acme/alpha'};
 const cmd=(id,rest)=>'agentd handoff '+rest.replace('ID',id);
-const stopped={...base,id:'hof-stop',goal:'A worker stopped from the dash',state:'claimed',claimer:'s-w',worker:'claude',dispatched:true,worker_state:'stopped',mark:'failed',
+const stopped={...base,id:'hof-stop',goal:'A worker stopped from the server',state:'claimed',claimer:'s-w',worker:'claude',dispatched:true,worker_state:'stopped',mark:'failed',
  takeover:{may:true,cli:cmd('hof-stop','claim ID --takeover')},cancel:{may:true,cli:cmd('hof-stop','done ID --cancel --reason TEXT')},editor:{may:true,dir:'/srv/wt/it\'s hof-stop'}};
 const running={...base,id:'hof-run',goal:'A running worker',state:'claimed',claimer:'s-r',worker:'claude',dispatched:true,may_stop:true,mark:'working',
  cancel:{may:true,cli:cmd('hof-run','done ID --cancel --reason TEXT')},editor:{may:true,dir:'/srv/wt/hof-run'}};
@@ -87,7 +87,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  dash={...dash,editor:{local:false,why_not:'open in editor works only on a dash on loopback'}};await w.eval('refresh()');await go('#issues/hof-stop');
  assert.deepEqual(keys(),['takeover','cancel'],'Open in editor offered off loopback');
  // No editor found on the host: the button says why.
- dash={...dash,editor:{local:true,why_not:'no editor found for the dash: set VISUAL'}};await w.eval('refresh()');await settle();
+ dash={...dash,editor:{local:true,why_not:'no editor found for the server: set VISUAL'}};await w.eval('refresh()');await settle();
  assert.equal(btn('editor').getAttribute('aria-disabled'),'true');assert(/no editor found/.test(btn('editor').title));
  // A finished task: none of them.
  await go('#issues/hof-done');assert.deepEqual(keys(),[],'actions on a finished task');

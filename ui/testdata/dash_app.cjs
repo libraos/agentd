@@ -1,5 +1,5 @@
-// #561: the dash page's personal mode. When /api/dash says mode "app" (agentd app,
-// libraos/agentd-core#560) the page draws the reference app's frame instead of the team dash: a
+// #561: the server page's personal mode. When /api/dash says mode "app" (agentd app,
+// libraos/agentd-core#560) the page draws the reference app's frame instead of the team server: a
 // left sidebar, a centre with an editor-style tab strip, a right sidebar with icon
 // tabs, and a status bar (watchdog, running, waiting, today's spend). No rail and
 // no team page shows. The regions are empty mount points the later issues fill.
@@ -30,7 +30,7 @@ const key=(k,o={})=>doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:k,bubbl
 const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
- // App mode: the frame, and nothing of the team dash.
+ // App mode: the frame, and nothing of the team server.
  assert(body.classList.contains('app-mode'),'app mode is not on');
  const shell=$('app-shell');assert(shell&&shown(shell),'the app frame is not shown');
  const left=$('app-left'),center=$('app-center'),right=$('app-right'),status=$('app-status');
@@ -86,9 +86,9 @@ const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
  // The reference app's sizes and its own CSS region.
  assert(/region:css-app/.test(css),'no css-app region');
  for(const re of [/--app-left-w:280px/,/--app-right-w:350px/,/\.app-status\{[^}]*height:24px/,/\.app-tabstrip\{[^}]*height:32px/,/\.app-dragstrip\{[^}]*height:4px/,/\.app-rtabs\{[^}]*height:40px/,/'Geist'/,/@media\(max-width:860px\)\{[^@]*\.app-left\{/])assert(re.test(css),'css: '+re);
- // Back to the team dash: the frame goes, the team shell is back as it was.
+ // Back to the team server: the frame goes, the team shell is back as it was.
  snap={...base};await w.refresh();await settle();
- assert(!body.classList.contains('app-mode')&&!shown(shell)&&shown(doc.querySelector('.shell')),'team mode does not restore the team dash');
+ assert(!body.classList.contains('app-mode')&&!shown(shell)&&shown(doc.querySelector('.shell')),'team mode does not restore the team server');
  assert(shown($('rail')),'the rail does not show in team mode');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_app: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');

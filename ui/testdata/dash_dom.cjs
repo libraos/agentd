@@ -2,7 +2,7 @@
 // Synthetic transport and geometry: this does not validate browser layout or screenshots.
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const errors=[],requests=[],now=new Date().toISOString(),h={id:'hof-test',title:'Fix the dashboard workflow',goal:'Fix the dashboard workflow',state:'claimed',claimer:'codex-test',from:'codex-test',from_user:'alice',claimer_user:'alice',worker:'codex',to:'any',project:'acme/repo',stage:'implement',source:'interactive',updated_ago:'1m',dispatched:now,attempts:[{running:true,minutes:12,tokens:1000}],prs:['acme/repo#3']};
+const errors=[],requests=[],now=new Date().toISOString(),h={id:'hof-test',title:'Fix the serverboard workflow',goal:'Fix the serverboard workflow',state:'claimed',claimer:'codex-test',from:'codex-test',from_user:'alice',claimer_user:'alice',worker:'codex',to:'any',project:'acme/repo',stage:'implement',source:'interactive',updated_ago:'1m',dispatched:now,attempts:[{running:true,minutes:12,tokens:1000}],prs:['acme/repo#3']};
 const failure='Workspace not trusted. Run claude in /tmp/repo once and accept the trust prompt. <img src=x onerror=alert(1)>',nextStep='Fix the cause, then start a new worker from this work item.',failedH={id:'hof-failed',title:'Start the worker',goal:'Start the worker',state:'offered',from:'codex-test',from_user:'alice',role:'backend',worker:'claude',to:'any',project:'acme/repo',stage:'implement',source:'interactive',updated_ago:'1m',dispatched:now,dispatch_failed:true,failure,next_step:nextStep,attempts:[{running:false,minutes:0,end_reason:'failed_to_start',failure,next_step:nextStep}]};
 const dash={user:'alice',role:'owner',merge_repos:['acme/repo'],pr_owner:true,now,dispatch:true,checkouts:['/tmp/repo'],handoff_list:[h],handoff_sources:['interactive','bench'],handoff_stages:['implement','validate'],sessions:[{id:'codex-test',label:'worker',tool:'codex',status:'active',user:'alice',cwd:'/tmp/repo',seen_ago:'1m'}],left:[],unlinked:[],inbox:[{id:'failed:res-failed-start',kind:'failed',title:'claude worker failed: failed_to_start',handoff:'hof-failed',from:'codex-test',worker:'claude',age:'1m',failure,next_step:nextStep}],waiting:[{what:'approval',ref:'apr-test',title:'Approve release',from:'codex-test',handoff:'hof-test',can_answer:true,age:'1m'},{what:'PR',ref:'acme/repo#3',title:'Ship fix',age:'2m'}],done:[],runs:[{project:'app',arm:'main',status:'fail',failure_step:'ok=false, no error; last milestone stage3_validated',started:now}],host_states:{busy:1,idle:1},counts:{codex:{active:1}},handoffs:{offered:1}};
 const issue={ref:'acme/repo#2',repo:'acme/repo',title:'Improve the app',state:'OPEN',handoffs:[h],prs:[{ref:'acme/repo#3',state:'OPEN'}],updated_ago:'1m'};
@@ -375,7 +375,7 @@ assert.equal(resultView.querySelectorAll('.chat-output-files button').length,3,'
  // A visible control works with a draft, including typing during withdrawal.
  // The full suite runs this on desktop and phone; no hover/menu is required.
  const unanswered={role:'user',seq:3,content:'Please read this',attachments:[{id:'att-image',name:'photo.png',size:12}]};
- // Every read of the thread while the stale poll is held stays pending, the dash's own poll timer's too, and all are
+ // Every read of the thread while the stale poll is held stays pending, the server's own poll timer's too, and all are
  // answered together: keeping only the latest left the test's own poll unanswered when a timer read in between.
  let withdrawCalls=0,withdrawFinish,stalePolls=[];const stalePollFinish=v=>stalePolls.splice(0).forEach(r=>r(v));
  const withdrawReply=text=>({ok:true,status:200,json:async()=>({text})});
@@ -407,7 +407,7 @@ assert.equal(resultView.querySelectorAll('.chat-output-files button').length,3,'
  evalJS("ROLE='owner';$('chat-input').value='Restored draft';chatComposerState()");await evalJS('chatPoll()');assert.equal(withdrawCalls,2);
  click(w.document.querySelector('#chat-msgs'),'Remove');await tick();assert.equal(withdrawCalls,3);assert.equal(w.document.querySelector('#chat-input').value,'Please read this\n\nRestored draft');
  // Refused withdrawal preserves the turn and draft and offers another attempt.
- // The dash's own poll timers (chatRetryTick, chatPoll) may read the thread meanwhile: it still has the turn.
+ // The server's own poll timers (chatRetryTick, chatPoll) may read the thread meanwhile: it still has the turn.
  persisted=[unanswered];evalJS("CHAT.msgs=[window.fixtureUnanswered];$('chat-input').value='Keep this draft';chatRenderThread()");
  w.fetch=async(url,opts)=>url.endsWith('/withdraw')?{ok:false,status:409,json:async()=>({error:'A reply is still running'})}:url==='/api/chat/chat-test'?{ok:true,status:200,json:async()=>({chat:{id:'chat-test',role:'writer'},messages:persisted,busy:false})}:transportBeforeRecovery(url,opts);
  click(w.document.querySelector('#chat-msgs'),'Remove');await tick();assert.equal(w.document.querySelector('#chat-input').value,'Keep this draft');assert.equal(evalJS('CHAT.msgs.length'),1);assert(!findButton(w.document.querySelector('#chat-msgs'),'Remove').disabled);assert(w.document.querySelector('#chat-hint').textContent.includes('Could not remove'));

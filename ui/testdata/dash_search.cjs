@@ -1,4 +1,4 @@
-// The dash's search box (#450): the top bar button and Ctrl+K open it, results
+// The server's search box (#450): the top bar button and Ctrl+K open it, results
 // come grouped by kind as text, arrows move, Enter opens the hit's place, Escape
 // closes. Run via TestDashUIDOM (DASH_UI_DOM_MODULE=/path/to/jsdom), in the
 // phone and desktop layouts, light and dark.
@@ -19,7 +19,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
  w.fetch=async(url,opts={})=>{requests.push({url:String(url),headers:opts.headers||{}});const u=new URL(url,w.location.href);let body={};
   if(u.pathname==='/api/auth')return {ok:true,status:204};
-  if(u.pathname==='/api/search'){if(status!==200)return {ok:false,status,json:async()=>({}),text:async()=>'this dash is public: reads need the token\n'};body={query:u.searchParams.get('q'),results:results[u.searchParams.get('q')]||[]}}
+  if(u.pathname==='/api/search'){if(status!==200)return {ok:false,status,json:async()=>({}),text:async()=>'this server is public: reads need the token\n'};body={query:u.searchParams.get('q'),results:results[u.searchParams.get('q')]||[]}}
   else if(u.pathname==='/api/dash')body=dash;
   else if(u.pathname==='/api/issue'||u.pathname==='/api/workitem')body={kind:'handoff',ref:'hof-abc123',title:task.title,body:{goal:task.title},tree:[{id:'hof-abc123',goal:task.title,state:'claimed',focus:true}],prs:[]};
   else if(u.pathname==='/api/issues')body={issues:[]};
@@ -50,7 +50,7 @@ const selected=()=>d.querySelector('#search-list [aria-selected="true"]');
  key(d.body,'K',{metaKey:true});assert(box.open,'Cmd+K did not open the box');await type('flamingo rotate');
  assert.deepEqual([...d.querySelectorAll('.search-group-name')].map(n=>n.textContent),['Tasks · 1','Pull requests · 1','GitHub and Linear issues · 1','Runs · 1','Messages · 1']);
  assert(!$('search-list').querySelector('img'),'result markup became live DOM');assert($('search-list').textContent.includes(evil));
- const run=d.querySelector('[data-kind="run"]');assert.equal(run.getAttribute('aria-disabled'),'true');assert(run.textContent.includes('no page in the dash'));
+ const run=d.querySelector('[data-kind="run"]');assert.equal(run.getAttribute('aria-disabled'),'true');assert(run.textContent.includes('no page in the server'));
  // Arrows move through the hits that open, wrapping, skipping the run.
  assert.equal(selected().dataset.kind,'handoff');key($('search-input'),'ArrowDown');assert.equal(selected().dataset.kind,'pr');
  key($('search-input'),'ArrowDown');key($('search-input'),'ArrowDown');assert.equal(selected().dataset.kind,'msg','arrows did not skip the run');

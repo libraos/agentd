@@ -100,7 +100,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  // The + button is New task's (#564), which enables it; N only presses it.
  const nb=doc.querySelector('#app-shell [data-app-action="new-task"]');nb.removeAttribute('aria-disabled');let newClicks=0;nb.addEventListener('click',()=>newClicks++);
  key('n');await tick();assert.equal(newClicks,1,'N does not press New task');
- assert(!doc.querySelector('dialog[open].sheet,.sheet[open]'),'N opens the team dash’s sheet in app mode');
+ assert(!doc.querySelector('dialog[open].sheet,.sheet[open]'),'N opens the team server’s sheet in app mode');
  // Folding a repository hides its tasks and is kept.
  await openLeft();box().querySelector('.app-repo[data-repo="p:acme/api"]').click();await tick();
  assert(!row('hof-f1')&&row('hof-w1'),'folding acme/api');assert.equal(box().querySelector('.app-repo[data-repo="p:acme/api"]').getAttribute('aria-expanded'),'false');
@@ -135,7 +135,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  // No tasks: a note with the command.
  snap=app({handoff_list:[],done:[]});await w.refresh();await settle();
  assert(/agentd new/.test(box().textContent),'empty list: '+box().textContent);assert.equal(bell.querySelector('.app-count').textContent,'0');
- // Team mode: nothing of this, and n is the team dash's again.
+ // Team mode: nothing of this, and n is the team server's again.
  snap={...base};await w.refresh();await settle();assert(!body.classList.contains('app-mode'));
  newClicks=0;key('n',{},doc.body);await tick();assert.equal(newClicks,0,'N presses the app’s button in team mode');
  assert(!errors.length,errors.join('\n'));

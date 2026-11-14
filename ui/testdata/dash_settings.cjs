@@ -63,10 +63,10 @@ const want=[['This host',[['agents','Agents'],['models','Models and prices'],['w
  await go('#settings/nope');assert(!doc.getElementById('page-notfound').hidden,'unknown section was not refused');
  await go('#settings/models/more');assert(!doc.getElementById('page-notfound').hidden);
  // Every setting the tabs had is under one section.
- const under={workers:['Max workers','Default tool','Default budget','Codex network','Start workers from the dash','Triggers','Worker rules'],models:['Configured','Actually used','Model prices','claude-test'],
-  connections:['Synced repos','acme/one','MCP tools','MCP origins','Gateway','Runtime','Dash address','Strict users','Prompt forwarding','Chat roles and tools'],
+ const under={workers:['Max workers','Default tool','Default budget','Codex network','Start workers from the server','Triggers','Worker rules'],models:['Configured','Actually used','Model prices','claude-test'],
+  connections:['Synced repos','acme/one','MCP tools','MCP origins','Gateway','Runtime','Server address','Strict users','Prompt forwarding','Chat roles and tools'],
   personal:['Theme','Keyboard shortcuts','Sign-in','Notifications','Your email address','Gmail','Telegram'],members:['Members','alice','Invite member','Invitations','bob@example.invalid'],
-  history:['Change history','dispatch.max_workers'],terminal:['Terminal in the dash','Off (the default)','terminal = true','config.toml'],app:['Install as an app','Add to Home Screen']};
+  history:['Change history','dispatch.max_workers'],terminal:['Terminal in the server','Off (the default)','terminal = true','config.toml'],app:['Install as an app','Add to Home Screen']};
  for(const [id,labels] of Object.entries(under)){await go('#settings/'+id);for(const l of labels)assert(text('set-'+id).includes(l),id+' lacks '+l)}
  await go('#settings/diagnostics');assert(text('set-diagnostics').includes('Config parsed'),'doctor is not under Diagnostics');
  // Agents: the three tools, installed and connected from ?agents=1, the default model, Preview for those installed.

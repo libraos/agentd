@@ -4,7 +4,7 @@
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const now=new Date().toISOString(),errors=[],requests=[];
-const h={id:'hof-test',title:'Fix the dashboard workflow',goal:'Fix the dashboard workflow',state:'claimed',claimer:'codex-test',from:'codex-test',from_user:'alice',worker:'codex',to:'any',project:'acme/repo',stage:'implement',source:'interactive',updated_ago:'1m',dispatched:now,attempts:[{running:true,minutes:2}]};
+const h={id:'hof-test',title:'Fix the serverboard workflow',goal:'Fix the serverboard workflow',state:'claimed',claimer:'codex-test',from:'codex-test',from_user:'alice',worker:'codex',to:'any',project:'acme/repo',stage:'implement',source:'interactive',updated_ago:'1m',dispatched:now,attempts:[{running:true,minutes:2}]};
 const dash={user:'alice',role:'owner',now,handoff_list:[h],sessions:[{id:'codex-test',label:'worker',tool:'codex',status:'active',user:'alice',cwd:'/tmp/repo',seen_ago:'1m'}],left:[],unlinked:[],inbox:[],waiting:[],done:[],claims:[],prs:[],issues:[]};
 const evil='<img src=x onerror=alert(1)>';
 let log={handoff:'hof-test',state:'claimed',running:true,lines:['step 1','token [redacted] used',evil],truncated:false,redacted:1,limit:200},logStatus=200;

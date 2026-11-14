@@ -1,7 +1,7 @@
 // The task workspace (#480): an open task is two panes. A top bar (title, status
 // line, Stop and the other actions, Push branch and Open a draft PR once the
 // change is ready); centre tabs Session, Log and Terminal (Terminal only where
-// the dash offers one); right tabs Changes, Files, Checks and Details, each with
+// the server offers one); right tabs Changes, Files, Checks and Details, each with
 // what its old section held. Changes shows a running worker's diff. The message
 // box under Session sends task_msg for who may, says when the worker is gone,
 // and is not there for who may not. The tabs are remembered per browser; on a
@@ -59,7 +59,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  // No terminal offered: no Terminal tab. Seven tabs where it is.
  assert.deepEqual(tabs('.tw-main'),['session','log']);assert.deepEqual(tabs('.tw-side'),['changes','files','checks','details']);
  dash.terminal=true;await w.eval('refresh()');await settle();
- assert.deepEqual(tabs('.tw-main'),['session','log','terminal'],'Terminal is not a tab where the dash offers one');
+ assert.deepEqual(tabs('.tw-main'),['session','log','terminal'],'Terminal is not a tab where the server offers one');
  assert.equal(tabs('.tw-main').length+tabs('.tw-side').length,7);
  assert.equal(doc.querySelector('#issue-detail .tw-side .tw-tab[data-tab="changes"]').textContent,'Changes 1');
  // Session by default: goal, acceptance criteria, the activity, and the history as a conversation, as text.

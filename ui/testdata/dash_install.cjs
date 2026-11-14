@@ -1,4 +1,4 @@
-// The dash as an installable app (#465): the head links the manifest and the
+// The server as an installable app (#465): the head links the manifest and the
 // iOS icon agentd serves, says the page may run in its own window, and its
 // theme-color tags give an installed window bar the page's own background, in
 // the system theme and in one chosen in Settings. Run in every mode:

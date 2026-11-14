@@ -82,7 +82,7 @@ const refresh=async w=>{await w.eval('refresh()');await settle()};
  assert(!errors.length,errors.join('\n'));w.close();
  // 6. Denied: the setting says so, has no button, and a new item raises nothing and breaks nothing.
  const d=browser();d.permission='denied';d.hidden=true;({w,errors}=d.load());await settle();
- sec=await personal();assert(sec.textContent.includes('blocked for this dash'),sec.textContent);assert(!sec.querySelector('button'),'a denied setting offers a button that cannot work');
+ sec=await personal();assert(sec.textContent.includes('blocked for this server'),sec.textContent);assert(!sec.querySelector('button'),'a denied setting offers a button that cannot work');
  dash.inbox=[...dash.inbox,blocked('hof-denied')];await refresh(w);assert.equal(d.shown.length,0,'denied, and it raised one');
  assert(w.document.querySelector('#inbox-badge').textContent,'the inbox stopped drawing');assert(!errors.length,errors.join('\n'));w.close();
  // 7. Unsupported: the setting says so, nothing breaks.
