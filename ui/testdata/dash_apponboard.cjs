@@ -41,6 +41,7 @@ async function boot(o={}){
  assert.equal(t.srv.gets,1,'the page does not read /api/onboarding once');
  assert.equal(t.step(),'agent_surface','the wizard does not open on step 1');
  const modal=t.q('.appob-modal');assert.equal(modal.getAttribute('role'),'dialog');assert.equal(modal.getAttribute('aria-modal'),'true');
+ {const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'17 14 170 170',what);assert(s.querySelector('path[stroke^="url(#"]')&&s.querySelector('rect[fill^="url(#"]'),what+': not the ring and stem');for(const ref of [...s.querySelectorAll('[stroke^="url(#"],[fill^="url(#"]')].map(n=>(n.getAttribute('stroke')||n.getAttribute('fill')).slice(5,-1)))assert.equal(t.doc.querySelectorAll('[id="'+ref+'"]').length,1,what+': gradient '+ref+' is not one of a kind')};isMark(modal.querySelector('.appob-logo'),'the onboarding head');isMark(t.doc.querySelector('.app-logo'),'the app header')}
  assert(/Welcome to agentd/i.test(t.text()),'no eyebrow');assert(/How do you want to work with agents\?/.test(t.text()),'step 1 title');
  assert(/1 of 5/.test(t.text()),'counter: '+t.text().slice(0,200));assert.equal(t.doc.querySelectorAll('#appob-layer .appob-seg').length,5,'five segments without gh and off Windows');
  assert.deepEqual([...t.doc.querySelectorAll('#appob-layer .appob-seg')].map(n=>n.title),['Chat or Terminal','Default Agent','Appearance','Integrations','Notifications']);

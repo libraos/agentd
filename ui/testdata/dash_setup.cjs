@@ -50,6 +50,7 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  const steps=()=>[...body().querySelectorAll('#setup-steps button')];
  assert.deepEqual(steps().map(b=>b.dataset.step),['host','agents','repository','task']);assert.equal(step(),'host');
  assert.equal(body().querySelector('[data-setup-count]').textContent,'Step 1 of 4');
+ {const d=body().ownerDocument;const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'17 14 170 170',what);assert(s.querySelector('path[stroke^="url(#"]')&&s.querySelector('rect[fill^="url(#"]'),what+': not the ring and stem');for(const ref of [...s.querySelectorAll('[stroke^="url(#"],[fill^="url(#"]')].map(n=>(n.getAttribute('stroke')||n.getAttribute('fill')).slice(5,-1)))assert.equal(d.querySelectorAll('[id="'+ref+'"]').length,1,what+': gradient '+ref+' is not one of a kind')};isMark(body().querySelector('.setup-head .rail-mark'),'the setup head')}
  const cmd=()=>body().querySelector('[data-setup-command] code').textContent;assert.equal(cmd(),'agentd doctor');
  // Step 1 reflects doctor: one required check fails, with its fix; not marked done.
  assert(t.requests.includes('GET /api/settings?diagnostics=1'),'doctor was not run');

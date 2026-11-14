@@ -2,7 +2,7 @@
 <!-- agentd dash. Copyright (c) 2026 Nebula Nova Inc. Source available under the Elastic License 2.0 (LICENSE in this directory): use and change it inside your own organization; do not redistribute it, offer it as a managed service, or circumvent agentd activation. -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>agentd dash</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%230a66d6%22/%3E%3Cpath d=%22M9 22V13a7 7 0 0114 0v9M9 16h14%22 fill=%22none%22 stroke=%22white%22 stroke-width=%223%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='17 14 170 170'%3E%3Cdefs%3E%3ClinearGradient id='b' gradientUnits='userSpaceOnUse' x1='50' y1='70' x2='150' y2='180'%3E%3Cstop offset='0' stop-color='%23406CC6'/%3E%3Cstop offset='1' stop-color='%2376A5FF'/%3E%3C/linearGradient%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='16' x2='0' y2='178'%3E%3Cstop offset='0' stop-color='%23F1D07F'/%3E%3Cstop offset='1' stop-color='%23D3A036'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57' fill='none' stroke='url(%23b)' stroke-width='17'/%3E%3Crect x='147.5' y='16' width='17' height='166.5' fill='url(%23g)'/%3E%3C/svg%3E">
 <!-- region:install-head: the dash as an installable app (#465): its manifest and icons are served by agentd -->
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -64,6 +64,7 @@ body.agents-collapsed .shell{--ag-col:0px}
 body.no-panel .shell{grid-template-columns:var(--rail-w) var(--ag-col) minmax(0,1fr)}body.no-panel aside.side{display:none}
 .rail{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:10px 6px;background:var(--sunk);border-right:1px solid var(--line);min-height:0;overflow-y:auto}
 .rail-mark{display:grid;place-items:center;width:32px;height:32px;margin:0 auto 10px;border-radius:var(--r-m);background:var(--panel);border:1px solid var(--line);color:var(--fg);font-weight:600;text-decoration:none}.rail-mark:hover{text-decoration:none;background:var(--hover)}
+.brand-mark{display:block;flex:none}.rail-mark .brand-mark{width:22px;height:22px}.app-logo .brand-mark{width:14px;height:14px}.appob-logo .brand-mark{width:20px;height:20px}
 .rail-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 5px;border-radius:var(--r-m);color:var(--mute);font-size:var(--fs-xs);line-height:1.2;text-decoration:none}
 .rail-item:hover{background:var(--hover);color:var(--fg);text-decoration:none}.rail-item[aria-current="page"]{background:var(--sel);color:var(--fg);font-weight:500}.rail-item:focus-visible{outline-offset:-2px}
 .rail-icon{position:relative;display:block;height:20px}.rail-icon svg{display:block}
@@ -1111,7 +1112,7 @@ select.appnt-input{height:34px;padding-right:28px}
 <div class="shell">
 <!-- region:rail -->
 <nav class="rail" id="rail" aria-label="Dash">
-  <a class="rail-mark" href="#inbox" title="agentd dash" aria-label="agentd dash, go to Inbox">a</a>
+  <a class="rail-mark" href="#inbox" title="agentd dash" aria-label="agentd dash, go to Inbox"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
   <a class="rail-item" data-rail="inbox" href="#inbox"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 5 4.5h10l2 7v4H3z"/><path d="M3 11.5h4.2l1 2h3.6l1-2H17"/></svg><span class="rail-badge" id="inbox-badge" hidden></span></span><span class="rail-label">Inbox</span></a>
   <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg></span><span class="rail-label">Tasks</span></a>
   <a class="rail-item" data-rail="chat" href="#chat"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-3.5 2.8V14a2 2 0 0 1-2-2z"/></svg></span><span class="rail-label">Chat</span></a>
@@ -1346,7 +1347,7 @@ select.appnt-input{height:34px;padding-right:28px}
 <div class="app-shell" id="app-shell" hidden>
 <div class="app-row">
 <aside class="app-left" id="app-left" aria-label="Tasks and projects">
-  <div class="app-tbleft"><span class="app-logo" aria-hidden="true">a</span><span class="app-name">agentd</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
+  <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">agentd</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
     <!-- region:app-nav: Tasks (every task as a table) and Triggers (read only) open in the centre; wired by the issues that build them -->
@@ -3762,6 +3763,12 @@ function metricsBody(m){const co=m.cost,box=metricsGroups(m);if(!m.tasks.all&&!m
   return box}
 const SVGNS='http://www.w3.org/2000/svg';
 function svgEl(tag,attrs){const n=document.createElementNS(SVGNS,tag);for(const[k,v]of Object.entries(attrs||{}))n.setAttribute(k,v);return n}
+// brandMark: the AgentD mark (an open blue ring and a gold stem: a 'd') as an inline SVG.
+// Each copy gets its own gradient ids, so one hidden copy never blanks another.
+let BRAND_N=0;
+function brandMark(){const n=++BRAND_N,b='bm-'+n+'-b',g='bm-'+n+'-g',s=svgEl('svg',{viewBox:'17 14 170 170',class:'brand-mark','aria-hidden':'true',focusable:'false'}),defs=svgEl('defs');
+  for(const [id,a,stops] of [[b,{x1:50,y1:70,x2:150,y2:180},['#406CC6','#76A5FF']],[g,{x1:0,y1:16,x2:0,y2:178},['#F1D07F','#D3A036']]]){const lg=svgEl('linearGradient',{id,gradientUnits:'userSpaceOnUse',...a});stops.forEach((c,i)=>lg.append(svgEl('stop',{offset:i,'stop-color':c})));defs.append(lg)}
+  s.append(defs,svgEl('path',{d:'M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57',fill:'none',stroke:'url(#'+b+')','stroke-width':17}),svgEl('rect',{x:147.5,y:16,width:17,height:166.5,fill:'url(#'+g+')'}));return s}
 // niceMax: the axis top, 1, 2 or 5 times a power of ten at or above v.
 function niceMax(v){if(!(v>0))return 1;const p=Math.pow(10,Math.floor(Math.log10(v))),f=v/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p}
 function barTop(x,y,w,h){const r=Math.min(4,w/2,h);return 'M'+x+' '+(y+h)+'V'+(y+r)+'Q'+x+' '+y+' '+(x+r)+' '+y+'H'+(x+w-r)+'Q'+(x+w)+' '+y+' '+(x+w)+' '+(y+r)+'V'+(y+h)+'Z'}
@@ -4333,7 +4340,7 @@ function setupRender(){const page=$('setup-body');if(!page)return;
   const back=el('button',{type:'button',disabled:i===0,onclick:()=>{SETUP.step=Math.max(0,i-1);setupRender()}},'Back'),
     later=el('button',{type:'button',id:'setup-later',onclick:setupLater},'Set up later'),
     next=i<3?el('button',{type:'button',class:'primary',id:'setup-next',onclick:()=>{SETUP.step=i+1;setupRender()}},setupDone(st.id)?'Continue':'Skip for now'):el('button',{type:'button',class:'primary',id:'setup-finish',onclick:()=>{location.hash='#issues'}},'Go to Tasks');
-  page.replaceChildren(el('div',{class:'setup-head'},el('span',{class:'rail-mark','aria-hidden':'true'},'a'),el('strong',{},'agentd'),el('span',{class:'mute setup-small','data-setup-count':''},'Step '+(i+1)+' of 4')),nav,
+  page.replaceChildren(el('div',{class:'setup-head'},el('span',{class:'rail-mark','aria-hidden':'true'},brandMark()),el('strong',{},'agentd'),el('span',{class:'mute setup-small','data-setup-count':''},'Step '+(i+1)+' of 4')),nav,
     el('div',{},el('h2',{id:'setup-title'},st.title),el('p',{class:'mute'},st.lead)),el('section',{class:'setup-step','data-setup-step':st.id,'aria-labelledby':'setup-title'},body),
     el('div',{class:'setup-four'},el('strong',{class:'setup-small'},'The four steps'),el('span',{class:'setup-small'},'1 Check this host (doctor) · 2 Connect agents · 3 Add a repository and choose routing · 4 Run a first task with a 30-minute budget and watch it in the workspace'),el('span',{class:'setup-small mute'},'Each step runs the same command the terminal does (agentd doctor, connect, repo add, run) and shows it, so the page and the CLI never disagree.')),
     el('div',{class:'setup-foot'},back,later,el('span',{class:'setup-grow'}),next));lockState()}
@@ -4795,7 +4802,7 @@ function obWizard(){const s=obStep(),[title,sub,body]=OB_COPY[s.id],last=OB.page
     label=s.id==='notifications'&&!obRepos()&&!OB.only?'Add your first project':'Continue';
   const segs=OB.steps.map((x,i)=>el('button',{type:'button',class:'appob-seg'+(i<OB.page?' done':''),'aria-current':i===OB.page?'step':null,'aria-label':x.tip,title:x.tip,'data-ob':'seg-'+x.id,onclick:()=>obGo(i)}));
   const modal=el('div',{class:'appob-modal',role:'dialog','aria-modal':'true','aria-labelledby':'appob-title','data-step':s.id,onclick:e=>e.stopPropagation()},
-    el('div',{class:'appob-head'},el('span',{class:'appob-logo','aria-hidden':'true'},'a'),el('span',{class:'appob-brand'},'agentd')),
+    el('div',{class:'appob-head'},el('span',{class:'appob-logo','aria-hidden':'true'},brandMark()),el('span',{class:'appob-brand'},'agentd')),
     el('div',{class:'appob-prog'},el('div',{class:'appob-segs'},segs),el('span',{class:'appob-count'},(OB.page+1)+' of '+OB.steps.length)),
     first?el('div',{class:'appob-eyebrow'},'Welcome to agentd'):null,
     el('h2',{class:'appob-title',id:'appob-title'},title),el('p',{class:'appob-sub'},sub),
