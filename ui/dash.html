@@ -1107,6 +1107,60 @@ select.appnt-input{height:34px;padding-right:28px}
 #app-keys-sheet kbd{font:11px/1.4 'Geist Mono',ui-monospace,monospace;min-width:20px;text-align:center;padding:1px 5px;border-radius:4px;border:1px solid var(--line);border-bottom-width:1px;background:var(--sunk)}
 @media (max-width:860px){#app-keys-sheet .keys-list{grid-template-columns:minmax(0,1fr);gap:2px}#app-keys-sheet .keys-list dd{margin-bottom:8px}}
 /* end:css-app-keys */
+/* region:css-app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), drawn only there
+   (body.panel-mode): one column for 400 to 600 px, the page's own tokens (so light and dark follow the theme),
+   tighter type and spacing than the full app. Nothing outside .ap and body.panel-mode is touched. */
+body.panel-mode{margin:0;background:var(--bg);color:var(--fg);height:auto;min-height:100dvh;overflow:auto}
+body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
+.ap[hidden],.ap [hidden]{display:none!important}
+.ap{box-sizing:border-box;max-width:600px;margin:0 auto;padding:0 10px 16px;font:12px/1.4 var(--sans);color:var(--fg)}
+.ap *,.ap *::before,.ap *::after{box-sizing:border-box}
+.ap-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:8px 0;background:var(--bg);border-bottom:1px solid var(--line)}
+.ap-brand{font-size:13px;letter-spacing:.01em}.ap .ap-top select{font-family:inherit;font-size:var(--fs-s);flex:1;min-width:0;max-width:260px;padding:2px 6px;min-height:26px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:var(--r-s)}
+.ap-full{margin-left:auto;color:var(--mute);font-size:var(--fs-xs);text-decoration:none}.ap-full:hover{color:var(--fg);text-decoration:underline}
+.ap-wd{margin:6px 0 0;padding:6px 8px;border:1px solid var(--amber);border-radius:var(--r-s);color:var(--fg);font-size:var(--fs-xs)}.ap-wd code{overflow-wrap:anywhere}
+.ap-h{display:flex;align-items:center;gap:6px;margin:12px 0 4px;font-size:var(--fs-xs);font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+.ap-count{font-weight:500;color:var(--faint)}
+.ap-mute{color:var(--mute);font-size:var(--fs-xs);margin:2px 0}.ap-empty{padding:8px 0}
+.ap code{font-size:11px;overflow-wrap:anywhere}
+.ap-cli{display:block;margin:4px 0 0;color:var(--mute);white-space:pre-wrap}
+.ap-inbox .ap-need{border-left:3px solid var(--amber)}
+.ap-need{padding:6px 8px;margin:0 0 4px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-s);min-width:0}
+.ap-need[data-kind="failed"]{border-left-color:var(--red)}.ap-ntext{overflow-wrap:anywhere}
+.ap-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.ap .ap-btn{font:inherit;font-size:var(--fs-xs);min-height:24px;padding:2px 10px;border-radius:var(--r-s);border:1px solid var(--line);background:var(--raised);color:var(--fg);cursor:pointer;box-shadow:none}
+.ap .ap-btn:hover:not([aria-disabled="true"]){background:var(--hover)}.ap .ap-btn[aria-disabled="true"]{opacity:.55;cursor:default}
+.ap .ap-btn:focus-visible,.ap-row:focus-visible,.ap-back:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ap .ap-primary{background:var(--accent-fill);border-color:var(--accent-fill);color:var(--accent-ink)}.ap .ap-primary:hover:not(:disabled){background:var(--accent-fill);filter:brightness(1.1)}
+.ap .ap-danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 50%,var(--line))}
+.ap-rows{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-s);background:var(--panel);overflow:hidden}
+.ap-row{display:flex;align-items:flex-start;gap:8px;width:100%;padding:6px 8px;border:0;border-top:1px solid var(--line);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;min-height:0;box-shadow:none;border-radius:0}
+.ap-row:first-child{border-top:0}.ap-row:hover{background:var(--hover)}
+.ap .app-dot{flex:none;width:9px;height:9px;margin-top:3px;border-radius:50%;background:var(--faint);display:inline-flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#fff}
+.ap .app-dot[data-dot="needs_you"]{background:#f05100;width:11px;height:11px;margin-top:2px}.ap .app-dot[data-dot="working"]{background:#edb200}.ap .app-dot[data-dot="failed"]{background:var(--red)}
+.ap .app-dot[data-dot="done"]{background:var(--green)}.ap .app-dot[data-dot="waiting"]{background:transparent;border:1.5px solid var(--mute)}
+.ap-rbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ap-rtitle{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.ap-rmeta{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;color:var(--mute);font-size:var(--fs-xs)}
+.ap-check{white-space:nowrap}.ap-check::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:1px;background:var(--faint)}
+.ap-check[data-check="passed"]{color:var(--green)}.ap-check[data-check="passed"]::before{background:var(--green)}
+.ap-check[data-check="failed"],.ap-check[data-check="timed_out"]{color:var(--red)}.ap-check[data-check="failed"]::before,.ap-check[data-check="timed_out"]::before{background:var(--red)}
+.ap-check[data-check="no_tests"]{color:var(--amber)}.ap-check[data-check="no_tests"]::before{background:var(--amber)}
+.ap-cost{margin-left:auto;color:var(--fg);font-variant-numeric:tabular-nums}
+.ap-thead{padding:8px 0 4px;border-bottom:1px solid var(--line)}
+.ap .ap-back{font:inherit;font-size:var(--fs-xs);color:var(--accent);background:none;border:0;padding:0;min-height:0;cursor:pointer;box-shadow:none}
+.ap-ttitle{margin:4px 0;font-size:13px;line-height:1.3;overflow-wrap:anywhere}
+.ap-sec{padding:2px 0 6px;border-bottom:1px solid var(--line)}.ap-sec .ap-h{margin-top:8px}
+.ap-sec .checks{margin:0}.ap-sec .checks>h5{display:none}.ap-sec .check-run{padding:4px 0}
+.ap-dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;margin:0}.ap-dl dt{color:var(--mute)}.ap-dl dd{margin:0;overflow-wrap:anywhere}
+.ap-meter{height:4px;margin:6px 0 2px;border-radius:2px;background:var(--sunk);overflow:hidden}.ap-meter i{display:block;height:100%;background:var(--accent)}
+.ap-meter[data-warn] i{background:var(--amber)}.ap-meter[data-over] i{background:var(--red)}
+.ap-warn{margin:4px 0;color:var(--amber);font-size:var(--fs-xs)}
+.ap-branch{overflow-wrap:anywhere}.ap-pr{margin:4px 0 0;overflow-wrap:anywhere}.ap-pr a{color:var(--accent)}
+/* the page's touch rules (max-width:860px) size every control for a finger; at 400 to 600 px with a mouse the panel keeps
+   its tighter type, and on a touch screen (pointer:coarse) those rules stand */
+@media not all and (pointer:coarse){.ap .ap-top select{font-size:var(--fs-s)!important;min-height:26px}}
+/* end:css-app-panel */
 </style></head><body>
 <a class="skip" href="#main">Skip to content</a>
 <div class="shell">
@@ -1413,6 +1467,16 @@ select.appnt-input{height:34px;padding-right:28px}
 <div id="appob-layer" data-region="onboard"></div>
 </div>
 <!-- end:app-shell -->
+<!-- region:app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), one narrow column shown
+     instead of the full app there; drawn by region:app-panel in the script -->
+<main class="ap" id="app-panel" hidden aria-label="AgentD tasks">
+  <header class="ap-top"><b class="ap-brand">AgentD</b><select id="ap-project" aria-label="Project" hidden></select><a class="ap-full" href="/" target="_blank" rel="noopener">Full app</a></header>
+  <p class="ap-wd" id="ap-watchdog" role="status" hidden></p>
+  <section class="ap-inbox" id="ap-inbox" aria-label="Needs you" hidden></section>
+  <section class="ap-list" id="ap-list" aria-label="Tasks"></section>
+  <section class="ap-task" id="ap-task" aria-label="Task" hidden></section>
+</main>
+<!-- end:app-panel -->
 <div class="backdrop" id="backdrop"></div>
 <div class="grip" id="grip" role="separator" aria-orientation="vertical" aria-label="Resize the session console" title="Drag to resize, double-click to reset"></div>
 <aside class="drawer" id="hist" role="dialog" aria-label="Session console" tabindex="-1"></aside>
@@ -4374,7 +4438,7 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
 // A snapshot without mode "app" puts the team server back as it was.
 const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
 try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
-function appShell(d){const on=!!d&&d.mode==='app';
+function appShell(d){const on=!!d&&d.mode==='app';if(on&&AP.on)return apShell(d);// at /panel, the embedded panel (region:app-panel)
   if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false);appNewTaskClose(true)}appSides()}
   if(on){appStatus(appMine(d),d);appSidebar(d);appOnboard(d)}return on}
 function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
@@ -5144,6 +5208,105 @@ function awDetails(hid,load){const box=awSec('details');
     box.replaceChildren(agent,budget,delivery)};
   draw(AW_DET[hid]);awDetailLoad(hid).then(draw)}
 // end:app-workspace
+// region:app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), for a browser
+// tab inside another agent app. The server serves the same page there; when /api/dash says mode "app"
+// and the address is /panel, appShell hands the snapshot here instead of drawing the full app: no
+// sidebar, top bar or tabs, one column for 400 to 600 px, the page's own light and dark tokens.
+//   head    the project switch (my tasks' repositories, or All projects; kept in localStorage
+//           dash-panel-project; by default the project of my task that needs me, else my newest open
+//           one), and one line with the command when no watchdog runs
+//   needs   what waits on me, at the top only when there is any (inboxSets' mine): pending approvals
+//           with Approve and Reject, blocked and failed workers and the rest, each opening its task;
+//           while a task is open, its own items are on its panel instead
+//   list    my tasks in that project (the sidebar's own model, appSidebarModel): status, title,
+//           state, the check's result (the server's check_state) and what its workers spent
+//   task    one task as a narrow panel: its approvals with their buttons (or who may answer), checks and their proof
+//           (region:checks), cost and budget and delivery (GET /api/taskdetail), branch and draft PR
+//           state (GET /api/review), Stop and Cancel. No chat, files or terminal: the full app has them.
+// Another person's task is read only here, as in the full app. Every write goes through the actions the
+// full app's are, and the server checks each again. Text goes in as text.
+const AP={on:location.pathname==='/panel',drawn:false,project:null,hid:'',loaded:{}};
+try{const v=localStorage.getItem('dash-panel-project');if(v!==null)AP.project=v}catch(e){}
+const AP_ALL='*',AP_EVERY=15000;
+const AP_CHECK={passed:'Check passed',failed:'Check failed',timed_out:'Check timed out',no_tests:'No tests ran',not_run:'Check not run',none:'No check'};
+function apShell(d){if(!AP.drawn){AP.drawn=true;document.body.classList.add('panel-mode');document.querySelector('.shell').hidden=true;$('app-shell').hidden=true;$('app-panel').hidden=false}
+  apDraw(d);return true}
+function apModel(d){const m=appSidebarModel(d),mine=m.rows.filter(r=>r.mine),projects=[...new Set(mine.map(r=>r.project||''))].sort((a,b)=>(!a)-(!b)||a.localeCompare(b));
+  let p=AP.project;if(p===null||p!==AP_ALL&&!projects.includes(p)){const first=mine.find(r=>r.need)||mine.find(r=>!r.done)||mine[0];p=first?first.project||'':AP_ALL}
+  if(projects.length<2)p=AP_ALL;
+  return {m,mine,projects,project:p,rows:mine.filter(r=>p===AP_ALL||(r.project||'')===p)}}
+function apNeeds(d){return inboxSets(d).mine.filter(x=>x.what!=='issue').map(needNorm)}
+function apDraw(d){const md=apModel(d);if(AP.hid&&!md.m.byId.has(AP.hid))AP.hid='';apHead(d,md);apInbox(d,md);
+  $('ap-list').hidden=!!AP.hid;$('ap-task').hidden=!AP.hid;
+  if(AP.hid)apTask(d,md.m.byId.get(AP.hid));else apList(md)}
+function apHead(d,md){const sel=$('ap-project'),keep=document.activeElement===sel;
+  sel.replaceChildren(el('option',{value:AP_ALL},'All projects'),...md.projects.map(p=>el('option',{value:p},p?p.split('/').pop():'No repository')));sel.value=md.project;sel.hidden=md.projects.length<2;if(keep)sel.focus();
+  const wd=d.watchdog,n=$('ap-watchdog');n.hidden=!wd||!!wd.running;n.replaceChildren(...(wd&&!wd.running?[el('span',{},'No watchdog: offered tasks do not start. '),el('code',{},wd.start||'agentd install')]:[]))}
+function apKind(x){return x.approvalOnly?'Approval':x.kind==='blocked'?'Worker blocked':x.kind==='failed'?'Could not finish':x.kind==='spec'?'Spec approval':x.kind==='validator'?'Validator waiting':x.kind==='review'?'Ready for review':x.kind==='result'?'Report ready':x.kind==='stale'?'Expired':word(x.kind||'answered')}
+// apApproval: an approval's Approve and Reject (region:inbox's approvalActs, the same sheet and action),
+// or why this person cannot answer it.
+function apAnswer(x){if(PENDING[x.approval])return [el('span',{class:'ap-mute',role:'status'},PENDING[x.approval])];
+  if(x.can_answer===false)return [el('span',{class:'ap-mute'},x.self?capFirst(x.answer_hint||'waiting for someone else to answer'):'Waiting for '+(x.required_role?(/^[aeiou]/.test(x.required_role)?'an ':'a ')+x.required_role:'an owner')+' to answer')];
+  const [yes,no]=approvalActs(x.approval,x.title,x.from,x.approvalOnly?x.self:undefined);for(const b of [yes,no])if(b)b.classList.add('ap-btn');if(yes)yes.classList.add('ap-primary');return [yes,no].filter(Boolean)}
+function apNeedRow(x,inTask){const failed=x.kind==='failed',text=failed&&x.failure?capFirst(plainText(words(x.failure))):cardTitle(words(x.title||''));
+  const acts=x.approvalOnly||x.kind==='spec'&&x.approval?apAnswer(x):[];
+  if(!inTask&&x.handoff)acts.push(el('button',{type:'button',class:'ap-btn','data-ap-open':x.handoff},'Open task'));
+  return el('div',{class:'ap-need','data-kind':x.approvalOnly?'approval':x.kind||'','data-id':x.approval||x.id||null},el('div',{class:'ap-ntext'},el('b',{},apKind(x)),' ',text),
+    x.age?el('div',{class:'ap-mute'},(x.from&&!inTask?'from '+sessLabel(x.from)+' · ':'')+x.age+' ago'):null,acts.length?el('div',{class:'ap-acts'},acts):null)}
+function apInbox(d,md){const box=$('ap-inbox'),xs=apNeeds(d).filter(x=>!AP.hid||x.handoff!==AP.hid);box.hidden=!xs.length;if(!xs.length){box.replaceChildren();return}
+  box.replaceChildren(el('h2',{class:'ap-h'},'Needs you',el('span',{class:'ap-count'},String(xs.length))),...xs.map(x=>apNeedRow(x,false)))}
+function apSpend(h){const v=appSpend(h);return v===null?'':'$'+v.toFixed(2)}
+function apCheck(s){return el('span',{class:'ap-check','data-check':s||'none'},AP_CHECK[s]||AP_CHECK.none)}
+function apRow(r){const dot=appDot(r.mark),usd=apSpend(r.h);
+  return el('button',{type:'button',class:'ap-row','data-ap-open':r.id,'data-mark':r.mark,title:r.full},el('span',{class:'app-dot','data-dot':dot,role:'img','aria-label':APP_DOTS[dot]},dot==='needs_you'?'?':null),
+    el('span',{class:'ap-rbody'},el('span',{class:'ap-rtitle'},r.title),el('span',{class:'ap-rmeta'},el('span',{},r.done?APP_DOTS[dot]:agentsState(r)||APP_DOTS[dot]),apCheck(r.h.check_state),usd?el('span',{class:'ap-cost',title:'Spent by its workers'},usd):null)))}
+function apList(md){const box=$('ap-list'),rows=md.rows;
+  box.replaceChildren(el('h2',{class:'ap-h'},'Tasks',el('span',{class:'ap-count'},String(rows.length))),
+    rows.length?el('div',{class:'ap-rows'},rows.map(apRow)):el('p',{class:'ap-mute ap-empty'},md.mine.length?'No task of yours in this project.':'No tasks yet. Start one from your agent, or: agentd new "GOAL".'))}
+// The task: each section keeps its node across redraws and is filled from what is cached, so the 10 s
+// refresh does not flicker; checks, details and the change reload at most every 15 s.
+function apSec(box,key,title){let s=box.querySelector('[data-ap-sec="'+key+'"]');if(!s){s=el('section',{class:'ap-sec','data-ap-sec':key},el('h3',{class:'ap-h'},title),el('div',{class:'ap-sbody'}));box.append(s)}return s.querySelector('.ap-sbody')}
+function apTask(d,r){const box=$('ap-task'),h=r.h,hid=r.id,ro=!r.mine,open=(d.handoff_list||[]).find(x=>x.id===hid)||h;
+  if(box.dataset.hid!==hid){box.replaceChildren();box.dataset.hid=hid;AP.loaded={}}
+  if(ro)box.setAttribute('data-readonly','');else box.removeAttribute('data-readonly');
+  let head=box.querySelector('.ap-thead');if(!head){head=el('div',{class:'ap-thead'});box.prepend(head)}
+  const dot=appDot(r.mark);head.replaceChildren(el('button',{type:'button',class:'ap-back','data-ap-back':'','aria-label':'Back to tasks'},'← Tasks'),
+    el('h2',{class:'ap-ttitle',title:r.full},r.title),el('div',{class:'ap-rmeta'},el('span',{class:'app-dot','data-dot':dot,'aria-hidden':'true'},dot==='needs_you'?'?':null),el('span',{},r.done?APP_DOTS[dot]:agentsState(r)||APP_DOTS[dot]),apCheck(h.check_state),el('code',{},hid)),
+    ro?el('p',{class:'ap-mute'},'Read only: '+appOwner(r)+'’s task.'):null);
+  const asks=needItems(d).all.filter(x=>x.handoff===hid&&(x.what==='approval'||x.kind==='spec'&&x.approval)).map(needNorm),ab=apSec(box,'approvals','Approvals');ab.closest('section').hidden=!asks.length;ab.replaceChildren(...asks.map(x=>apNeedRow(x,true)));
+  const now=Date.now(),due=k=>{if(now-(AP.loaded[k]||0)<AP_EVERY)return false;AP.loaded[k]=now;return true};
+  const cb=apSec(box,'checks','Checks');if(!cb.firstElementChild)cb.append(checksPanel(hid));else if(due('checks')){delete CHECKS[hid];checksLoad(hid).then(c=>{if(AP.hid===hid&&cb.firstElementChild)checksFill(cb.firstElementChild,c)})}
+  if(!AP.loaded.checks)AP.loaded.checks=now;
+  const cost=apSec(box,'cost','Cost and delivery');apCost(cost,hid,AW_DET[hid]);if(due('detail'))awDetailLoad(hid).then(c=>{if(AP.hid===hid)apCost(cost,hid,c)});
+  const br=apSec(box,'branch','Branch and draft PR');apBranch(br,hid,ro,OPENPR[hid]);if(due('review'))openPRLoad(hid,true).then(c=>{if(AP.hid===hid)apBranch(br,hid,ro,c)});
+  const ac=apSec(box,'actions','Stop or cancel');ac.closest('section').hidden=ro;if(!ro)ac.replaceChildren(...apActs(d,open,hid))}
+function apCost(box,hid,c){const d=c&&c.data;if(c&&c.error&&!d){box.replaceChildren(el('p',{class:'ap-mute'},'Could not read the cost: '+c.error));return}
+  if(!d){if(!box.firstChild)box.append(el('p',{class:'ap-mute'},'Loading…'));return}
+  const b=d.budget||{},cost=d.cost||{},dl=d.delivery||{},money=v=>'$'+Number(v||0).toFixed(2),pct=Math.round(Math.max(0,Math.min(1,Number(b.fraction)||0))*100);
+  const spent=cost.usd!=null?(cost.floor?'≥ ':'')+money(cost.usd)+(cost.minutes?' · '+fmtMin(cost.minutes):''):cost.minutes?fmtMin(cost.minutes):'nothing yet';
+  const dt=(k,v)=>v===null||v===undefined||v===''?[]:[el('dt',{},k),el('dd',{},v)];
+  box.replaceChildren(el('dl',{class:'ap-dl'},...dt('Spent',spent),...dt('Budget',b.none?'none':b.cap),...dt('Used',b.none?'':b.used),...dt('Delivery',AW_OUTCOME[dl.outcome]||word(dl.outcome))),
+    b.none?null:el('div',{class:'ap-meter',role:'meter','aria-label':'Budget used','aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(pct),'data-warn':b.warn?'':null,'data-over':b.over?'':null},el('i',{style:'width:'+pct+'%'})),
+    b.running!==false&&b.over?el('p',{class:'ap-warn',role:'alert'},'At its cap: the watchdog stops the worker.'):b.running!==false&&b.warn?el('p',{class:'ap-warn',role:'alert'},'Past '+Math.round((b.warn_at||0.85)*100)+'% of its budget: the worker has been told to finish.'):null,
+    dl.reason?el('p',{class:'ap-mute'},dl.reason):null,b.raise?el('code',{class:'ap-cli',title:'Raise it from a terminal'},b.raise):null)}
+function apBranch(box,hid,ro,c){const d=c&&c.data;if(c&&c.error&&!d){box.replaceChildren(el('p',{class:'ap-mute'},'Could not read the change: '+c.error));return}
+  if(!d){if(!box.firstChild)box.append(el('p',{class:'ap-mute'},'Loading…'));return}
+  const files=d.files||[],why=openPRWhy(d);
+  box.replaceChildren(d.branch?el('div',{class:'ap-branch'},el('code',{},d.branch),' → ',el('code',{},d.base_branch||'main'),files.length?el('span',{class:'ap-mute'},' · '+files.length+' file'+(files.length===1?'':'s')+' +'+(d.added||0)+' −'+(d.deleted||0)):null):el('p',{class:'ap-mute'},d.why_not?'No change yet: '+d.why_not+'.':'No worker branch yet.'),
+    d.pr?el('p',{class:'ap-pr'},'Draft PR ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' · '+String(d.pr.state).toLowerCase():'',' · merged on GitHub by a person, never from here.')
+    :files.length&&!ro?el('div',{class:'ap-acts'},el('button',{type:'button',class:'ap-btn','data-act':'open_pr','data-write':'','data-disabled-reason':why||null,title:why||'Same as: agentd handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},'Push and open a draft PR'),why?el('span',{class:'ap-mute'},why):null)
+    :files.length?el('p',{class:'ap-mute'},'No pull request yet.'):null)}
+function apActs(d,h,hid){const out=[],live=h.dispatched&&!h.worker_state&&/^(offered|claimed)$/.test(h.state||'');
+  if(PENDING[hid])return [el('span',{class:'ap-mute',role:'status'},PENDING[hid])];
+  if(d.dispatch&&live){const why=h.may_stop===false?h.why_not||'You cannot stop this worker.':'';out.push(el('button',{type:'button',class:'ap-btn','data-act':'stop','data-write':'','data-disabled-reason':why||null,title:why||'The task stays open',onclick:()=>{if(!why)stopHandoff(h)}},'Stop worker'))}
+  if(h.cancel){const why=h.cancel.may===false?h.cancel.why_not||'You cannot cancel this task.':'';out.push(el('button',{type:'button',class:'ap-btn ap-danger','data-act':'cancel','data-write':'','data-disabled-reason':why||null,title:why||h.cancel.cli||'',onclick:()=>{if(!why)cancelTask(h)}},'Cancel task'))}
+  return out.length?[el('div',{class:'ap-acts'},out),h.cancel&&h.cancel.cli?el('code',{class:'ap-cli'},h.cancel.cli):null].filter(Boolean)
+    :[el('p',{class:'ap-mute'},/^(done|cancelled|declined)$/.test(h.state||'')?'This task has ended.':'Nothing to stop or cancel in this state.')]}
+function apOpen(hid){AP.hid=hid||'';$('app-panel').scrollTop=0;if(lastDash)apDraw(lastDash);const f=$('app-panel').querySelector(AP.hid?'[data-ap-back]':'.ap-row');if(f)f.focus({preventScroll:true})}
+$('app-panel').addEventListener('click',e=>{const o=e.target.closest('[data-ap-open]');if(o){apOpen(o.dataset.apOpen);return}if(e.target.closest('[data-ap-back]'))apOpen('')});
+$('app-panel').addEventListener('keydown',e=>{if(e.key==='Escape'&&AP.hid&&!activeSheet)apOpen('')});
+$('ap-project').addEventListener('change',e=>{AP.project=e.target.value;try{localStorage.setItem('dash-panel-project',AP.project)}catch(x){}if(lastDash)apDraw(lastDash)});
+// end:app-panel
 // region:app-keys: notifications and keyboard shortcuts in the personal app (libraos/agentd-core#566).
 // Notifications reuse #468's (region:notify): the browser's permission, asked once by Settings or the
 // onboarding's notifications step, dash-notify-off, and the rule that only a tab in the background shows
@@ -5226,7 +5389,7 @@ let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
   try{const r=await fetch('/api/dash',{cache:'no-store',headers:auth()});
-    if(r.status===401){const wasCookie=COOKIE;dropToken();if(request!==dashRequest||wasCookie&&!TOKEN)return;if(!TOKEN&&!/[?&]unlock\b/.test(location.search)){location.replace('/login');return}lockState();$('now').textContent='locked';$('dasherror').replaceChildren('This server is public, so reading it needs a sign-in. ',el('a',{href:'/login'},'Sign in with your personal key'),', open a login link from `agentd dash link --user NAME --base URL`, or paste the token from `agentd dash token` above.');$('dasherror').hidden=false;return}
+    if(r.status===401){const wasCookie=COOKIE;dropToken();if(request!==dashRequest||wasCookie&&!TOKEN)return;if(!TOKEN&&!/[?&]unlock\b/.test(location.search)){if(location.pathname==='/panel')location.replace('/login?next=/panel');else location.replace('/login');return}lockState();$('now').textContent='locked';$('dasherror').replaceChildren('This server is public, so reading it needs a sign-in. ',el('a',{href:'/login'},'Sign in with your personal key'),', open a login link from `agentd dash link --user NAME --base URL`, or paste the token from `agentd dash token` above.');$('dasherror').hidden=false;return}
     if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(request!==dashRequest)return;
     lastDash=d;CONNECTED=true;lastGoodAt=new Date();$('dasherror').hidden=true;$('dashrestart').textContent=d.config_restart||'';$('dashrestart').hidden=!d.config_restart;appWatchdog(d);$('now').textContent=(d.now||'').slice(11,19)+' UTC';$('now').title='refreshes every 10 s';render(d)}
   catch(e){if(request!==dashRequest)return;CONNECTED=false;lockState();$('now').textContent='Not connected';$('dasherror').replaceChildren(el('span',{},'Not connected. '+(lastGoodAt?'Showing data from '+lastGoodAt.toLocaleTimeString()+'. ':'No data loaded yet. ')+'Retrying every 10 seconds.'),el('button',{onclick:refresh},'Retry'));$('dasherror').hidden=false}}
