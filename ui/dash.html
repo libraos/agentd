@@ -3198,6 +3198,10 @@ async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening�
 // is said only when the review counted no commit since dispatch.
 function changesNone(d){return d.commits===0?'No change yet: the worker has not committed anything on its branch since it started.':d.why_not?'No change to show: '+d.why_not+'.':d.head?'No file changed in the worker’s commits.':'No change to show yet.'}
 function changesPublishNote(d){return el('p',{class:'field-hint','data-k':'publish'},'Not published: '+(d.why_not||'this branch is not agentd’s')+'.')}
+// #641: on a branch agentd did not make, the change ends at the worker's recorded last commit; with none
+// recorded it runs to the branch's tip and range_note says the user's own commits may be in it; ending at
+// a checked commit only, range_note says so (the worker may have committed after it).
+function changesRangeNote(d){return d.range_note?el('p',{class:'field-hint','data-k':'range'},'Changes '+d.range_note+'.'):null}
 // twChanges is Changes: the worker branch's diff and file list from GET /api/review, there as soon as
 // the worker has commits, running or not; the pull request when one is linked.
 function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-label':'Changes'});
@@ -3208,7 +3212,7 @@ function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-
     const ask=d.proposed&&!d.pr,o=(OPENPR[hid]||(OPENPR[hid]={})).open||(OPENPR[hid].open=new Set());o.add('changes');
     box.replaceChildren(ask&&!d.dismissed?el('h5',{},'Ready for review: open a pull request?'):null,d.deliverables_only&&!d.pr?el('p',{class:'field-hint'},'This task only produced deliverables in out/, so there is nothing to publish to the repository. Read them under Result in Session.'):null,link,
       el('p',{class:'mute'},[openPRSummaryText(openPRSummaryOf(d)),'branch '+d.branch,/^(claimed|offered)$/.test(d.state||'')&&!d.proposed?'the worker is still on it':''].filter(Boolean).join(' · ')),
-      d.foreign?changesPublishNote(d):null,
+      d.foreign?changesPublishNote(d):null,changesRangeNote(d),
       ask?el('p',{class:'field-hint'},'Push branch and Open a draft PR are at the top. AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
       openPRKeep(hid,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),changesView(d))))};
   fill(OPENPR[hid]);openPRLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
@@ -5102,7 +5106,7 @@ function awChanges(hid,load){const box=awSec('changes');
       el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)));
     const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
       awIcon('file',13),el('span',{class:'app-fname'},awBase(f.path)),el('span',{class:'app-fdir'},awDir(f.path)),el('span',{class:'app-n add'},'+'+(f.added||0)),f.deleted?el('span',{class:'app-n del'},'−'+f.deleted):null,el('span',{class:'app-fmark',title:mark==='U'?'new file':mark==='D'?'deleted':'modified'},mark))});
-    box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,d.foreign&&!push?changesPublishNote(d):null,pr),
+    box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,d.foreign&&!push?changesPublishNote(d):null,files.length?changesRangeNote(d):null,pr),
       el('div',{class:'app-chead'},'Changes',el('span',{'data-n':String(files.length)},String(files.length)),el('span',{class:'app-grow',style:'flex:1'}),d.added!=null&&files.length?el('span',{},'+'+(d.added||0)+' −'+(d.deleted||0)):null),
       files.length?el('div',{role:'list'},rows):el('div',{class:'app-note',style:'padding:4px 20px','data-k':'none'},d.commits===0?'No change yet: the worker has not committed on its branch.':d.head?'No file changed in the worker’s commits.':'Nothing to show yet.'),
       d.too_large?el('div',{class:'app-note',style:'padding:4px 20px'},'Some diffs are too large to show here.'):null)};
@@ -5127,7 +5131,10 @@ function awDetails(hid,load){const box=awSec('details');
       el('section',{class:'app-psec','data-sec':'budget','data-warn':b.warn?'':null,'data-over':b.over?'':null},el('h4',{},'Cost and budget'),
         el('dl',{},...dt('Spent',cost.usd!=null?(cost.floor?'≥ ':'')+money(cost.usd)+(cost.minutes?' · '+fmtMin(cost.minutes):''):cost.minutes?fmtMin(cost.minutes):'nothing yet'),...dt('Budget',b.cap),...dt('Used',b.used)),
         el('div',{class:'app-meter',role:'meter','aria-label':'Budget used','aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(Math.round(pct*100))},el('i',{style:'width:'+Math.round(pct*100)+'%'})),
-        b.over?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-over'},'At its cap: the watchdog stops the worker. Raise the budget to go on.'):b.warn?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-warn'},'Past '+Math.round((b.warn_at||0.85)*100)+'% of its budget: the worker has been told to commit its best working state and finish.'):null,
+        b.user_cap?el('p',{class:'app-note','data-k':'budget-user-cap'},'Counted against '+b.user_cap.user+'’s cap of '+money(b.user_cap.cap_usd)+' for all their workers, which binds before this task’s own budget.'):null,
+        b.unpriced?el('p',{class:'app-note','data-k':'budget-unpriced'},'Its dollar cap cannot be counted: model '+b.unpriced+' has no price, so the watchdog refuses it.'):null,
+        b.running===false?(b.over||b.warn?el('p',{class:'app-note','data-k':'budget-ended'},'The worker is no longer running; its time stopped counting when it ended.'):null):
+        b.over?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-over'},'At its cap: the watchdog stops the worker. Raise the '+(b.user_cap?'cap':'budget')+' to go on.'):b.warn?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-warn'},'Past '+Math.round((b.warn_at||0.85)*100)+'% of its budget: the worker has been told to commit its best working state and finish.'):null,
         b.error?el('p',{class:'app-note'},b.error):null,b.raise?el('code',{class:'app-cli',title:'Raise it from a terminal'},b.raise):null);
     const delivery=el('section',{class:'app-psec','data-sec':'delivery'},el('h4',{},'Delivery'),el('span',{class:'app-verdict','data-outcome':dl.outcome||''},AW_OUTCOME[dl.outcome]||word(dl.outcome)),el('p',{style:'margin:6px 0 0'},dl.reason||''),el('code',{class:'app-cli'},dl.report||'agentd factory report'));
     box.replaceChildren(agent,budget,delivery)};
