@@ -1403,7 +1403,7 @@ select.appnt-input{height:34px;padding-right:28px}
 <footer class="app-status" id="app-status" role="status" aria-label="Status">
   <button type="button" class="app-sitem" data-app-status="watchdog" aria-controls="app-watchdog-pop" aria-expanded="false"><span class="app-sdot" aria-hidden="true"></span><span id="app-watchdog-text">Watchdog</span></button>
   <span class="app-grow"></span>
-  <span class="app-sitem" data-app-status="running" title="Your open tasks with a worker running"><b id="app-running">0</b> <span>running</span></span>
+  <span class="app-sitem" data-app-status="running" title="Open tasks with a worker running: yours, and any other whose dispatched worker is alive"><b id="app-running">0</b> <span>running</span></span>
   <span class="app-sitem" data-app-status="waiting" title="Your open tasks waiting on you"><b id="app-waiting">0</b> <span>waiting on you</span></span>
   <span class="app-sitem" data-app-status="spend" id="app-spend-item" title="What workers spent today"><span>Today</span> <b id="app-spend">—</b></span>
   <div class="app-pop" id="app-watchdog-pop" role="dialog" aria-label="Watchdog" hidden></div>
@@ -1772,7 +1772,8 @@ function agentsModel(d){const {rows}=needItems(d),openPR=new Set((d.waiting||[])
   for(const h of d.handoff_list||[]){const who=h.state==='held'?h.from:h.claimer,live=liveOf(who,h),needs=(rows.get(h.id)||[]).filter(x=>x.kind!=='stale'&&x.can_answer!==false),status=statusOf(h,needs,openPR),
       mark=markOf(h.mark)?h.mark:status==='needs'?'needs_you':status==='failed'?'failed':status==='progress'?'working':status==='todo'?'not_started':'waiting',
       r={id:h.id,h,who,live,needs,status,mark,project:projectOf(h),title:cardTitle(h.title||h.goal||h.id),full:h.title||h.goal||h.id,href:itemHash(null,h.id),issue:h.issue||''};
-    if(mark==='needs_you'||mark==='failed'||needs.length||live&&live.key==='wait'){counts.need++;need.push(r);continue}
+    // A task that needs you whose dispatched worker is still alive (the server's worker_running) is working too (#604).
+    if(mark==='needs_you'||mark==='failed'||needs.length||live&&live.key==='wait'){counts.need++;if(h.worker_running)counts.working++;need.push(r);continue}
     if(mark==='working')counts.working++;else if(mark==='waiting')counts.waiting++;add(r.project,r)}
   for(const w of teamWorking(d))if(!w.handoff&&w.session){counts.working++;add(projKey(w.session.cwd),{id:w.session.id,session:w.session,who:w.session.id,live:w.live,mark:'working',project:projKey(w.session.cwd),title:cardTitle(w.task),full:w.task,href:teamHref('session',w.session.id)})}
   const order=xs=>xs.map((r,i)=>[r,i]).sort((a,b)=>(AGENTS_RANK[a[0].mark]??9)-(AGENTS_RANK[b[0].mark]??9)||a[1]-b[1]).map(a=>a[0]);
@@ -1787,7 +1788,7 @@ function agentsRow(r,sel){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.runnin
   return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,'aria-current':sel?'page':null,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
 function agentsDraw(d){if(!d)return;const box=$('agents-rows'),m=agentsModel(d),sel=agentsSelected(),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'',isSel=r=>!!sel&&(r.id===sel||r.issue===sel);
   // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
-  $('agents-counts').replaceChildren(...[[m.counts.need,m.counts.need===1?'task needs you':'tasks need you','Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
+  $('agents-counts').replaceChildren(...[[m.counts.need,m.counts.need===1?'task needs you':'tasks need you','Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
   const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...m.need.map(r=>agentsRow(r,isSel(r))));
   for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...g.rows.map(r=>agentsRow(r,isSel(r))));
   box.replaceChildren(...(kids.length?kids:[el('div',{class:'empty'},'No open tasks. Start one with New task.')]));
@@ -3191,16 +3192,22 @@ function cancelTask(h){return sheet({title:'Cancel this task?',description:'“'
   onSubmit:async v=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Cancelling…';try{await act({action:'cancel',id:h.id,reason:v.reason});toast('Task cancelled',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening…',{action:'open_editor',id:h.id});if(j)toast('Opened in '+(j.editor||'the editor')+': '+(j.cli||j.dir||''),true)}
 // end:task-actions
+// #603: a worker's commits since dispatch are its change whatever branch it worked on. A branch agentd
+// did not make (foreign) is shown, and only publishing says why it is not pushed; "has not committed"
+// is said only when the review counted no commit since dispatch.
+function changesNone(d){return d.commits===0?'No change yet: the worker has not committed anything on its branch since it started.':d.why_not?'No change to show: '+d.why_not+'.':d.head?'No file changed in the worker’s commits.':'No change to show yet.'}
+function changesPublishNote(d){return el('p',{class:'field-hint','data-k':'publish'},'Not published: '+(d.why_not||'this branch is not agentd’s')+'.')}
 // twChanges is Changes: the worker branch's diff and file list from GET /api/review, there as soon as
 // the worker has commits, running or not; the pull request when one is linked.
 function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-label':'Changes'});
   const fill=c=>{const d=c&&c.data;if(c&&c.error&&!d){box.replaceChildren(el('p',{class:'mute'},'The change could not be read: '+c.error));return}
     if(!d){box.replaceChildren(el('p',{class:'mute'},'Loading the change…'));return}
     const link=d.pr?el('p',{},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():''):null;
-    if(!d.branch||!(d.files||[]).length){box.replaceChildren(link||'',el('p',{class:'mute tw-none'},d.why_not?'No change to show: '+d.why_not+'.':'No change yet: the worker has not committed anything on its branch.'));return}
+    if(!d.branch||!(d.files||[]).length){box.replaceChildren(link||'',el('p',{class:'mute tw-none'},changesNone(d)),d.foreign&&d.commits===0?changesPublishNote(d):'');return}
     const ask=d.proposed&&!d.pr,o=(OPENPR[hid]||(OPENPR[hid]={})).open||(OPENPR[hid].open=new Set());o.add('changes');
     box.replaceChildren(ask&&!d.dismissed?el('h5',{},'Ready for review: open a pull request?'):null,d.deliverables_only&&!d.pr?el('p',{class:'field-hint'},'This task only produced deliverables in out/, so there is nothing to publish to the repository. Read them under Result in Session.'):null,link,
       el('p',{class:'mute'},[openPRSummaryText(openPRSummaryOf(d)),'branch '+d.branch,/^(claimed|offered)$/.test(d.state||'')&&!d.proposed?'the worker is still on it':''].filter(Boolean).join(' · ')),
+      d.foreign?changesPublishNote(d):null,
       ask?el('p',{class:'field-hint'},'Push branch and Open a draft PR are at the top. AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
       openPRKeep(hid,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),changesView(d))))};
   fill(OPENPR[hid]);openPRLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
@@ -4358,7 +4365,7 @@ const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
 try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
 function appShell(d){const on=!!d&&d.mode==='app';
   if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false);appNewTaskClose(true)}appSides()}
-  if(on){appStatus(appMine(d));appSidebar(d);appOnboard(d)}return on}
+  if(on){appStatus(appMine(d),d);appSidebar(d);appOnboard(d)}return on}
 function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
 function appSides(){const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
   for(const n of document.querySelectorAll('#app-shell [data-app-action^="toggle-"]'))n.setAttribute('aria-expanded',String(appOpen(n.dataset.appAction.slice(7))))}
@@ -4366,11 +4373,13 @@ function appToggle(side){if(PHONE.matches)APP.drawer=APP.drawer===side?'':side;e
 function appPanel(name){APP.panel=name;for(const t of document.querySelectorAll('#app-right [role=tab]')){const on=t.dataset.appPanel===name;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1}
   for(const p of document.querySelectorAll('#app-right [role=tabpanel]'))p.hidden=p.dataset.appPanel!==name}
 function appMoney(v){return '$'+Number(v||0).toFixed(2)}
-function appStatus(d){const m=agentsModel(d),wd=d.watchdog,sp=d.spend_today,up=!!(wd&&wd.running),item=document.querySelector('[data-app-status="watchdog"]');
+// The running count is the Agents list's working tasks of mine plus every other open task whose
+// dispatched worker is alive (worker_running), however it was started and whoever it reads as sent by (#604).
+function appStatus(d,all){const m=agentsModel(d),others=((all||d).handoff_list||[]).filter(h=>h.mine===false&&h.worker_running).length,wd=d.watchdog,sp=d.spend_today,up=!!(wd&&wd.running),item=document.querySelector('[data-app-status="watchdog"]');
   item.classList.toggle('app-warn',!!wd&&!up);$('app-watchdog-text').textContent=!wd?'Watchdog not reported':up?'Watchdog running':'No watchdog';
   item.title=!wd?'This server does not say whether a watchdog runs.':up?'A watchdog pass ran in the last 5 minutes: offered tasks start and budgets are enforced.':'No watchdog is running: offered tasks do not start. Click for the command that starts one.';
   APP.watchdog=wd||null;if(!$('app-watchdog-pop').hidden)appPopDraw();
-  $('app-running').textContent=m.counts.working;$('app-waiting').textContent=m.counts.need;
+  $('app-running').textContent=m.counts.working+others;$('app-waiting').textContent=m.counts.need;
   document.querySelector('[data-app-status="waiting"]').classList.toggle('app-hot',m.counts.need>0);
   $('app-bell-count').textContent=m.counts.need;document.querySelector('[data-app-action="bell"]').classList.toggle('app-hot',m.counts.need>0);
   const floor=!!sp&&(sp.unpriced>0||sp.pending>0);$('app-spend').textContent=sp?(floor?'≥ ':'')+appMoney(sp.usd):'—';
@@ -5086,9 +5095,9 @@ function awChanges(hid,load){const box=awSec('changes');
       el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)));
     const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
       awIcon('file',13),el('span',{class:'app-fname'},awBase(f.path)),el('span',{class:'app-fdir'},awDir(f.path)),el('span',{class:'app-n add'},'+'+(f.added||0)),f.deleted?el('span',{class:'app-n del'},'−'+f.deleted):null,el('span',{class:'app-fmark',title:mark==='U'?'new file':mark==='D'?'deleted':'modified'},mark))});
-    box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,pr),
+    box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,d.foreign&&!push?changesPublishNote(d):null,pr),
       el('div',{class:'app-chead'},'Changes',el('span',{'data-n':String(files.length)},String(files.length)),el('span',{class:'app-grow',style:'flex:1'}),d.added!=null&&files.length?el('span',{},'+'+(d.added||0)+' −'+(d.deleted||0)):null),
-      files.length?el('div',{role:'list'},rows):el('div',{class:'app-note',style:'padding:4px 20px'},'No change yet: the worker has not committed on its branch.'),
+      files.length?el('div',{role:'list'},rows):el('div',{class:'app-note',style:'padding:4px 20px','data-k':'none'},d.commits===0?'No change yet: the worker has not committed on its branch.':d.head?'No file changed in the worker’s commits.':'Nothing to show yet.'),
       d.too_large?el('div',{class:'app-note',style:'padding:4px 20px'},'Some diffs are too large to show here.'):null)};
   draw(OPENPR[hid]);openPRLoad(hid,load).then(draw)}
 // Checks: each check run, newest first, with the revert test's `not evidence` mark (region:checks).
