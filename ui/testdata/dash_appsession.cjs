@@ -6,7 +6,7 @@
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
-const CX='hof-c0ffee1234',GONE='hof-abcdef9999',OTHER='hof-0123456789';
+const CX='hof-c0ffee12',GONE='hof-abcdef99',OTHER='hof-01234567';
 // A finished Codex task with no title: only its goal, which names the task itself and another one.
 const codex={id:CX,goal:'Fix the login retry for '+CX+', after '+OTHER,state:'done',from:'s-alice',from_user:'alice',worker:'codex',worker_tool:'codex',to:'any',project:'acme/demo-repo',updated_ago:'3m',worker_branch:'agentd/'+CX};
 const snap={user:'alice',role:'owner',now,mode:'app',watchdog:{running:true},handoff_list:[],done:[codex],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{},checkouts:['/r/demo'],dispatch:true,terminal:true,spend_today:{usd:0,workers:0,unpriced:0,pending:0}};
