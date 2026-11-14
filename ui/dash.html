@@ -1044,6 +1044,9 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-sblock b{display:block;margin-bottom:2px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}
 .app-feed{font:13px/1.5 var(--o-mono);color:var(--o-fg)}
 .app-feed>div{padding:2px 0;white-space:pre-wrap;overflow-wrap:anywhere}.app-feed .app-fuser{color:var(--o-mfg)}.app-feed .app-ftool{color:var(--o-mfg);font-size:12px}.app-feed .app-ferr{color:var(--o-red)}
+/* region: app-session (#602): the worker's own conversation in the Session tab, as its terminal shows it */
+.app-shead{display:block;margin:14px 0 4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}
+.app-conv .app-fcall{font-weight:600}.app-conv .app-fprompt{max-height:12em;overflow:auto;color:var(--o-mfg)}.app-conv .app-ftool,.app-conv .app-ferr{padding-left:2ch}
 .app-note{padding:8px 0;color:var(--o-mfg);font-size:12px}
 .app-sess .result,.app-sess .openpr{margin:0 0 12px;font-size:12px}.app-sess .result h5{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
 .app-msgbar{flex:none;display:flex;gap:8px;align-items:flex-end;padding:8px 12px;border-top:1px solid var(--o-border);background:var(--o-card)}
@@ -4938,8 +4941,29 @@ function awPane(kind,...kids){return el('div',{class:'app-pane','data-pane':kind
 const AW_LOG={};
 function awLogLoad(hid){const c=AW_LOG[hid]||(AW_LOG[hid]={});if(c.loading)return c.loading;if(c.data&&Date.now()-c.at<AW_EVERY-500)return Promise.resolve(c);
   c.loading=fetch('/api/workitem?ref='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
-function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','aria-label':'History'}),c=AW_LOG[hid];
+// awTitle is Session's heading (#602): the task's title or goal, the work item's goal while the
+// snapshot has neither; its own id stays as written, never plainText's "another task".
+function awTitle(h,hid,goal){const own=new RegExp('\\b'+String(hid).replace(/[^\w-]/g,'')+'\\b','g'),t=String(h.title||h.goal||goal||'').replace(own,'\u2063').trim();return t?cardTitle(t).replace(/\u2063/g,hid):'Untitled task'}
+// The worker's own conversation (#602): GET /api/session?handoff= reads its Codex rollout or
+// Claude transcript, re-read with the Session while it is open, so a running worker's is live.
+const AW_CONV={};
+function awConvLoad(hid){const c=AW_CONV[hid]||(AW_CONV[hid]={});if(c.loading)return c.loading;if(c.data&&Date.now()-c.at<AW_EVERY-500)return Promise.resolve(c);
+  c.loading=fetch('/api/session?handoff='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();
+    if(r.status===404){c.data={turns:[],note:'Only the task’s own person can read its worker’s conversation.'};c.error='';return}
+    if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+function awConvLine(t){const x=String(t.text||'');
+  if(t.role==='user')return el('div',{class:'app-fuser app-fprompt','data-role':'user'},'> ',x);
+  if(t.role==='assistant')return el('div',{class:'app-fline','data-role':'assistant'},'⏺ ',x);
+  if(t.role==='tool')return el('div',{class:'app-fcall','data-role':'tool'},'⏺ ',x);
+  return el('div',{class:t.role==='error'?'app-ferr':'app-ftool','data-role':t.role==='error'?'error':'result'},'⎿  ',x)}
+function awConv(hid){const box=el('div',{class:'app-feed app-conv','aria-label':'Conversation','data-k':'conversation'});
+  const fill=c=>{if(c&&c.error&&!c.data){box.replaceChildren(el('div',{class:'app-ferr'},'The conversation could not be read: '+c.error));return}
+    if(!c||!c.data){box.replaceChildren(el('div',{class:'app-note'},'Loading the conversation…'));return}
+    const turns=c.data.turns||[];box.replaceChildren(...(turns.length?turns.map(awConvLine):[el('div',{class:'app-note'},c.data.note||'No conversation yet.')]))};
+  fill(AW_CONV[hid]);awConvLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
+function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','aria-label':'History'}),c=AW_LOG[hid],head=el('h2',{},awTitle(h,hid));
   const fill=c=>{const it=c&&c.data&&((c.data.tree||[]).find(x=>x.id===hid)||(c.data.tree||[])[0]),log=it&&it.log||[];
+    if(it&&it.goal&&!h.title&&!h.goal)head.textContent=awTitle(h,hid,it.goal);
     if(c&&c.error&&!c.data){feed.replaceChildren(el('div',{class:'app-ferr'},'The history could not be read: '+c.error));return}
     if(!c||!c.data){feed.replaceChildren(el('div',{class:'app-note'},'Loading the history…'));return}
     feed.replaceChildren(...(log.length?log.map(l=>{const n=String(l.note||l.state||''),rep=/^report: /.test(n),m=/^message \S+ from user (\S+) to its worker \S+: ([\s\S]*)$/.exec(n);
@@ -4948,9 +4972,10 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
   fill(c);awLogLoad(hid).then(c=>{if(feed.isConnected)fill(c)});
   const accept=Array.isArray(h.accept)?h.accept.join('\n'):h.accept||'';
   const meta=[h.state?word(h.state):'',toolName(h.worker_tool||h.worker),h.worker_branch||h.branch?el('code',{},h.worker_branch||h.branch):null,h.updated_ago?'updated '+h.updated_ago+' ago':''].filter(Boolean).map(x=>el('span',{},x));
-  const sess=el('div',{class:'app-sess'},el('h2',{},cardTitle(h.title||h.goal||hid)),el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},'agentd handoff show '+hid)),
+  const sess=el('div',{class:'app-sess'},head,el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},'agentd handoff show '+hid)),
     h.goal?el('div',{class:'app-sblock'},el('b',{},'Goal'),h.goal):null,accept?el('div',{class:'app-sblock'},el('b',{},'Done when'),accept):null,
-    h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,feed);
+    h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,
+    el('b',{class:'app-shead'},'Conversation'),awConv(hid),el('b',{class:'app-shead'},'History'),feed);
   return awPane('session',sess,AW.ro?el('div',{class:'app-msgbar app-ro',role:'note'},el('span',{class:'app-note'},'Another person’s task: read only. Session, Log and diffs are shown; messages and actions are theirs.')):awMsgBar(hid))}
 // The message box goes to the worker's inbox (task_msg), offered as /api/taskmsg says (Stop's rule).
 function awMsgBar(hid){const bar=el('div',{class:'app-msgbar','data-app-write':'',hidden:true}),c=TW.msg[hid];
