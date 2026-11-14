@@ -3188,16 +3188,22 @@ function cancelTask(h){return sheet({title:'Cancel this task?',description:'“'
   onSubmit:async v=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Cancelling…';try{await act({action:'cancel',id:h.id,reason:v.reason});toast('Task cancelled',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening…',{action:'open_editor',id:h.id});if(j)toast('Opened in '+(j.editor||'the editor')+': '+(j.cli||j.dir||''),true)}
 // end:task-actions
+// #603: a worker's commits since dispatch are its change whatever branch it worked on. A branch agentd
+// did not make (foreign) is shown, and only publishing says why it is not pushed; "has not committed"
+// is said only when the review counted no commit since dispatch.
+function changesNone(d){return d.commits===0?'No change yet: the worker has not committed anything on its branch since it started.':d.why_not?'No change to show: '+d.why_not+'.':d.head?'No file changed in the worker’s commits.':'No change to show yet.'}
+function changesPublishNote(d){return el('p',{class:'field-hint','data-k':'publish'},'Not published: '+(d.why_not||'this branch is not agentd’s')+'.')}
 // twChanges is Changes: the worker branch's diff and file list from GET /api/review, there as soon as
 // the worker has commits, running or not; the pull request when one is linked.
 function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-label':'Changes'});
   const fill=c=>{const d=c&&c.data;if(c&&c.error&&!d){box.replaceChildren(el('p',{class:'mute'},'The change could not be read: '+c.error));return}
     if(!d){box.replaceChildren(el('p',{class:'mute'},'Loading the change…'));return}
     const link=d.pr?el('p',{},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():''):null;
-    if(!d.branch||!(d.files||[]).length){box.replaceChildren(link||'',el('p',{class:'mute tw-none'},d.why_not?'No change to show: '+d.why_not+'.':'No change yet: the worker has not committed anything on its branch.'));return}
+    if(!d.branch||!(d.files||[]).length){box.replaceChildren(link||'',el('p',{class:'mute tw-none'},changesNone(d)),d.foreign&&d.commits===0?changesPublishNote(d):'');return}
     const ask=d.proposed&&!d.pr,o=(OPENPR[hid]||(OPENPR[hid]={})).open||(OPENPR[hid].open=new Set());o.add('changes');
     box.replaceChildren(ask&&!d.dismissed?el('h5',{},'Ready for review: open a pull request?'):null,d.deliverables_only&&!d.pr?el('p',{class:'field-hint'},'This task only produced deliverables in out/, so there is nothing to publish to the repository. Read them under Result in Session.'):null,link,
       el('p',{class:'mute'},[openPRSummaryText(openPRSummaryOf(d)),'branch '+d.branch,/^(claimed|offered)$/.test(d.state||'')&&!d.proposed?'the worker is still on it':''].filter(Boolean).join(' · ')),
+      d.foreign?changesPublishNote(d):null,
       ask?el('p',{class:'field-hint'},'Push branch and Open a draft PR are at the top. AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
       openPRKeep(hid,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),changesView(d))))};
   fill(OPENPR[hid]);openPRLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
@@ -5061,9 +5067,9 @@ function awChanges(hid,load){const box=awSec('changes');
       el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)));
     const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
       awIcon('file',13),el('span',{class:'app-fname'},awBase(f.path)),el('span',{class:'app-fdir'},awDir(f.path)),el('span',{class:'app-n add'},'+'+(f.added||0)),f.deleted?el('span',{class:'app-n del'},'−'+f.deleted):null,el('span',{class:'app-fmark',title:mark==='U'?'new file':mark==='D'?'deleted':'modified'},mark))});
-    box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,pr),
+    box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,d.foreign&&!push?changesPublishNote(d):null,pr),
       el('div',{class:'app-chead'},'Changes',el('span',{'data-n':String(files.length)},String(files.length)),el('span',{class:'app-grow',style:'flex:1'}),d.added!=null&&files.length?el('span',{},'+'+(d.added||0)+' −'+(d.deleted||0)):null),
-      files.length?el('div',{role:'list'},rows):el('div',{class:'app-note',style:'padding:4px 20px'},'No change yet: the worker has not committed on its branch.'),
+      files.length?el('div',{role:'list'},rows):el('div',{class:'app-note',style:'padding:4px 20px','data-k':'none'},d.commits===0?'No change yet: the worker has not committed on its branch.':d.head?'No file changed in the worker’s commits.':'Nothing to show yet.'),
       d.too_large?el('div',{class:'app-note',style:'padding:4px 20px'},'Some diffs are too large to show here.'):null)};
   draw(OPENPR[hid]);openPRLoad(hid,load).then(draw)}
 // Checks: each check run, newest first, with the revert test's `not evidence` mark (region:checks).
