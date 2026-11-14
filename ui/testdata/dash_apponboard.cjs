@@ -1,4 +1,4 @@
-// #569: the personal app's first run, the same as Orca's (SPEC.md §7). A fake /api/onboarding
+// #569: the personal app's first run, the same as the reference app's (SPEC.md §7). A fake /api/onboarding
 // keeps one person's state as the Go route does; each scenario boots the page in app mode.
 // Per step: shown, what Continue saves (its completion), Set up later / Skip, and resume.
 // Per checklist item: shown, its completion condition, Hide. Then the coach marks, Help, the toast.
@@ -35,7 +35,7 @@ async function boot(o={}){
     ok(){assert(!errors.length,errors.join('\n'))}};
   return t}
 (async()=>{
- // --- a fresh person: the wizard opens on its own, Orca's step 1 ---
+ // --- a fresh person: the wizard opens on its own, the reference app's step 1 ---
  let t=await boot();t.ok();
  assert(t.doc.body.classList.contains('app-mode'),'app mode is not on');
  assert.equal(t.srv.gets,1,'the page does not read /api/onboarding once');
@@ -78,7 +78,7 @@ async function boot(o={}){
  assert.equal(t.q('a.appob-btn').getAttribute('href'),'https://cli.github.com','Install gh');assert(t.q('[data-ob="gh-recheck"]'),'no Re-check');
  assert(t.doc.querySelectorAll('#appob-layer .appob-bullets li').length===4,'four bullets');assert(/never merges/.test(t.text()),'the PR bullet promises a merge');
  assert(/gh auth login/.test(t.q('.appob-cli').textContent));
- // Re-check with gh signed in moves on by itself, as Orca does once gh is installed.
+ // Re-check with gh signed in moves on by itself, as the reference app does once gh is installed.
  t.srv.facts.gh='connected';await t.click('[data-ob="gh-recheck"]');
  assert.equal(t.step(),'notifications','Re-check does not move on');assert.equal(t.last().lastCompletedStep,3);
  // --- step 5, notifications ---
@@ -125,7 +125,7 @@ async function boot(o={}){
  // --- checklist: Getting started, each item's condition ---
  await t.click('[data-ob="entry"]');assert(/Getting started/.test(t.text())&&/Finish the core workflows/.test(t.text()),'Getting started does not open');
  const items=()=>Object.fromEntries([...t.doc.querySelectorAll('#appob-layer [data-ob-item]')].map(n=>[n.dataset.obItem,n]));
- assert.deepEqual(Object.keys(items()),['notifications','default-agent','agent-capabilities','task-sources','setup-script','add-two-repos','two-worktrees','browser'],'Orca’s eight items in order');
+ assert.deepEqual(Object.keys(items()),['notifications','default-agent','agent-capabilities','task-sources','setup-script','add-two-repos','two-worktrees','browser'],'the eight checklist items in order');
  assert.deepEqual([...t.doc.querySelectorAll('#appob-layer .appob-guidesec h3')].map(h=>h.textContent),['Setup','Milestones']);
  const done=id=>items()[id].classList.contains('done');
  assert(done('notifications'),'notifications: permission granted and on');assert(done('default-agent'),'default agent chosen');assert(done('task-sources'),'gh connected');
@@ -169,7 +169,7 @@ async function boot(o={}){
  t=await boot({facts:{gh:'sign_in'}});assert(/1 of 4/.test(t.text()),'gh installed still shows its step');assert(!t.q('[data-ob="seg-integrations"]'));t.w.close();
  t=await boot({facts:{os:'windows'}});assert(/1 of 6/.test(t.text()),'Windows has no terminal step');await t.click('[data-ob="seg-windows_terminal"]');assert(/Set Windows terminal defaults/.test(t.text()));
  await t.click('[data-ob="continue"]');assert.equal(t.last().lastCompletedStep,4,'the Windows step saves step 4');t.w.close();
- // No agent on PATH: Orca's notice and the popular list; a pick not on PATH is warned of.
+ // No agent on PATH: the reference app's notice and the popular list; a pick not on PATH is warned of.
  t=await boot({facts:{clients:[{tool:'claude',found:false,connected:false},{tool:'codex',found:false,connected:false},{tool:'opencode',found:false,connected:false}]}});
  await t.click('[data-ob="continue"]');assert(/No agents detected on your PATH/.test(t.text())&&/Popular agents\s*3/.test(t.text()),'no-agent notice');
  await t.click('[data-ob="agent-opencode"]');assert(/opencode isn’t on your PATH yet/.test(t.text()),'not-on-PATH warning');t.w.close();
@@ -186,7 +186,7 @@ async function boot(o={}){
  assert(!t.shown(t.$('appob-entry')),'the entry stays with the checklist complete');t.w.close();
  // --- the team dash: no onboarding, no read ---
  t=await boot({snap:snapBase});assert(!t.doc.body.classList.contains('app-mode'));assert.equal(t.srv.gets,0,'the team dash reads /api/onboarding');assert(!t.doc.querySelector('#appob-layer .appob-modal'),'the wizard in team mode');t.ok();t.w.close();
- // Its own CSS region, Orca's sizes.
+ // Its own CSS region, the reference app's sizes.
  const css=html.match(/region:css-app-onboard[\s\S]*?end:css-app-onboard/);assert(css,'no css-app-onboard region');
  for(const re of [/max-width:1100px/,/max-height:960px/,/font-size:34px/,/rgb\(0 0 0\/\.5\)/,/width:340px/,/width:min\(20rem/,/@media\(max-width:860px\)/])assert(re.test(css[0]),'css: '+re);
  console.log('dash_apponboard: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');

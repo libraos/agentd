@@ -3,7 +3,7 @@
 // of mine that turns to needs you, done, or failed (its check, or its worker) raises exactly one
 // notification (title and task, as text), never again on a refresh, a reload or in a second tab; the first
 // look only remembers; none with the tab in front, none for another person's task, none without
-// permission; clicking one opens the task. Shortcuts follow Orca's (SPEC.md §8, Mod = Ctrl here): Mod+1…9,
+// permission; clicking one opens the task. Shortcuts follow the reference app's (SPEC.md §8, Mod = Ctrl here): Mod+1…9,
 // Mod+Shift+Up/Down and Mod+Shift+0 for the task list, Alt+1…9, Mod+Shift+]/[, Mod+Alt+]/[, Mod+T and
 // Mod+W for the workspace tabs, Mod+Shift+E/G for Files and Changes, Mod+N for New task; ? opens the app's
 // own overlay (also from Help's Keyboard shortcuts), not the team dash's; nothing fires while typing.
