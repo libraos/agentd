@@ -375,11 +375,13 @@ assert.equal(resultView.querySelectorAll('.chat-output-files button').length,3,'
  // A visible control works with a draft, including typing during withdrawal.
  // The full suite runs this on desktop and phone; no hover/menu is required.
  const unanswered={role:'user',seq:3,content:'Please read this',attachments:[{id:'att-image',name:'photo.png',size:12}]};
- let withdrawCalls=0,withdrawFinish,stalePollFinish;
+ // Every read of the thread while the stale poll is held stays pending, the dash's own poll timer's too, and all are
+ // answered together: keeping only the latest left the test's own poll unanswered when a timer read in between.
+ let withdrawCalls=0,withdrawFinish,stalePolls=[];const stalePollFinish=v=>stalePolls.splice(0).forEach(r=>r(v));
  const withdrawReply=text=>({ok:true,status:200,json:async()=>({text})});
  w.fixtureUnanswered=unanswered;
  evalJS("CHAT.msgs=[window.fixtureUnanswered];CHAT.chat={id:'chat-test',role:'writer'};CHAT.busy=false;CHAT.live=null;CHAT.error='Image input is not supported';$('chat-input').value='My next thought';chatRenderThread()");
- w.fetch=(url,opts={})=>{if(url.endsWith('/withdraw')){withdrawCalls++;assert.equal(JSON.parse(opts.body).seq,3);return new Promise(resolve=>{withdrawFinish=resolve})}if(url==='/api/chat/chat-test')return new Promise(resolve=>{stalePollFinish=resolve});return transportBeforeRecovery(url,opts)};
+ w.fetch=(url,opts={})=>{if(url.endsWith('/withdraw')){withdrawCalls++;assert.equal(JSON.parse(opts.body).seq,3);return new Promise(resolve=>{withdrawFinish=resolve})}if(url==='/api/chat/chat-test')return new Promise(resolve=>{stalePolls.push(resolve)});return transportBeforeRecovery(url,opts)};
  await evalJS('chatReclaim()');assert.equal(withdrawCalls,0,'automatic recovery took a turn while typing');
  const stalePoll=evalJS('chatPoll()');
  const withdrawButton=click(w.document.querySelector('#chat-msgs'),'Remove');
