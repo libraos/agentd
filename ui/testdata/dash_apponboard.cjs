@@ -13,7 +13,7 @@ const snapBase={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[
 const app={...snapBase,mode:'app',watchdog:{running:true,start:'agentd install'},spend_today:{usd:0,workers:0,unpriced:0,pending:0,user:'alice'}};
 const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()};
 async function boot(o={}){
-  const srv={state:o.state||fresh(),facts:{...baseFacts(),...(o.facts||{})},posts:[],gets:0,snap:o.snap||app,notify:o.notify||'default',session:o.session};
+  const srv={state:o.state||fresh(),facts:{...baseFacts(),...(o.facts||{})},posts:[],gets:0,getURLs:[],fail:o.fail||0,snap:o.snap||app,notify:o.notify||'default',session:o.session};
   const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
   const dom=new JSDOM(html,{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
     w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');if(srv.session)w.sessionStorage.setItem('dash-app-onboard-closed',srv.session);
@@ -22,7 +22,7 @@ async function boot(o={}){
     w.fetch=async(url,init)=>{const u=new URL(url,w.location.href);let body={},status=200;
       if(u.pathname==='/api/auth')return {ok:true,status:204};
       if(u.pathname==='/api/dash')body=srv.snap;
-      if(u.pathname==='/api/onboarding'){if(init&&init.method==='POST'){const st=JSON.parse(init.body);srv.posts.push(st);srv.state=st}else srv.gets++;body={user:'alice',state:srv.state,facts:srv.facts}}
+      if(u.pathname==='/api/onboarding'){if(srv.fail){status=srv.fail;body=srv.fail===404?{}:{error:'Could not read the onboarding state'}}else{if(init&&init.method==='POST'){const st=JSON.parse(init.body);srv.posts.push(st);srv.state=st}else{srv.gets++;srv.getURLs.push(u.search)}body={user:'alice',state:srv.state,facts:srv.facts}}}
       return {ok:status<400,status,json:async()=>JSON.parse(JSON.stringify(body)),text:async()=>JSON.stringify(body)}}}});
   const w=dom.window,doc=w.document;await settle();
   const t={w,doc,srv,errors,$:id=>doc.getElementById(id),q:s=>doc.querySelector('#appob-layer '+s),
@@ -80,7 +80,7 @@ async function boot(o={}){
  assert(t.doc.querySelectorAll('#appob-layer .appob-bullets li').length===4,'four bullets');assert(/never merges/.test(t.text()),'the PR bullet promises a merge');
  assert(/gh auth login/.test(t.q('.appob-cli').textContent));
  // Re-check with gh signed in moves on by itself, as the reference app does once gh is installed.
- t.srv.facts.gh='connected';await t.click('[data-ob="gh-recheck"]');
+ t.srv.facts.gh='connected';await t.click('[data-ob="gh-recheck"]');assert.equal(t.srv.getURLs[t.srv.getURLs.length-1],'?fresh=1','Re-check does not ask gh again');assert.equal(t.srv.getURLs[0],'','the first read asks gh again');
  assert.equal(t.step(),'notifications','Re-check does not move on');assert.equal(t.last().lastCompletedStep,3);
  // --- step 5, notifications ---
  assert(/Set up notifications/.test(t.text())&&/5 of 5/.test(t.text()));assert(!t.q('[data-ob="later"]'),'Set up later on the last page');
@@ -185,6 +185,10 @@ async function boot(o={}){
  // Every counted item done: the entry goes away by itself.
  t=await boot({state:{...fresh(),closedAt:Date.now()-1000,outcome:'completed',lastCompletedStep:5,notifications:true,defaultAgent:'codex'},session:'alice',notify:'granted',facts:{gh:'connected',task_files:1,clients:[{tool:'codex',found:true,connected:true}],repositories:[{path:'/r/a'},{path:'/r/b'}],first_task:{done:true,handoff:'hof-1',count:1}}});
  assert(!t.shown(t.$('appob-entry')),'the entry stays with the checklist complete');t.w.close();
+ // A failed read is said, not hidden; a 404 (no onboarding on this server) stays quiet.
+ t=await boot({fail:500});assert(!t.doc.querySelector('#appob-layer .appob-modal'),'the wizard without a state');
+ assert(/Could not read the onboarding state/.test(t.$('toast').textContent),'a failed read is hidden: '+t.$('toast').textContent);t.ok();t.w.close();
+ t=await boot({fail:404});assert(!t.doc.querySelector('#appob-layer .appob-modal'));assert(!/onboarding/i.test(t.$('toast').textContent),'a 404 is toasted');t.ok();t.w.close();
  // --- the team server: no onboarding, no read ---
  t=await boot({snap:snapBase});assert(!t.doc.body.classList.contains('app-mode'));assert.equal(t.srv.gets,0,'the team server reads /api/onboarding');assert(!t.doc.querySelector('#appob-layer .appob-modal'),'the wizard in team mode');t.ok();t.w.close();
  // Its own CSS region, the reference app's sizes.

@@ -4542,12 +4542,14 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKe
 // Opened by the + in the Projects header, n (region:keys, through ntOpen) and
 // Ctrl/Cmd+Enter submits, as the reference app's does; Escape or the X closes it.
 const APPNT={dlg:null,ui:null,nt:null,busy:false,key:'',opener:null,touched:{},asked:''};
-function appShq(v){v=String(v);return /^[A-Za-z0-9_@%+=:,.\/#-]+$/.test(v)?v:"'"+v.replace(/'/g,"'\\''")+"'"}
+// A word starting with #, - or ~ is quoted too: bare, the shell reads # as a comment and ~ as home, and agentd new - as a flag.
+function appShq(v){v=String(v);return /^[A-Za-z0-9_@%+=:,.\/][A-Za-z0-9_@%+=:,.\/#-]*$/.test(v)?v:"'"+v.replace(/'/g,"'\\''")+"'"}
 // appNewTaskLine is the agentd new command the dialog's request equals.
-function appNewTaskLine(v,nt){const defs=nt.defaults||{},sent=!!(nt.touched||nt.defaults),parts=['agentd','new',appShq(v.goal||'GOAL'),'--cwd',appShq(v.cwd||'REPO'),'--worker',appShq(v.tool||'W'),'--budget',appShq(v.budget||'B')];
+// A goal starting with - goes last, after -- (agentd new takes every word after -- as the goal), so it is never read as a flag.
+function appNewTaskLine(v,nt){const defs=nt.defaults||{},sent=!!(nt.touched||nt.defaults),goal=v.goal||'GOAL',dash=goal.startsWith('-'),parts=['agentd','new',...(dash?[]:[appShq(goal)]),'--cwd',appShq(v.cwd||'REPO'),'--worker',appShq(v.tool||'W'),'--budget',appShq(v.budget||'B')];
   for(const line of acceptLinesOf(v.accept))parts.push('--accept',appShq(line));
   if(sent){if(!v.check)parts.push('--no-check');else if(v.check!==String(defs.check||'').trim())parts.push('--verify',appShq(v.check))}
-  if(v.issue)parts.push('--issue',appShq(v.issue));return parts.join(' ')}
+  if(v.issue)parts.push('--issue',appShq(v.issue));if(dash)parts.push('--',appShq(goal));return parts.join(' ')}
 function acceptLinesOf(text){return String(text||'').split('\n').map(l=>l.trim().replace(/^[-*]\s+/,'').trim()).filter(Boolean)}
 // appNewTaskRepo: the selected repository when it is a known checkout, else the first one.
 function appNewTaskRepo(d){const dirs=d.checkouts||[];return dirs.includes(APP.repo)?APP.repo:dirs[0]||''}
@@ -4689,9 +4691,11 @@ const OB_TOURS=[
     {target:'[data-contextual-tour-target="new-task-agent"]',place:'below',title:'Choose what agent starts the work',body:'Pick the agent that should start when this task is created.'}]},
   {id:'projects-collapse-all',when:()=>!!document.querySelector('#app-projects [aria-expanded="false"]'),steps:[
     {target:'[data-contextual-tour-target="projects-collapse-all"]',place:'right',title:'Collapse all projects at once',body:'Click this button, or Alt-click any project header.',got:true}]}];
-async function obAPI(body){const r=await fetch('/api/onboarding',{method:body?'POST':'GET',cache:'no-store',headers:{...auth(),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});let d={};try{d=await r.json()}catch(e){}if(!r.ok)throw new Error(d.error||'Could not read your onboarding (HTTP '+r.status+').');return d}
+async function obAPI(body,query){const r=await fetch('/api/onboarding'+(query||''),{method:body?'POST':'GET',cache:'no-store',headers:{...auth(),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});let d={};try{d=await r.json()}catch(e){}if(!r.ok){const e=new Error(d.error||'Could not read your onboarding (HTTP '+r.status+').');e.status=r.status;throw e}return d}
 function obTake(d){if(!d||!d.state||typeof d.state!=='object')return false;OB.st=d.state;OB.facts=d.facts||{};OB.user=d.user||'';return true}
-async function obLoad(){const seq=++OB.req;let d;try{d=await obAPI()}catch(e){return false}if(seq!==OB.req||!obTake(d))return false;obDraw();return true}
+// fresh: Re-check, which asks the server to run gh auth status again (it keeps gh's state a minute otherwise).
+// A 404 is a dash with no onboarding and stays quiet; any other failure is said.
+async function obLoad(fresh){const seq=++OB.req;let d;try{d=await obAPI(null,fresh?'?fresh=1':'')}catch(e){if(e.status!==404&&seq===OB.req)toast(e.message);return false}if(seq!==OB.req||!obTake(d))return false;obDraw();return true}
 async function obSave(patch){if(!OB.st)return;OB.st={...OB.st,...patch,checklist:{...OB.st.checklist,...(patch.checklist||{})}};obDraw();const seq=++OB.req;
   try{const d=await obAPI(OB.st);if(seq===OB.req&&obTake(d))obDraw()}catch(e){toast(e.message)}}
 // appOnboard: called by appShell on every app-mode render.
@@ -4779,7 +4783,7 @@ function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not i
       el('div',{class:'appob-ghacts'},g==='not_installed'?el('a',{class:'appob-btn',href:'https://cli.github.com',target:'_blank',rel:'noopener noreferrer'},obSvg(OB_I.ext,14),'Install gh'):null,g==='sign_in'?el('button',{type:'button',class:'appob-btn','data-ob':'gh-signin',onclick:()=>{const c=document.querySelector('.appob-gh code');if(c)c.focus();copyCmd('gh auth login')}},'Sign in'):null,el('button',{type:'button',class:'appob-ghost','data-ob':'gh-recheck',onclick:obRecheck},'Re-check'))),
     el('div',{class:'appob-more-src'},el('b',{},'More task sources'),el('span',{},'Linear lives in config.toml [linear] (agentd issue sync-linear).')),
     obCli(['gh auth login','agentd issue sync-gh','agentd pr sync-gh'],'agentd reads GitHub through gh; this page does not sign you in.')]}
-async function obRecheck(){OB.facts={...OB.facts,gh:'checking'};obDraw();await obLoad();const s=obStep();if(s&&s.id==='integrations'&&OB.facts.gh&&OB.facts.gh!=='not_installed'){if(OB.only||OB.page>=OB.steps.length-1)obFinish({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)},'completed');else{obSave({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)});OB.page++;obDraw()}}}
+async function obRecheck(){OB.facts={...OB.facts,gh:'checking'};obDraw();await obLoad(true);const s=obStep();if(s&&s.id==='integrations'&&OB.facts.gh&&OB.facts.gh!=='not_installed'){if(OB.only||OB.page>=OB.steps.length-1)obFinish({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)},'completed');else{obSave({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)});OB.page++;obDraw()}}}
 function copyCmd(c){try{if(navigator.clipboard)navigator.clipboard.writeText(c).then(()=>toast('Copied: '+c,true),()=>{})}catch(e){}}
 function obPageWindows(){return [el('div',{class:'appob-notice',role:'note'},'agentd’s Terminal tab runs the shell of the account agentd app runs as, so it has no default shell or right-click setting to choose. This step keeps its place for a Windows host and saves nothing.'),obCli([],'')]}
 function obSound(v){try{const C=window.AudioContext||window.webkitAudioContext;if(!C||v==='system')return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value={'two-tone':660,bong:220,thump:110,blip:880,sonar:520,blop:330,ding:1046,clack:1500,beep:1000}[v]||660;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}}

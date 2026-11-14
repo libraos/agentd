@@ -74,6 +74,15 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  assert.equal(cmd(),"agentd new 'Add a flag' --cwd /w/beta --worker claude --budget 45m --accept 'it is documented' --accept 'it has a test' --verify 'go vet ./...' --issue libraos/agentd-core#564",'command: '+cmd());
  // The server's and the goal's text stays text.
  type($('appnt-goal'),'Add '+evil);assert(cmd().includes(evil)&&!d.querySelector('img'),'the goal is not shown as text');
+ // libraos/agentd-core#643: a word starting with #, - or ~ is quoted, and a goal starting with - goes last after --,
+ // so the line pasted into a shell is still the request (bash reads a bare #42 as a comment).
+ type($('appnt-goal'),'#42');assert(cmd().startsWith("agentd new '#42' --cwd"),'a # goal is not quoted: '+cmd());
+ type($('appnt-goal'),'~/notes');assert(cmd().startsWith("agentd new '~/notes' --cwd"),'a ~ goal is not quoted: '+cmd());
+ type($('appnt-goal'),'a#b');assert(cmd().startsWith('agentd new a#b --cwd'),'a # inside a word is quoted: '+cmd());
+ for(const g of ['--no-start','-h']){type($('appnt-goal'),g);
+  assert(cmd().startsWith('agentd new --cwd ')&&cmd().endsWith(" -- '"+g+"'"),'a goal starting with - is not after --: '+cmd())}
+ type($('appnt-issue'),'#564');assert(/ --issue '#564'( |$)/.test(cmd()),'a # issue is not quoted: '+cmd());type($('appnt-issue'),'libraos/agentd-core#564');
+ type($('appnt-check'),'-x');assert(/ --verify '-x'( |$)/.test(cmd()),'a - check is not quoted: '+cmd());type($('appnt-check'),'go vet ./...');
  type($('appnt-goal'),"Fix the parser's input");
  assert(cmd().startsWith("agentd new 'Fix the parser'\\''s input' --cwd"),'a quote in the goal is not shell-quoted: '+cmd());
  // Ctrl+Enter submits the team sheet's own offer.
