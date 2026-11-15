@@ -44,6 +44,9 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
  assert(body.classList.contains('app-mode'),'app mode is not on');await openLeft();
+ // #667: the sidebar header uses the product name in every theme and viewport.
+ const name=doc.querySelector('#app-left .app-name');
+ assert.equal(name.textContent,'AgentD','sidebar product name');assert(shown(name),'sidebar product name is hidden');
  // Grouping: my tasks by repository (folders sorted, each task under its own), finished ones too;
  // then Other people's with Bob's only.
  const it=items();

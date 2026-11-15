@@ -113,6 +113,17 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  // Escape closes it and gives focus back to the button that opened it.
  key('Escape',{},$('appnt-goal'));await tick();assert(!dlg(),'Escape does not close the dialog');
  if(!phone)assert.equal(doc.activeElement,newBtn(),'focus does not go back to the + button');
+ // libraos/agentd-core#661: dispatch off says so, with no restart needed; the open dialog
+ // follows the next refresh once the setting is on, without closing it.
+ snap=app({dispatch:false});await w.refresh();await settle();newBtn().click();await settle();
+ const off=dlg().querySelector('.appnt-create'),why=dlg().querySelector('.appnt-why');
+ assert(off.disabled,'Create is on with dispatch off');assert(shown(why)&&/dash\.dispatch true/.test(why.textContent)&&/No restart needed/.test(why.textContent),'no word on dispatch: '+why.textContent);
+ assert(/No restart needed/.test(off.title),'the tooltip does not say no restart is needed: '+off.title);assert(!/restart agentd app/i.test(off.title),'the tooltip asks for a restart');
+ snap=app();await w.refresh();await settle();
+ assert(dlg()&&dlg().open,'the dialog closed on refresh');assert(!off.disabled,'Create stays off after dispatch came on');assert(!shown(why),'the reason stays after dispatch came on');assert(!off.hasAttribute('title'),'the old tooltip stays: '+off.title);
+ snap=app({dispatch:false});await w.refresh();await settle();assert(off.disabled&&shown(why),'Create stays on after dispatch went off');
+ snap=app();await w.refresh();await settle();
+ key('Escape',{},dlg());await tick();
  // Read-only: the dialog says why and Create is off.
  snap=app({role:'viewer'});await w.refresh();await settle();newBtn().click();await settle();
  assert(dlg().querySelector('.appnt-create').disabled,'a viewer can press Create');assert(/read-only/i.test(dlg().querySelector('.appnt-why').textContent),'no reason shown');

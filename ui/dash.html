@@ -1092,6 +1092,7 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-scm{padding:8px}.app-branch{display:flex;flex-direction:column;gap:2px;margin:0 0 8px;font-size:11px;color:var(--o-mfg)}
 .app-branch>span{display:flex;align-items:center;gap:4px}.app-branch code{font:500 10.5px var(--o-mono);color:var(--o-fg)}.app-branch .app-base code{color:color-mix(in srgb,var(--o-fg) 90%,transparent);text-decoration:underline;text-decoration-color:var(--o-border);text-underline-offset:2px}
 .app-scm .app-btn{width:100%}.app-scm .app-why{margin:6px 0 0;font-size:11px;color:var(--o-mfg);line-height:16px}
+.app-scm .app-fix code{word-break:break-all}.app-scm .app-btn-link{background:none;border:0;padding:0;font:inherit;color:var(--o-accent,inherit);text-decoration:underline;cursor:pointer}
 .app-chead{display:flex;align-items:center;gap:4px;padding:12px 12px 4px 4px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}.app-chead span{font-size:11px;font-weight:500;letter-spacing:0;font-variant-numeric:tabular-nums}
 .app-crow{display:flex;width:100%;align-items:center;gap:4px;padding:4px 12px 4px 20px;border:0;border-radius:0;background:none;color:var(--o-fg);text-align:left;font-size:12px;--app-hover:color-mix(in srgb,var(--o-accent) 40%,transparent)}
 .app-crow>svg{color:var(--o-git,var(--o-mfg))}.app-crow .app-fname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.app-crow .app-fdir{flex:1;min-width:0;margin-left:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--o-mfg)}
@@ -1359,7 +1360,7 @@ select.appnt-input{height:34px;padding-right:28px}
 <div class="app-shell" id="app-shell" hidden>
 <div class="app-row">
 <aside class="app-left" id="app-left" aria-label="Tasks and projects">
-  <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">agentd</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
+  <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">AgentD</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
     <!-- region:app-nav: Tasks (every task as a table) and Triggers (an owner's, region:app-triggers) open in the centre; wired by the issues that build them -->
@@ -3050,10 +3051,15 @@ async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',r
 // dispatchHandoff starts a Claude or Codex worker that claims the handoff.
 // depsNote warns in a worker sheet when a Codex worker without network would
 // meet a check that needs dependencies the checkout lacks (checkout_deps); the
-// server's own warning at dispatch is in the history either way.
+// server's own warning at dispatch is in the history either way. python-runner
+// is a Python project that lists no packages: only a check run by a runner
+// outside the standard library (pytest, tox, nox) lacks one, never
+// python -m unittest, and with no check named nothing is said.
 const DEPS_WHAT={node:'node_modules is not installed (there is a lockfile)',python:'no Python virtual environment was found'};
+const DEPS_CHECK={node:/(^|[\s;&|(])(npm|pnpm|yarn|npx|jest|vitest|mocha)(\s|$)/i,python:/(^|[\s;&|(\/\\])(pytest|py\.test|python3?|tox|nox|unittest)(\.exe)?(\s|$)/i,'python-runner':/(^|[\s;&|(\/\\])(pytest|py\.test|tox|nox)(\.exe)?(\s|$)/i};
 function depsWarnText(d,cwd,tool,check){if(tool!=='codex'||d.codex_network)return '';let kinds=((d.checkout_deps||{})[cwd]||[]);
-  if(check){const c=check.replace(/^cd\s+\S+\s*&&\s*/,'');kinds=kinds.filter(k=>k==='node'?/(^|[\s;&|(])(npm|pnpm|yarn|npx|jest|vitest|mocha)(\s|$)/i.test(c):/(^|[\s;&|(\/])(pytest|py\.test|python3?|tox|nox|unittest)(\s|$)/i.test(c))}
+  if(check){const c=check.replace(/^cd\s+\S+\s*&&\s*/,'');kinds=kinds.filter(k=>DEPS_CHECK[k]&&DEPS_CHECK[k].test(c))}else kinds=kinds.filter(k=>k!=='python-runner');
+  kinds=[...new Set(kinds.map(k=>k==='python-runner'?'python':k))];
   if(!kinds.length)return '';return (check?'The check ('+check+')':'A check that needs them')+' will likely fail: '+kinds.map(k=>DEPS_WHAT[k]).join('; ')+', and a Codex worker without network cannot install them. Choose Claude, turn on Codex network in Settings, or install the dependencies in the checkout first.'}
 function depsNote(ui,check){const d=lastDash||{},n=el('p',{class:'field-error',role:'note',hidden:true});ui.body.append(n);
   const sync=()=>{const t=depsWarnText(d,ui.inputs.cwd.value,ui.inputs.tool.value,check);n.textContent=t;n.hidden=!t};
@@ -4695,12 +4701,17 @@ async function appNewTaskDefaults(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui)return;
   if(!APPNT.touched.budget)ui.inputs.budget.value=t.budget||d.dispatch_budget||'30m';
   ui.fileNote.textContent=[(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; ')+'.':'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');ui.fileNote.hidden=!ui.fileNote.textContent;appNewTaskShow()}
 function appNewTaskShow(){const ui=APPNT.ui;if(!ui)return;$('appnt-cmd').textContent=appNewTaskLine(ui.values(),APPNT.nt)}
-// appNewTaskWhy: why Create cannot work here, if it cannot.
-function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+// appNewTaskWhy: why Create cannot work here, if it cannot. The server reads
+// dash.dispatch from config.toml on each request (libraos/agentd-core#661), so
+// the setting needs no restart: the open dialog follows each refresh.
+function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true in a terminal. No restart needed: this dialog picks it up within 10 seconds.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+// appNewTaskGate shows why Create is off, or turns it back on, from lastDash
+// as it is now; refresh calls it while the dialog is open.
+function appNewTaskGate(){const ui=APPNT.ui;if(!ui||APPNT.busy)return;const why=appNewTaskWhy();ui.why.textContent=why;ui.why.hidden=!why;ui.submit.disabled=!!why;if(why)ui.submit.title=why;else ui.submit.removeAttribute('title')}
 function appNewTask(){if(!APP.on)return;if(APPNT.dlg&&APPNT.dlg.open){APPNT.ui.inputs.goal.focus();return}
   APPNT.opener=document.activeElement;const dlg=appNewTaskBuild();APPNT.dlg=dlg;$('app-shell').append(dlg);
-  const why=appNewTaskWhy();APPNT.ui.why.textContent=why;APPNT.ui.why.hidden=!why;APPNT.ui.submit.disabled=!!why;if(why)APPNT.ui.submit.title=why;
-  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults()}
+  appNewTaskGate();
+  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults();if(APPNT.ui.submit.disabled)refresh()}
 // force: the team server came back (appShell), so nothing of the app stays open.
 function appNewTaskClose(force){if(APPNT.busy&&!force)return;APPNT.busy=false;const dlg=APPNT.dlg;APPNT.dlg=null;APPNT.ui=null;APPNT.nt=null;if(dlg){if(dlg.open)dlg.close();dlg.remove()}
   const back=APPNT.opener;APPNT.opener=null;if(back&&back.isConnected&&!back.closest('[hidden]'))back.focus({preventScroll:true})}
@@ -5192,7 +5203,9 @@ function awChanges(hid,load){const box=awSec('changes');
     const branch=d.branch?el('div',{class:'app-branch'},el('span',{},awIcon('branch',12),el('code',{},d.branch)),el('span',{class:'app-base'},awIcon('arrow',12),el('code',{},d.base_branch||'main'))):null;
     const pr=d.pr?el('p',{class:'app-why'},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():'',': it is merged on GitHub by a person, never from here.'):null;
     const push=AW.ro||!files.length||d.pr?null:el('div',{'data-app-write':''},el('button',{type:'button',class:'app-btn','data-act':'open_pr','aria-disabled':why?'true':null,title:why||'Same as: agentd handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},awIcon('push',13),'Push and open a draft PR'),
-      el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)));
+      el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)),
+      // #660: a refusal that has a fix (agentd init in the checkout, or the branch's own push) offers it to copy.
+      why&&d.may_fix&&why===d.may_why?el('p',{class:'app-why app-fix','data-k':'fix'},'Fix: ',el('code',{},d.may_fix),' ',el('button',{type:'button',class:'app-btn-link','data-act':'copy_fix',onclick:()=>copyCmd(d.may_fix)},'Copy')):null);
     const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
       awIcon('file',13),el('span',{class:'app-fname'},awBase(f.path)),el('span',{class:'app-fdir'},awDir(f.path)),el('span',{class:'app-n add'},'+'+(f.added||0)),f.deleted?el('span',{class:'app-n del'},'−'+f.deleted):null,el('span',{class:'app-fmark',title:mark==='U'?'new file':mark==='D'?'deleted':'modified'},mark))});
     box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,d.foreign&&!push?changesPublishNote(d):null,files.length?changesRangeNote(d):null,pr),
@@ -5306,7 +5319,7 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.isComp
 document.querySelector('#app-shell [data-app-action="new-task"]').setAttribute('aria-keyshortcuts','N '+(APP_MAC?'Meta':'Control')+'+N');
 // end:app-keys
 // region:refresh
-function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();appNotifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
+function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();appNotifyCheck(d);appNewTaskGate();return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
