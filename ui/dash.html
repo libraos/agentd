@@ -1063,6 +1063,8 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-note{padding:8px 0;color:var(--o-mfg);font-size:12px}
 .app-sess .result,.app-sess .openpr{margin:0 0 12px;font-size:12px}.app-sess .result h5{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
 .app-msgbar{flex:none;display:flex;gap:8px;align-items:flex-end;padding:8px 12px;border-top:1px solid var(--o-border);background:var(--o-card)}
+/* region: follow-up on a finished task (#670): the note goes on its own line above the box. */
+.app-msgbar:has([data-k="followup-note"]){flex-wrap:wrap}.app-msgbar [data-k="followup-note"]{flex:1 0 100%}
 .app-msgbar textarea{flex:1;min-height:56px;max-height:160px;resize:vertical;padding:6px 8px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-bg);color:var(--o-fg);font:12px/1.4 inherit}
 .app-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:24px;padding:0 12px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-bg);color:var(--o-fg);font-size:11px;font-weight:500;--app-hover:var(--o-accent)}
 .app-btn[aria-disabled="true"]{opacity:.5;cursor:default}.app-btn.app-primary{background:var(--o-primary);border-color:var(--o-primary);color:var(--o-primary-fg);--app-hover:color-mix(in srgb,var(--o-primary) 88%,var(--o-bg))}
@@ -3240,12 +3242,13 @@ function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-
 function twMsgLoad(hid,force){const c=TW.msg[hid]||(TW.msg[hid]={});if(c.loading)return c.loading;if(!force&&c.data&&Date.now()-c.at<15000)return Promise.resolve(c);
   c.loading=fetch('/api/taskmsg?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.data=null;c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
 async function twSend(hid,input,btn){const body=input.value.trim();if(!body||btn.getAttribute('aria-disabled')==='true')return;btn.setAttribute('aria-disabled','true');btn.textContent='Sending…';
-  try{await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast('Sent to the worker’s inbox',true);loadDetail(DET.ref,false)}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent='Send'}}
+  try{const r=await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast(r&&r.followup?'A worker is starting on the task’s branch with your message':'Sent to the worker’s inbox',true);if(r&&r.followup)delete (TW.msg[hid]||{}).data;loadDetail(DET.ref,false)}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent='Send'}}
 function twMsgFill(box,hid,c){const d=c&&c.data;box.dataset.at=String(c&&c.at||'');if(!d||!d.may){box.hidden=true;box.replaceChildren();return}box.hidden=false;
-  if(!d.live){box.replaceChildren(el('p',{class:'mute tw-gone',role:'note'},d.gone||'The worker has gone, so a message would not be read.'));return}
-  const input=el('textarea',{class:'tw-input',rows:'2',maxlength:'4000','aria-label':'Message this worker',placeholder:'Ask for a change, or answer its question',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();twSend(hid,input,btn)}}});
+  const follow=!d.live&&!!d.followup;
+  if(!d.live&&!follow){box.replaceChildren(el('p',{class:'mute tw-gone',role:'note'},d.gone||'The worker has gone, so a message would not be read.'));return}
+  const input=el('textarea',{class:'tw-input',rows:'2',maxlength:'4000','aria-label':follow?'Follow up on this task':'Message this worker',placeholder:follow?'Ask for more on the same branch':'Ask for a change, or answer its question',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();twSend(hid,input,btn)}}});
   input.value=TW.draft[hid]||'';const btn=el('button',{type:'button',class:'primary','data-write':true,onclick:()=>twSend(hid,input,btn)},'Send');
-  box.replaceChildren(el('label',{class:'tw-field'},el('span',{class:'mute'},'Message this worker'),input),btn,el('p',{class:'field-hint'},'It goes to the worker’s inbox and into the task’s history. Ctrl+Enter sends.'));TW.input=input}
+  box.replaceChildren(el('label',{class:'tw-field'},el('span',{class:'mute'},follow?'Follow up on this task':'Message this worker'),input),btn,el('p',{class:'field-hint'},follow?(d.followup_note||'A message starts a worker again on the task’s branch.')+' Ctrl+Enter sends.':'It goes to the worker’s inbox and into the task’s history. Ctrl+Enter sends.'));TW.input=input}
 function twMsgBox(hid){if(!hid)return null;const box=el('div',{class:'tw-msgbox',hidden:true}),c=TW.msg[hid];if(c&&c.data)twMsgFill(box,hid,c);
   twMsgLoad(hid).then(c=>{if(box.isConnected&&box.dataset.at!==String(c.at)){const a=document.activeElement===TW.input,at=a&&[TW.input.selectionStart,TW.input.selectionEnd];twMsgFill(box,hid,c);if(a&&TW.input&&box.contains(TW.input)){TW.input.focus({preventScroll:true});TW.input.setSelectionRange(at[0],at[1])}}});return box}
 function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildren();return}
@@ -5063,6 +5066,7 @@ function awConvLoad(hid){const c=AW_CONV[hid]||(AW_CONV[hid]={});if(c.loading)re
     if(r.status===404){c.data={turns:[],note:'Only the task’s own person can read its worker’s conversation.'};c.error='';return}
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
 function awConvLine(t){const x=String(t.text||'');
+  if(t.role==='user'&&t.handoff)return el('div',{class:'app-fuser','data-role':'user','data-k':'followup'},'> ',x);
   if(t.role==='user')return el('div',{class:'app-fuser app-fprompt','data-role':'user'},'> ',x);
   if(t.role==='assistant')return el('div',{class:'app-fline','data-role':'assistant'},'⏺ ',x);
   if(t.role==='tool')return el('div',{class:'app-fcall','data-role':'tool'},'⏺ ',x);
@@ -5077,7 +5081,7 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
     if(it&&it.goal&&!h.title&&!h.goal)head.textContent=awTitle(h,hid,it.goal);
     if(c&&c.error&&!c.data){feed.replaceChildren(el('div',{class:'app-ferr'},'The history could not be read: '+c.error));return}
     if(!c||!c.data){feed.replaceChildren(el('div',{class:'app-note'},'Loading the history…'));return}
-    feed.replaceChildren(...(log.length?log.map(l=>{const n=String(l.note||l.state||''),rep=/^report: /.test(n),m=/^message \S+ from user (\S+) to its worker \S+: ([\s\S]*)$/.exec(n);
+    feed.replaceChildren(...(log.length?log.map(l=>{const n=String(l.note||l.state||''),rep=/^report: /.test(n),m=/^message \S+ from user (\S+) to its worker \S+: ([\s\S]*)$/.exec(n)||/^follow-up from user (\S+), (?:started \S+|starting its worker again): ([\s\S]*)$/.exec(n);
       return rep?el('div',{class:'app-fline','data-k':'report'},'⏺ ',n.slice(8),el('span',{class:'app-ftool'},'  '+(l.ago||'')+' ago')):
         m?el('div',{class:'app-fuser','data-k':'message'},'> ',(m[1]===USER?'You':m[1])+': '+m[2]):el('div',{class:'app-ftool','data-k':'step'},'  ⎿  ',(l.actor?nameOf(l.actor)+': ':'')+n,'  '+(l.ago||'')+' ago')}):[el('div',{class:'app-note'},'No history yet.')]))};
   fill(c);awLogLoad(hid).then(c=>{if(feed.isConnected)fill(c)});
@@ -5091,12 +5095,16 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
 // The message box goes to the worker's inbox (task_msg), offered as /api/taskmsg says (Stop's rule).
 function awMsgBar(hid){const bar=el('div',{class:'app-msgbar','data-app-write':'',hidden:true}),c=TW.msg[hid];
   const fill=c=>{const d=c&&c.data;if(!d||!d.may){bar.hidden=true;return}bar.hidden=false;
-    if(!d.live){bar.replaceChildren(el('span',{class:'app-note',role:'note'},d.gone||'The worker has gone, so a message would not be read.'));return}
-    const input=el('textarea',{rows:'2',maxlength:'4000','aria-label':'Message this worker',placeholder:'Message the worker: ask for a change, or answer its question (Ctrl+Enter sends)',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();send()}}});
-    input.value=TW.draft[hid]||'';const btn=el('button',{type:'button',class:'app-btn app-primary',onclick:()=>send()},'Send');
-    const send=async()=>{const body=input.value.trim();if(!body||btn.getAttribute('aria-disabled')==='true')return;btn.setAttribute('aria-disabled','true');btn.textContent='Sending…';
-      try{await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast('Sent to the worker’s inbox',true);delete (AW_LOG[hid]||{}).data;awLogLoad(hid).then(()=>{if(!awTyping())awBody()})}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent='Send'}};
-    bar.replaceChildren(input,btn)};
+    // A finished task's box stays (#670): a send starts a worker again on its branch, with the conversation.
+    const follow=!d.live&&!!d.followup;
+    if(!d.live&&!follow){bar.replaceChildren(el('span',{class:'app-note',role:'note'},d.gone||'The worker has gone, so a message would not be read.'));return}
+    const input=el('textarea',{rows:'2',maxlength:'4000','aria-label':follow?'Follow up on this task':'Message this worker',placeholder:follow?'Follow up: ask for more on the same branch (Ctrl+Enter sends and starts a worker)':'Message the worker: ask for a change, or answer its question (Ctrl+Enter sends)',oninput:e=>{TW.draft[hid]=e.target.value},onkeydown:e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();send()}}});
+    input.value=TW.draft[hid]||'';const btn=el('button',{type:'button',class:'app-btn app-primary',onclick:()=>send()},follow?'Send and start':'Send');
+    const send=async()=>{const body=input.value.trim();if(!body||btn.getAttribute('aria-disabled')==='true')return;btn.setAttribute('aria-disabled','true');btn.textContent=follow?'Starting…':'Sending…';
+      try{await act({action:'task_msg',id:hid,body});input.value='';TW.draft[hid]='';toast(follow?'A worker is starting on the task’s branch with your message':'Sent to the worker’s inbox',true);delete (AW_LOG[hid]||{}).data;
+        if(follow){delete (AW_CONV[hid]||{}).data;delete (TW.msg[hid]||{}).data;twMsgLoad(hid,true).then(c=>{if(bar.isConnected&&!awTyping())fill(c)});refresh()}
+        awLogLoad(hid).then(()=>{if(!awTyping())awBody()})}catch(e){toast(errorText(e),false)}finally{btn.removeAttribute('aria-disabled');btn.textContent=follow?'Send and start':'Send'}};
+    bar.replaceChildren(...(follow?[el('span',{class:'app-note','data-k':'followup-note'},d.followup_note||'A message starts a worker again on the task’s branch.')]:[]),input,btn)};
   if(c&&c.data)fill(c);twMsgLoad(hid).then(c=>{if(bar.isConnected&&!awTyping())fill(c)});return bar}
 // Log: the worker's log tail, kept live while the worker runs (region:worker-log).
 function awLog(hid){const c=WLOG[hid]||(WLOG[hid]={});c.open=true;const det=wlogPanel(hid);det.open=true;wlogTick(hid);return awPane('log',det)}
