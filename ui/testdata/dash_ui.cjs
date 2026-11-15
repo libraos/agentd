@@ -18,7 +18,17 @@ let core=page.split('// region:core\n')[1].split('function meter(')[0];
 vm.runInContext(core,ctx);
 vm.runInContext(page.split('function approvalDecision(')[1].split('// One row of what waits')[0].replace(/^/,'function approvalDecision('),ctx);
 // The missing-dependency note the worker sheets (New handoff, Dispatch, Start again) add.
-vm.runInContext(page.split('function depsWarnText(')[1].split('function workerFields(')[0].replace(/^/,'function depsWarnText('),ctx);
+vm.runInContext(page.split('const DEPS_WHAT=')[1].split('function workerFields(')[0].replace(/^/,'const DEPS_WHAT='),ctx);
+// A Python project that lists no packages (python-runner) warns only for a check run by pytest, tox or nox, never python -m unittest (#662).
+{const d="({checkout_deps:{'/py':['python-runner'],'/req':['python'],'/js':['node']}})",w=(cwd,tool,check)=>vm.runInContext('depsWarnText('+d+','+JSON.stringify(cwd)+','+JSON.stringify(tool)+','+JSON.stringify(check)+')',ctx);
+ assert.equal(w('/py','codex','python.exe -m unittest discover -s tests -v'),'','a standard-library check warned');
+ assert.equal(w('/py','codex',''),'','no check, a project with no packages warned');
+ for(const c of ['pytest -q','python -m pytest','tox -e py','C:\\py\\Scripts\\pytest.exe'])assert(w('/py','codex',c).includes('no Python virtual environment'),'runner check not warned: '+c);
+ assert.equal(w('/py','claude','pytest'),'','a Claude worker warned');
+ assert(w('/req','codex','python.exe -m unittest discover').includes('no Python virtual environment'),'a project listing packages not warned');
+ assert(w('/req','codex','').includes('A check that needs them'),'no check, a project listing packages not warned');
+ assert.equal(w('/js','codex','python -m unittest'),'','a node checkout warned a Python check');
+ assert(w('/js','codex','npm test').includes('node_modules'),'node not warned');}
 vm.runInContext(page.split('function prDisabledReason(')[1].split('/* The board')[0].replace(/^/,'function prDisabledReason('),ctx);
 const run=s=>vm.runInContext(s,ctx),event={preventDefault(){},stopPropagation(){}};
 let writes=[];ctx.fetch=async(url,opts)=>{writes.push({url,body:JSON.parse(opts.body)});return {ok:true,status:200,json:async()=>({ok:true})}};
