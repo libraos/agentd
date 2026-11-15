@@ -3039,10 +3039,15 @@ async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',r
 // dispatchHandoff starts a Claude or Codex worker that claims the handoff.
 // depsNote warns in a worker sheet when a Codex worker without network would
 // meet a check that needs dependencies the checkout lacks (checkout_deps); the
-// server's own warning at dispatch is in the history either way.
+// server's own warning at dispatch is in the history either way. python-runner
+// is a Python project that lists no packages: only a check run by a runner
+// outside the standard library (pytest, tox, nox) lacks one, never
+// python -m unittest, and with no check named nothing is said.
 const DEPS_WHAT={node:'node_modules is not installed (there is a lockfile)',python:'no Python virtual environment was found'};
+const DEPS_CHECK={node:/(^|[\s;&|(])(npm|pnpm|yarn|npx|jest|vitest|mocha)(\s|$)/i,python:/(^|[\s;&|(\/\\])(pytest|py\.test|python3?|tox|nox|unittest)(\.exe)?(\s|$)/i,'python-runner':/(^|[\s;&|(\/\\])(pytest|py\.test|tox|nox)(\.exe)?(\s|$)/i};
 function depsWarnText(d,cwd,tool,check){if(tool!=='codex'||d.codex_network)return '';let kinds=((d.checkout_deps||{})[cwd]||[]);
-  if(check){const c=check.replace(/^cd\s+\S+\s*&&\s*/,'');kinds=kinds.filter(k=>k==='node'?/(^|[\s;&|(])(npm|pnpm|yarn|npx|jest|vitest|mocha)(\s|$)/i.test(c):/(^|[\s;&|(\/])(pytest|py\.test|python3?|tox|nox|unittest)(\s|$)/i.test(c))}
+  if(check){const c=check.replace(/^cd\s+\S+\s*&&\s*/,'');kinds=kinds.filter(k=>DEPS_CHECK[k]&&DEPS_CHECK[k].test(c))}else kinds=kinds.filter(k=>k!=='python-runner');
+  kinds=[...new Set(kinds.map(k=>k==='python-runner'?'python':k))];
   if(!kinds.length)return '';return (check?'The check ('+check+')':'A check that needs them')+' will likely fail: '+kinds.map(k=>DEPS_WHAT[k]).join('; ')+', and a Codex worker without network cannot install them. Choose Claude, turn on Codex network in Settings, or install the dependencies in the checkout first.'}
 function depsNote(ui,check){const d=lastDash||{},n=el('p',{class:'field-error',role:'note',hidden:true});ui.body.append(n);
   const sync=()=>{const t=depsWarnText(d,ui.inputs.cwd.value,ui.inputs.tool.value,check);n.textContent=t;n.hidden=!t};
