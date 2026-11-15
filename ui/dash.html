@@ -847,6 +847,18 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
 @media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
 /* end:css-app-sidebar */
+/* region:css-app-triggers: the app's Triggers page (libraos/agentd-core#680), cards in the reference app's page style */
+.app-page .appt-sp{flex:1}.app-page .app-phead button{height:28px;padding:0 12px;border-radius:6px;font-size:12px}
+.appt-card{margin:0 0 16px;padding:12px 16px;overflow:visible}.appt-head{display:flex;align-items:center;gap:10px}.appt-title{flex:1;min-width:0}.appt-title b{display:block;font-size:13px}.appt-title small{color:var(--o-mfg);font-size:11px;overflow-wrap:anywhere}
+.appt-dot{width:8px;height:8px;border-radius:50%;background:var(--o-mfg);flex:none}.appt-dot.on{background:#00bb7f}.appt-dot.bad{background:#fb2c36}
+.appt-acts{display:flex;gap:6px;flex-wrap:wrap}.appt-acts button{height:28px;padding:0 10px;border-radius:6px;font-size:12px}
+.appt-state,.appt-goal{margin:8px 0;color:var(--o-mfg);font-size:12px;line-height:1.5}.appt-goal{color:var(--o-fg)}.appt-problem{color:#fb2c36}
+.appt-dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 16px;margin:8px 0;font-size:12px}.appt-dl dt{color:var(--o-mfg)}.appt-dl dd{margin:0;overflow-wrap:anywhere}
+.appt-cli{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--o-mfg)}.app-page .appt-cli code{display:inline-block;margin:4px 0}
+.appt-card h3,.appt-h{margin:12px 0 8px;font-size:12px;font-weight:600}.appt-runs{margin-top:8px}.appt-runs .app-pempty{padding:16px}.appt-runs tr[data-task-id]{cursor:pointer}
+.appt-tpls{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px;font-size:12px}.appt-tpls button{font-size:12px}
+@media(max-width:860px){.appt-head{flex-wrap:wrap}.appt-acts{width:100%}.appt-acts button{min-height:44px;flex:1}.appt-dl{grid-template-columns:1fr}.app-page .app-phead{flex-wrap:wrap;height:auto}}
+/* end:css-app-triggers */
 /* region:css-app-newtask: New task in the personal app (libraos/agentd-core#564), the reference app's "Create worktree" dialog
    (NewWorkspaceComposerModal + shadcn Dialog, MIT): sm:max-w-lg 512px, p-6, rounded-lg 10px, border black/14
    (white/14 dark), shadow 0 20px 60px rgba(0,0,0,.28), overlay black/55, dialog surface; title text-base 600; fields
@@ -1082,6 +1094,7 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-scm{padding:8px}.app-branch{display:flex;flex-direction:column;gap:2px;margin:0 0 8px;font-size:11px;color:var(--o-mfg)}
 .app-branch>span{display:flex;align-items:center;gap:4px}.app-branch code{font:500 10.5px var(--o-mono);color:var(--o-fg)}.app-branch .app-base code{color:color-mix(in srgb,var(--o-fg) 90%,transparent);text-decoration:underline;text-decoration-color:var(--o-border);text-underline-offset:2px}
 .app-scm .app-btn{width:100%}.app-scm .app-why{margin:6px 0 0;font-size:11px;color:var(--o-mfg);line-height:16px}
+.app-scm .app-fix code{word-break:break-all}.app-scm .app-btn-link{background:none;border:0;padding:0;font:inherit;color:var(--o-accent,inherit);text-decoration:underline;cursor:pointer}
 .app-chead{display:flex;align-items:center;gap:4px;padding:12px 12px 4px 4px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--o-fg) 70%,transparent)}.app-chead span{font-size:11px;font-weight:500;letter-spacing:0;font-variant-numeric:tabular-nums}
 .app-crow{display:flex;width:100%;align-items:center;gap:4px;padding:4px 12px 4px 20px;border:0;border-radius:0;background:none;color:var(--o-fg);text-align:left;font-size:12px;--app-hover:color-mix(in srgb,var(--o-accent) 40%,transparent)}
 .app-crow>svg{color:var(--o-git,var(--o-mfg))}.app-crow .app-fname{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.app-crow .app-fdir{flex:1;min-width:0;margin-left:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--o-mfg)}
@@ -1349,14 +1362,14 @@ select.appnt-input{height:34px;padding-right:28px}
 <div class="app-shell" id="app-shell" hidden>
 <div class="app-row">
 <aside class="app-left" id="app-left" aria-label="Tasks and projects">
-  <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">agentd</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
+  <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">AgentD</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
-    <!-- region:app-nav: Tasks (every task as a table) and Triggers (read only) open in the centre; wired by the issues that build them -->
+    <!-- region:app-nav: Tasks (every task as a table) and Triggers (an owner's, region:app-triggers) open in the centre; wired by the issues that build them -->
     <!-- region:app-onboard-entry: the reference app's "Onboarding checklist" row (#569), first in the nav; drawn by region:app-onboard -->
     <div id="appob-entry" data-region="onboard-entry" hidden></div>
     <button type="button" class="app-navrow" data-app-nav="tasks" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13"/></svg>Tasks</button>
-    <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers<span class="app-navnote">Read only</span></button>
+    <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers</button>
   </nav>
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
     <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count">0</span></button>
@@ -3040,10 +3053,15 @@ async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',r
 // dispatchHandoff starts a Claude or Codex worker that claims the handoff.
 // depsNote warns in a worker sheet when a Codex worker without network would
 // meet a check that needs dependencies the checkout lacks (checkout_deps); the
-// server's own warning at dispatch is in the history either way.
+// server's own warning at dispatch is in the history either way. python-runner
+// is a Python project that lists no packages: only a check run by a runner
+// outside the standard library (pytest, tox, nox) lacks one, never
+// python -m unittest, and with no check named nothing is said.
 const DEPS_WHAT={node:'node_modules is not installed (there is a lockfile)',python:'no Python virtual environment was found'};
+const DEPS_CHECK={node:/(^|[\s;&|(])(npm|pnpm|yarn|npx|jest|vitest|mocha)(\s|$)/i,python:/(^|[\s;&|(\/\\])(pytest|py\.test|python3?|tox|nox|unittest)(\.exe)?(\s|$)/i,'python-runner':/(^|[\s;&|(\/\\])(pytest|py\.test|tox|nox)(\.exe)?(\s|$)/i};
 function depsWarnText(d,cwd,tool,check){if(tool!=='codex'||d.codex_network)return '';let kinds=((d.checkout_deps||{})[cwd]||[]);
-  if(check){const c=check.replace(/^cd\s+\S+\s*&&\s*/,'');kinds=kinds.filter(k=>k==='node'?/(^|[\s;&|(])(npm|pnpm|yarn|npx|jest|vitest|mocha)(\s|$)/i.test(c):/(^|[\s;&|(\/])(pytest|py\.test|python3?|tox|nox|unittest)(\s|$)/i.test(c))}
+  if(check){const c=check.replace(/^cd\s+\S+\s*&&\s*/,'');kinds=kinds.filter(k=>DEPS_CHECK[k]&&DEPS_CHECK[k].test(c))}else kinds=kinds.filter(k=>k!=='python-runner');
+  kinds=[...new Set(kinds.map(k=>k==='python-runner'?'python':k))];
   if(!kinds.length)return '';return (check?'The check ('+check+')':'A check that needs them')+' will likely fail: '+kinds.map(k=>DEPS_WHAT[k]).join('; ')+', and a Codex worker without network cannot install them. Choose Claude, turn on Codex network in Settings, or install the dependencies in the checkout first.'}
 function depsNote(ui,check){const d=lastDash||{},n=el('p',{class:'field-error',role:'note',hidden:true});ui.body.append(n);
   const sync=()=>{const t=depsWarnText(d,ui.inputs.cwd.value,ui.inputs.tool.value,check);n.textContent=t;n.hidden=!t};
@@ -4428,8 +4446,8 @@ appPanel(APP.panel);
 //   bell      how many of my tasks wait on me (the status bar's own count, read from my tasks
 //             only); it toggles the list between Projects and Needs you, as the reference app's bell toggles
 //             its list
-//   Tasks     every task as a table over the centre (the reference app's Tasks page); Triggers, read only:
-//             they are set from a terminal, so the view gives the commands
+//   Tasks     every task as a table over the centre (the reference app's Tasks page); Triggers is
+//             region:app-triggers' page (an owner's; read only for anyone else)
 //   keys      ArrowDown and ArrowUp move between tasks while the sidebar has the focus, Enter
 //             opens one (the row is a button), N is New task (it clicks the header's + button)
 // Opening a task (appTaskOpen) is the seam for the centre and right sidebar: APP.task is its id,
@@ -4499,10 +4517,7 @@ function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;
   p.replaceChildren(appPageHead('Tasks',f),el('div',{class:'app-pcard'},rows.length?el('table',{class:'app-ptable'},el('thead',{},el('tr',{},['ID','Title / context','From','Status','Spend','Updated'].map((h,i)=>el('th',{class:i===2||i>3?'app-pcol-opt':null,scope:'col'},h)))),el('tbody',{},rows.map(tr)))
     :el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or agentd new "GOAL" in a terminal.')));
   f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
-function appTriggersPage(){$('app-page').replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{},
-  el('p',{},'Triggers and schedules start tasks on their own, so they are set from a terminal (or the team server), never from this app. See what is set:'),
-  el('code',{},'agentd schedule list'),el('code',{},'agentd trigger status'),
-  el('p',{},'An owner enables a schedule from a terminal; config.toml’s [triggers] turns triggers on:'),el('code',{},'agentd schedule enable NAME'),el('code',{},'agentd config set triggers.enabled true')))}
+function appTriggersPage(){appTrigRender();appTrigLoad()}
 function appRepoPop(open){let pop=$('app-repo-pop');const b=document.querySelector('#app-shell [data-app-action="add-repo"]');
   if(!open){if(pop)pop.hidden=true;b.setAttribute('aria-expanded','false');return}
   if(!pop){pop=el('div',{class:'app-repo-pop',id:'app-repo-pop',role:'dialog','aria-label':'Add a repository'},el('p',{},'Repositories are added from a terminal, in the checkout:'),el('code',{},'agentd repo add'),el('p',{style:'margin:8px 0 0'},'Or name it: agentd repo add DIR. It shows here once it has a task.'));$('app-left').append(pop)}
@@ -4530,6 +4545,82 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKe
   const i=rows.indexOf(t),cur=i<0?rows.findIndex(n=>n.dataset.taskId===APP.task):i,n=cur<0?(e.key==='ArrowDown'?0:rows.length-1):Math.min(rows.length-1,Math.max(0,cur+(e.key==='ArrowDown'?1:-1)));
   e.preventDefault();e.stopPropagation();rows[n].focus();if(rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'})},true);
 // end:app-sidebar
+// region:app-triggers: the app's Triggers page for an owner (libraos/agentd-core#680), the reference
+// app's Automations page with agentd's own content. GET /api/triggers is what agentd trigger status and
+// agentd schedule list print. An owner:
+//   creates or edits [triggers] (New trigger / Edit: repos, authors, label, budget, max_per_day; a template
+//     fills the form) with POST /api/settings trigger_edit: config.toml through the config editor, never
+//     enabled, refused while triggers are on
+//   pauses them (trigger_pause writes enabled = false); turning them on again is the terminal's, so the page
+//     only shows that command
+//   enables, pauses and runs a schedule (schedule_enable, schedule_disable, schedule_run: due at the next
+//     watchdog pass, under every rule its scheduled runs have)
+//   sees the runs of each, a row opening the task it started
+// Each action shows its CLI twin. Anyone else (the server's 403) gets the read-only commands.
+const APPT={data:null,seq:0,error:''};
+async function appTrigLoad(){const seq=++APPT.seq;
+  try{const r=await fetch('/api/triggers',{cache:'no-store',headers:auth()});let d={};try{d=await r.json()}catch(e){}if(seq!==APPT.seq)return;
+    if(r.status===403||r.status===401){APPT.data=null;APPT.error='';appTrigReadOnly(d.error);return}
+    if(!r.ok)throw new Error(d.error||'Could not read triggers (HTTP '+r.status+').');APPT.data=d;APPT.error=''}
+  catch(e){if(seq!==APPT.seq)return;APPT.error=errorText(e)}
+  appTrigRender()}
+function appTrigReadOnly(why){const p=$('app-page');if(!p||APPS.page!=='triggers')return;
+  p.replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{'data-appt':'readonly'},
+    el('p',{},(why?why+'. ':'')+'Only an owner creates, edits, pauses or runs a trigger. See what is set:'),
+    el('code',{},'agentd trigger status'),el('code',{},'agentd schedule list'),
+    el('p',{},'An owner turns triggers on from a terminal, and enables or runs a schedule:'),el('code',{},'agentd config set triggers.enabled true'),el('code',{},'agentd schedule enable NAME'),el('code',{},'agentd schedule run NAME')))}
+// appTrigAct: one write, with its toast; the page reloads either way.
+async function appTrigAct(body,ok){try{const r=await settingsAPI(body);toast(ok(r||{}),true)}catch(e){toast(e)}appTrigLoad()}
+function appTrigCmd(text){return el('code',{class:'appt-cmd',title:'The same from a terminal'},text)}
+function appTrigTask(id){return id?el('span',{class:'appt-task'},id):'—'}
+// appTrigRuns: a table of runs; a row with a task opens it (the page's own row handler).
+function appTrigRuns(target,head,rows,empty){return el('div',{class:'app-pcard appt-runs','data-contextual-tour-target':target},rows.length?
+  el('table',{class:'app-ptable'},el('thead',{},el('tr',{},head.map(h=>el('th',{scope:'col'},h)))),el('tbody',{},rows.map(r=>el('tr',{'data-task-id':r.task||null,tabindex:r.task?'0':null},r.cells.map((v,i)=>el('td',{'data-label':head[i]},v===''||v==null?'—':v))))))
+  :el('div',{class:'app-pempty'},el('b',{},'No runs yet'),empty))}
+function appTrigSplit(v){return String(v||'').split(/[\s,]+/).map(x=>x.trim()).filter(Boolean)}
+// appTrigEdit: New trigger or Edit, the [triggers] settings in one form; a template fills it.
+function appTrigEdit(){const d=APPT.data||{},st=d.status||{},has=(st.repos||[]).length>0,tpls=d.templates||[];
+  const first=tpls[0]||{},repo=d.repo||'',author=d.author||'';
+  const fields=[{name:'repos',label:'Repositories',required:true,value:has?(st.repos||[]).join(', '):repo,hint:'OWNER/NAME, comma separated. Only these fire.'},
+    {name:'authors',label:'Authors',required:true,value:(st.authors||[]).join(', ')||author,hint:'GitHub logins whose PRs and issues fire, comma separated.'},
+    {name:'label',label:'Issue label',value:has?st.label||'':first.label||'',hint:'An open issue of theirs with this label starts a worker. Empty: issues start nothing; a PR going red still does.'},
+    {name:'budget',label:'Budget per run',required:true,value:has?st.budget||'':first.budget||'30m',hint:'Each worker stops at it, such as 30m or $5.'},
+    {name:'max_per_day',label:'Most runs a day',required:true,type:'number',value:String(has?st.max_per_day||'':first.max_per_day||3),hint:'1 to 50. One broken main can turn every PR red at once.'}];
+  return sheet({title:has?'Edit trigger':'New trigger',description:'Writes [triggers] in config.toml, with a backup and a history entry. It stays off: nothing fires until someone runs '+(d.enable||'agentd config set triggers.enabled true')+' in a terminal.',
+    action:'Save to config.toml',fields,
+    setup(api){if(!tpls.length)return;api.body.prepend(el('div',{class:'appt-tpls','data-appt':'templates'},el('span',{},'Start from'),tpls.map(t=>el('button',{type:'button','data-template':t.name,title:t.about,onclick:()=>{api.inputs.label.value=t.label||'';api.inputs.budget.value=t.budget||'';api.inputs.max_per_day.value=String(t.max_per_day||'')}},t.title))))},
+    validate(v){if(!appTrigSplit(v.repos).every(r=>/^[\w.-]+\/[\w.-]+$/.test(r)))return ['repos','Each repository is OWNER/NAME.'];const n=Number(v.max_per_day);if(!Number.isInteger(n)||n<1||n>50)return ['max_per_day','A whole number from 1 to 50.'];return null},
+    onSubmit:async v=>{const r=await settingsAPI({action:'trigger_edit',repos:appTrigSplit(v.repos),authors:appTrigSplit(v.authors),label:v.label,budget:v.budget,max_per_day:Number(v.max_per_day)});
+      toast((r.changed?'Saved to config.toml.':'Nothing changed.')+' Triggers are still off.'+(r.note?' '+r.note:''),true);appTrigLoad()}})}
+function appTrigPause(){return sheet({title:'Pause triggers?',description:'Writes enabled = false under [triggers] in config.toml. Red PRs and labelled issues start nothing until someone turns them on again from a terminal: agentd config set triggers.enabled true.',action:'Pause',caution:true,
+  onSubmit:async()=>{const r=await settingsAPI({action:'trigger_pause'});toast(r.changed?'Triggers paused.':'Triggers were already off.',true);appTrigLoad()}})}
+function appTrigSchedule(s){const def=s.definition||{},on=s.enabled===true,runs=s.runs||[],name=s.name,dir=s.dir;
+  const btn=(label,action,ok,extra)=>el('button',{type:'button','data-appt-action':action,...extra,onclick:()=>appTrigAct({action,dir,name},ok)},label);
+  return el('div',{class:'app-pcard appt-card','data-schedule':name},
+    el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?s.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},name),el('small',{},[def.cron&&def.cron+' ('+(def.timezone||'UTC')+')',dir].filter(Boolean).join(' · '))),
+      el('div',{class:'appt-acts'},on?[btn('Run now','schedule_run',r=>'Due now: the next watchdog pass runs it.'),btn('Pause','schedule_disable',()=>'Schedule paused.')]:btn('Enable','schedule_enable',()=>'Schedule enabled.',{class:'primary'}))),
+    el('p',{class:'appt-goal'},def.goal||''),
+    el('p',{class:'appt-state'},on?(s.next_run?'Next run '+whenText(s.next_run)+' ('+s.next_run+')':'Enabled')+(s.waiting_on?' · a run is open: '+s.waiting_on:''):'Off. Enabling it pins this definition and commit; a later change waits for an owner.',
+      s.problem?el('span',{class:'appt-problem'},' '+s.problem):null),
+    el('div',{class:'appt-cli'},appTrigCmd('agentd schedule '+(on?'run':'enable')+' '+name+' --repo '+dir)),
+    appTrigRuns(null,['Due','Status','Task','Why'],runs.map(r=>({task:r.handoff||'',cells:[r.scheduled_for?whenText(r.scheduled_for):'',word(r.status),appTrigTask(r.handoff),r.reason||r.handoff_state||'']})),'Each run lists here, with the task it started.'))}
+function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')return;const d=APPT.data;
+  if(!d){p.replaceChildren(appPageHead('Triggers'),APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):el('p',{class:'appt-state'},'Loading triggers…'));return}
+  const st=d.status||{},on=st.enabled===true,has=(st.repos||[]).length>0,offers=st.offers||[];
+  const head=appPageHead('Triggers',el('span',{class:'app-navnote'},on?'On':'Off'),el('span',{class:'appt-sp'}),
+    on?el('button',{type:'button','data-appt-action':'trigger_pause',onclick:()=>appTrigPause()},'Pause'):null,
+    el('button',{type:'button',class:'primary','data-appt-action':'trigger_edit','data-contextual-tour-target':'triggers-add',disabled:on||null,title:on?'Triggers are on: pause them to edit':null,onclick:()=>appTrigEdit()},has?'Edit trigger':'New trigger'));
+  const state=on?st.problem?'On, but cannot fire: '+st.problem:'On. A red PR or a labelled issue of the authors starts a worker.':has?'Off. Nothing starts a worker on its own.':'No trigger yet. New trigger sets one up, off until you turn it on.';
+  const trig=el('div',{class:'app-pcard appt-card','data-appt':'trigger'},
+    el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},'Red CI and labelled issues'),el('small',{},'[triggers] in config.toml'))),
+    el('p',{class:'appt-state','data-appt':'state'},state,!on&&st.problem_when_enabled?el('span',{class:'appt-problem'},' Would still not fire: '+st.problem_when_enabled):null),
+    has?el('dl',{class:'appt-dl'},[['Repositories',(st.repos||[]).join(', ')],['Authors',(st.authors||[]).join(', ')],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most a day',st.max_per_day]].map(([k,v])=>[el('dt',{},k),el('dd',{},v===''||v==null?'Not set':String(v))])):null,
+    el('div',{class:'appt-cli'},on?[el('span',{},'Pause from a terminal:'),appTrigCmd('agentd config set triggers.enabled false')]:[el('span',{},'Turn on from a terminal:'),appTrigCmd(d.enable||'agentd config set triggers.enabled true')]),
+    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task','Error'],offers.map(o=>({task:o.handoff||'',cells:[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,appTrigTask(o.handoff),o.error||'']})),'Each run lists here, with the task it started.'));
+  const sch=((d.schedules||{}).schedules)||[];
+  p.replaceChildren(head,APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):null,trig,
+    el('h3',{class:'appt-h'},'Schedules'),sch.length?sch.map(appTrigSchedule):el('div',{class:'app-pcard app-pempty','data-appt':'no-schedules'},el('b',{},'No schedules'),'A repository defines them as [schedules.NAME] in its committed .agentd/tasks.toml; they show here to enable and run.'))}
+// end:app-triggers
 // region:app-newtask: New task in the personal app (libraos/agentd-core#564), the reference app's
 // "Create worktree" dialog (NewWorkspaceComposerModal): one goal box; below it the
 // repository (default: the selected one, APP.repo, else the first checkout), the
@@ -4613,12 +4704,17 @@ async function appNewTaskDefaults(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui)return;
   if(!APPNT.touched.budget)ui.inputs.budget.value=t.budget||d.dispatch_budget||'30m';
   ui.fileNote.textContent=[(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; ')+'.':'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');ui.fileNote.hidden=!ui.fileNote.textContent;appNewTaskShow()}
 function appNewTaskShow(){const ui=APPNT.ui;if(!ui)return;$('appnt-cmd').textContent=appNewTaskLine(ui.values(),APPNT.nt)}
-// appNewTaskWhy: why Create cannot work here, if it cannot.
-function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+// appNewTaskWhy: why Create cannot work here, if it cannot. The server reads
+// dash.dispatch from config.toml on each request (libraos/agentd-core#661), so
+// the setting needs no restart: the open dialog follows each refresh.
+function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true in a terminal. No restart needed: this dialog picks it up within 10 seconds.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+// appNewTaskGate shows why Create is off, or turns it back on, from lastDash
+// as it is now; refresh calls it while the dialog is open.
+function appNewTaskGate(){const ui=APPNT.ui;if(!ui||APPNT.busy)return;const why=appNewTaskWhy();ui.why.textContent=why;ui.why.hidden=!why;ui.submit.disabled=!!why;if(why)ui.submit.title=why;else ui.submit.removeAttribute('title')}
 function appNewTask(){if(!APP.on)return;if(APPNT.dlg&&APPNT.dlg.open){APPNT.ui.inputs.goal.focus();return}
   APPNT.opener=document.activeElement;const dlg=appNewTaskBuild();APPNT.dlg=dlg;$('app-shell').append(dlg);
-  const why=appNewTaskWhy();APPNT.ui.why.textContent=why;APPNT.ui.why.hidden=!why;APPNT.ui.submit.disabled=!!why;if(why)APPNT.ui.submit.title=why;
-  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults()}
+  appNewTaskGate();
+  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults();if(APPNT.ui.submit.disabled)refresh()}
 // force: the team server came back (appShell), so nothing of the app stays open.
 function appNewTaskClose(force){if(APPNT.busy&&!force)return;APPNT.busy=false;const dlg=APPNT.dlg;APPNT.dlg=null;APPNT.ui=null;APPNT.nt=null;if(dlg){if(dlg.open)dlg.close();dlg.remove()}
   const back=APPNT.opener;APPNT.opener=null;if(back&&back.isConnected&&!back.closest('[hidden]'))back.focus({preventScroll:true})}
@@ -5115,7 +5211,9 @@ function awChanges(hid,load){const box=awSec('changes');
     const branch=d.branch?el('div',{class:'app-branch'},el('span',{},awIcon('branch',12),el('code',{},d.branch)),el('span',{class:'app-base'},awIcon('arrow',12),el('code',{},d.base_branch||'main'))):null;
     const pr=d.pr?el('p',{class:'app-why'},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():'',': it is merged on GitHub by a person, never from here.'):null;
     const push=AW.ro||!files.length||d.pr?null:el('div',{'data-app-write':''},el('button',{type:'button',class:'app-btn','data-act':'open_pr','aria-disabled':why?'true':null,title:why||'Same as: agentd handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},awIcon('push',13),'Push and open a draft PR'),
-      el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)));
+      el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)),
+      // #660: a refusal that has a fix (agentd init in the checkout, or the branch's own push) offers it to copy.
+      why&&d.may_fix&&why===d.may_why?el('p',{class:'app-why app-fix','data-k':'fix'},'Fix: ',el('code',{},d.may_fix),' ',el('button',{type:'button',class:'app-btn-link','data-act':'copy_fix',onclick:()=>copyCmd(d.may_fix)},'Copy')):null);
     const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
       awIcon('file',13),el('span',{class:'app-fname'},awBase(f.path)),el('span',{class:'app-fdir'},awDir(f.path)),el('span',{class:'app-n add'},'+'+(f.added||0)),f.deleted?el('span',{class:'app-n del'},'−'+f.deleted):null,el('span',{class:'app-fmark',title:mark==='U'?'new file':mark==='D'?'deleted':'modified'},mark))});
     box.replaceChildren(el('div',{class:'app-scm'},branch||el('p',{class:'app-why'},d.why_not?'No change to show: '+d.why_not+'.':'No worker branch yet.'),push,d.foreign&&!push?changesPublishNote(d):null,files.length?changesRangeNote(d):null,pr),
@@ -5229,7 +5327,7 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.isComp
 document.querySelector('#app-shell [data-app-action="new-task"]').setAttribute('aria-keyshortcuts','N '+(APP_MAC?'Meta':'Control')+'+N');
 // end:app-keys
 // region:refresh
-function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();appNotifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
+function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();appNotifyCheck(d);appNewTaskGate();return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
