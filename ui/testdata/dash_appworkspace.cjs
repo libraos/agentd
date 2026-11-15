@@ -120,6 +120,13 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  assert(/has not committed/.test(q('[data-k="none"]',cg).textContent),'no commit is not said: '+cg.textContent);assert(q('[data-k="publish"]',cg)&&cg.textContent.includes('will not push it'));
  reviewOver['hof-w1']={handoff:'hof-w1',enabled:true,branch:null,why_not:'no worker ran for this handoff'};w.awChanges('hof-w1',true);await settle();cg=panel('changes');
  assert(!/has not committed/.test(cg.textContent),'has not committed without a count: '+cg.textContent);assert(/no worker ran/.test(cg.textContent));
+ // #660: a [sync] repos refusal names its fix, and the panel offers it to copy; no fix line without one.
+ const fixWhy='repository acme/demo-repo is not in [sync] repos in config.toml, so agentd will not push to it; to allow it, run cd \'/r/demo\' && agentd init',fixCmd='cd \'/r/demo\' && agentd init';
+ reviewOver['hof-w1']={...review,may:false,may_why:fixWhy,may_fix:fixCmd};w.awChanges('hof-w1',true);await settle();cg=panel('changes');
+ assert.equal(q('[data-act="open_pr"]',cg).getAttribute('aria-disabled'),'true','push offered outside [sync] repos');
+ const fx=q('[data-k="fix"]',cg);assert(fx&&q('code',fx).textContent===fixCmd,'no fix line: '+cg.textContent);
+ let copied='';Object.defineProperty(w.navigator,'clipboard',{configurable:true,value:{writeText:async t=>{copied=t}}});click(q('[data-act="copy_fix"]',fx));await settle();assert.equal(copied,fixCmd,'Copy does not copy the fix');
+ reviewOver['hof-w1']={...review,may:false,may_why:'some other refusal'};w.awChanges('hof-w1',true);await settle();assert(!q('[data-k="fix"]',panel('changes')),'a fix line without a fix');
  delete reviewOver['hof-w1'];w.awChanges('hof-w1',true);await settle();
  assert(!errors.length,errors.join('\n'));
  // The page's own phone layout: tabs scroll, the right panels are the drawer the frame already has.
