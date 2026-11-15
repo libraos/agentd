@@ -19,7 +19,7 @@ async function boot(o={}){
     w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');if(srv.session)w.sessionStorage.setItem('dash-app-onboard-closed',srv.session);
     w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
     srv.notes=[];w.Notification=class{constructor(t,o){srv.notes.push(t+': '+(o&&o.body))}static get permission(){return srv.notify}static requestPermission(){srv.notify='granted';return Promise.resolve('granted')}};
-    w.fetch=async(url,init)=>{const u=new URL(url,w.location.href);let body={},status=200;
+    srv.paths=[];w.fetch=async(url,init)=>{const u=new URL(url,w.location.href);srv.paths.push(u.pathname);let body={},status=200;
       if(u.pathname==='/api/auth')return {ok:true,status:204};
       if(u.pathname==='/api/dash')body=srv.snap;
       if(u.pathname==='/api/onboarding'){if(srv.fail){status=srv.fail;body=srv.fail===404?{}:{error:'Could not read the onboarding state'}}else{if(init&&init.method==='POST'){const st=JSON.parse(init.body);srv.posts.push(st);srv.state=st}else{srv.gets++;srv.getURLs.push(u.search)}body={user:'alice',state:srv.state,facts:srv.facts}}}
@@ -189,6 +189,46 @@ async function boot(o={}){
  t=await boot({fail:500});assert(!t.doc.querySelector('#appob-layer .appob-modal'),'the wizard without a state');
  assert(/Could not read the onboarding state/.test(t.$('toast').textContent),'a failed read is hidden: '+t.$('toast').textContent);t.ok();t.w.close();
  t=await boot({fail:404});assert(!t.doc.querySelector('#appob-layer .appob-modal'));assert(!/onboarding/i.test(t.$('toast').textContent),'a 404 is toasted');t.ok();t.w.close();
+ // #659: Settings stays available after setup. Each editor changes the same
+ // personal state while keeping the completed wizard, checklist and tours intact.
+ const completed={...fresh(),closedAt:12345,outcome:'completed',lastCompletedStep:5,checklist:{...fresh().checklist,choseAgent:true},defaultAgent:'codex',sound:'ding',guideHidden:true,toursSeen:['tasks'],toastShown:true};
+ t=await boot({state:completed,notify:'granted',facts:{os:'windows',gh:'connected'}});
+ const gear=t.doc.querySelector('[data-app-action="settings"]');
+ assert(!gear.hasAttribute('aria-disabled'),'Settings is still a disabled placeholder');
+ if(phone){t.doc.querySelector('[data-app-action="toggle-left"]').click();await settle()}
+ gear.click();await settle();
+ const prefs=()=>t.$('app-page'),change=id=>prefs().querySelector('[data-app-pref="'+id+'"]');
+ assert(t.shown(prefs())&&/Personal settings/.test(prefs().querySelector('section').getAttribute('aria-label')),'no personal Settings view');
+ assert(!t.doc.body.classList.contains('app-left-open')||!phone,'Settings leaves the phone drawer over the page');
+ for(const id of ['theme','agent_surface','agent','integrations','notifications','windows_terminal'])assert(change(id),'missing preference '+id);
+ assert(/GitHub connected/.test(prefs().textContent)&&/agentd config set dispatch.default_tool codex/.test(prefs().textContent),'saved preferences or terminal command missing');
+ assert(!t.srv.posts.length&&!t.step(),'opening Settings changes onboarding');
+ const preserved=()=>{const p=t.last();for(const k of ['closedAt','outcome','lastCompletedStep','guideHidden','toursSeen','toastShown'])assert.deepEqual(p[k],completed[k],'settings rewrites '+k);assert.deepEqual(p.checklist,completed.checklist,'settings rewrites checklist')};
+ for(const theme of ['dark','light','system']){
+   await t.click(change('theme'));assert.equal(t.step(),'theme');
+   await t.click('[data-ob="theme-'+theme+'"]');
+   assert.equal(t.doc.documentElement.dataset.theme,theme==='system'?undefined:theme,'theme preview');
+   await t.click('[data-ob="continue"]');assert(!t.step(),'appearance editor stays open');
+   assert.equal(t.last().theme,theme);assert.equal(t.w.localStorage.getItem('dash-theme'),theme==='system'?null:theme);preserved();
+ }
+ await t.click(change('agent_surface'));await t.click('[data-ob="surface-chat"]');await t.click('[data-ob="continue"]');
+ assert.equal(t.last().surface,'chat','Settings cannot change work style');assert(/Chat UI/.test(prefs().textContent));preserved();
+ await t.click(change('agent'));await t.click('[data-ob="agent-claude"]');await t.click('[data-ob="continue"]');
+ assert.equal(t.last().defaultAgent,'claude');assert(/agentd config set dispatch.default_tool claude/.test(prefs().textContent));preserved();
+ await t.click(change('notifications'));t.q('[data-ob="sound"]').value='blip';t.q('[data-ob="sound"]').dispatchEvent(new t.w.Event('change',{bubbles:true}));await t.click('[data-ob="continue"]');
+ assert.equal(t.last().sound,'blip');assert.equal(t.last().notifications,true);assert(/Blip/.test(prefs().textContent));preserved();
+ // Reopening reads the saved choices. The normal Settings route stays hidden,
+ // and no request is sent to /api/settings (unavailable in personal mode).
+ t.doc.querySelector('#app-page [data-app-close]').click();await settle();assert(!t.shown(prefs()),'Close leaves Settings open');
+ gear.click();await settle();assert(/Chat UI/.test(prefs().textContent)&&/Blip/.test(prefs().textContent),'reopening loses choices');
+ t.key('Escape',{},t.doc.body);await settle();assert(!t.shown(prefs()),'Escape leaves Settings open');
+ assert(!t.shown(t.$('page-settings')),'team settings show in personal mode');
+ assert(!t.srv.paths.some(p=>['/api/settings','/api/triggers','/api/action'].includes(p)),'personal Settings calls server configuration routes');t.ok();t.w.close();
+ // Loading failures offer a retry, including a server with no saved state.
+ t=await boot({fail:500});t.doc.querySelector('[data-app-action="settings"]').click();await settle();
+ assert(/Could not load personal preferences/.test(t.$('app-page').textContent),'Settings hides load failures');
+ t.srv.fail=0;t.$('app-page').querySelector('.app-preferences button').click();await settle();
+ assert(t.$('app-page').querySelector('[data-app-pref="theme"]'),'Settings retry does not recover');t.ok();t.w.close();
  // --- the team server: no onboarding, no read ---
  t=await boot({snap:snapBase});assert(!t.doc.body.classList.contains('app-mode'));assert.equal(t.srv.gets,0,'the team server reads /api/onboarding');assert(!t.doc.querySelector('#appob-layer .appob-modal'),'the wizard in team mode');t.ok();t.w.close();
  // Its own CSS region, the reference app's sizes.
