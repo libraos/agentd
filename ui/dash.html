@@ -4611,12 +4611,17 @@ async function appNewTaskDefaults(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui)return;
   if(!APPNT.touched.budget)ui.inputs.budget.value=t.budget||d.dispatch_budget||'30m';
   ui.fileNote.textContent=[(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; ')+'.':'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');ui.fileNote.hidden=!ui.fileNote.textContent;appNewTaskShow()}
 function appNewTaskShow(){const ui=APPNT.ui;if(!ui)return;$('appnt-cmd').textContent=appNewTaskLine(ui.values(),APPNT.nt)}
-// appNewTaskWhy: why Create cannot work here, if it cannot.
-function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+// appNewTaskWhy: why Create cannot work here, if it cannot. The server reads
+// dash.dispatch from config.toml on each request (libraos/agentd-core#661), so
+// the setting needs no restart: the open dialog follows each refresh.
+function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true in a terminal. No restart needed: this dialog picks it up within 10 seconds.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+// appNewTaskGate shows why Create is off, or turns it back on, from lastDash
+// as it is now; refresh calls it while the dialog is open.
+function appNewTaskGate(){const ui=APPNT.ui;if(!ui||APPNT.busy)return;const why=appNewTaskWhy();ui.why.textContent=why;ui.why.hidden=!why;ui.submit.disabled=!!why;if(why)ui.submit.title=why;else ui.submit.removeAttribute('title')}
 function appNewTask(){if(!APP.on)return;if(APPNT.dlg&&APPNT.dlg.open){APPNT.ui.inputs.goal.focus();return}
   APPNT.opener=document.activeElement;const dlg=appNewTaskBuild();APPNT.dlg=dlg;$('app-shell').append(dlg);
-  const why=appNewTaskWhy();APPNT.ui.why.textContent=why;APPNT.ui.why.hidden=!why;APPNT.ui.submit.disabled=!!why;if(why)APPNT.ui.submit.title=why;
-  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults()}
+  appNewTaskGate();
+  dlg.showModal();APPNT.ui.inputs.goal.focus();appNewTaskShow();appNewTaskDefaults();if(APPNT.ui.submit.disabled)refresh()}
 // force: the team server came back (appShell), so nothing of the app stays open.
 function appNewTaskClose(force){if(APPNT.busy&&!force)return;APPNT.busy=false;const dlg=APPNT.dlg;APPNT.dlg=null;APPNT.ui=null;APPNT.nt=null;if(dlg){if(dlg.open)dlg.close();dlg.remove()}
   const back=APPNT.opener;APPNT.opener=null;if(back&&back.isConnected&&!back.closest('[hidden]'))back.focus({preventScroll:true})}
@@ -5224,7 +5229,7 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.isComp
 document.querySelector('#app-shell [data-app-action="new-task"]').setAttribute('aria-keyshortcuts','N '+(APP_MAC?'Meta':'Control')+'+N');
 // end:app-keys
 // region:refresh
-function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();appNotifyCheck(d);return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
+function render(d){USER=d.user||'';ROLE=d.role||'';ON_TEAM=!!d.team;if(appShell(d)){lockState();appNotifyCheck(d);appNewTaskGate();return}stats(d);for(const p of Object.values(PAGES))if(p.render)p.render(d);agentsDraw(d);lockState();notifyCheck(d)}
 let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
