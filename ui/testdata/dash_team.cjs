@@ -36,10 +36,10 @@ const go=async h=>{w.location.hash=h;await settle()},tabs=()=>[...doc.querySelec
 const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textContent===text);
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
- // Four tabs with their counts; #team is Repositories; Team has no second panel and no Working now.
- assert.deepEqual(tabs().map(a=>a.dataset.tab),['repositories','members','roles','host']);
- assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Repositories','Members','Roles','Sessions on this host']);
- assert.deepEqual(tabs().map(a=>(a.querySelector('.n')||{}).textContent||''),['1','2','2','']);
+ // Five tabs with their counts (Nodes, #831: this fixture has none); #team is Repositories; Team has no second panel and no Working now.
+ assert.deepEqual(tabs().map(a=>a.dataset.tab),['repositories','members','roles','host','nodes']);
+ assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Repositories','Members','Roles','Sessions on this host','Nodes']);
+ assert.deepEqual(tabs().map(a=>(a.querySelector('.n')||{}).textContent||''),['1','2','2','','0']);
  assert.equal(current().dataset.tab,'repositories');assert(doc.body.classList.contains('no-panel'),'Team still has a second panel');
  assert(!tabs().some(a=>/Working now/.test(a.textContent)),'Working now is a tab');
  // Repositories: a row per checkout with its routing, open tasks, working and a link to its tasks.

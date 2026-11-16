@@ -19,8 +19,8 @@
 /* Shared surfaces, type and controls. Status always pairs a glyph with a word. */
 :root{
   --bg:#f5f5f7;--panel:#ffffff;--raised:#ffffff;--sidebar:#ebebee;--sunk:#ebebee;--line:#dcdce0;--edge:#8e8e93;--fg:#1d1d1f;--mute:#65656b;--faint:#9a9aa3;
-  --accent:#0a66d6;--accent-fill:#0a66d6;--accent-ink:#ffffff;--hover:#ededf0;--sel:#d9e6fb;
-  --red:#c9182b;--red-fill:#c9182b;--green:#1b7a33;--amber:#b24a00;--violet:#8b5cf6;
+  --accent:#0a66d6;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#ededf0;--sel:#d9e6fb;
+  --red:#c9182b;--red-fill:#c9182b;--red-tint:#fdf0f1;--green:#1b7a33;--amber:#b24a00;--violet:#8b5cf6;
   --k-llm:#5fb87c;--k-tool:#d9a441;--k-sub:#a78bfa;--k-err:#e26d6d;--m-opened:#6b6b74;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   /* layout, radii and type sizes for the shell and the pages built on it.
@@ -30,13 +30,13 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#1e1e20;--panel:#2a2a2d;--raised:#343437;--sidebar:#252528;--sunk:#252528;--line:#444449;--edge:#8a8a90;--fg:#f5f5f7;--mute:#a8a8ae;--faint:#6c6c78;
-  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-ink:#ffffff;--hover:#36363a;--sel:#2b3f5e;
-  --red:#ff7b72;--red-fill:#c9182b;--green:#44d36b;--amber:#ffa733;--violet:#a78bfa;--m-opened:#6c6c78;color-scheme:dark;
+  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#36363a;--sel:#2b3f5e;
+  --red:#ff7b72;--red-fill:#c9182b;--red-tint:#3a2a2c;--green:#44d36b;--amber:#ffa733;--violet:#a78bfa;--m-opened:#6c6c78;color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#1e1e20;--panel:#2a2a2d;--raised:#343437;--sidebar:#252528;--sunk:#252528;--line:#444449;--edge:#8a8a90;--fg:#f5f5f7;--mute:#a8a8ae;--faint:#6c6c78;
-  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-ink:#ffffff;--hover:#36363a;--sel:#2b3f5e;
-  --red:#ff7b72;--red-fill:#c9182b;--green:#44d36b;--amber:#ffa733;--violet:#a78bfa;--m-opened:#6c6c78;color-scheme:dark;
+  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#36363a;--sel:#2b3f5e;
+  --red:#ff7b72;--red-fill:#c9182b;--red-tint:#3a2a2c;--green:#44d36b;--amber:#ffa733;--violet:#a78bfa;--m-opened:#6c6c78;color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -76,7 +76,7 @@ aside.side:focus{outline:none}
 .side-close,.panel-toggle,.panel-foot{display:none}
 .panel-body[hidden],.page[hidden]{display:none}
 .pgroup{padding:4px 8px 8px}.pgroup-name{font-size:var(--fs-s);color:var(--mute);padding:8px 8px 2px;display:flex;align-items:baseline;justify-content:space-between;gap:6px}
-.pitem{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:6px 8px;border:0;border-radius:var(--r-s);background:none;color:var(--fg);font-weight:400;text-align:left;text-decoration:none}
+.pitem{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:7px 10px;border:0;border-radius:var(--r-s);background:none;color:var(--fg);font-weight:400;text-align:left;text-decoration:none}
 .pitem:hover:not(:disabled){background:var(--hover);text-decoration:none}.pitem.on,.pitem[aria-current="page"],.pitem.on:hover:not(:disabled),.pitem[aria-current="page"]:hover{background:var(--sel)}.pitem:focus-visible{outline-offset:-2px}
 .pitem .n{font-size:var(--fs-s);color:var(--mute);font-variant-numeric:tabular-nums}
 .column{display:flex;flex-direction:column;min-width:0;min-height:0}
@@ -85,7 +85,7 @@ main{flex:1;overflow-y:auto;min-height:0;padding:24px 24px 48px;min-width:0}
 /* settings and help: quiet text pages the shell owns */
 .textpage{max-width:72ch;display:grid;gap:12px}.textpage .runs{margin:0}.textpage p{margin:0 0 8px}.textpage dl{display:grid;grid-template-columns:90px minmax(0,1fr);gap:6px 12px;margin:0}.textpage dt{color:var(--mute)}.textpage dd{margin:0}
 .textpage fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 16px}.textpage fieldset label{display:inline-flex;gap:6px;align-items:center}.textpage legend{padding:0;margin-bottom:6px;color:var(--mute);font-size:var(--fs-s)}
-#page-settings{max-width:1100px}.set-toolbar{display:flex;align-items:center;justify-content:space-between}.set-toolbar h2{margin:0}.set-group[hidden]{display:none}.set-group{padding:16px;min-width:0}.set-section{margin:16px 0}.set-section h3{margin:8px 0}.set-form{display:grid;gap:10px;max-width:420px}.set-form>button{justify-self:start}.set-check{display:flex;align-items:center;gap:8px}.set-actions{display:flex;flex-wrap:wrap;gap:6px}.set-failure,#set-error{color:var(--red)}#set-invite-once{margin-top:16px;padding:12px;background:var(--sunk);border-radius:var(--r-s)}#set-invite-once input{display:block;width:100%;margin:8px 0}#pwchange{position:fixed;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;background:var(--bg)}#pwchange[hidden]{display:none}#pwchange main{display:block;width:min(420px,100%);padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}#pwchange form{display:grid;gap:10px;margin:16px 0}#pwchange label{display:grid;gap:4px;font-size:12px}#pwchange input{width:100%;font-size:13px}#pwchange-error{color:var(--red)}#pwchange-error:empty{display:none}.pwchange-foot{display:flex;gap:8px;flex-wrap:wrap}.set-group td{overflow-wrap:anywhere}.set-group dl{grid-template-columns:140px minmax(0,1fr)}
+#page-settings{max-width:1100px}.set-toolbar{display:flex;align-items:center;justify-content:space-between}.set-toolbar h2{margin:0}.set-group[hidden]{display:none}.set-group{padding:20px;min-width:0}.set-section{margin:16px 0}.set-section h3{margin:8px 0}.set-form{display:grid;gap:10px;max-width:420px}.set-form>button{justify-self:start}.set-check{display:flex;align-items:center;gap:8px}.set-actions{display:flex;flex-wrap:wrap;gap:6px}.set-failure,#set-error{color:var(--red)}#set-invite-once{margin-top:16px;padding:12px;background:var(--sunk);border-radius:var(--r-s)}#set-invite-once input{display:block;width:100%;margin:8px 0}#pwchange{position:fixed;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;background:var(--bg)}#pwchange[hidden]{display:none}#pwchange main{display:block;width:min(420px,100%);padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}#pwchange form{display:grid;gap:10px;margin:16px 0}#pwchange label{display:grid;gap:4px;font-size:12px}#pwchange input{width:100%;font-size:13px}#pwchange-error{color:var(--red)}#pwchange-error:empty{display:none}.pwchange-foot{display:flex;gap:8px;flex-wrap:wrap}.set-group td{overflow-wrap:anywhere}.set-group dl{grid-template-columns:140px minmax(0,1fr)}
 /* end:css-shell */
 /* region:css-agents-list: the persistent Agents list (#479): Needs you first, then open
    tasks by repository; one row is a mark, the title, and agent and state under it.
@@ -98,7 +98,7 @@ body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
 .ag-counts{display:flex;flex-wrap:wrap;gap:4px 10px;padding:0 16px 8px;font-size:var(--fs-s);color:var(--mute)}.ag-counts b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
 .ag-rows{flex:1;overflow-y:auto;min-height:0;padding:0 6px 8px}
 .ag-group{font-size:var(--fs-xs);letter-spacing:.04em;text-transform:uppercase;color:var(--mute);padding:10px 10px 4px;display:flex;justify-content:space-between;gap:6px}.ag-group span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-size:var(--fs-s)}.ag-group.ag-need span:first-child{color:var(--red)}
-.ag-row{display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:var(--r-s);color:var(--fg);text-decoration:none;min-width:0}
+.ag-row{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:var(--r-s);color:var(--fg);text-decoration:none;min-width:0}
 .ag-row:hover{background:var(--hover);text-decoration:none}.ag-row[aria-current="page"]{background:var(--sel)}.ag-row:focus-visible{outline-offset:-2px}
 /* the mark's word stays for a screen reader; the state line under the title says it in words */
 .ag-row .tmark{margin-top:2px;gap:0;font-size:0}.ag-row .tmark .tm-g{font-size:12px}
@@ -120,17 +120,17 @@ body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
 /* end:css-agents-list */
 /* region:css-inbox */
 .ib-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin-bottom:12px}.ib-head .n{font-size:var(--fs-s);color:var(--mute);font-variant-numeric:tabular-nums}.ib-note{flex-basis:100%;font-size:var(--fs-s);color:var(--mute);margin:0}
-.ib-tabs{display:flex;flex-wrap:wrap;gap:2px 4px;margin-bottom:10px;border-bottom:1px solid var(--line)}.ib-tabs a{padding:6px 10px;color:var(--mute);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:var(--fs-s)}.ib-tabs a[aria-current]{color:var(--fg);border-bottom-color:var(--accent);font-weight:500}.ib-tabs .n{margin-left:5px;font-variant-numeric:tabular-nums}
-.ib-panes{display:grid;grid-template-columns:minmax(260px,400px) minmax(0,1fr);gap:12px;align-items:start}
+.ib-tabs{display:flex;flex-wrap:wrap;gap:2px 4px;margin-bottom:10px;border-bottom:1px solid var(--line)}.ib-tabs a{padding:8px 12px;color:var(--mute);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:var(--fs-m);border-radius:var(--r-s) var(--r-s) 0 0}.ib-tabs a:hover{color:var(--fg);background:var(--hover);text-decoration:none}.ib-tabs a[aria-current]{color:var(--fg);border-bottom-color:var(--accent);font-weight:500}.ib-tabs .n{margin-left:5px;font-variant-numeric:tabular-nums}
+.ib-panes{display:grid;grid-template-columns:minmax(260px,400px) minmax(0,1fr);gap:16px;align-items:start}
 .ib-list{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0}
 .ib-row{border-top:1px solid var(--line)}.ib-row:first-child{border-top:0}
-.ib-pick{display:grid;grid-template-columns:96px minmax(0,1fr);gap:2px 10px;align-items:start;padding:10px 14px;color:inherit;text-decoration:none}.ib-pick:hover{background:var(--sunk)}.ib-row.on .ib-pick{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
-.ib-detail{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0;padding:16px;display:grid;gap:14px;position:sticky;top:0}.ib-detail:empty{display:none}
+.ib-pick{display:grid;grid-template-columns:96px minmax(0,1fr);gap:4px 12px;align-items:start;padding:12px 16px;color:inherit;text-decoration:none}.ib-pick:hover{background:var(--sunk)}.ib-row.on .ib-pick{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
+.ib-detail{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0;padding:20px;display:grid;gap:16px;position:sticky;top:0}.ib-detail:empty{display:none}
 .ib-detail h3{margin:0;font-size:var(--fs-l);overflow-wrap:anywhere}.ib-dsub{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:var(--fs-s);color:var(--mute);margin-top:4px}
-.ib-msg{white-space:pre-wrap;overflow-wrap:anywhere;padding:10px 12px;border-radius:var(--r-s);background:var(--sunk)}
-.ib-prog{display:grid;gap:4px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-s);font-size:var(--fs-s)}.ib-prog .facts{display:flex;flex-wrap:wrap;gap:2px 12px;color:var(--mute)}.ib-prog .add{color:var(--green)}.ib-prog .del{color:var(--red)}
+.ib-msg{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px 14px;border-radius:var(--r-s);background:var(--sunk)}
+.ib-prog{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-s);font-size:var(--fs-s)}.ib-prog .facts{display:flex;flex-wrap:wrap;gap:2px 12px;color:var(--mute)}.ib-prog .add{color:var(--green)}.ib-prog .del{color:var(--red)}
 .ib-answer{display:grid;gap:6px}.ib-answer textarea{width:100%;box-sizing:border-box;font:inherit;min-height:84px}.ib-answer .row{display:flex;gap:8px;flex-wrap:wrap}
-.ib-detail .kact{justify-content:flex-start;flex-wrap:wrap;margin-left:0}.ib-back{display:none}
+.ib-detail .kact{justify-content:flex-start;flex-wrap:wrap;gap:8px;margin-left:0}.ib-back{display:none}
 .ib-tag{justify-self:start;font-size:var(--fs-s);line-height:18px;padding:1px 7px;border-radius:var(--r-s);background:var(--sunk);color:var(--mute);white-space:nowrap}.ib-tag.r{color:var(--red)}.ib-tag.a{color:var(--amber)}.ib-tag.b{color:var(--accent)}
 .ib-main{min-width:0;display:grid;gap:2px}.ib-title{overflow-wrap:anywhere}.ib-row.unread .ib-title{font-weight:500}.ib-dot{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:var(--accent);vertical-align:1px}
 .ib-goal{color:var(--mute);overflow-wrap:anywhere}.ib-sub{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;font-size:var(--fs-s);color:var(--mute);min-width:0}.ib-sub code{overflow-wrap:anywhere}.ib-sub .linkish{font-size:var(--fs-s)}
@@ -200,7 +200,7 @@ details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:a
 .tm-host{border-top:1px solid var(--line);margin-top:4px;padding-top:8px}.tm-host-name{display:flex;justify-content:space-between;gap:6px;padding:0 16px 2px;font-size:var(--fs-s);color:var(--mute)}
 .tm-sec{display:flex;align-items:baseline;gap:8px;margin:22px 0 8px}.tm-sec h3{font-size:var(--fs-m);font-weight:500}.tm-sec .n{font-size:var(--fs-s);color:var(--mute);font-variant-numeric:tabular-nums}
 .tm-rows{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0}
-.tm-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;border-top:1px solid var(--line);min-width:0;color:var(--fg);font-weight:400;text-decoration:none}.tm-row:first-child{border-top:0;border-radius:var(--r-m) var(--r-m) 0 0}.tm-row:last-child{border-radius:0 0 var(--r-m) var(--r-m)}.tm-row:only-child{border-radius:var(--r-m)}
+.tm-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid var(--line);min-width:0;color:var(--fg);font-weight:400;text-decoration:none}.tm-row:first-child{border-top:0;border-radius:var(--r-m) var(--r-m) 0 0}.tm-row:last-child{border-radius:0 0 var(--r-m) var(--r-m)}.tm-row:only-child{border-radius:var(--r-m)}
 a.tm-row:hover{background:var(--hover);text-decoration:none}a.tm-row:focus-visible{outline-offset:-2px}
 .tm-row .tm-main{flex:1 1 200px;min-width:0;overflow-wrap:anywhere}.tm-row .tm-main button.linkish{text-align:left;white-space:normal}
 .tm-why{display:block;font-size:var(--fs-s);color:var(--mute);overflow-wrap:anywhere}
@@ -260,12 +260,29 @@ details.more{border-top:1px solid var(--line);margin-top:8px}details.more>summar
 .g.done{border-color:var(--green);background:var(--green)}.g.done:after{content:'';position:absolute;left:3px;top:1px;width:3px;height:6px;border:solid #fff;border-width:0 1.5px 1.5px 0;transform:rotate(45deg)}
 .g.failed{border-color:var(--red);background:var(--red)}.g.failed:before,.g.failed:after{content:'';position:absolute;left:4.5px;top:2px;width:1.5px;height:7px;background:#fff;transform:rotate(45deg)}.g.failed:after{transform:rotate(-45deg)}
 .g.stalled{border-color:var(--amber)}
-/* buttons: one primary, the rest quiet */
-button{font-size:13px;font-weight:400;border-radius:6px;border:1px solid var(--line);background:var(--panel);min-height:26px;padding:2px 10px;box-shadow:0 1px 1px #0000000a;cursor:pointer;white-space:nowrap;color:var(--fg)}
-button:hover:not(:disabled){background:var(--hover)}button:disabled,button[aria-disabled="true"]{color:var(--mute);cursor:not-allowed;box-shadow:none}
-.ok,.primary{min-height:28px;background:var(--accent-fill);color:var(--accent-ink);border-color:var(--accent-fill)}.ok:hover:not(:disabled),.primary:hover:not(:disabled){background:var(--accent-fill);filter:brightness(1.07)}
+/* buttons (#823): one hierarchy everywhere.
+   secondary: every plain button, an outline on the panel.
+   primary (.primary, .ok): solid accent, white text; one per place.
+   danger (.no): red text and outline; solid red only in a sheet that confirms
+   something destructive (.sheet .danger).
+   link-style (.linkish): text only.
+   Disabled keeps each legible: muted fill and text, never the accent fill with dark text.
+   Text contrast of every state is at least 4.5:1 in both themes (#823's table). */
+button{font-size:13px;font-weight:400;line-height:20px;border-radius:var(--r-s);border:1px solid var(--line);background:var(--panel);min-height:30px;padding:4px 12px;box-shadow:0 1px 1px #0000000a;cursor:pointer;white-space:nowrap;color:var(--fg);transition:background-color .12s,border-color .12s,color .12s}
+button:hover:not(:disabled){background:var(--hover)}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}
+button:disabled,button[aria-disabled="true"]{color:var(--mute);cursor:not-allowed;box-shadow:none}
+button:where(:disabled,[aria-disabled="true"]){background:var(--sunk)}
+.ok,.primary{min-height:30px;font-weight:500;background:var(--accent-fill);color:var(--accent-ink);border-color:var(--accent-fill)}
+.ok:hover:not(:disabled):where(:not([aria-disabled="true"])),.primary:hover:not(:disabled):where(:not([aria-disabled="true"])){background:var(--accent-hover);border-color:var(--accent-hover)}
+button.ok:disabled,button.ok[aria-disabled="true"],button.primary:disabled,button.primary[aria-disabled="true"]{background:var(--sunk);border-color:var(--line);color:var(--mute);font-weight:500;filter:none}
+a.primary{display:inline-flex;align-items:center;justify-content:center;padding:4px 12px;border:1px solid var(--accent-fill);border-radius:var(--r-s);line-height:20px;text-decoration:none}a.primary:hover{text-decoration:none;background:var(--accent-hover);border-color:var(--accent-hover)}
+.primary.sm,button.sm{min-height:26px;padding:2px 10px;font-size:var(--fs-s)}
 .no{color:var(--red)}
-.linkish{background:none;border:0;padding:0;color:var(--fg);cursor:pointer;border-radius:2px}.linkish:hover{text-decoration:underline;background:none}
+button.no{border-color:color-mix(in srgb,var(--red) 45%,var(--line));background:var(--panel)}
+button.no:hover:not(:disabled):where(:not([aria-disabled="true"])){border-color:var(--red);background:var(--red-tint)}
+button.no:disabled,button.no[aria-disabled="true"]{color:var(--mute);border-color:var(--line);background:var(--sunk)}
+.linkish{background:none;border:0;padding:0;color:var(--fg);cursor:pointer;border-radius:2px}.linkish:hover{text-decoration:underline;background:none}.linkish:disabled,.linkish[aria-disabled="true"]{background:none}
 .linkish code{color:inherit}
 input,textarea,select{background:var(--panel);border:1px solid var(--edge);border-radius:6px;padding:4px 8px;min-width:0}
 /* pill: what used to be a coloured chip is now a muted word */
@@ -581,7 +598,7 @@ body.page-chat main{padding-top:0;padding-left:0;padding-bottom:0;overflow:hidde
 .side-head h2{font-size:12px;color:var(--mute);font-weight:500}.side-head{min-height:44px;padding:8px 16px}
 .quiet,.linkish,.pitem,.agent,.chat-role,.chat-row-open,.chat-more,.stat{box-shadow:none}
 .quiet{border-color:transparent;background:transparent}
-.row-more{position:relative;display:inline-block;color:var(--fg)}.row-more>summary{list-style:none;cursor:pointer;padding:2px 8px;min-height:26px;border:1px solid transparent;border-radius:6px;white-space:nowrap}.row-more>summary::-webkit-details-marker{display:none}.row-more>summary:hover,.row-more[open]>summary{background:var(--hover);border-color:var(--line)}
+.row-more{position:relative;display:inline-block;color:var(--fg)}.row-more>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;padding:4px 10px;min-height:30px;border:1px solid transparent;border-radius:6px;white-space:nowrap}.row-more>summary::-webkit-details-marker{display:none}.row-more>summary:hover,.row-more[open]>summary{background:var(--hover);border-color:var(--line)}
 .menu-items{position:absolute;right:0;top:100%;z-index:9;min-width:200px;max-width:min(320px,calc(100vw - 32px));display:grid;padding:4px;gap:2px;background:var(--raised);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 28px #0003}
 .menu-items button,.menu-items a{display:block;width:100%;text-align:left;border:0;box-shadow:none;background:transparent;padding:6px 10px;white-space:normal;border-radius:6px}.menu-items>*:hover{background:var(--hover)}
 .sheet{position:fixed;inset:64px 0 auto;margin:0 auto;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 96px);padding:0;border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 80px #0006;background:var(--raised);color:var(--fg);overflow:hidden}
@@ -589,7 +606,21 @@ body.page-chat main{padding-top:0;padding-left:0;padding-bottom:0;overflow:hidde
 .sheet .views{width:max-content;max-width:100%}.sheet .views button{min-width:80px}
 #toast{display:none;background:var(--raised);color:var(--fg);box-shadow:0 8px 28px #0003;align-items:flex-start;gap:8px;z-index:30}#toast.bad{color:var(--fg)}#toast .toast-icon{color:var(--red)}#toast button{flex:none}.dr-open #toast{top:calc(var(--top) + 12px);bottom:auto}
 #now{display:none}.account{margin-left:auto;position:relative;flex:none}.account>summary{font-size:12px}.account .tokenbox{display:grid;padding:8px;gap:8px}.account .stats{display:grid;padding:8px;border-bottom:1px solid var(--line)}.account .stats button{white-space:normal}.account .menu-items{width:280px}
-.access-note{padding:8px 24px;color:var(--mute);font-size:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+/* the account menu as a card (#823): who you are and your role, then the pages, then Sign out; left-aligned */
+.account .menu-items.acct-card{width:288px;padding:6px;gap:0;text-align:left}
+.acct-card>*:hover{background:none}
+.acct-card .acct-who{display:grid;justify-items:start;gap:2px;margin:0;padding:10px 10px 12px}
+.acct-who #userstate{font-weight:600;color:var(--fg);overflow-wrap:anywhere}.acct-who #tokstate{font-size:var(--fs-s);color:var(--mute)}
+.acct-who #tokset{margin-top:8px;width:auto;min-height:28px;padding:3px 14px;border:1px solid var(--accent-fill);border-radius:var(--r-s);background:var(--accent-fill);color:var(--accent-ink);font-weight:500;text-align:center}.acct-who #tokset:hover{background:var(--accent-hover);border-color:var(--accent-hover)}.acct-who #tokset[hidden]{display:none}
+.acct-card .stats{padding:6px 0;border-top:1px solid var(--line);border-bottom:0;gap:2px}
+.acct-card .stats .stat{display:flex;align-items:baseline;gap:4px;width:100%;padding:6px 10px;border-radius:var(--r-s);text-align:left}.acct-card .stats .stat:hover{background:var(--hover);text-decoration:none}
+.acct-links,.acct-foot{display:grid;gap:2px;padding:6px 0;border-top:1px solid var(--line)}
+.acct-card .acct-links>a,.acct-card .acct-links>button,.acct-card .acct-foot>button{display:block;width:100%;min-height:32px;padding:6px 10px;border:0;border-radius:var(--r-s);background:transparent;box-shadow:none;color:var(--fg);text-align:left;font-size:13px;line-height:20px;text-decoration:none}
+.acct-card .acct-links>a:hover,.acct-card .acct-links>button:hover,.acct-card .acct-foot>button:hover{background:var(--hover);text-decoration:none}
+.acct-card .acct-foot>button{color:var(--red)}
+.acct-foot:has(>[hidden]){display:none}.acct-foot>[hidden]{display:none}
+.access-note{padding:8px 24px;color:var(--mute);font-size:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+@media(max-width:860px),(pointer:coarse){.acct-card .acct-links>a,.acct-card .acct-links>button,.acct-card .acct-foot>button,.primary.sm,button.sm,a.primary{min-height:44px;min-width:44px}.primary.sm,button.sm{padding:8px 12px}}
 #theme-pick{gap:0;background:var(--sunk);width:max-content;max-width:100%;padding:2px;border-radius:8px}#theme-pick legend{float:left;padding:4px 12px 4px 4px;margin:0}#theme-pick label{padding:4px 12px;border-radius:6px;cursor:pointer}#theme-pick label:has(:checked){background:var(--panel);box-shadow:0 0 0 1px var(--line)}#theme-pick input{position:absolute;opacity:0;width:1px;height:1px}#theme-pick label:has(:focus-visible){outline:3px solid color-mix(in srgb,var(--accent) 50%,transparent)}
 input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;border-radius:12px;background:var(--edge);padding:2px;vertical-align:middle}input[type=checkbox]:before{content:'';display:block;width:12px;height:12px;border-radius:50%;background:#fff}input[type=checkbox]:checked{background:var(--accent-fill);border-color:var(--accent-fill)}input[type=checkbox]:checked:before{transform:translateX(12px)}
 @media(min-width:861px){header>.account .stats{display:none}}
@@ -711,7 +742,13 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .setup-four{display:grid;gap:4px;padding:12px 14px;border-radius:8px;background:var(--sunk)}.setup-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.setup-grow{flex:1}
 @media(max-width:860px){#setup-body{padding:18px 16px;border:0;background:none}.setup-agents{grid-template-columns:minmax(0,1fr)}.setup-steps button,.setup-foot button,.setup-form button,.setup-agent button,.setup-cmd button{min-height:44px}.setup-form{max-width:none}}
 /* end:css-setup */
-.login-error{display:block;max-width:560px;margin:12vh auto;padding:24px}.login-error main{display:block;padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}.login-error p{margin:16px 0}.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:8px;margin:16px 0}.login-error input{min-height:44px;font:inherit}.login-error button{justify-self:start;min-height:44px}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
+/* the sign-in page (dash_login.go, #823): the key, a divider with "or", the password; full-width buttons, help below */
+.login-error{display:block;max-width:460px;margin:10vh auto;padding:24px}.login-error main{display:block;padding:32px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);box-shadow:0 1px 3px #0000000d}
+.login-error h1{font-size:18px;margin:0 0 20px}.login-error p{margin:16px 0}.login-error p[role=alert]{margin:0 0 16px;padding:10px 12px;border-radius:var(--r-s);background:var(--red-tint);color:var(--red)}
+.login-error a{display:inline-flex;align-items:center;min-height:44px}.login-error form{display:grid;gap:6px;margin:0}.login-error label{font-size:var(--fs-s);font-weight:500;color:var(--fg);margin-top:6px}.login-error label:first-child{margin-top:0}
+.login-error input{min-height:44px;font:inherit;width:100%;padding:8px 12px}.login-error button{display:block;width:100%;min-height:44px;margin-top:8px;font-weight:500}
+.login-or{display:flex;align-items:center;gap:12px;margin:24px 0;color:var(--mute);font-size:var(--fs-s)}.login-or:before,.login-or:after{content:"";flex:1;border-top:1px solid var(--line)}
+.login-help{margin:24px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:var(--fs-s);color:var(--mute)}.login-help p{margin:0 0 4px}.login-help code{overflow-wrap:anywhere}.log-path{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace}
 .h-more{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.h-more-toggle{display:none}#h-failed:before{content:'';display:inline-block;width:24px;height:14px;border-radius:9px;margin-right:6px;vertical-align:-2px;background:var(--mute);box-shadow:inset 10px 0 var(--panel);border:1px solid var(--edge)}#h-failed[aria-checked="true"]:before{background:var(--accent-fill);box-shadow:inset -10px 0 var(--panel)}
 @media(max-width:860px){.h-more-toggle{display:inline-flex}.h-more:not(.open){display:none}.h-more{width:100%}.board-pick.views{flex-wrap:wrap;gap:4px}.board-pick.views button{flex:1 1 30%;white-space:nowrap}.ib-title a,.hgoal a,.working-table a,.drawer-scroll a,.textpage a{min-height:44px;display:inline-flex;align-items:center}.kmeta a,.ib-sub a{min-height:44px;display:inline-flex;align-items:center}}
 header h1{line-height:20px}header .stats{align-items:center}header .stat{align-items:center;line-height:20px}.panel-toggle,.account>summary{align-items:center;justify-content:center}.account>summary{display:flex}.coverage-note{margin-top:16px}.coverage-note summary{color:var(--mute);cursor:pointer}
@@ -1253,9 +1290,12 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <div class="stats" id="stats"></div>
   <button type="button" class="search-open" id="search-open" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" title="Search tasks, PRs, issues and runs"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5"/><path d="m12.5 12.5 4 4"/></svg><span class="search-open-label">Search</span><kbd id="search-key">Ctrl K</kbd></button>
   <span id="now">Loading…</span>
-  <details class="row-more account" id="account"><summary aria-label="Account and settings">Account</summary><div class="menu-items">
-    <div class="tokenbox"><span id="userstate"></span><span id="tokstate">Read-only</span><button id="tokset">Unlock</button><button id="tokclear" hidden>Sign out</button></div>
-    <div class="stats" id="account-stats"></div><a href="#settings">Settings</a><a href="#help">Help</a><button type="button" id="keys-open" aria-keyshortcuts="Shift+?">Keyboard shortcuts</button>
+  <details class="row-more account" id="account"><summary aria-label="Account and settings">Account</summary><div class="menu-items acct-card">
+    <div class="tokenbox acct-who"><span id="userstate"></span><span id="tokstate">Read-only</span><button id="tokset" class="primary">Unlock</button></div>
+    <div class="tokenbox" id="account-nodes" aria-label="Your nodes" hidden></div>
+    <div class="stats" id="account-stats"></div>
+    <div class="acct-links"><a href="#settings">Settings</a><a href="#help">Help</a><button type="button" id="keys-open" aria-keyshortcuts="Shift+?">Keyboard shortcuts</button></div>
+    <div class="acct-foot"><button id="tokclear" hidden>Sign out</button></div>
   </div></details>
 </header>
 <div id="dasherror" class="state error" role="alert" hidden></div>
@@ -1620,7 +1660,7 @@ document.addEventListener('click',e=>{for(const n of document.querySelectorAll('
 function writeReason(){return !CONNECTED?'Not connected. Wait for the server to reconnect.':!CAN()?USER&&ROLE==='viewer'?'Your role is read-only. Ask an owner to act.':!USER&&TOKEN&&ON_TEAM?'The shared token is read-only on a team. Sign in with your personal key to act.':'Read-only. Unlock to act.':''}
 function lockState(){const can=CAN(),reason=writeReason();$('userstate').textContent=USER?USER+' · '+(ROLE||'…'):TOKEN?'Signed in with the shared token'+(ON_TEAM?' (read-only on a team)':''):'Not signed in';$('tokstate').textContent=can?'Can make changes':'Read-only';$('tokset').textContent=USER?'Use token':'Unlock';$('tokset').hidden=can;$('tokclear').hidden=!TOKEN&&!COOKIE;$('tokclear').textContent=COOKIE?'Sign out':'Lock';
   document.querySelectorAll('[data-write]').forEach(b=>{const why=b.dataset.disabledReason||reason;b.disabled=false;b.setAttribute('aria-disabled',String(!!why));if(why){if(!b.dataset.lockTitle)b.dataset.lockTitle=b.title||'';b.title=why}else if(b.dataset.lockTitle!==undefined){b.title=b.dataset.lockTitle;delete b.dataset.lockTitle}if(why&&!b.dataset.disabledReason)b.setAttribute('aria-describedby','access-note');else b.removeAttribute('aria-describedby')});
-  const note=$('access-note');note.hidden=!reason;note.textContent=reason;if(reason&&!CAN()&&ROLE!=='viewer')note.append(!USER&&TOKEN&&ON_TEAM?el('a',{href:'/login'},'Sign in'):el('button',{class:'quiet',onclick:unlockSheet},'Unlock'));
+  const note=$('access-note');note.hidden=!reason;note.textContent=reason;if(reason&&!CAN()&&ROLE!=='viewer')note.append(!USER&&TOKEN&&ON_TEAM?el('a',{href:'/login',class:'primary sm'},'Sign in'):el('button',{class:'primary sm',onclick:unlockSheet},'Unlock'));
   if(DR&&DR.input){DR.input.disabled=!CAN()||!CONNECTED||!DR.canSend;DR.input.title=!DR.canSend?DR.whyNot||'This session has ended.':reason}settingsAccess()}
 // Keep unavailable actions focusable with an explanation; capture prevents writes.
 document.addEventListener('click',e=>{const n=e.target.closest('[aria-disabled="true"]');if(n){e.preventDefault();e.stopImmediatePropagation();toast(n.title||writeReason(),false)}},true);
@@ -1726,7 +1766,7 @@ let ROUTE={item:'',view:'',rest:[]},panelOpener=null;
 function dashPage(name,def){PAGES[name]=def}
 // parseRoute: an old hash lands where it now lives; anything unknown lands on Issues, as it did on Work.
 function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'inbox').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
-  const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
+  const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
 function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
 function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
@@ -1961,6 +2001,37 @@ function stats(d){
     el('button',{class:'stat',title:'Claude sessions running on this computer: '+(h.busy||0)+' working, '+(h.idle||0)+' idle. Team also lists registered Codex sessions.',onclick:()=>{location.hash='team';$('account').open=false}},el('b',{},(h.busy||0)+' of '+((h.busy||0)+(h.idle||0))),'sessions working'));
   const n=t=>((d.counts||{})[t]||{}).active||0,hs=d.handoffs||{};
   $('now-tiles').replaceChildren(...[[n('claude'),'registered Claude sessions'],[n('codex'),'registered Codex sessions'],[hs.offered||0,'unassigned tasks'],[d.claims_open||0,'reserved resources'],[d.runs_running||0,'runs in progress'],[d.events_1h||0,'events in the last hour']].map(([v,l])=>el('span',{class:'now-stat'},el('b',{},v),' '+l)))}
+// region:nodes
+/* Worker nodes under each account (#831), read only, from GET /api/nodes: each
+   card names its person, null for a dedicated worker an owner enrolled (Server).
+   Account > Your nodes: the signed-in person's; Team > Nodes: every node grouped
+   by person, Server last. Loaded with the dash's refresh (Team's render).
+   Enrolling, draining and revoking stay at the terminal. */
+const NODES={data:null,err:'',at:0,req:0};
+function nodesLoad(){const req=++NODES.req;NODES.at=Date.now();
+  fetch('/api/nodes',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.err=''},e=>{if(req!==NODES.req)return;NODES.err=e.message||'could not load'})
+    .then(()=>{if(req!==NODES.req)return;nodesAccount();if(ROUTE.item==='team'&&teamTab()==='nodes')teamDraw()})}
+function nodesPoll(){if((USER||ROUTE.item==='team'&&teamTab()==='nodes')&&Date.now()-NODES.at>8000)nodesLoad();nodesAccount()}
+// nodeState: one word for a node, the first that holds: drained, offline, not
+// accepting server work, busy, not ready (cannot commit), idle.
+function nodeState(n){const word=n.drained?'drained':n.offline?'offline':n.accept_server_work===false?'not accepting':n.state==='busy'?'busy':n.state==='not_ready'?'not ready':'idle';
+  return {word,dot:word==='idle'?'idle':word==='busy'?'busy':'stale',why:n.why||(word==='offline'?'not seen for '+n.seen_ago:word==='not accepting'?'its person has not opted in to server work':'')}}
+function nodeLoad(n){return el('span',{class:'tm-fig',title:'Server leases running of its capacity (--max)'+(n.local_workers?'; '+n.local_workers+' started on the node itself':'')},(n.leases||0)+'/'+(n.capacity||1))}
+function nodesAccount(){const box=$('account-nodes');if(!box)return;box.hidden=!USER;if(!USER){box.replaceChildren();return}
+  const mine=(NODES.data||[]).filter(n=>n.person===USER).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  box.replaceChildren(el('b',{},'Your nodes'),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Nodes could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
+    return el('a',{href:'#team/nodes','data-node':n.name,title:s.why||s.word,onclick:()=>{$('account').open=false}},el('span',{class:'dot '+s.dot}),' ',n.name,el('span',{class:'tm-why'},s.word+' · '+(n.leases||0)+'/'+(n.capacity||1)))}):[el('span',{class:'mute'},NODES.data?'No nodes yet':'Loading…')]))}
+function nodeRow(n){const s=nodeState(n),about=[n.kind,n.host,(n.tools||[]).join(', '),(n.repos||[]).join(', ')].filter(Boolean).join(' · ');
+  return el('div',{class:'tm-row','data-node':n.name},el('span',{class:'dot '+s.dot,title:s.word}),el('div',{class:'tm-main'},el('b',{},n.name),about?el('span',{class:'tm-why'},about):null),
+    el('span',{class:'tm-fig'},s.word,s.why?el('span',{class:'tm-why'},s.why):null),nodeLoad(n),el('span',{class:'tm-fig',title:n.seen||''},n.seen_ago?'seen '+n.seen_ago+' ago':'never seen'))}
+function nodesBody(){if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
+  const groups=new Map(),server=[];for(const n of NODES.data){if(n.person===null||n.person===undefined||n.person==='')server.push(n);else{if(!groups.has(n.person))groups.set(n.person,[]);groups.get(n.person).push(n)}}
+  const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),sec=(key,label,list)=>el('section',{'data-node-group':key},...teamSec(label,list.length,list.sort(byName).map(nodeRow)));
+  const out=[el('p',{class:'mute tm-intro'},'Nodes running agentd worker against this server, under the person whose device enrolled each; Server is dedicated workers an owner enrolled. Drain and revoke stay at the terminal (agentd server devices).')];
+  for(const p of [...groups.keys()].sort())out.push(sec(p,p,groups.get(p)));if(server.length)out.push(sec('Server','Server',server));
+  if(!NODES.data.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when agentd worker starts against this server.'));return out}
+// end:nodes
 // region:team
 /* second panel: agents grouped by checkout; a row is a name and a state word */
 function sessState(s,left){
@@ -2027,9 +2098,9 @@ function teamWorkItem(w){return teamItem({name:w.name,sub:(w.wait?w.status+': ':
 function teamRoleTool(r,lists){return r.tool||(lists||{}).default_tool||''}
 // teamTab: which of Team's four tabs the route shows (#486); a detail page is under
 // its list's tab, and #team itself is Repositories, as the design has it.
-function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'members':'host';const g=r.rest&&r.rest[0];return g==='working'?'':['roles','members','host'].includes(g)?g:'repositories'}
+function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'members':'host';const g=r.rest&&r.rest[0];return g==='working'?'':['roles','members','host','nodes'].includes(g)?g:'repositories'}
 function teamTabs(){const l=TEAM.lists,tab=teamTab(),n=v=>v===undefined||v===null?'':String(v);
-  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host','']];
+  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host',''],['nodes','Nodes',NODES.data?NODES.data.length:'']];
   if(!REPOS.data&&!REPOS.err&&reposStale())reposLoad();
   teamKeep($('team-tabs'),tabs.map(([k,name,c])=>el('a',{href:'#team/'+k,'data-tk':'tab-'+k,'data-tab':k,'aria-current':tab===k?'page':null},name,n(c)!==''?el('span',{class:'n'},n(c)):null)))}
 
@@ -2094,6 +2165,7 @@ function teamDraw(){const d=lastDash||{};teamTabs();const t=teamTarget(),view=$(
   const hostView=!t&&ROUTE.rest[0]==='host';$('team-host').hidden=!hostView;let top=[],body;
   if(hostView)body=[el('h2',{},'Sessions on this host'),el('p',{class:'mute'},'Sessions connected to agentd, grouped by checkout. Recently ended sessions, and Claude sessions on this host that are not connected to agentd, are below.')];
   else if(!t&&teamTab()==='repositories'){top=[reposHead()];body=reposBody()}
+  else if(!t&&teamTab()==='nodes')body=nodesBody();
   else if(!t)body=!lastDash?[el('div',{class:'state'},'Loading…')]:teamOverview(d);
   else if(TEAM.detailErr)body=[el('div',{class:'state error',role:'alert'},'Could not load this page: '+TEAM.detailErr),el('p',{},el('a',{href:'#team'},'Back to Team'))];
   else if(!TEAM.detail)body=[el('div',{class:'state'},'Loading…')];
@@ -2106,7 +2178,7 @@ function teamFormClose(focus){TEAM.form=null}
 function teamFormOpen(roleName){return newHandoffSheet(roleName)}
 
 dashPage('team',{title:'Team',panel:false,enter(r){teamMoved(r)},unlock(){teamLoadLists();teamLoadDetail();teamLoadActivity(lastDash||{})},
-  render(d){agents(d);left(d);unlinked(d);if(ROUTE.item!=='team')return;const now=Date.now();if(now-TEAM.listsAt>8000)teamLoadLists();if(now-TEAM.activityAt>8000)teamLoadActivity(d);if(now-TEAM.detailAt>8000&&teamTarget())teamLoadDetail();teamDraw()}});
+  render(d){agents(d);left(d);unlinked(d);nodesPoll();if(ROUTE.item!=='team')return;const now=Date.now();if(now-TEAM.listsAt>8000)teamLoadLists();if(now-TEAM.activityAt>8000)teamLoadActivity(d);if(now-TEAM.detailAt>8000&&teamTarget())teamLoadDetail();teamDraw()}});
 // end:team
 // region:repositories
 /* Team > Repositories (#team, #team/repositories): every checkout this host offers
@@ -2586,7 +2658,7 @@ function approvalDecision(id,title,from,decision,force=false){const reject=decis
 function approvalActs(id,title,from,self){
   if(self)return [el('button',{'data-write':true,onclick:()=>approvalDecision(id,title,from,'approve',true)},'Approve anyway (owner override)'),el('button',{class:'no','data-write':true,onclick:()=>approvalDecision(id,title,from,'reject',true)},'Reject'),null];
   return [
-  el('button',{'data-write':true,onclick:()=>approvalDecision(id,title,from,'approve')},'Approve'),
+  el('button',{class:'primary','data-write':true,onclick:()=>approvalDecision(id,title,from,'approve')},'Approve'),
   el('button',{class:'no','data-write':true,onclick:()=>approvalDecision(id,title,from,'reject')},'Reject'),
   self===undefined&&(ROLE==='owner'||TOKEN&&!ROLE&&!ON_TEAM)?el('button',{'data-write':true,onclick:()=>approvalDecision(id,title,from,'approve',true)},'Approve anyway (owner override)'):null]}
 // One row of what waits on the user: an inbox item, a pending approval or
