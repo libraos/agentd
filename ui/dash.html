@@ -400,7 +400,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .usage-group{display:flex;align-items:center;gap:12px;margin:16px 0 8px;font-size:12px;color:var(--mute)}.runs .runs{border:0;padding:0}.runs table pre{max-width:100%;white-space:pre-wrap}#page-metrics #metrics{padding-top:16px}.hfilter #h-failed[aria-pressed="true"]{background:var(--sel);color:var(--fg);border-color:var(--edge)}
 /* end:css-insights */
 /* region:css-insights-overview: Insights > Metrics' four cards, outcomes per week, failure classes and the table by agent and model (#485) */
-.ins-head{padding:0 0 10px}.ins-head .mrange{margin-left:auto}
+.ins-head{padding:0 0 10px}.host-tag{border:1px solid var(--line);border-radius:4px;font-size:11px;margin-left:6px;padding:0 4px;white-space:nowrap}#ins-head #ins-scope{margin-left:auto}#ins-head #ins-scope~#ins-period{margin-left:10px}.ins-head .mrange{margin-left:auto}
 .ins-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
 .ins-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .ins-card .ins-label,.ins-card .ins-note{font-size:12px;color:var(--mute)}.ins-card b{font-size:22px;font-weight:500;line-height:1.2;font-variant-numeric:tabular-nums}.ins-card b.ins-none{font-size:15px;color:var(--mute);font-weight:400}
@@ -1365,7 +1365,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 </div>
 <div id="page-metrics" class="page" hidden>
   <!-- Metrics, Usage and History as tabs. Their home is Metrics' head, the default view, so the row is inside a page and hidden with it until Insights shows; insightsTabs moves it to the top of the view shown (beside Metrics' period picker). Outside every page it showed on Tasks before the first snapshot. -->
-  <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
+  <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav><select id="ins-scope" aria-label="Whose work" title="Work leased through this server, or members' own hosts mirrored here"><option value="">All work</option><option value="server">Leased through this server</option><option value="hosts">Members' own hosts</option></select><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
   <section class="ins-overview" id="ins-overview" aria-label="Outcomes of dispatched tasks">
     <div class="ins-cards" id="ins-cards"></div>
     <div class="ins-cols">
@@ -1978,11 +1978,13 @@ function agentsModel(d){const {rows}=needItems(d),openPR=new Set((d.waiting||[])
 // agentsState: the state word under a row's title, as the task's card says it.
 function agentsState(r){if(r.live)return r.live.text;const n=r.needs&&r.needs[0];if(n)return n.kind==='failed'?'failed':n.kind==='blocked'?'waiting on you':n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':'waiting on you';
   return r.h?(r.mark==='not_started'?'not started':r.h.state==='blocked'?'waiting for another task':(markOf(r.mark)||{word:word(r.h.state)}).word.toLowerCase()):'working'}
+// hostTag names the member host a mirrored handoff (#848) came from.
+function hostTag(x){return x&&x.origin==='host'&&x.host?el('span',{class:'host-tag',title:'Mirrored from host '+x.host+(x.mirror&&x.mirror.person?' ('+x.mirror.person+')':'')+'; read only here'},'on '+x.host):null}
 function agentsRow(r,sel){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).pop(),sid=r.who||'',act=TEAM.activity&&TEAM.activity[sid],agent=h?toolName(h.worker||toolOf(sid))||(h.state==='offered'?'Unassigned':sessLabel(sid)):toolName(r.session.tool)||'Agent',
     num=r.issue?(isLinearRef(r.issue)?r.issue.slice(7):'#'+r.issue.split('#')[1]):'',
     sub=[agent,agentsState(r),num,run&&run.minutes!==undefined?fmtMin(run.minutes):'',run&&run.usd!==undefined?'$'+run.usd.toFixed(2):''].filter(Boolean).join(' · '),
     tip=[r.full,[modelName(act&&act.model||run&&run.model||''),r.session&&r.session.user||h&&h.claimer_user||''].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
-  return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,'aria-current':sel?'page':null,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
+  return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,'aria-current':sel?'page':null,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub,h?hostTag(h):null),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
 function agentsDraw(d){if(!d)return;const box=$('agents-rows'),m=agentsModel(d),sel=agentsSelected(),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'',isSel=r=>!!sel&&(r.id===sel||r.issue===sel);
   // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
   $('agents-counts').replaceChildren(...[[m.counts.need,m.counts.need===1?'task needs you':'tasks need you','Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
@@ -3036,9 +3038,12 @@ function stopHandoff(h){return actionSheet({title:'Stop this worker?',descriptio
 // worker cannot finish without passing; the history records who did.
 function changeCheck(h){return actionSheet({title:'Change the check?',description:'The worker must pass this command to finish “'+(h.title||h.goal||h.id)+'”. Enter none to waive the check. The change is recorded in the history and the worker is told.',action:'Save check',pending:'Saving…',fields:[{name:'check',label:'Check',required:true,value:h.check||'',maxlength:500,hint:'none waives it'}]},h.id+':check',v=>({action:'set_check',id:h.id,check:v.check}),'Check changed')}
 function handoffActions(d,h){
+  // A member host's mirrored handoff (#848) is read only here: act on it on that host.
+  if(h&&h.read_only)return [];
   const check=ROLE==='owner'&&h.check&&/^(offered|blocked|claimed)$/.test(h.state)?[el('button',{'data-write':true,onclick:()=>changeCheck(h)},'Change check')]:[];
   return [...handoffWorkerActions(d,h),...check]}
 function handoffWorkerActions(d,h){
+  if(h&&h.read_only)return [];
   if(!d.dispatch||(!h.to||h.to!=='any'))return [];
   // retry.may is the server's own rule for this person; it still checks on the write.
   if(h.dispatched&&h.retry){const why=h.retry.may===false?h.retry.why_not||'You cannot start this work item again.':null;
@@ -3251,6 +3256,11 @@ async function embedRun(sid,wf){
     if(!wf.isConnected)return;if(!(d.console&&d.console.turns||[]).some(t=>t.at)){const host=wf.closest('.wi-exec');if(host){if(host.previousElementSibling)host.previousElementSibling.remove();host.remove()}return}DR={id:sid,wf,d,canSend:true,wfPick:null};renderWaterfall(d)}
   catch(e){wf.replaceChildren(el('div',{class:'cc-note',style:'padding:14px 16px'},'Could not load the run: '+e.message))}}
 let wiRequest=0;
+// mirrorBody is a member host's mirrored handoff (#848): what its host sent, no actions.
+function mirrorBody(d){const row=(k,v)=>v===undefined||v===null||v===''?null:el('div',{class:'kv'},el('span',{class:'mute'},k+' '),el('span',{},String(v)));
+  return el('div',{class:'mirror-item'},el('p',{class:'note'},d.note||'Mirrored from a member host; read only here.'),
+    row('State',d.state+(d.worker_state?' ('+d.worker_state+')':'')),row('Host',d.host),row('Person',d.mirror&&d.mirror.person),row('Project',d.project),row('Worker',d.worker?toolName(d.worker):''),row('Model',d.model),row('End reason',d.end_reason),
+    row('Minutes',d.minutes===undefined?'':Number(d.minutes).toFixed(1)),row('Cost',d.usd===undefined?'':'$'+Number(d.usd).toFixed(2)),row('Issues',(d.issues||[]).join(', ')),row('Pull requests',(d.prs||[]).join(', ')),row('Updated',d.updated))}
 async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',ref);
   const h=$('hist'),request=++wiRequest;historyRequest++;clearInterval(consoleTimer);consoleTimer=null;DR=null;
   if(!h.contains(document.activeElement))opener=document.activeElement;
@@ -3261,7 +3271,7 @@ async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',r
   show(el('div',{class:'state'},'Loading…'));h.focus();
   try{const r=await fetch('/api/workitem?ref='+encodeURIComponent(ref),{cache:'no-store',headers:auth()});
     if(r.status===401)dropToken();if(!r.ok)throw new Error(r.status===401?'this server needs the token':(await r.text())||'HTTP '+r.status);
-    const d=await r.json();d.goal=((d.tree||[]).find(x=>x.focus||x.id===ref)||{}).goal;show(workItemBody(d),d)}
+    const d=await r.json();if(d.kind==='mirror'){show(mirrorBody(d),d);return}d.goal=((d.tree||[]).find(x=>x.focus||x.id===ref)||{}).goal;show(workItemBody(d),d)}
   catch(e){show(el('div',{class:'state error'},'Could not load this work item: '+e.message))}}
 // dispatchHandoff starts a Claude or Codex worker that claims the handoff.
 // depsNote warns in a worker sheet when a Codex worker without network would
@@ -3413,7 +3423,7 @@ function twActions(dash,h,hid){const box=el('span',{class:'kact tw-acts'}),fixed
 function taskShellWord(w){w=String(w);return /^[A-Za-z0-9_.\/:=+@%,-]+$/.test(w)?w:"'"+w.replace(/'/g,"'\\''")+"'"}
 function taskActButton(key,label,why,cli,run,cls){const say=why||'Same as: '+cli;return el('button',{class:cls||null,'data-write':true,'data-task-act':key,'data-cli':cli,'data-disabled-reason':why||null,'aria-disabled':why?'true':null,'aria-description':say,title:say,onclick:()=>{if(!why)run()}},label)}
 function taskCliNote(cli){return el('p',{class:'field-hint task-cli'},'Same as: ',el('code',{},cli))}
-function taskActions(d,h){if(!h)return [];if(PENDING[h.id+':task'])return [el('span',{class:'mute'},PENDING[h.id+':task'])];const out=[],ed=d.editor||{};
+function taskActions(d,h){if(!h||h.read_only)return [];if(PENDING[h.id+':task'])return [el('span',{class:'mute'},PENDING[h.id+':task'])];const out=[],ed=d.editor||{};
   if(h.takeover)out.push(taskActButton('takeover','Take over',h.takeover.may===false?h.takeover.why_not||'You cannot take this task over.':null,h.takeover.cli,()=>takeoverTask(h)));
   if(h.editor&&h.editor.dir&&ed.local){const cli=(ed.argv||['$VISUAL']).map(taskShellWord).join(' ')+' '+taskShellWord(h.editor.dir);
     out.push(taskActButton('editor','Open in editor',h.editor.may===false?h.editor.why_not||'You cannot open this task.':ed.why_not||null,cli,()=>openTaskInEditor(h)))}
@@ -3931,6 +3941,8 @@ function readInsightsRoute(r){const p=r.params||new URLSearchParams(),prefix=r.v
 function saveInsightsRoute(view){if(ROUTE.item!=='insights'||ROUTE.view!==view)return;const prefix=view==='metrics'?'m':'u',p=new URLSearchParams({range:$(prefix+'-range').value});if(prefix==='m'&&p.get('range')==='dates')for(const k of ['from','to'])if($('m-'+k).value)p.set(k,$('m-'+k).value);routeQuery('insights/'+view,p,true)}
 // insightsTabs: the one tab row, moved to the top of the view shown (into Metrics' head, beside its period picker).
 function insightsTabs(r){const t=$('ins-tabs'),at=r.view==='metrics'?$('ins-head'):$('page-'+r.view);if(at&&t.parentElement!==at)at.prepend(t);
+  // Whose work (#848) goes with the tabs: it filters Metrics, Usage and History.
+  const sc=$('ins-scope');if(sc&&sc.previousElementSibling!==t)t.after(sc);
   for(const a of t.querySelectorAll('a')){if(a.dataset.tab===r.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}}
 dashPage('insights',{title:'Insights',panel:false,views:['metrics','usage','history'],viewTitle:{metrics:'Metrics',usage:'Usage',history:'History'},
   render(d){runs(d)},
@@ -4169,8 +4181,8 @@ function factoryLoad(l){if(!l)return [];const days=l.days||[],max=l.max_workers;
     el('tbody',{},days.map(d=>el('tr',{},el('td',{},d.day),el('td',{class:'num'},d.dispatched),el('td',{class:'num'},Number(d.worker_minutes).toFixed(1)),el('td',{class:'num'},usd(d)),el('td',{class:d.peak_workers>max?'num bfail':'num',title:d.peak_workers>max?'above max_workers '+max:null},d.peak_workers))))));
   return [head,tiles,el('div',{class:'mcharts'},chart),table]}
 async function loadFactory(range){const request=++factoryRequest,sec=$('factory');
-  let q='since='+encodeURIComponent(range);
-  if(range==='dates'){if(!$('m-from').value){INS.f=null;INS.fErr='choose a start date';insDraw();return}q='since='+encodeURIComponent($('m-from').value);if($('m-to').value){const d=new Date($('m-to').value+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);q+='&until='+d.toISOString().slice(0,10)}}
+  let q='since='+encodeURIComponent(range)+insScopeQ();
+  if(range==='dates'){if(!$('m-from').value){INS.f=null;INS.fErr='choose a start date';insDraw();return}q='since='+encodeURIComponent($('m-from').value)+insScopeQ();if($('m-to').value){const d=new Date($('m-to').value+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+1);q+='&until='+d.toISOString().slice(0,10)}}
   try{const r=await fetch('/api/factory?'+q,{cache:'no-store',headers:auth()});if(request!==factoryRequest)return;
     if(r.status===401){sec.hidden=true;$('ins-overview').hidden=true;return}
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
@@ -4201,12 +4213,16 @@ function usageRows(id,rows){$(id).replaceChildren(...(rows||[]).map(r=>el('tr',{
 let usageRequest=0;const USAGE_NOTE=$('u-note').textContent;
 function usageShow(on){USAGE_VISIBLE=on;$('usage-group').parentElement.hidden=!on;$('u-totals').hidden=!on;for(const id of ['u-daily','u-users','u-projects','u-tools','u-models','u-errors'])$(id).closest('section').hidden=!on;usageGroup(USAGE_GROUP)}
 async function loadUsage(){rangeSegments('u-range');const request=++usageRequest;INS_READ.usage=Date.now();saveInsightsRoute('usage');
-  try{const r=await fetch('/api/usage?since='+encodeURIComponent($('u-range').value),{cache:'no-store',headers:auth()});if(r.status===401){if(request!==usageRequest)return;dropToken();usageShow(false);$('u-note').classList.add('error');$('u-note').textContent='This server is public, so reading its usage needs the token or a login link.';return}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);const u=await r.json();if(request!==usageRequest)return;const t=u.totals||{},none=!(t.workers>0);usageShow(!none);$('u-note').classList.remove('error');const needPrice=(u.unpriced_models||[]).map(x=>x.name+' ('+x.workers+')').join(', ');$('u-note').replaceChildren(none?'No worker finished in this range. Usage appears here after a dispatched worker finishes.':USAGE_NOTE,...(needPrice?[el('details',{id:'usage-prices'},el('summary',{},(u.unpriced_models||[]).length+' models have no price. How to add.'),el('div',{},ROLE==='owner'||TOKEN&&!ROLE?'Add prices to [budget.prices] in config.toml. Recorded runs are priced on the next update.':'Ask the host owner to add model prices.',el('p',{},needPrice)))]:[]));
+  try{const r=await fetch('/api/usage?since='+encodeURIComponent($('u-range').value)+insScopeQ(),{cache:'no-store',headers:auth()});if(r.status===401){if(request!==usageRequest)return;dropToken();usageShow(false);$('u-note').classList.add('error');$('u-note').textContent='This server is public, so reading its usage needs the token or a login link.';return}if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);const u=await r.json();if(request!==usageRequest)return;const t=u.totals||{},none=!(t.workers>0);usageShow(!none);$('u-note').classList.remove('error');const needPrice=(u.unpriced_models||[]).map(x=>x.name+' ('+x.workers+')').join(', ');$('u-note').replaceChildren(none?'No worker finished in this range. Usage appears here after a dispatched worker finishes.':USAGE_NOTE,...(needPrice?[el('details',{id:'usage-prices'},el('summary',{},(u.unpriced_models||[]).length+' models have no price. How to add.'),el('div',{},ROLE==='owner'||TOKEN&&!ROLE?'Add prices to [budget.prices] in config.toml. Recorded runs are priced on the next update.':'Ask the host owner to add model prices.',el('p',{},needPrice)))]:[]));
     $('u-totals').replaceChildren(metricsTile(t.workers||0,'Workers','finished runs'),metricsTile(usageNumber(t,'tokens',false),'Tokens',t.missing_tokens?String(t.missing_tokens)+' run'+(t.missing_tokens===1?'':'s')+' missing':'all reported'),metricsTile(t.usd===undefined?'Unknown':usageNumber({...t,missing_usd:0},'usd',true)+(t.missing_usd?' + unpriced':''),'Estimated cost',t.missing_usd?unpricedRuns(t.missing_usd)+'; '+(t.usd===undefined?'no prices set':'a lower bound'):'all priced'));
     usageRows('u-daily',u.daily);usageRows('u-users',u.by_user);usageRows('u-projects',u.by_project);usageRows('u-tools',u.by_tool);usageRows('u-models',u.by_model);
     $('u-errors').replaceChildren(...(u.errors||[]).map(x=>el('tr',{},el('td',{title:x.name},word(x.name)),el('td',{class:'num'},x.workers))))}
   catch(e){if(request!==usageRequest)return;INS_READ.usage=0;$('u-note').textContent='Could not load usage: '+e.message;$('u-note').classList.add('error')}}
 $('u-range').addEventListener('change',loadUsage);
+// ins-scope (#848): all work, the server's own (leased) or members' hosts (mirrored).
+function insScope(){const s=$('ins-scope');return s?s.value:''}
+function insScopeQ(){const v=insScope();return v?'&scope='+encodeURIComponent(v):''}
+$('ins-scope').addEventListener('change',()=>{const tab=(location.hash.match(/insights\/(\w+)/)||[])[1]||'metrics';if(tab==='usage')loadUsage();else if(tab==='history'){HIST.cursors=[''];loadHistory()}else loadMetrics()});
 // History: finished handoffs from /api/history, a page at a time. cursors holds
 // the cursor of each page up to this one, so Newer goes back to the same rows;
 // a change of filter starts again from the newest.
@@ -4263,7 +4279,7 @@ function insDraw(){insCards();const f=INS.f;
 function histOutcomeChip(){const b=$('h-outcome'),o=HIST.outcome;b.hidden=!o;b.textContent=o?insOutName(o.outcome)+' · week of '+o.since.slice(0,10)+' ×':''}
 const HIST={cursors:[''],failed:false,outcome:null,request:0,timer:0};
 const HFIELDS={state:'h-state',source:'h-source',creator:'h-creator',from:'h-from',to:'h-to'};
-function histParams(){const p=new URLSearchParams();for(const[k,id]of Object.entries(HFIELDS))if($(id).value)p.set(k,$(id).value);const q=$('h-q').value.trim();if(q)p.set('q',q);if(HIST.failed)p.set('failed','1');if(HIST.outcome)for(const k of ['outcome','since','until'])p.set(k,HIST.outcome[k]);return p}
+function histParams(){const p=new URLSearchParams();for(const[k,id]of Object.entries(HFIELDS))if($(id).value)p.set(k,$(id).value);const q=$('h-q').value.trim();if(q)p.set('q',q);if(HIST.failed)p.set('failed','1');if(HIST.outcome)for(const k of ['outcome','since','until'])p.set(k,HIST.outcome[k]);const sc=insScope();if(sc)p.set('scope',sc);return p}
 function histFill(id,values,label){const box=$(id),cur=box.value,want=[...values];if(cur&&!want.includes(cur))want.push(cur);if([...box.options].slice(1).map(o=>o.value).join('\n')===want.join('\n'))return;box.replaceChildren(el('option',{value:''},label),...(id==='h-creator'?[el('optgroup',{label:'People'},want.filter(v=>! /^(claude|codex|other)-/.test(v)).map(v=>el('option',{value:v},v))),el('optgroup',{label:'Agent sessions'},want.filter(v=>/^(claude|codex|other)-/.test(v)).map(v=>el('option',{value:v},nameOf(v))))]:want.map(v=>el('option',{value:v},word(v)))));box.value=cur}
 function histState(r){const word=r.state==='done'?'Done':r.state==='cancelled'?'Cancelled':r.state==='declined'?'Declined':r.state;
   if(r.failed&&r.state==='done')return el('span',{class:'status',title:'Handoff state: '+r.state+'. A worker ended badly, or its check did not pass.'},el('i',{class:'g failed',role:'img','aria-label':'Failed'}),r.state==='done'?'Failed':word+', failed');
@@ -4272,7 +4288,7 @@ function histEnd(r){const reasons=r.end_reasons||[],check=r.failed&&r.check&&r.c
 function histRow(r){const open=()=>showWorkItem(r.id),depth=r.depth||0;
   return el('tr',{class:'hrow','data-ref':r.id,onclick:e=>{if(!e.target.closest('a,button'))open()}},
     el('td',{'data-label':'State'},histState(r)),
-    el('td',{class:'hgoal','data-label':'Goal'},depth?el('span',{class:'hsub',title:'Part of '+(r.parent||'its parent')},'↳'):null,el('a',{href:itemHash(null,r.id)},shortTitle(r.goal||r.id)),r.hidden_children?el('div',{class:'mute'},r.hidden_children+' more steps in the detail'):null),
+    el('td',{class:'hgoal','data-label':'Goal'},depth?el('span',{class:'hsub',title:'Part of '+(r.parent||'its parent')},'↳'):null,el('a',{href:itemHash(null,r.id)},shortTitle(r.goal||r.id)),hostTag(r),r.hidden_children?el('div',{class:'mute'},r.hidden_children+' more steps in the detail'):null),
     el('td',{'data-label':'Worker',title:r.model||''},r.worker?toolName(r.worker):'Not recorded'),
     el('td',{class:'hend'+(r.failed?' bad':''),'data-label':'End reason',title:(r.end_reasons||[]).join(' → ')},histEnd(r)),
     el('td',{class:'num','data-label':'Minutes'},r.minutes===undefined?'Not recorded':Number(r.minutes).toFixed(1)),
