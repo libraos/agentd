@@ -368,6 +368,20 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .ktitle{overflow-wrap:break-word;word-break:normal}.kcol .ktop{flex-wrap:wrap;gap:4px 12px}.kcol .ktop .ktitle{flex:1 1 140px}
 @media(max-width:860px){.issue-views{flex-wrap:wrap}.issue-views button{flex:1 1 40%;justify-content:center}.issue-proj{flex:1 1 100%}.issue-proj select{flex:1;max-width:none}}
 /* end:css-tasks-row */
+/* region:css-home: the landing page's five groups (libraos/agentd-core#850), on the server and as agentd app's Home page */
+.home-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:start}
+.home-group{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px;min-width:0}
+.home-ghead{display:flex;align-items:baseline;gap:8px}.home-ghead h3{margin:0;font-size:var(--fs-s,13px);font-weight:600}.home-ghead .n{margin-left:auto;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.home-hint{margin:2px 0 8px;font-size:12px;color:var(--mute)}.home-empty{margin:0;font-size:12px;color:var(--mute)}
+.home-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.home-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid var(--line)}.home-row:first-child{border-top:0}
+.home-row .status{flex:none;order:2;padding-top:1px}
+.home-main{min-width:0;flex:1}.home-open{display:block;overflow-wrap:anywhere;font-weight:500;text-align:left;color:var(--fg)}
+.home-meta{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:var(--mute)}
+.home-more{display:inline-block;margin-top:6px;font-size:12px}.home-note{margin:12px 0 0;font-size:12px;color:var(--mute)}
+.home-app .home-group{background:var(--o-card,var(--panel));border-color:var(--o-border,var(--line))}.home-app .wfilter{margin-top:8px}
+@media(max-width:860px){.home-groups{grid-template-columns:1fr}.home-filters .issue-proj{flex:1 1 100%}.home-filters select{flex:1}}
+/* end:css-home */
 /* region:css-insights */
 .runs{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px 8px;margin-bottom:12px;min-width:0}
 .colhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;padding:0 0 8px}.colhead .n{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
@@ -1230,6 +1244,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <!-- region:rail -->
 <nav class="rail" id="rail" aria-label="Server">
   <a class="rail-mark" href="#inbox" title="AgentD Server" aria-label="AgentD Server, go to Inbox"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
+  <a class="rail-item" data-rail="home" href="#home"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9 10 3.5 16.5 9"/><path d="M5 8v8.5h10V8"/><path d="M8.5 16.5v-4.5h3v4.5"/></svg></span><span class="rail-label">Home</span></a>
   <a class="rail-item" data-rail="inbox" href="#inbox"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 5 4.5h10l2 7v4H3z"/><path d="M3 11.5h4.2l1 2h3.6l1-2H17"/></svg><span class="rail-badge" id="inbox-badge" hidden></span></span><span class="rail-label">Inbox</span></a>
   <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg></span><span class="rail-label">Tasks</span></a>
   <a class="rail-item" data-rail="chat" href="#chat"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-3.5 2.8V14a2 2 0 0 1-2-2z"/></svg></span><span class="rail-label">Chat</span></a>
@@ -1304,6 +1319,12 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div id="appwatchdog" class="state" role="status" hidden></div>
 <div class="access-note" id="access-note" role="status" hidden></div>
 <main id="main" tabindex="-1">
+<!-- region:page-home: the landing page (libraos/agentd-core#850), drawn by region:home -->
+<div id="page-home" class="page" hidden>
+  <div class="ib-head"><h2 id="home-title">Work by status</h2><p class="ib-note">The team's tasks from the same list Tasks shows, grouped by where they stand. A row opens its task.</p></div>
+  <div id="home-body"><div class="empty">Loading…</div></div>
+</div>
+<!-- end:page-home -->
 <!-- region:page-inbox -->
 <div id="page-inbox" class="page" hidden>
   <div class="ib-head"><h2 id="inbox-title">Needs you</h2><span class="n" id="inbox-count"></span><p class="ib-note" id="inbox-note" hidden></p></div>
@@ -1470,9 +1491,10 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">AgentD</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
-    <!-- region:app-nav: Tasks (every task as a table) and Triggers (an owner's, region:app-triggers) open in the centre; wired by the issues that build them -->
+    <!-- region:app-nav: Home (work by status, region:home), Tasks (every task as a table) and Triggers (an owner's, region:app-triggers) open in the centre; wired by the issues that build them -->
     <!-- region:app-onboard-entry: the reference app's "Onboarding checklist" row (#569), first in the nav; drawn by region:app-onboard -->
     <div id="appob-entry" data-region="onboard-entry" hidden></div>
+    <button type="button" class="app-navrow" data-app-nav="home"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Home</button>
     <button type="button" class="app-navrow" data-app-nav="tasks" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13"/></svg>Tasks</button>
     <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers</button>
   </nav>
@@ -1766,8 +1788,8 @@ const PAGES=Object.create(null),ALIASES=Object.assign(Object.create(null),{work:
 let ROUTE={item:'',view:'',rest:[]},panelOpener=null;
 function dashPage(name,def){PAGES[name]=def}
 // parseRoute: an old hash lands where it now lives; anything unknown lands on Issues, as it did on Work.
-function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'inbox').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
-  const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
+function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'home').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
+  const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='home'&&rest.length>0||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
 function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
 function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
@@ -1780,7 +1802,7 @@ function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.re
   for(const n of document.querySelectorAll('[data-rail]')){if(n.dataset.rail===r.item)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
   if(r.view)for(const n of $('panel-'+r.item).querySelectorAll('a.pitem')){if(n.getAttribute('href')===path)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
   const sub=r.view&&def.viewTitle?def.viewTitle[r.view]:'';
-  $('side-title').textContent=({inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · AgentD Server';
+  $('side-title').textContent=({home:'Filters',inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · AgentD Server';
   if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}
   agentsApply();if(lastDash)agentsDraw(lastDash);
   if(def.enter)def.enter(r);syncDrawerRoute(r)}
@@ -3117,25 +3139,25 @@ function issueItems(d,unfiltered){
     // One menu per card: with a need row, the card's actions join that row's.
     const merge=needs.length>0&&needs[0].what!=='issue',rws=needs.length?needRows(needs,merge?{visible:wacts,more:acts.slice(wacts.length)}:null):[];
     if(acts.length&&!merge)meta.push(moreMenu(acts));
-    items.push({project:projectOf(h),status,mark:h.mark,sid:who,src:h,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
+    items.push({kind:'handoff',project:projectOf(h),status,mark:h.mark,sid:who,src:h,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
       node:card({status,mark:h.mark,live:live&&live.key==='working',liveTitle:live&&live.text,title:cardTitle(h.title||h.goal),full:h.title||h.goal,link:itemHash(h.issue,h.id),ref:h.id,meta,age:h.updated_ago,rows:rws,sub:!!(h.parent&&h.depth)})})}
   for(const x of (d.done||[]).filter(x=>x.what==='handoff'&&wf(x))){
     const status=statusOf(x,[],openPR),who=x.by||x.from,why=status==='failed'?failedWhy(x):'';
-    items.push({project:projectOf(x),status,mark:x.mark,sid:who,src:x,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
+    items.push({kind:'done',project:projectOf(x),status,mark:x.mark,sid:who,src:x,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
       node:card({status,mark:x.mark,title:cardTitle(x.title),full:x.title,link:itemHash(x.issue,x.ref),ref:x.ref,age:x.age,
         meta:[x.worker&&who===x.by&&/ session$/.test(sessLabel(who))?el('span',{class:'who'},sessLink(who,toolName(x.worker)+' worker')):whoLink(who),cardStage(x.stage),changeEl(x)],rows:why?[el('div',{class:'krow'},el('span',{class:'why full'},el('span',{class:'k'},'Could not finish: '),why))]:[]})})}
   for(const x of [...(d.waiting||[]).filter(x=>x.what==='PR'),...(d.done||[]).filter(x=>x.what==='PR')]){
     if(filt)continue;
     const acts=prActions(d,x);
     const n=(x.handoffs||[]).length;
-    items.push({project:prProject(x.ref),status:statusOf(x),openPR:!x.state,mine:false,worker:false,pr:x.ref,src:x,
+    items.push({kind:'pr',project:prProject(x.ref),status:statusOf(x),openPR:!x.state,mine:false,worker:false,pr:x.ref,src:x,
       node:card({status:statusOf(x),title:x.title||x.ref,link:itemHash(x.ref),ref:x.ref,age:x.age,
         meta:[el('span',{},x.state==='MERGED'?'merged':x.state?'closed':'open pull request'),n?wkLink(x.ref,n+' handoff'+(n>1?'s':'')):null,acts.length?el('span',{class:'kact'},acts):null]})})}
-  for(const x of rows.get('')||[])items.push({project:x.what==='issue'?prProject(x.ref):projectOf(x),status:'needs',src:x,mine:!!x.mine,worker:false,issues:x.what==='issue'?[x.ref]:null,
+  for(const x of rows.get('')||[])items.push({kind:'need',project:x.what==='issue'?prProject(x.ref):projectOf(x),status:'needs',src:x,mine:!!x.mine,worker:false,issues:x.what==='issue'?[x.ref]:null,
     node:card({status:'needs',title:x.what==='issue'?x.ref:x.title,href:x.what==='issue'?ghHref(x.ref,'issue'):null,meta:[x.from?whoLink(x.from):null],age:x.what==='issue'?null:x.age,rows:[needRow(x,null,true)]})});
   // A session working with no handoff listed is still work in progress.
   for(const s of (filt?[]:d.sessions||[]).filter(s=>s.host_state==='busy'&&!isDash(s)&&!items.some(i=>i.sid===s.id)))
-    items.push({project:projKey(s.cwd),status:'progress',sid:s.id,src:s,mine:user?s.user===user:false,worker:false,
+    items.push({kind:'session',project:projKey(s.cwd),status:'progress',sid:s.id,src:s,mine:user?s.user===user:false,worker:false,
       node:card({status:'progress',live:true,liveTitle:'working now',title:s.task||shortPath(s.cwd),open:()=>showHistory(s.id,s.host_session||''),meta:[whoLink(s.id),(s.claims||[]).length?el('span',{},'holds '+(s.claims||[]).map(shortPath).join(', ')):null],age:s.seen_ago})});
   if(ISS.d){
     const ctx={live:new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,{...x,id:x.ref}])]),rows,openPR,user,my},cards=new Set(),prs=new Set();
@@ -3370,7 +3392,7 @@ function issueItem(it,ctx,needRows){
     el('div',{class:'ktop'},el('div',{class:'ktitle',title:it.title||it.ref},el('a',{href:itemHash(it.ref)},shortTitle(it.title||it.ref))),statusEl(status,live&&live.key==='working',live&&live.text)),
     el('div',{class:'kmeta'},el('code',{class:'kref',title:it.ref},num),who?whoLink(who):el('span',{},'Unassigned'),ended?el('span',{},ended):null,changeEl(hs.filter(h=>h.change).pop()),it.updated_ago?el('span',{class:'age'},it.updated_ago+' ago'):null),
     ...(needs.length?needRows(needs):[]));
-  return {project:it.repo,status,sid:who||'',src:it,mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
+  return {kind:'issue',project:it.repo,status,sid:who||'',src:it,mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
 function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ='';bfRead(new URLSearchParams());VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
 function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
   if(VIEW_FALLBACK)out.push(el('div',{class:'filter-note'},'Showing All because nothing is assigned to you in Started by me.'));
@@ -3387,7 +3409,7 @@ async function loadIssues(){if(ISS.busy)return;ISS.busy=true;
     const text=await r.text();changed=text!==ISS.key||!!ISS.error;ISS.key=text;ISS.d=JSON.parse(text);noteLinearURLs(ISS.d.issues);ISS.error=''}
   catch(e){changed=ISS.error!==e.message;ISS.error=e.message}
   finally{ISS.busy=false}
-  if(changed&&lastDash){board(lastDash);lockState()}}
+  if(changed&&lastDash){board(lastDash);homeDraw();lockState()}}
 // Item page.
 async function loadDetail(ref,fresh){if(fresh){DET.ref=ref;DET.d=null;DET.error='';DET.text=null;DET.at=0;drawDetail()}
   const request=++DET.request;DET.at=Date.now();
@@ -3590,6 +3612,80 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
     if(ROUTE.item!=='issues')return;
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
 // end:issues
+// region:home: the landing page (libraos/agentd-core#850). Five groups, each a count and a
+// short list: Working, Needs you, Blocked, Ready to review, Done (recent). They come from
+// issueItems, the list Tasks draws (its handoffs, the day's finished ones, open PRs, issue
+// cards, sessions working with no task, mirrored member-host tasks), so the numbers agree
+// with Tasks' columns: Working is In progress, Needs you is Needs attention and Failed,
+// Ready to review is In review, Done is Done, Cancelled and Declined, and Blocked is a task
+// waiting on other tasks (state blocked); To do that is not blocked is named under the groups.
+// Filters: created by (a person, the sender's user; or a service or trigger, the handoff's
+// source when it is not interactive or cli) and project. They narrow every group and are
+// the address, #home?by=person:NAME|source:NAME&project=OWNER/REPO, so a link or reload keeps
+// them. Read only: rows are links to the task (#issues/...); nothing here writes, so a viewer
+// sees the same page. In agentd app (region:app) the same view is the Home page over the
+// centre, from the snapshot it already has: no new route, a task row opens the workspace.
+const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs you','A question, an approval, or a blocked, failed or stopped worker.'],['blocked','Blocked','Waiting on other tasks to finish first.'],['review','Ready to review','Finished with a pull request open, or at the review or validate stage.'],['done','Done (recent)','Finished in the last 24 hours.']],
+  HOME_COLUMN={working:'progress',needs:'needs',blocked:'todo',review:'review',done:'done'},HOME_CAP=5,HOME_PERSON_SOURCES=new Set(['','interactive','cli']),HOME={by:'',project:''};
+// homeGroupOf: which of the five groups an item is in, '' for To do that waits on nothing.
+function homeGroupOf(i){const s=i.status,x=i.src||{};if(s==='needs'||s==='failed')return 'needs';if(s==='progress')return 'working';if(s==='review')return 'review';if(FINISHED.has(s))return 'done';
+  if(s==='todo'&&(x.state==='blocked'||(x.handoffs||[]).some(h=>h&&h.state==='blocked')))return 'blocked';return ''}
+// homeCreatorOf: person:USER or source:SOURCE for a handoff row, '' when neither is known.
+function homeCreatorOf(x){if(!x)return '';const src=x.source||'';if(!HOME_PERSON_SOURCES.has(src))return 'source:'+src;const s=x.from&&sessionRow(x.from),p=x.from_user||(x.mirror&&x.mirror.person)||(s&&s.user)||'';return p?'person:'+p:''}
+function homeCreator(i,live){const x=i.src||{};if(i.kind==='issue'){const h=(x.handoffs||[])[0];return h?homeCreatorOf(live.get(h.id)||h):''}if(i.kind==='session')return x.user?'person:'+x.user:'';if(i.kind==='pr')return '';return homeCreatorOf(x)}
+function homeByLabel(by){return by.startsWith('source:')?word(by.slice(7)):by.replace(/^person:/,'')}
+// homeModel: the groups under the filters, and every creator and project there is to choose.
+function homeModel(d,f){f=f||HOME;const live=new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,x])]);
+  const items=issueItems(d,true).filter(i=>!i.folded),people=new Set(),sources=new Set(),projects=new Set(),groups=Object.fromEntries(HOME_GROUPS.map(([k])=>[k,[]]));let todo=0;
+  for(const i of items){i.by=homeCreator(i,live);if(i.by.startsWith('person:'))people.add(i.by.slice(7));else if(i.by.startsWith('source:'))sources.add(i.by.slice(7));if(i.project)projects.add(i.project)}
+  for(const i of items){if(f.by&&i.by!==f.by||f.project&&i.project!==f.project)continue;const g=homeGroupOf(i);if(g)groups[g].push(i);else if(i.status==='todo')todo++}
+  return {groups,todo,people:[...people].sort(projOrder),sources:[...sources].sort(projOrder),projects:[...projects].sort(projOrder)}}
+// homeRowOf: a row's title, where it opens and its age, whatever kind of item it is.
+function homeRowOf(i,app){const x=i.src||{};let id='',title='',href='',age='';
+  switch(i.kind){case 'handoff':id=x.id;title=x.title||x.goal;href=itemHash(x.issue,x.id);age=x.updated_ago;break;
+    case 'done':id=x.ref;title=x.title;href=itemHash(x.issue,x.ref);age=x.age;break;
+    case 'pr':title=x.title||x.ref;href=app?ghHref(x.ref,'PR'):itemHash(x.ref);age=x.age;break;
+    case 'issue':title=x.title||x.ref;href=itemHash(x.ref);age=x.updated_ago;break;
+    case 'session':title=x.task||shortPath(x.cwd);href=app?'':'#team/session/'+encodeURIComponent(x.id);age=x.seen_ago;break;
+    default:title=x.what==='issue'?x.ref:x.title;href=x.what==='issue'?ghHref(x.ref,'issue'):app?'':'#inbox';age=x.what==='issue'?'':x.age}
+  title=String(title||x.ref||'');return {id:id||'',title:cardTitle(title),full:title,href,age:age||''}}
+function homeRow(i,app){const r=homeRowOf(i,app),ext=/^https:/.test(r.href),t=app&&r.id&&APPS.model&&APPS.model.byId.get(r.id);
+  const open=t?el('button',{type:'button',class:'home-open linkish','data-task-id':r.id,title:r.full,onclick:()=>appTaskOpen(r.id)},r.title)
+    :r.href?el('a',{class:'home-open',href:r.href,title:r.full,target:ext?'_blank':null,rel:ext?'noopener':null},r.title):el('span',{class:'home-open',title:r.full},r.title);
+  const meta=[i.project?el('span',{class:'kproj',title:i.project},shortProject(i.project)):null,i.by?el('span',{'data-home-by':i.by},'by '+homeByLabel(i.by)):null,hostTag(i.src),r.age?el('span',{class:'age'},r.age+' ago'):null].filter(Boolean);
+  return el('li',{class:'home-row','data-home-row':r.id||i.pr||(i.src&&(i.src.ref||i.src.id))||''},statusEl(i.status),el('div',{class:'home-main'},open,meta.length?el('div',{class:'home-meta'},meta):null))}
+function homeParams(){const p=new URLSearchParams();if(HOME.by)p.set('by',HOME.by);if(HOME.project)p.set('project',HOME.project);return p}
+function homeRead(p){p=p||new URLSearchParams();HOME.by=p.get('by')||'';HOME.project=p.get('project')||''}
+function homeHashNow(){const q=homeParams().toString();return '#home'+(q?'?'+q:'')}
+// homeSet: a filter changed; the address follows (replaced, not a new history entry) and the view redraws.
+function homeSet(key,value){if(key)HOME[key]=value;if(APP.on){if(location.hash!==homeHashNow())history.replaceState(null,'',homeHashNow());appHomePage()}else{routeQuery('home',homeParams(),true);homeDraw()}}
+// homeView: the filter row, the To do note and the five groups; app is agentd app's Home page.
+function homeView(d,app){const m=homeModel(d,HOME),sfx=app?'-app':'',opt=(v,label)=>el('option',{value:v},label),filtered=!!(HOME.by||HOME.project);
+  const by=el('select',{id:'home-by'+sfx,'data-home-filter':'by',onchange:e=>homeSet('by',e.target.value)},opt('','Anyone'),
+    m.people.length?el('optgroup',{label:'People'},m.people.map(p=>opt('person:'+p,p))):null,
+    m.sources.length?el('optgroup',{label:'Services and triggers'},m.sources.map(s=>opt('source:'+s,word(s)))):null);
+  if(HOME.by&&![...by.options].some(o=>o.value===HOME.by))by.append(opt(HOME.by,homeByLabel(HOME.by)));by.value=HOME.by;
+  const proj=el('select',{id:'home-project'+sfx,'data-home-filter':'project',onchange:e=>homeSet('project',e.target.value)},opt('','All projects'),m.projects.map(p=>opt(p,shortProject(p))));
+  if(HOME.project&&!m.projects.includes(HOME.project))proj.append(opt(HOME.project,shortProject(HOME.project)));proj.value=HOME.project;
+  const bar=el('div',{class:'wfilter home-filters',role:'group','aria-label':'Filters'},el('label',{class:'issue-proj',for:'home-by'+sfx},'Created by ',by),el('label',{class:'issue-proj',for:'home-project'+sfx},'Project ',proj),
+    filtered?el('button',{type:'button','data-home-clear':'',onclick:()=>{HOME.by=HOME.project='';homeSet('','')}},'Clear filters'):null);
+  const more=(key,n)=>{if(app)return el('button',{type:'button',class:'linkish home-more',onclick:()=>appPage('tasks')},'All '+n+' in Tasks');const p=new URLSearchParams({view:'all',layout:'board',column:HOME_COLUMN[key]});if(HOME.project)p.set('project',HOME.project);return el('a',{class:'home-more',href:'#issues?'+p},'All '+n+' in Tasks')};
+  const groups=el('div',{class:'home-groups'},HOME_GROUPS.map(([key,label,hint])=>{const xs=m.groups[key],hid='home-h-'+key+sfx;
+    return el('section',{class:'home-group','data-home-group':key,'aria-labelledby':hid},
+      el('div',{class:'home-ghead'},el('h3',{id:hid},label),el('span',{class:'n','data-home-count':key,title:xs.length+' in '+label},String(xs.length))),
+      el('p',{class:'home-hint'},hint),
+      xs.length?el('ul',{class:'home-rows'},xs.slice(0,HOME_CAP).map(i=>homeRow(i,app))):el('p',{class:'home-empty'},filtered?'Nothing here matches these filters.':'Nothing here.'),
+      xs.length>HOME_CAP?more(key,xs.length):null)}));
+  const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:'#issues?'+new URLSearchParams({view:'all',layout:'board',column:'todo',...(HOME.project?{project:HOME.project}:{})})},'See them in Tasks')):null;
+  return [bar,groups,note].filter(Boolean)}
+function homeDraw(){if(APP.on||ROUTE.item!=='home'||!lastDash)return;const box=$('home-body'),a=document.activeElement,keep=a&&box.contains(a)&&a.id?a.id:'';
+  box.replaceChildren(...homeView(lastDash,false));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
+dashPage('home',{title:'Home',panel:false,agents:false,enter(r){homeRead(r.params);homeDraw();if(lastDash&&!APP.on)loadIssues()},
+  render(){if(ROUTE.item!=='home')return;homeDraw();loadIssues()}});
+// appHomePage: the same view as agentd app's Home page (region:app-sidebar's appPage).
+function appHomePage(){const p=$('app-page');if(!p||!APP.on||APPS.page!=='home'||!lastDash)return;const a=document.activeElement,keep=a&&p.contains(a)&&a.id?a.id:'';
+  p.replaceChildren(appPageHead('Home'),el('div',{class:'home-app'},el('p',{class:'home-hint'},'Tasks by where they stand, yours and others’. A task row opens it.'),...homeView(lastDash,true)));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
+// end:home
 // region:filter: typed filters on the board (#456). One filter, read from the
 // box (free words match the title; agent:, status:, pr:, project:, person:
 // narrow it) and written by the Agent, Status, PR and Person dropdowns, so both
@@ -4661,7 +4757,7 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
   unlock(){if(setupOwner()){setupLoad();setupDoctor()}else setupRender()},
   // On landing, an owner whose install is not set up is taken to it, once a page load.
   render(){const who=USER+'|'+ROLE;if(!setupOwner()||SETUP.asked===who)return;SETUP.asked=who;
-    setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
+    setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'||h==='#home'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
 // end:setup
 // region:app: the personal app's frame (#561). When /api/dash says mode "app" (agentd app,
 // libraos/agentd-core#560), render() hands the snapshot here instead of the team pages:
@@ -4681,7 +4777,9 @@ const APP={on:false,panel:'files',sides:{left:true,right:true},drawer:''};
 try{const v=JSON.parse(localStorage.getItem('dash-app-sidebars')||'null');if(v&&typeof v==='object')APP.sides={left:v.left!==false,right:v.right!==false}}catch(e){}
 function appShell(d){const on=!!d&&d.mode==='app';if(on&&AP.on)return apShell(d);// at /panel, the embedded panel (region:app-panel)
   if(on!==APP.on){APP.on=on;document.body.classList.toggle('app-mode',on);document.querySelector('.shell').hidden=on;$('app-shell').hidden=!on;if(!on){APP.drawer='';appPop(false);appNewTaskClose(true)}appSides()}
-  if(on){appStatus(appMine(d),d);appSidebar(d);appOnboard(d)}return on}
+  if(on){appStatus(appMine(d),d);appSidebar(d);appOnboard(d);appHomeFromHash()}return on}
+// A link or reload at #home?... opens the Home page with its filters, once (region:home).
+function appHomeFromHash(){if(APP.homeAsked)return;APP.homeAsked=true;if(!/^#home(\?|$)/.test(location.hash))return;homeRead(new URLSearchParams(location.hash.split('?')[1]||''));appPage('home')}
 function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
 function appSides(){const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
   for(const n of document.querySelectorAll('#app-shell [data-app-action^="toggle-"]'))n.setAttribute('aria-expanded',String(appOpen(n.dataset.appAction.slice(7))))}
@@ -4778,7 +4876,7 @@ function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects
     if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: agentd new "GOAL".'))}
   box.replaceChildren(...kids);
   if(keep){const n=box.querySelector('[data-task-id="'+CSS.escape(keep)+'"],[data-repo="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
-  if(APPS.page==='tasks')appTasksPage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
+  if(APPS.page==='tasks')appTasksPage();if(APPS.page==='home')appHomePage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
 function appReadOnly(r){const s=$('app-shell');if(r&&!r.mine)s.setAttribute('data-readonly','');else s.removeAttribute('data-readonly')}
 // appTaskOpen: the seam the centre and right sidebar listen on (see the region's head).
 function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)return;APP.task=id;appPage('');
@@ -4786,11 +4884,12 @@ function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)retur
   $('app-shell').dataset.task=id;appReadOnly(r);if(PHONE.matches&&APP.drawer==='left'){APP.drawer='';appSides()}
   document.dispatchEvent(new CustomEvent('app-task',{detail:{id,mine:r.mine,readOnly:!r.mine,task:r.h}}))}
 // Tasks and Triggers: a page over the centre, as the reference app's pages are; '' puts the workspace back.
-function appPage(name){APPS.page=name;let p=$('app-page');
+function appPage(name){const was=APPS.page;APPS.page=name;let p=$('app-page');
+  if(name==='home'){if(location.hash!==homeHashNow())history.replaceState(null,'',homeHashNow())}else if(was==='home'&&/^#home(\?|$)/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);
   for(const n of document.querySelectorAll('#app-shell [data-app-nav]'))if(n.dataset.appNav===name)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');
   document.body.classList.toggle('app-paged',!!name);if(!name){if(p)p.hidden=true;return}
   if(!p){p=el('section',{class:'app-page',id:'app-page','aria-live':'polite'});$('app-center').append(p)}p.hidden=false;
-  if(name==='tasks')appTasksPage();else if(name==='settings')appSettingsPage();else appTriggersPage()}
+  if(name==='tasks')appTasksPage();else if(name==='settings')appSettingsPage();else if(name==='home')appHomePage();else appTriggersPage()}
 function appPageHead(title,...more){return el('div',{class:'app-phead'},el('button',{type:'button',class:'app-ibtn','data-app-close':'',title:'Close','aria-label':'Close '+title},appIcon(APP_ICONS.x,16)),el('h2',{},title),...more)}
 function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;const m=APPS.model||{rows:[]},old=p.querySelector('.app-pfilter'),q=old?old.value:'',at=document.activeElement===old;
   const f=el('input',{class:'app-pfilter',type:'search',placeholder:'Filter tasks','aria-label':'Filter tasks',value:q}),ql=q.trim().toLowerCase();
