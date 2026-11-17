@@ -10,7 +10,8 @@ const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const now=new Date().toISOString(),phone=process.env.DASH_UI_PHONE==='1',evil='<img src=x onerror=alert(1)>';
 const dash={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
 const config={'dispatch.max_workers':2,'dispatch.default_tool':'codex','dispatch.budget':'90m','dispatch.codex_network':false,'dispatch.claude_model':'claude-test','dash.dispatch':true,'dash.push_prompts':false,'dash.base_url':'','dash.terminal':false,'dash.terminal_remote':false,
- 'sync.repos':['acme/one'],'mcp.tools':'core','mcp.allowed_origins':[],'users.strict':false,'gateway.url':'http://gw.test','gateway.key_file':'configured','runtime.url':'','runtime.password_file':'not configured'};
+ 'sync.repos':['acme/one'],'mcp.tools':'core','mcp.allowed_origins':[],'users.strict':false,'gateway.url':'http://gw.test','gateway.key_file':'configured','runtime.url':'','runtime.password_file':'not configured',
+ 'cloud.claude_token_file':'/home/alice/.secrets/claude-oauth-token','cloud.claude_token':{path:'/home/alice/.secrets/claude-oauth-token',state:'ok',set_at:'2026-11-15T10:00:00Z',expires:'2027-11-15T10:00:00Z',days_left:362,renew:'claude setup-token'},'cloud.subscription_running':1};
 const settings={owner:true,config,models:{configured:[],used:[],prices:{'claude-test':{input:3,output:15}},gateway_status:'none'},members:[{name:'alice',role:'owner'}],invites:[{id:'i1',user:'bob',email:'bob@example.invalid',state:'pending'}],
  personal:{email:'alice@example.invalid',waiting:true,blocked:true,failed:true,finished:false},email:{configured:false},telegram:{},telegram_personal:null,history:[{created:now,actor:'alice',key:'dispatch.max_workers',new_value:'2',state:'applied'}],chat_roles:[{name:'assistant',model:'m',tools:[]}]};
 const part=(check,label,ok)=>({check,label,ok,status:ok?'pass':'fail',detail:'',fix:''});
@@ -36,7 +37,7 @@ const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),sett
 const go=async h=>{w.location.hash=h;await settle()};
 const shown=()=>[...doc.querySelectorAll('#page-settings .set-group')].filter(n=>!n.hidden).map(n=>n.id);
 const text=id=>doc.getElementById(id).textContent;
-const want=[['This host',[['agents','Agents'],['models','Models and prices'],['workers','Workers'],['connections','Connections'],['terminal','Terminal'],['diagnostics','Diagnostics']]],['You',[['personal','Personal'],['app','Install as an app']]],['Team',[['members','Members and roles'],['history','Change history']]]];
+const want=[['This host',[['agents','Agents'],['models','Models and prices'],['workers','Workers'],['connections','Connections'],['cloud','Cloud'],['terminal','Terminal'],['diagnostics','Diagnostics']]],['You',[['personal','Personal'],['app','Install as an app']]],['Team',[['members','Members and roles'],['history','Change history']]]];
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
  // The section list replaces the tabs, in the panel, grouped as the design has it.
@@ -66,7 +67,7 @@ const want=[['This host',[['agents','Agents'],['models','Models and prices'],['w
  const under={workers:['Max workers','Default tool','Default budget','Codex network','Start workers from the server','Triggers','Worker rules'],models:['Configured','Actually used','Model prices','claude-test'],
   connections:['Synced repos','acme/one','MCP tools','MCP origins','Gateway','Runtime','Server address','Strict users','Prompt forwarding','Chat roles and tools'],
   personal:['Theme','Keyboard shortcuts','Sign-in','Notifications','Your email address','Gmail','Telegram'],members:['Members','alice','Invite member','Invitations','bob@example.invalid'],
-  history:['Change history','dispatch.max_workers'],terminal:['Terminal in the server','Off (the default)','terminal = true','config.toml'],app:['Install as an app','Add to Home Screen']};
+  history:['Change history','dispatch.max_workers'],cloud:['Claude token file','/home/alice/.secrets/claude-oauth-token','Valid','2026-11-15','2027-11-15','362 days left','Jobs at once on this token','claude setup-token','never makes or renews','plan_limited','plan limits'],terminal:['Terminal in the server','Off (the default)','terminal = true','config.toml'],app:['Install as an app','Add to Home Screen']};
  for(const [id,labels] of Object.entries(under)){await go('#settings/'+id);for(const l of labels)assert(text('set-'+id).includes(l),id+' lacks '+l)}
  await go('#settings/diagnostics');assert(text('set-diagnostics').includes('Config parsed'),'doctor is not under Diagnostics');
  // Agents: the three tools, installed and connected from ?agents=1, the default model, Preview for those installed.
@@ -88,7 +89,7 @@ const want=[['This host',[['agents','Agents'],['models','Models and prices'],['w
   const sec=doc.getElementById('set-'+id);assert(!sec.querySelector('input,select,textarea'),id+' has an input');
   for(const b of sec.querySelectorAll('button'))assert(b.dataset.connectPreview,id+' has a button '+b.textContent)}
  const keys=new Set();
- for(const id of ['agents','models','workers','connections','terminal','personal','app','members','history']){await go('#settings/'+id);
+ for(const id of ['agents','models','workers','connections','cloud','terminal','personal','app','members','history']){await go('#settings/'+id);
   const edits=[...doc.querySelectorAll('#set-'+id+' button')].filter(b=>['Edit','Add price'].includes(b.textContent));
   for(let i=0;i<edits.length;i++){const b=[...doc.querySelectorAll('#set-'+id+' button')].filter(b=>['Edit','Add price'].includes(b.textContent))[i];b.click();await tick();
    const sheet=doc.querySelector('dialog');assert(sheet,'no sheet for '+b.textContent);
@@ -96,7 +97,11 @@ const want=[['This host',[['agents','Agents'],['models','Models and prices'],['w
    const before=posts.length;sheet.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
    for(const p of posts.slice(before))keys.add(p.action==='config'?p.key.replace(/^budget\.prices\..*/,'budget.prices.*'):p.action);
    const left=doc.querySelector('dialog');if(left&&left.open){const c=[...left.querySelectorAll('button')].find(n=>n.textContent==='Cancel');if(c)c.click();await tick()}}}
- assert.deepEqual([...keys].sort(),['budget.prices.*','dispatch.budget','dispatch.codex_network','dispatch.default_tool','dispatch.max_workers'],'writable settings changed');
+ assert.deepEqual([...keys].sort(),['budget.prices.*','cloud.claude_token_file','cloud.subscription_running','dispatch.budget','dispatch.codex_network','dispatch.default_tool','dispatch.max_workers'],'writable settings changed');
+ // An expired token says how to renew it, and the page never names a token.
+ config['cloud.claude_token']={...config['cloud.claude_token'],state:'expired',days_left:-3};w.eval('settingsLoad()');await settle();await go('#settings/cloud');
+ assert(doc.querySelector('#set-cloud [data-token-state=expired]'),'expired not shown');assert(text('set-cloud').includes('save the new token in the same file'),'no renewal line');
+ assert(!/sk-ant-/.test(doc.getElementById('set-cloud').innerHTML),'a token on the page');
  // A member who is not an owner: no agents read, no Preview, no history.
  const before=reads.filter(r=>r==='?agents=1').length;
  settings.owner=false;w.eval("TOKEN='';COOKIE=true;USER='viewer';ROLE='viewer';settingsAccess()");await settle();
