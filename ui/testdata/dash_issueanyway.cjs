@@ -33,6 +33,7 @@ const open=url=>new JSDOM(html,{url:'http://127.0.0.1:21620/'+url,runScripts:'da
   if(u.pathname==='/api/action'){const b=JSON.parse(opts.body);posts.push(b);
    if(b.action==='offer')return json(refusal('hof-new'),400);
    if(b.action==='dispatch'&&!b.anyway)return json(refusal(b.id),400);
+   if(b.action==='retry'&&!b.anyway)return json(refusal(b.id),400);
    return json({ok:true,handoff:b.id})}
   if(u.pathname==='/api/issue'){const ref=u.searchParams.get('ref'),h=dash.handoff_list.find(x=>x.id===ref);return json({kind:'handoff',ref,title:h.goal,body:{goal:h.goal},tree:[{...h,focus:true,log:[]}],prs:[]})}
   if(u.pathname==='/api/log')return json({lines:[],running:false});
@@ -71,6 +72,21 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  anyway(se)[0].click();await settle();
  const p=posts.pop();assert.equal(p.action,'dispatch');assert.equal(p.id,'hof-free');assert.equal(p.anyway,true);
  assert(!dialog(),'the sheet stayed open after Start anyway');
+ // Start again on a failed worker: the same refusal in its sheet, and Start anyway posts retry with anyway.
+ w.eval('window.rt={id:"hof-retry",goal:"Retry me",dispatched:true,retry:{cwd:"/plain",tool:"claude",may:true}};retryHandoff(window.rt)');await settle();
+ [...dialog().querySelectorAll('.sheet-foot button')].find(b=>b.textContent==='Confirm and start').click();await settle();
+ assert.equal(posts.pop().action,'retry');
+ const re=dialog().querySelector('.sheet-error');assert(!re.hidden&&re.querySelector('[data-issue-refusal]'),'Start again does not show the refusal');
+ assert(links(re).includes('https://github.com/acme/repo/pull/9'));
+ anyway(re)[0].click();await settle();
+ const rp=posts.pop();assert.equal(rp.action,'retry');assert.equal(rp.id,'hof-retry');assert.equal(rp.anyway,true);assert.equal(rp.cwd,'/plain');
+ assert(!dialog(),'the sheet stayed open after Start anyway');
+ // A Chat card for a confirmed task whose start was refused: the box with Start anyway.
+ const card=w.eval('window.cc=chatWorkerCard({id:"hof-chat",goal:"Chat task",state:"offered",worker:"claude",worker_cwd:"/plain",issue_refusal:{reason:"acme/repo#3 looks taken",links:["https://github.com/acme/repo/pull/9"],may_anyway:true}})');
+ doc.body.append(card);assert(card.querySelector('[data-issue-refusal]'),'the Chat card shows no refusal');
+ assert(!card.querySelector('button.chat-card'),'a button nests the refusal box');
+ assert.equal(anyway(card).length,1);anyway(card)[0].click();await settle();
+ assert.deepEqual(posts.pop(),{action:'dispatch',id:'hof-chat',anyway:true,cwd:'/plain'});card.remove();
  // A parked task's view: the box in place of Dispatch.
  w.location.hash='#issues/hof-park';await settle();
  const det=doc.getElementById('issue-detail')||doc;
@@ -87,5 +103,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  assert.equal(anyway(doc).length,0,'the viewer is offered Start anyway');
  assert(vdet.querySelector('[data-issue-refusal]').textContent.includes('Only a person who may start this task'),'the viewer is not told who may');
  assert(!errors.length,errors.join('\n'));
+ {const vc2=w.eval('window.vc=chatWorkerCard({id:"hof-chat",goal:"Chat task",state:"offered",worker:"claude",worker_cwd:"/plain",issue_refusal:{reason:"acme/repo#3 looks taken",links:["https://github.com/acme/repo/pull/9"],may_anyway:true}})');
+  doc.body.append(vc2);assert(vc2.querySelector('[data-issue-refusal]'),'the viewer sees no refusal on the Chat card');assert.equal(anyway(vc2).length,0,'the viewer is offered Start anyway on the Chat card')}
  w.close();console.log('dash_issueanyway: ok');
 })().catch(e=>{console.error(e);console.error('DOM errors:',errors);process.exit(1)});
