@@ -2394,8 +2394,11 @@ function checksPanel(hid){const box=el('section',{class:'checks','aria-label':'C
 const WLOG={};let WLOG_EVERY=3000;
 function wlogLoad(hid){const c=WLOG[hid]||(WLOG[hid]={});if(c.loading)return c.loading;
   c.loading=fetch('/api/log?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(r.status===404)throw new Error('You cannot see this task’s log.');if(!r.ok)throw new Error((await r.text())||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
+// A worker leased on another node (#851) sends its output to the server: remote, node, attempt say so.
 function wlogStatus(d){const n=(d.lines||[]).length;
-  return [d.running?'Live: new lines appear while the worker runs.':d.lines&&n?'The worker is not running; this is the end of its log.':'',
+  return [d.remote&&d.node?'From the worker on node '+d.node+(d.attempt>1?', attempt '+d.attempt:'')+'.':'',
+    d.running?'Live: new lines appear while the worker runs.':d.lines&&n?'The worker is not running; this is the end of its log.':'',
+    d.dropped_bytes?d.dropped_bytes+' bytes of output were not kept.':'',
     n?(d.truncated?'Last '+n+' lines.':n+(n===1?' line.':' lines.')):'',d.redacted?d.redacted+(d.redacted===1?' secret':' secrets')+' hidden.':''].filter(Boolean).join(' ')}
 // wlogFill draws what is loaded into the open panel, keeping the view at the bottom if it was there.
 function wlogFill(c){const b=c.body;if(!b)return;if(c.error&&!c.data){b.replaceChildren(el('p',{class:'mute'},'The log could not be read: '+c.error));return}const d=c.data;if(!d)return;

@@ -51,6 +51,11 @@ const open=async d=>{d.open=true;d.dispatchEvent(new w.Event('toggle'));await ti
  // Closing the section stops polling for a running worker too.
  log={...log,running:true,state:'claimed'};w.eval("delete WLOG['hof-test']");w.eval("showWorkItem('hof-test')");await tick();d=panel();await open(d);
  d.open=false;d.dispatchEvent(new w.Event('toggle'));const closed=logReqs();await tick(200);assert.equal(logReqs(),closed,'still polling a closed Log section');
+ // A worker leased on another node (#851): the server answers from the output it uploaded; the status names the node.
+ log={handoff:'hof-test',state:'claimed',running:true,remote:true,node:'build-2',attempt:2,lines:['remote step'],truncated:true,redacted:0,dropped_bytes:512,limit:200};w.eval("delete WLOG['hof-test']");w.eval("showWorkItem('hof-test')");await tick();d=panel();await open(d);
+ assert(panel().textContent.includes('From the worker on node build-2, attempt 2.')&&panel().textContent.includes('Live:')&&panel().textContent.includes('512 bytes of output were not kept.'),'remote status: '+panel().textContent);
+ log={...log,lines:[...log.lines,'remote step 2']};await tick(120);assert(panel().querySelector('pre.wlog-lines').textContent.endsWith('remote step 2'),'remote log not live');
+ d=panel();d.open=false;d.dispatchEvent(new w.Event('toggle'));
  // A log that was cleaned up, and a task the person cannot see.
  log={handoff:'hof-test',state:'done',running:false,lines:[],missing:true,note:'The worker log is gone; it was cleaned up or moved.'};w.eval("delete WLOG['hof-test']");w.eval("showWorkItem('hof-test')");await tick();d=panel();await open(d);
  assert(panel().textContent.includes('cleaned up'),'missing log: '+panel().textContent);assert(!panel().querySelector('pre'));
