@@ -617,7 +617,7 @@ body.page-chat main{padding-top:0;padding-left:0;padding-bottom:0;overflow:hidde
 .menu-items{position:absolute;right:0;top:100%;z-index:9;min-width:200px;max-width:min(320px,calc(100vw - 32px));display:grid;padding:4px;gap:2px;background:var(--raised);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 28px #0003}
 .menu-items button,.menu-items a{display:block;width:100%;text-align:left;border:0;box-shadow:none;background:transparent;padding:6px 10px;white-space:normal;border-radius:6px}.menu-items>*:hover{background:var(--hover)}
 .sheet{position:fixed;inset:64px 0 auto;margin:0 auto;width:min(560px,calc(100vw - 32px));max-height:calc(100dvh - 96px);padding:0;border:1px solid var(--line);border-radius:10px;box-shadow:0 24px 80px #0006;background:var(--raised);color:var(--fg);overflow:hidden}
-.sheet::backdrop{background:var(--scrim)}.sheet form{display:flex;flex-direction:column;max-height:inherit}.sheet-head{padding:24px 24px 12px}.sheet-head p{margin:8px 0 0;color:var(--mute);overflow-wrap:anywhere}.sheet-body{padding:0 24px 16px;overflow:auto;min-height:0;display:grid;gap:12px}.sheet-field{display:grid;gap:4px;font-size:12px}.sheet-field input,.sheet-field select,.sheet-field textarea{width:100%;font-size:13px}.sheet-field textarea{min-height:80px;resize:vertical}.field-hint{color:var(--mute);font-size:12px}.field-error,.sheet-error{color:var(--red);font-size:12px}.sheet-error{margin:0 24px 12px}.sheet-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid var(--line);background:var(--sunk);flex-shrink:0}.sheet .danger{background:var(--red-fill);color:#fff;border-color:var(--red-fill)}
+.sheet::backdrop{background:var(--scrim)}.sheet form{display:flex;flex-direction:column;max-height:inherit}.sheet-head{padding:24px 24px 12px}.sheet-head p{margin:8px 0 0;color:var(--mute);overflow-wrap:anywhere}.sheet-body{padding:0 24px 16px;overflow:auto;min-height:0;display:grid;gap:12px}.sheet-field{display:grid;gap:4px;font-size:12px}.sheet-field input,.sheet-field select,.sheet-field textarea{width:100%;font-size:13px}.sheet-field textarea{min-height:80px;resize:vertical}.field-hint{color:var(--mute);font-size:12px}.field-error,.sheet-error{color:var(--red);font-size:12px}.sheet-error{margin:0 24px 12px}.issue-refusal{display:grid;gap:6px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--red);border-radius:6px;background:var(--raised);color:inherit;font-size:12px;text-align:left}.issue-refusal ul{margin:0;padding-left:18px;display:grid;gap:2px}.issue-refusal a{overflow-wrap:anywhere}.issue-refusal p{margin:0}.issue-refusal button{justify-self:start}.issue-refusal .issue-msg{color:var(--red)}.sheet-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid var(--line);background:var(--sunk);flex-shrink:0}.sheet .danger{background:var(--red-fill);color:#fff;border-color:var(--red-fill)}
 .sheet .views{width:max-content;max-width:100%}.sheet .views button{min-width:80px}
 #toast{display:none;background:var(--raised);color:var(--fg);box-shadow:0 8px 28px #0003;align-items:flex-start;gap:8px;z-index:30}#toast.bad{color:var(--fg)}#toast .toast-icon{color:var(--red)}#toast button{flex:none}.dr-open #toast{top:calc(var(--top) + 12px);bottom:auto}
 #now{display:none}.account{margin-left:auto;position:relative;flex:none}.account>summary{font-size:12px}.account .tokenbox{display:grid;padding:8px;gap:8px}.account .stats{display:grid;padding:8px;border-bottom:1px solid var(--line)}.account .stats button{white-space:normal}.account .menu-items{width:280px}
@@ -1672,7 +1672,7 @@ function sheet(o){if(activeSheet)return Promise.resolve(null);return new Promise
   form.onsubmit=async e=>{e.preventDefault();if(busy)return;const v=values();for(const f of fields)if(f.required&&!v[f.name]){fieldError(f.name,f.label+' is required.');return}const invalid=o.validate&&o.validate(v);if(invalid){fieldError(invalid[0],invalid[1]);return}
     busy=true;cancel.disabled=submit.disabled=true;submit.textContent=o.pending||'Saving…';error.hidden=true;
     try{const result=o.onSubmit?await o.onSubmit(v,api):true;if(result===false)throw new Error('The change was not accepted. Check the message and try again.');if(typeof result==='string')throw new Error(result);finish(v)}
-    catch(e){error.textContent=errorText(e);error.hidden=false}
+    catch(e){if(e&&e.box)error.replaceChildren(e.box);else error.textContent=errorText(e);error.hidden=false}
     finally{busy=false;if(!finished){cancel.disabled=submit.disabled=false;submit.textContent=o.action||'Continue'}}};
   dialog.addEventListener('cancel',e=>{e.preventDefault();if(!busy)finish(null)});
   dialog.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&(o.danger||o.caution)&&e.target!==submit){if(e.target.tagName!=='TEXTAREA')e.preventDefault();return}if(e.key!=='Tab')return;const nodes=[...dialog.querySelectorAll('button,input,select,textarea,a[href],summary')].filter(n=>!n.disabled&&!n.hidden&&n.getClientRects().length);const first=nodes[0],last=nodes[nodes.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}});
@@ -1739,7 +1739,26 @@ async function act(body){
   const r=await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json',...auth()},body:JSON.stringify(body)});
   if(r.status===401)dropToken();
   let j={};try{j=await r.json()}catch(e){j={error:r.status===401?'Unlock with a current token.':'The server returned HTTP '+r.status}}
-  if(!r.ok||j.ok===false)throw new Error(j.error||'The request was not accepted (HTTP '+r.status+').');return j}
+  if(!r.ok||j.ok===false){const err=new Error(j.error||'The request was not accepted (HTTP '+r.status+').');err.body=j;throw err}return j}
+// region:issue-anyway (libraos/agentd-core#882): a start refused because someone else is on the task's
+// GitHub issue (assignee, open PR, branch). The box lists each sign with its link and, for a person
+// who may start it (the answer's may_anyway, or the snapshot's issue_refusal.may_anyway; never a
+// viewer), Start anyway: the dispatch action again with anyway true, kept in the task's history and the
+// audit log. info: the action's answer ({handoff, issue_taken, may_anyway}) or a snapshot's
+// issue_refusal ({reason, links, may_anyway}); cwd: the checkout to start in; done(j): after it started.
+const ISSUE_KIND={assignee:'Assigned to',pr:'Open PR by',branch:'Branch by'};
+function issueRefused(e){return !!(e&&e.body&&Array.isArray(e.body.issue_taken)&&e.body.issue_taken.length)}
+function issueRefusalBox(info,hid,cwd,done){const box=el('div',{class:'issue-refusal',role:'alert','data-issue-refusal':''}),list=el('ul',{});
+  if(Array.isArray(info.issue_taken))for(const c of info.issue_taken)for(const t of c.taken||[])list.append(el('li',{},(ISSUE_KIND[t.kind]||t.kind)+' '+t.who+(t.name?' ('+t.name+')':'')+' on '+c.issue+': ',el('a',{href:t.url,target:'_blank',rel:'noopener noreferrer'},t.url)));
+  else{if(info.reason)box.append(el('p',{},info.reason.replace(/https:\/\/\S+/g,'').replace(/[;:,\s]+$/,'')));for(const u of info.links||[])list.append(el('li',{},el('a',{href:u,target:'_blank',rel:'noopener noreferrer'},u)))}
+  const msg=el('small',{class:'issue-msg',hidden:true});
+  const btn=info.may_anyway&&CAN()?el('button',{type:'button',class:'caution','data-write':true,'data-act':'start-anyway',onclick:async()=>{if(btn.disabled)return;btn.disabled=true;btn.textContent='Starting…';msg.hidden=true;
+    try{const j=await act({action:'dispatch',id:hid,anyway:true,...(cwd?{cwd}:{})});toast(j.queued?'Started anyway: its worker starts when a slot is free':'Started anyway: worker requested',true);if(done)done(j);refresh()}
+    catch(x){msg.textContent=errorText(x);msg.hidden=false;btn.disabled=false;btn.textContent='Start anyway'}}},'Start anyway'):null;
+  box.prepend(el('b',{},'Someone else may already be on this issue'));
+  box.append(list,el('p',{class:'mute'},btn?'Ask them first, or start it anyway: the task\u2019s history and the audit log record that you did.':'Ask them first. Only a person who may start this task can start it anyway.'),btn,msg);
+  return box}
+// end:issue-anyway
 async function pending(ref,label,body,done){if(PENDING[ref])return false;PENDING[ref]=label;if(lastDash)render(lastDash);let j=false;try{j=await act(body);if(done)toast(done,true)}catch(e){toast(errorText(e),false)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}return j}
 function actionSheet(o,ref,body,done){return sheet({...o,onSubmit:async values=>{if(PENDING[ref])return 'This action is already running.';PENDING[ref]=o.pending||'Saving…';if(lastDash)render(lastDash);try{await act(typeof body==='function'?body(values):body);if(done)toast(done,true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 function meter(ctx,win,text){
@@ -3075,7 +3094,7 @@ async function ntSend(startIt){const ui=NT.ui,nt=NT.nt;if(!ui||NT.busy)return;co
   const buttons=[...$('nt-form').querySelectorAll('.nt-foot button')],btn=startIt?ui.submit:$('nt-save'),label=btn.textContent;NT.busy=true;for(const b of buttons)b.disabled=true;btn.textContent=startIt?'Starting…':'Saving…';ui.error.hidden=true;
   try{const j=await act({action:'offer',goal:v.goal,state:v.state,role:v.role,worker:v.tool,cwd:v.cwd,budget:v.budget,key:NT.key,...(v.also?{also:v.also}:{}),...newTaskBody(v,nt),...(startIt?{}:{start:false})});
     toast(startIt?(j.queued?'Worker queued: it starts when a slot is free':'Worker requested'):'Saved without starting. Start its worker from the task.',true);ntDraftClear();NT.ui=null;NT.busy=false;location.hash=j.handoff?'#issues/'+j.handoff:'#issues';refresh()}
-  catch(e){ui.error.textContent=errorText(e);ui.error.hidden=false}
+  catch(e){if(issueRefused(e)){const hid=e.body.handoff;ntDraftClear();ui.error.replaceChildren(el('p',{},'Task '+hid+' is saved but not started.'),issueRefusalBox(e.body,hid,v.cwd,()=>{NT.ui=null;location.hash='#issues/'+hid}))}else ui.error.textContent=errorText(e);ui.error.hidden=false}
   finally{if(NT.ui===ui){NT.busy=false;for(const b of buttons)b.disabled=false;btn.textContent=label}}}
 function ntCancel(){if(NT.busy)return;ntDraftClear();NT.ui=null;const back=NT.back&&!/^#new\b/.test(NT.back)?NT.back:'#issues',id=NT.backId;location.hash=back;if(id)setTimeout(()=>{const n=$(id);if(n)focusBack(n)},0)}
 function ntEnter(r){const role=(r.params&&r.params.get('role'))||'';for(const n of document.querySelectorAll('[data-rail]'))if(n.dataset.rail==='issues')n.setAttribute('aria-current','page');
@@ -3116,6 +3135,7 @@ function handoffWorkerActions(d,h){
     return [PENDING[h.id]?el('span',{class:'mute'},PENDING[h.id]):el('button',{class:'no','data-write':true,'data-disabled-reason':why,'aria-disabled':why?'true':null,'aria-description':why,title:why,onclick:()=>{if(!why)stopHandoff(h)}},'Stop')]}
   // Only an offered handoff can be dispatched; a claimed or held one already has a session.
   if(h.state!=='offered')return [];
+  if(h.issue_refusal)return [PENDING[h.id]?el('span',{class:'mute'},PENDING[h.id]):issueRefusalBox(h.issue_refusal,h.id,h.worker_cwd||'')];
   const why=h.may_dispatch===false?h.why_not||'You cannot start this work item.':null;
   return [PENDING[h.id]?el('span',{class:'mute'},PENDING[h.id]):el('button',{'data-write':true,'data-disabled-reason':why,'aria-disabled':why?'true':null,'aria-description':why,title:why,onclick:()=>{if(!why)dispatchHandoff(h)}},'Dispatch')]
 }
@@ -3353,7 +3373,11 @@ function depsNote(ui,check){const d=lastDash||{},n=el('p',{class:'field-error',r
   const sync=()=>{const t=depsWarnText(d,ui.inputs.cwd.value,ui.inputs.tool.value,check);n.textContent=t;n.hidden=!t};
   for(const k of ['cwd','tool'])if(ui.inputs[k]){ui.inputs[k].addEventListener('input',sync);ui.inputs[k].addEventListener('change',sync)}sync();return sync}
 function workerFields(d){return [{name:'tool',label:'Worker',required:true,segment:true,value:'claude',options:[{value:'claude',label:'Claude'},{value:'codex',label:'Codex'},{value:'opencode',label:'opencode'}]},{name:'cwd',label:'Checkout',required:true,value:(d.checkouts||[])[0]||'',options:d.checkouts||[],hint:'The worker uses this checkout and branch.'}]}
-function dispatchHandoff(h){const d=lastDash||{};return actionSheet({title:'Start a worker for this task?',description:h.title||h.goal||h.id,action:'Dispatch',pending:'Starting…',fields:workerFields(d),setup:ui=>{depsNote(ui,h.check||'')}},h.id,v=>({action:'dispatch',id:h.id,tool:v.tool,cwd:v.cwd}),'Worker requested')}
+function dispatchHandoff(h){const d=lastDash||{};return sheet({title:'Start a worker for this task?',description:h.title||h.goal||h.id,action:'Dispatch',pending:'Starting…',fields:workerFields(d),setup:ui=>{depsNote(ui,h.check||'')},
+  onSubmit:async v=>{const ref=h.id;if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Starting…';if(lastDash)render(lastDash);
+    try{await act({action:'dispatch',id:h.id,tool:v.tool,cwd:v.cwd});toast('Worker requested',true)}
+    catch(e){if(issueRefused(e))e.box=issueRefusalBox(e.body,h.id,v.cwd,()=>{if(activeSheet)activeSheet.cancel()});throw e}
+    finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 function prDisabledReason(d,x){const repo=x.ref.split('#')[0];return d.pr_owner===false?'Only an owner can merge or close a pull request.':!(d.merge_repos||[]).includes(repo)?'Merging or closing from the server needs this repo in [sync] repos in config.toml.':x.mergeable==='CONFLICTING'?'Resolve the merge conflicts before merging.':''}
 function prDecision(x,close){const [repo,num]=x.ref.split('#'),draft=!close&&x.draft;return actionSheet({title:close?'Close '+x.ref+'?':draft?'Mark ready for review, then merge '+x.ref+'?':'Merge '+x.ref+'?',description:close?'Your reason is posted as a GitHub comment, then the pull request is closed.':(x.title?'“'+x.title+'”. ':'')+(draft?'This pull request is a draft: it is marked ready for review, then merged on GitHub. Branch protection still applies; agentd never bypasses it.':'The changes will be merged on GitHub.')+(x.pr_state?' State: '+x.pr_state+'.':''),action:close?'Close PR':draft?'Mark ready and merge':'Merge',danger:close,caution:!close,pending:close?'Closing…':'Merging…',fields:close?[{name:'reason',label:'Reason',required:true,multiline:true}]:[]},x.ref,v=>({action:close?'pr_close':'pr_merge',repo,number:+num,...(close?{reason:v.reason}:{})}),close?'Pull request closed':'Pull request merged')}
 // prStateText leads with what blocks a pull request; "ready" beside "checks failing" or "blocked" contradicts them.
@@ -5112,7 +5136,7 @@ async function appNewTaskSend(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui||APPNT.busy
     toast(j.queued?'Task '+j.handoff+' created: its worker starts when a slot is free':'Task '+j.handoff+' created and its worker requested',true);
     if(j.handoff){if(typeof appSelect==='function')appSelect(j.handoff);document.dispatchEvent(new CustomEvent('app:select',{detail:{handoff:j.handoff,repo:v.cwd}}))}
     refresh()}
-  catch(e){ui.error.textContent=errorText(e);ui.error.hidden=false}
+  catch(e){if(issueRefused(e)){const hid=e.body.handoff;ui.error.replaceChildren(el('p',{},'Task '+hid+' is saved but not started.'),issueRefusalBox(e.body,hid,v.cwd,()=>{APPNT.busy=false;APP.repo=v.cwd;APP.task=hid;appNewTaskClose();if(typeof appSelect==='function')appSelect(hid)}))}else ui.error.textContent=errorText(e);ui.error.hidden=false}
   finally{if(APPNT.ui===ui){APPNT.busy=false;ui.submit.disabled=false;ui.submit.firstChild.textContent=label}}}
 $('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action="new-task"]');if(t){e.preventDefault();appNewTask()}});
 // end:app-newtask
@@ -5512,7 +5536,7 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
   const meta=[h.state?word(h.state):'',toolName(h.worker_tool||h.worker),h.worker_branch||h.branch?el('code',{},h.worker_branch||h.branch):null,h.updated_ago?'updated '+h.updated_ago+' ago':''].filter(Boolean).map(x=>el('span',{},x));
   const sess=el('div',{class:'app-sess'},head,el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},'agentd handoff show '+hid)),
     h.goal?el('div',{class:'app-sblock'},el('b',{},'Goal'),h.goal):null,accept?el('div',{class:'app-sblock'},el('b',{},'Done when'),accept):null,
-    h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,awStartFailure(h),
+    h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,awStartFailure(h),h.issue_refusal&&!h.dispatched?el('div',{class:'app-sblock','data-k':'issue-refusal'},issueRefusalBox({...h.issue_refusal,may_anyway:h.issue_refusal.may_anyway&&!AW.ro},h.id,h.worker_cwd||'')):null,
     el('b',{class:'app-shead'},'Conversation'),awConv(hid),el('b',{class:'app-shead'},'History'),feed);
   return awPane('session',sess,AW.ro?el('div',{class:'app-msgbar app-ro',role:'note'},el('span',{class:'app-note'},'Another person’s task: read only. Session, Log and diffs are shown; messages and actions are theirs.')):awMsgBar(hid))}
 // region:start-failure (#658): why the task's worker did not start, from the snapshot's start_failure
