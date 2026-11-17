@@ -204,6 +204,7 @@ details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:a
 a.tm-row:hover{background:var(--hover);text-decoration:none}a.tm-row:focus-visible{outline-offset:-2px}
 .tm-row .tm-main{flex:1 1 200px;min-width:0;overflow-wrap:anywhere}.tm-row .tm-main button.linkish{text-align:left;white-space:normal}
 .tm-why{display:block;font-size:var(--fs-s);color:var(--mute);overflow-wrap:anywhere}
+.pr-items{display:block;font-size:var(--fs-s);overflow-wrap:anywhere}.pr-items .tm-why{display:inline}.pr-shared{color:var(--fg)}.pr-flag{color:var(--amber);font-weight:600}
 .tm-row .tm-fig{font-size:var(--fs-s);color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
 .tm-head{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}.tm-title{flex:1 1 240px;min-width:0}.tm-title h2{font-size:15px;font-weight:500;overflow-wrap:anywhere}.tm-title p{margin:2px 0 0;color:var(--mute);overflow-wrap:anywhere}
 .tm-acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tm-note{font-size:var(--fs-s);color:var(--mute)}
@@ -1766,7 +1767,7 @@ let ROUTE={item:'',view:'',rest:[]},panelOpener=null;
 function dashPage(name,def){PAGES[name]=def}
 // parseRoute: an old hash lands where it now lives; anything unknown lands on Issues, as it did on Work.
 function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'inbox').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
-  const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
+  const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
 function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
 function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
@@ -2034,6 +2035,42 @@ function nodesBody(){if(NODES.err&&!NODES.data)return [el('div',{class:'state er
   for(const p of [...groups.keys()].sort())out.push(sec(p,p,groups.get(p)));if(server.length)out.push(sec('Server','Server',server));
   if(!NODES.data.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when agentd worker starts against this server.'));return out}
 // end:nodes
+// region:presence
+/* Who is on what (agentd-core#849), read only, from GET /api/presence: every
+   live session of every joined host (and this host), from the activity,
+   checkouts, claims, edited files and issue-linked offers the server already
+   receives. A row per session: person, host, tool, activity, issue, age, then
+   what it holds; a record another session also holds (one issue, one branch,
+   a path inside another) is marked Shared with the others named. Grouped by
+   person. A session drops out when its records lapse (the lease rule), not here. */
+const PRESENCE={data:null,err:'',at:0,req:0};
+function presenceLoad(){const req=++PRESENCE.req;PRESENCE.at=Date.now();
+  fetch('/api/presence',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+    .then(j=>{if(req!==PRESENCE.req)return;PRESENCE.data=j&&typeof j==='object'?{...j,sessions:Array.isArray(j.sessions)?j.sessions:[]}:{sessions:[]};PRESENCE.err=''},e=>{if(req!==PRESENCE.req)return;PRESENCE.err=e.message||'could not load'})
+    .then(()=>{if(req!==PRESENCE.req)return;if(ROUTE.item==='team'&&teamTab()==='who')teamDraw()})}
+function presencePoll(){if(ROUTE.item==='team'&&teamTab()==='who'&&Date.now()-PRESENCE.at>8000)presenceLoad()}
+function presenceWho(o){return (o.user||'someone')+' on '+(o.node||'?')+' ('+o.session+')'}
+// presenceRes: a record's name as a person reads it: the issue, the branch
+// (repository@branch), the path in its repository, a directory.
+function presenceRes(x){const r=String(x.resource||'');if(x.issue)return x.issue;let m=r.match(/^tree:(?:[^/]+\/)?(.+)$/);if(m)return m[1];
+  m=r.match(/^repo:(?:[^/]+\/)?([^#]+)#(.*)$/);if(m)return m[2]?m[1]+': '+m[2]:m[1]+' (whole repository)';return r.replace(/^dir:/,'')}
+function presenceItems(label,kind,list){if(!list||!list.length)return null;
+  return el('div',{class:'pr-items','data-presence-kind':kind},el('span',{class:'tm-why'},label+': '),...list.map((x,i)=>{const shared=x.others&&x.others.length;
+    return el('span',{class:'pr-item'+(shared?' pr-shared':''),'data-shared':shared?'':null,title:String(x.resource||'')+(shared?'\nalso held by '+x.others.map(presenceWho).join(', '):'')},i?', ':'',presenceRes(x),x.mode==='exclusive'?' (exclusive)':'',x.state?' ('+x.state+')':'',
+      shared?el('b',{class:'pr-flag'},' shared with '+x.others.map(o=>(o.user||'someone')+' on '+(o.node||'?')).join(', ')):null)}))}
+function presenceRow(p){const about=[p.node,toolName(p.tool||'')||p.tool,p.local?'this host':''].filter(Boolean).join(' · ');
+  return el('div',{class:'tm-row pr-row'+(p.overlaps?' pr-overlap':''),'data-presence':p.session},el('span',{class:'dot '+(p.overlaps?'stale':'busy'),title:p.overlaps?'shares an issue or path with another session':'live'}),
+    el('div',{class:'tm-main'},el('b',{},p.activity||(p.handoff?p.handoff:'no activity stated')),el('span',{class:'tm-why'},about),
+      p.issue?el('span',{class:'tm-why','data-presence-issue':''},'issue '+p.issue):null,
+      presenceItems('Issues','issues',p.issues),presenceItems('Checkouts','trees',p.trees),presenceItems('Claims','claims',p.claims),presenceItems('Editing','files',p.files)),
+    el('span',{class:'tm-fig',title:p.since||''},p.age?'on '+p.age:''),el('span',{class:'tm-fig mute'},p.session))}
+function presenceBody(){if(PRESENCE.err&&!PRESENCE.data)return [el('div',{class:'state error',role:'alert'},'Could not load who is on what: '+PRESENCE.err)];if(!PRESENCE.data)return [el('div',{class:'state'},'Loading…')];
+  const ss=PRESENCE.data.sessions,groups=new Map();for(const p of ss){const k=p.user||'Unknown';if(!groups.has(k))groups.set(k,[]);groups.get(k).push(p)}
+  const n=PRESENCE.data.overlap_count||0,out=[el('p',{class:'mute tm-intro'},'Live sessions on every host joined to this server and on this one: what each says it is doing, its issue, checkouts, claims and the files it edits. A session leaves this list when its records lapse.'+(n?' ':''),n?el('b',{'data-overlap-count':''},n+' shared issue'+(n>1?'s or paths':' or path')):null)];
+  for(const k of [...groups.keys()].sort())out.push(el('section',{'data-presence-group':k},...teamSec(k,groups.get(k).length,groups.get(k).map(presenceRow))));
+  if(!ss.length)out.push(el('div',{class:'empty'},'No live sessions. Sessions on joined hosts show up here as they work.'));
+  if(PRESENCE.data.truncated)out.push(el('p',{class:'mute'},'Showing the most recent records only.'));return out}
+// end:presence
 // region:team
 /* second panel: agents grouped by checkout; a row is a name and a state word */
 function sessState(s,left){
@@ -2100,9 +2137,9 @@ function teamWorkItem(w){return teamItem({name:w.name,sub:(w.wait?w.status+': ':
 function teamRoleTool(r,lists){return r.tool||(lists||{}).default_tool||''}
 // teamTab: which of Team's four tabs the route shows (#486); a detail page is under
 // its list's tab, and #team itself is Repositories, as the design has it.
-function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'members':'host';const g=r.rest&&r.rest[0];return g==='working'?'':['roles','members','host','nodes'].includes(g)?g:'repositories'}
+function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'members':'host';const g=r.rest&&r.rest[0];return g==='working'?'':['roles','members','host','nodes','who'].includes(g)?g:'repositories'}
 function teamTabs(){const l=TEAM.lists,tab=teamTab(),n=v=>v===undefined||v===null?'':String(v);
-  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host',''],['nodes','Nodes',NODES.data?NODES.data.length:'']];
+  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host',''],['nodes','Nodes',NODES.data?NODES.data.length:''],['who','Who is on what',PRESENCE.data?PRESENCE.data.sessions.length:'']];
   if(!REPOS.data&&!REPOS.err&&reposStale())reposLoad();
   teamKeep($('team-tabs'),tabs.map(([k,name,c])=>el('a',{href:'#team/'+k,'data-tk':'tab-'+k,'data-tab':k,'aria-current':tab===k?'page':null},name,n(c)!==''?el('span',{class:'n'},n(c)):null)))}
 
@@ -2168,6 +2205,7 @@ function teamDraw(){const d=lastDash||{};teamTabs();const t=teamTarget(),view=$(
   if(hostView)body=[el('h2',{},'Sessions on this host'),el('p',{class:'mute'},'Sessions connected to agentd, grouped by checkout. Recently ended sessions, and Claude sessions on this host that are not connected to agentd, are below.')];
   else if(!t&&teamTab()==='repositories'){top=[reposHead()];body=reposBody()}
   else if(!t&&teamTab()==='nodes')body=nodesBody();
+  else if(!t&&teamTab()==='who'){presencePoll();body=presenceBody()}
   else if(!t)body=!lastDash?[el('div',{class:'state'},'Loading…')]:teamOverview(d);
   else if(TEAM.detailErr)body=[el('div',{class:'state error',role:'alert'},'Could not load this page: '+TEAM.detailErr),el('p',{},el('a',{href:'#team'},'Back to Team'))];
   else if(!TEAM.detail)body=[el('div',{class:'state'},'Loading…')];
@@ -2180,7 +2218,7 @@ function teamFormClose(focus){TEAM.form=null}
 function teamFormOpen(roleName){return newHandoffSheet(roleName)}
 
 dashPage('team',{title:'Team',panel:false,enter(r){teamMoved(r)},unlock(){teamLoadLists();teamLoadDetail();teamLoadActivity(lastDash||{})},
-  render(d){agents(d);left(d);unlinked(d);nodesPoll();if(ROUTE.item!=='team')return;const now=Date.now();if(now-TEAM.listsAt>8000)teamLoadLists();if(now-TEAM.activityAt>8000)teamLoadActivity(d);if(now-TEAM.detailAt>8000&&teamTarget())teamLoadDetail();teamDraw()}});
+  render(d){agents(d);left(d);unlinked(d);nodesPoll();presencePoll();if(ROUTE.item!=='team')return;const now=Date.now();if(now-TEAM.listsAt>8000)teamLoadLists();if(now-TEAM.activityAt>8000)teamLoadActivity(d);if(now-TEAM.detailAt>8000&&teamTarget())teamLoadDetail();teamDraw()}});
 // end:team
 // region:repositories
 /* Team > Repositories (#team, #team/repositories): every checkout this host offers
