@@ -13,7 +13,7 @@ const html=fs.readFileSync(process.argv[2],'utf8'),phone=process.env.DASH_UI_PHO
 const TEMP=['Tmp-Create-9f3kQ2xLmN7p','Tmp-Reset-4hR8sW1zYc6v','Tmp-Enable-2bN5tJ7qXe3k','Tmp-Again-8mD2fG6hKp1r','Tmp-Third-5sV9wB3nLq7t','Tmp-Invite-7cW3pK9sQm2x'],TYPED=['Typed-Wrong-pw-77','Typed-Right-pw-88','Old-Password-0001','New-Password-0002','Invitee-Own-pw-03','agentd_sk_KeyOnly04'];
 const secrets=[...TEMP,...TYPED];
 const dashBase={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
-const users=()=>[{name:'alice',role:'owner',state:'active',must_change:false,last_login:now,has_password:true,has_key:true},
+const users=()=>[{name:'alice',role:'owner',github:'alice-gh',state:'active',must_change:false,last_login:now,has_password:true,has_key:true},
  {name:'bob',role:'dev',state:'active',must_change:true,last_login:null,has_password:true,has_key:false},
  {name:'dave',role:'viewer',state:'disabled',must_change:false,last_login:'2026-11-01T10:00:00Z',has_password:true,has_key:false},
  {name:evil,role:'dev',state:'pending',must_change:true,last_login:null,has_password:false,has_key:false}];
@@ -59,14 +59,26 @@ async function usersPanel(){
  assert(sec(),'no Users section under Members and roles');assert(doc.getElementById('set-members').contains(sec()),'Users is not in Members and roles');
  const rows=()=>[...sec().querySelectorAll('tbody tr')];
  const cells=rows().map(r=>[...r.children].map(td=>td.textContent));
- assert.deepEqual(cells.map(r=>r.slice(0,3)),[['alice','owner','Active'],['bob','dev','Active'],['dave','viewer','Disabled'],[evil,'dev','Pending']],'name, role, state');
- assert.equal(cells[1][3],'Never','last login of someone who never signed in');assert(cells[2][3].includes('2026-11-01'),cells[2][3]);
- assert.equal(cells[1][4],'Yes');assert.equal(cells[0][4],'No');
+ assert.deepEqual(cells.map(r=>[r[0],r[1],r[3]]),[['alice','owner','Active'],['bob','dev','Active'],['dave','viewer','Disabled'],[evil,'dev','Pending']],'name, role, state');
+ assert.deepEqual(cells.map(r=>r[2]),['alice-gh','—','—','—'],'GitHub login column');
+ assert.equal(cells[1][4],'Never','last login of someone who never signed in');assert(cells[2][4].includes('2026-11-01'),cells[2][4]);
+ assert.equal(cells[1][5],'Yes');assert.equal(cells[0][5],'No');
  assert(!sec().querySelector('img'),'a name became markup');
  // Per row: Reset password and Disable or Enable; nobody disables themselves here.
  assert(!btn(rows()[0],'Disable'),'an owner can disable themselves');
  assert(btn(rows()[1],'Reset password')&&btn(rows()[1],'Disable')&&!btn(rows()[1],'Enable'),'bob actions');
  assert(btn(rows()[2],'Enable')&&!btn(rows()[2],'Disable'),'dave actions');
+
+ // GitHub login (#882): set, refused in a bad form before any request, cleared.
+ btn(rows()[1],'GitHub login').click();await tick();
+ assert(dialog(doc),'no GitHub login sheet');assert.equal(field(doc,'github').value,'','bob has none');
+ setv(w,field(doc,'github'),'bad login');const ghBefore=posts().length;await submit(w,doc);
+ assert(dialog(doc)&&posts().length===ghBefore,'a bad login was sent');
+ setv(w,field(doc,'github'),' bob-gh ');await submit(w,doc);assert(!dialog(doc),'sheet left open');
+ assert.deepEqual(posts().at(-1),{action:'user_github',name:'bob',github:'bob-gh'},'user_github body');
+ btn(rows()[0],'GitHub login').click();await tick();assert.equal(field(doc,'github').value,'alice-gh','current login prefilled');
+ setv(w,field(doc,'github'),'');await submit(w,doc);
+ assert.deepEqual(posts().at(-1),{action:'user_github',name:'alice',github:''},'clearing body');
 
  // Create user with a temporary password: shown once, cleared on Dismiss.
  btn(sec(),'Create user').click();await tick();
@@ -252,7 +264,23 @@ async function inviteFlow(){
  }
 }
 
+// A person who is not an owner sets their own GitHub login from Members.
+async function ownGitHub(){
+ const settings={...settingsBase(),owner:false,users:[{name:'bob',role:'dev',state:'active',must_change:false,last_login:now,has_password:true,has_key:false}]};
+ const p=page('http://127.0.0.1:21620/#settings/members',(u,method)=>{
+  if(u.pathname==='/api/auth')return [204,{}];
+  if(u.pathname==='/api/dash')return [200,{...dashBase,user:'bob',role:'dev'}];
+  if(u.pathname==='/api/settings')return [200,method==='POST'?{changed:true}:settings];
+  return [200,{}]});
+ const {w,doc,calls}=p;await settle();assert(!p.errors.length,p.errors.join('\n'));
+ assert(!doc.getElementById('set-users'),'a dev sees the Users section');
+ const members=doc.getElementById('set-members');assert(/No GitHub login recorded/.test(members.textContent),'no own GitHub login line');
+ btn(members,'Set GitHub login').click();await tick();setv(w,field(doc,'github'),'bob-gh');await submit(w,doc);
+ assert.deepEqual(calls.filter(c=>c.method==='POST'&&c.path==='/api/settings').at(-1).body,{action:'user_github',name:'bob',github:'bob-gh'});
+ p.w.close();
+}
+
 (async()=>{
- await usersPanel();await passwordSignIn();await mustChange();await inviteFlow();
+ await usersPanel();await ownGitHub();await passwordSignIn();await mustChange();await inviteFlow();
  console.log('dash_users: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');process.exit(0);
 })().catch(e=>{console.error(e);process.exit(1)});
