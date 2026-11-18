@@ -51,7 +51,7 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  assert(requests.some(r=>r.startsWith('/api/factory?since=')),'no factory request for the period');assert.equal(doc.getElementById('ins-period').textContent,'2026-10-15 to 2026-10-29');
  // Four cards, in the design's order, with the factory report's figures.
  assert.deepEqual(cards(),[['Autonomous completion','2 of 5','accepted with no intervention · 40%'],['Cost per accepted task','$3.00',"median of the accepted tasks' worker cost · 1 unpriced"],
-  ['Interventions per task','0.60','messages, approvals, takeovers · 2 of 5 tasks had one'],['PR workflow latency','5.3 h','open to merge, median · 4 merged PRs']]);
+  ['Interventions per task','0.60','messages, approvals, takeovers · 2 of 5 tasks had one'],['PR workflow latency','5.3 h','open to merge, median · 4 merged PRs · PR ledger · not filtered by host']]);
  // Outcomes per week: one bar per week, a part per outcome that has tasks, stacked in the design's order.
  const weeks=[...doc.querySelectorAll('#ins-weeks .ins-week')];assert.equal(weeks.length,2);
  assert.deepEqual([...weeks[0].querySelectorAll('.ins-seg')].map(a=>a.dataset.outcome),['accepted','auto_completed','not_delivered','failed']);
@@ -84,7 +84,7 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  factory=full();factory.total.autonomous_completion={not_computable:'no dispatched handoff'};factory.total.cost_per_accepted={not_computable:'no dispatched handoff'};factory.total.interventions={not_computable:'no dispatched handoff'};
  factory.by_week=[week('2026-10-15','2026-10-15T09:00:00Z','2026-10-22T09:00:00Z',{not_computable:'no dispatched handoff'})];factory.failure_classes={attempts:0,running:0,not_computable:'no dispatched handoff in the window has an ended worker attempt'};factory.by_agent_model=[];latency={n:0};
  w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
- assert.deepEqual(cards().map(c=>c[1]),['not measured','not measured','not measured','not measured']);assert.deepEqual(cards().map(c=>c[2]),['no dispatched handoff','no dispatched handoff','no dispatched handoff','no PR merged in this period']);
+ assert.deepEqual(cards().map(c=>c[1]),['not measured','not measured','not measured','not measured']);assert.deepEqual(cards().map(c=>c[2]),['no dispatched handoff','no dispatched handoff','no dispatched handoff','no PR merged in this period · PR ledger · not filtered by host']);
  assert(!/\$0\.00|NaN|undefined/.test(doc.getElementById('ins-overview').textContent),'no data read as a number: '+doc.getElementById('ins-overview').textContent);
  assert.equal(doc.querySelectorAll('#ins-weeks .ins-seg').length,0);assert(doc.querySelector('#ins-weeks .ins-noend'),'an empty chart says why');
  assert.equal(doc.querySelector('#ins-classes').textContent,'not measured: no dispatched handoff in the window has an ended worker attempt.');assert.equal(doc.querySelector('#ins-agents').textContent,'No dispatched task in this period.');
@@ -110,7 +110,7 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  // PR workflow latency: a slow /api/metrics shows Loading, then the value; it never stays loading.
  await route('#insights/metrics');metricsDelay=200;latency={n:3,median_hours:0.48};w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
  assert.deepEqual(cards()[3],['PR workflow latency','…','Loading…']);
- await new Promise(r=>setTimeout(r,300));await settle();assert.deepEqual(cards()[3],['PR workflow latency','0.5 h','open to merge, median · 3 merged PRs']);metricsDelay=0;
+ await new Promise(r=>setTimeout(r,300));await settle();assert.deepEqual(cards()[3],['PR workflow latency','0.5 h','open to merge, median · 3 merged PRs · PR ledger · not filtered by host']);metricsDelay=0;
  // Dates with no start date read nothing, and the cards say so instead of Loading.
  w.eval("$('m-range').value='dates';$('m-from').value='';INS_READ.metrics=0;loadMetrics()");await settle();
  assert(cards().every(c=>c[1]!=='…'&&c[2]!=='Loading…'),'a card stays loading with no start date: '+JSON.stringify(cards()));assert.equal(cards()[3][2],'choose a start date');

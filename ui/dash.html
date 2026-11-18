@@ -415,7 +415,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .usage-group{display:flex;align-items:center;gap:12px;margin:16px 0 8px;font-size:12px;color:var(--mute)}.runs .runs{border:0;padding:0}.runs table pre{max-width:100%;white-space:pre-wrap}#page-metrics #metrics{padding-top:16px}.hfilter #h-failed[aria-pressed="true"]{background:var(--sel);color:var(--fg);border-color:var(--edge)}
 /* end:css-insights */
 /* region:css-insights-overview: Insights > Metrics' four cards, outcomes per week, failure classes and the table by agent and model (#485) */
-.ins-head{padding:0 0 10px}.host-tag{border:1px solid var(--line);border-radius:4px;font-size:11px;margin-left:6px;padding:0 4px;white-space:nowrap}#ins-head #ins-scope{margin-left:auto}#ins-head #ins-scope~#ins-period{margin-left:10px}.ins-head .mrange{margin-left:auto}
+.ins-head{padding:0 0 10px}.host-tag{border:1px solid var(--line);border-radius:4px;font-size:11px;margin-left:6px;padding:0 4px;white-space:nowrap}.ins-scope{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:0 0 12px;font-size:var(--fs-s)}.ins-scope label{font-weight:600}.pr-scope{font-size:var(--fs-s);margin-left:8px}.ins-head .mrange{margin-left:auto}
 .ins-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
 .ins-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .ins-card .ins-label,.ins-card .ins-note{font-size:12px;color:var(--mute)}.ins-card b{font-size:22px;font-weight:500;line-height:1.2;font-variant-numeric:tabular-nums}.ins-card b.ins-none{font-size:15px;color:var(--mute);font-weight:400}
@@ -1387,8 +1387,10 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 </div>
 <div id="page-metrics" class="page" hidden>
   <!-- Metrics, Usage and History as tabs. Their home is Metrics' head, the default view, so the row is inside a page and hidden with it until Insights shows; insightsTabs moves it to the top of the view shown (beside Metrics' period picker). Outside every page it showed on Tasks before the first snapshot. -->
-  <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav><select id="ins-scope" aria-label="Whose work" title="Work leased through this server, or members' own hosts mirrored here"><option value="">All work</option><option value="server">Leased through this server</option><option value="hosts">Members' own hosts</option></select><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
+  <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
   <section class="ins-overview" id="ins-overview" aria-label="Outcomes of dispatched tasks">
+    <!-- Whose work (#848) sits beside what it narrows (libraos/agentd-core#904): insightsTabs moves it to the top of Usage and History too. -->
+    <div class="ins-scope" id="ins-scope-box" data-scope-box><label for="ins-scope">Whose work</label><select id="ins-scope" title="Work leased through this server, or members' own hosts mirrored here"><option value="">All work</option><option value="server">Leased through this server</option><option value="hosts">Members' own hosts</option></select><span class="mute" id="ins-scope-note"></span></div>
     <div class="ins-cards" id="ins-cards"></div>
     <div class="ins-cols">
       <section class="runs" aria-labelledby="ins-weeks-h"><div class="colhead"><h2 id="ins-weeks-h">Outcomes per week</h2><span class="n">A bar opens the finished tasks behind it</span></div><div id="ins-weeks"></div></section>
@@ -1396,10 +1398,10 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     </div>
     <section class="runs" aria-labelledby="ins-agents-h"><div class="colhead"><h2 id="ins-agents-h">By agent and model</h2></div><div id="ins-agents"></div></section>
   </section>
-  <section class="runs" id="metrics" aria-label="PR metrics" hidden><div class="colhead"><h2>PR metrics</h2><span class="n" id="n-metrics">0</span></div><div id="m-body"></div></section>
+  <section class="runs" id="metrics" aria-label="PR metrics" hidden><div class="colhead"><h2>PR metrics</h2><span class="mute pr-scope" data-pr-scope>PR ledger · not filtered by host</span><span class="n" id="n-metrics">0</span></div><div id="m-body"></div></section>
   <section class="runs" id="now-box" aria-label="Right now"><div class="colhead"><h2>Right now</h2></div><div class="mtiles" id="now-tiles"></div></section>
   <section class="runs" id="factory" aria-label="Factory report" hidden><div class="colhead"><h2>Factory</h2><span class="n" id="n-factory">0</span></div><div id="f-body"></div></section>
-  <section class="runs" id="bench" aria-label="Bench rounds" hidden><div class="colhead"><h2>Bench rounds</h2><span class="n" id="n-bench">0</span></div><div id="b-body"></div><div id="b-pick" class="bpickbar" hidden></div><div id="b-compare" class="bround" hidden></div><div id="b-round" class="bround" hidden></div></section>
+  <section class="runs" id="bench" aria-label="Bench rounds" hidden><div class="colhead"><h2>Bench rounds</h2><span class="mute pr-scope" data-bench-scope>Bench rounds · not filtered by host</span><span class="n" id="n-bench">0</span></div><div id="b-body"></div><div id="b-pick" class="bpickbar" hidden></div><div id="b-compare" class="bround" hidden></div><div id="b-round" class="bround" hidden></div></section>
   <section class="runs" id="runs" aria-label="Latest runs" hidden><div class="colhead"><h2>Latest runs</h2><span class="n" id="n-runs">0</span></div><div class="tablewrap phone-rows"><table><thead><tr><th>Project and arm</th><th>Status</th><th class="num">Checks</th><th class="num">Min</th><th class="num">$</th><th>Failure step</th><th>Started</th></tr></thead><tbody id="t-runs"></tbody></table></div></section>
 </div>
 <div id="page-usage" class="page" hidden>
@@ -4163,13 +4165,12 @@ async function showHistory(id,host,preserve=false){if(!preserve)setDrawerRoute('
 // When Metrics and Usage last read their numbers. Those two are read on entering the
 // view only if that was longer ago than their 5-minute refresh; History every time.
 const INS_READ={metrics:0,usage:0},INS_EVERY=300000;
-function insightsEnter(r){insightsTabs(r);if(r.view==='history'){readHistoryRoute(r);loadHistory();}else {readInsightsRoute(r);if(Date.now()-INS_READ[r.view]>=INS_EVERY)(r.view==='metrics'?loadMetrics:loadUsage)()}}
-function readInsightsRoute(r){const p=r.params||new URLSearchParams(),prefix=r.view==='metrics'?'m':'u',range=p.get('range');if(range&&[...$(prefix+'-range').options].some(o=>o.value===range)){$(prefix+'-range').value=range;INS_READ[r.view]=0}if(prefix==='m'){for(const key of ['from','to']){$('m-'+key).value=p.get(key)||'';$('m-'+key).hidden=$('m-range').value!=='dates'}}}
-function saveInsightsRoute(view){if(ROUTE.item!=='insights'||ROUTE.view!==view)return;const prefix=view==='metrics'?'m':'u',p=new URLSearchParams({range:$(prefix+'-range').value});if(prefix==='m'&&p.get('range')==='dates')for(const k of ['from','to'])if($('m-'+k).value)p.set(k,$('m-'+k).value);routeQuery('insights/'+view,p,true)}
+function insightsEnter(r){insScopeRead(r);insightsTabs(r);if(r.view==='history'){readHistoryRoute(r);loadHistory();}else {readInsightsRoute(r);if(Date.now()-INS_READ[r.view]>=INS_EVERY)(r.view==='metrics'?loadMetrics:loadUsage)()}}
+function readInsightsRoute(r){insScopeRead(r);const p=r.params||new URLSearchParams(),prefix=r.view==='metrics'?'m':'u',range=p.get('range');if(range&&[...$(prefix+'-range').options].some(o=>o.value===range)){$(prefix+'-range').value=range;INS_READ[r.view]=0}if(prefix==='m'){for(const key of ['from','to']){$('m-'+key).value=p.get(key)||'';$('m-'+key).hidden=$('m-range').value!=='dates'}}}
+function saveInsightsRoute(view){if(ROUTE.item!=='insights'||ROUTE.view!==view)return;const prefix=view==='metrics'?'m':'u',p=new URLSearchParams({range:$(prefix+'-range').value});if(prefix==='m'&&p.get('range')==='dates')for(const k of ['from','to'])if($('m-'+k).value)p.set(k,$('m-'+k).value);if(insScope())p.set('scope',insScope());routeQuery('insights/'+view,p,true)}
 // insightsTabs: the one tab row, moved to the top of the view shown (into Metrics' head, beside its period picker).
 function insightsTabs(r){const t=$('ins-tabs'),at=r.view==='metrics'?$('ins-head'):$('page-'+r.view);if(at&&t.parentElement!==at)at.prepend(t);
-  // Whose work (#848) goes with the tabs: it filters Metrics, Usage and History.
-  const sc=$('ins-scope');if(sc&&sc.previousElementSibling!==t)t.after(sc);
+  insScopePlace(r.view);
   for(const a of t.querySelectorAll('a')){if(a.dataset.tab===r.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}}
 dashPage('insights',{title:'Insights',panel:false,views:['metrics','usage','history'],viewTitle:{metrics:'Metrics',usage:'Usage',history:'History'},
   render(d){runs(d)},
@@ -4226,7 +4227,8 @@ function metricsBody(m){const co=m.cost,box=metricsGroups(m);if(!m.tasks.all&&!m
   const cov=m.coverage||{};
   if(cov.covered===false)box.push(el('details',{class:'coverage-note'},el('summary',{},'Some repository history is missing. How to fill it.'),el('div',{class:'field-hint'},(cov.repos||[]).filter(r=>!r.covered).map(r=>el('p',{},r.repo+(r.reaches_back_to?' has history from '+dayLabel(r.reaches_back_to):' has not been synced'))),ROLE==='owner'||TOKEN&&!ROLE?el('p',{},'Add repositories under ',el('code',{},'[sync] repos'),', then run ',el('code',{},cov.fill||'agentd pr sync-gh'),'.'):el('p',{},'Ask the host owner to sync the missing repository history.'))));
   if(m.not_synced)box.push(el('div',{class:'state'},m.not_synced+' more merged but not synced, left out: run pr sync-gh --all --limit N.'));
-  if(!m.merged&&!m.not_synced)box.push(el('div',{class:'empty'},'No merged PRs in this range.'));
+  if(metricsNoPRs(m))box.push(el('div',{class:'empty','data-no-prs':''},'No PRs recorded for this period. The PR ledger holds what agentd pr sync-gh brought in; ',el('a',{href:'#settings/connections'},'repository sync settings'),' say which repositories it reads.'));
+  else if(!m.merged&&!m.not_synced)box.push(el('div',{class:'empty'},'No merged PRs in this range.'));
   const ch=m.chart;
   if(ch&&(ch.opened||m.merged)){const pts=ch.points,missing=m.merged-co.prs,day=p=>(ch.unit==='week'?'Week of ':'')+p.start;
     const counts=barChart({title:'Opened and merged, per '+ch.unit,points:pts,int:true,series:[['opened','m-opened','Opened'],['merged','m-merged','Merged']],
@@ -4427,7 +4429,7 @@ async function loadMetrics(){rangeSegments('m-range');const request=++metricsReq
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
     const m=await r.json();if(request!==metricsRequest)return;
     INS.m=m;INS.mErr='';insCards();
-    sec.hidden=false;$('n-metrics').textContent=m.merged;$('m-body').replaceChildren(...metricsBody(m))}
+    sec.hidden=false;$('n-metrics').textContent=metricsNoPRs(m)?'':m.merged;$('m-body').replaceChildren(...metricsBody(m))}
   catch(e){if(request!==metricsRequest)return;INS.mErr=e.message;insCards();INS_READ.metrics=0;sec.hidden=false;$('m-body').replaceChildren(el('div',{class:'state error'},'Could not load PR metrics: '+e.message))}}
 $('m-range').addEventListener('change',()=>{const dates=$('m-range').value==='dates';$('m-from').hidden=!dates;$('m-to').hidden=!dates;loadMetrics()});
 $('m-from').addEventListener('change',loadMetrics);$('m-to').addEventListener('change',loadMetrics);
@@ -4449,7 +4451,18 @@ $('u-range').addEventListener('change',loadUsage);
 // ins-scope (#848): all work, the server's own (leased) or members' hosts (mirrored).
 function insScope(){const s=$('ins-scope');return s?s.value:''}
 function insScopeQ(){const v=insScope();return v?'&scope='+encodeURIComponent(v):''}
-$('ins-scope').addEventListener('change',()=>{const tab=(location.hash.match(/insights\/(\w+)/)||[])[1]||'metrics';if(tab==='usage')loadUsage();else if(tab==='history'){HIST.cursors=[''];loadHistory()}else loadMetrics()});
+// The scope is in every Insights address (scope=server|hosts), so a shared or reloaded
+// link keeps it; an address without one keeps the choice already made. A change read
+// from the address makes Metrics and Usage read again.
+function insScopeRead(r){const p=r&&r.params;if(!p||!p.has('scope'))return;const v=p.get('scope'),s=$('ins-scope');if(![...s.options].some(o=>o.value===v)||s.value===v)return;s.value=v;INS_READ.metrics=INS_READ.usage=0}
+// insScopePlace: the control goes beside the numbers it narrows on each view, says what it
+// leaves out, and the tabs carry it.
+const INS_SCOPE_NOTE={metrics:'Narrows the cards, outcomes per week, failure classes, the table by agent and model, and Factory. PR metrics and bench rounds are not filtered by host.',usage:'Narrows the usage numbers below.',history:'Narrows the finished tasks below.'};
+function insScopePlace(view){const box=$('ins-scope-box'),at=view==='usage'?$('u-totals'):view==='history'?$('h-note'):$('ins-overview').firstElementChild;
+  if(view==='metrics'){if($('ins-overview').firstElementChild!==box)$('ins-overview').prepend(box)}else if(at&&at.previousElementSibling!==box)at.before(box);
+  $('ins-scope-note').textContent=INS_SCOPE_NOTE[view]||'';insScopeTabs()}
+function insScopeTabs(){const v=insScope();for(const a of $('ins-tabs').querySelectorAll('a'))a.setAttribute('href','#insights/'+a.dataset.tab+(v?'?scope='+encodeURIComponent(v):''))}
+$('ins-scope').addEventListener('change',()=>{insScopeTabs();const tab=(location.hash.match(/insights\/(\w+)/)||[])[1]||'metrics';INS_READ.metrics=INS_READ.usage=0;if(tab==='usage')loadUsage();else if(tab==='history')histRestart();else loadMetrics()});
 // History: finished handoffs from /api/history, a page at a time. cursors holds
 // the cursor of each page up to this one, so Newer goes back to the same rows;
 // a change of filter starts again from the newest.
@@ -4471,8 +4484,13 @@ function insCards(){const f=INS.f,t=f?f.total||{}:null,m=INS.m,val=(have,pick)=>
     insCard('autonomous','Autonomous completion',val(t,()=>ac.not_computable||ac.n===undefined?null:ac.n+' of '+ac.of),'accepted with no intervention · '+Math.round(Number(ac.pct)||0)+'%',ac.not_computable,INS.fErr),
     insCard('cost','Cost per accepted task',val(t,()=>c.median_usd===undefined?null:'$'+Number(c.median_usd).toFixed(2)),'median of the accepted tasks\' worker cost'+(c.unpriced?' · '+c.unpriced+' unpriced':''),c.not_computable||'no accepted task has a price',INS.fErr),
     insCard('interventions','Interventions per task',val(t,()=>iv.not_computable||iv.mean===undefined?null:Number(iv.mean).toFixed(2)),'messages, approvals, takeovers · '+iv.with_any+' of '+iv.of+' tasks had one',iv.not_computable,INS.fErr),
-    insCard('latency','PR workflow latency',val(m,()=>!lat||!lat.n?null:Number(lat.median_hours).toFixed(1)+' h'),'open to merge, median · '+(lat&&lat.n)+' merged PRs','no PR merged in this period',INS.mErr))}
-function insWeekHref(w,k){return '#insights/history?'+new URLSearchParams({outcome:k,since:w.since||w.week,until:w.until})}
+    insCard('latency','PR workflow latency',val(m,()=>!lat||!lat.n?null:Number(lat.median_hours).toFixed(1)+' h'),'open to merge, median · '+(lat&&lat.n)+' merged PRs · '+PR_LEDGER,(metricsNoPRs(m)?'No PRs recorded for this period':'no PR merged in this period')+' · '+PR_LEDGER,INS.mErr))}
+// The PR cards read the PR ledger, which is not attributed to hosts: Whose work does not narrow them.
+const PR_LEDGER='PR ledger · not filtered by host';
+// metricsNoPRs: the period has no PR rows at all (none merged, opened or left unsynced), so
+// the page says none were recorded, not that the team made none.
+function metricsNoPRs(m){return !!m&&!m.merged&&!m.not_synced&&!(m.chart&&m.chart.opened)}
+function insWeekHref(w,k){const p=new URLSearchParams({outcome:k,since:w.since||w.week,until:w.until});if(insScope())p.set('scope',insScope());return '#insights/history?'+p}
 function insWeeks(f){const weeks=f.by_week||[];if(!weeks.length)return [el('div',{class:'empty'},'No week in this period.')];
   const count=w=>{const o=w.outcomes||{};return INS_OUT.reduce((a,[k])=>a+(Number(o[k])||0),0)},most=Math.max(0,...weeks.map(count)),open=weeks.reduce((a,w)=>a+(Number((w.outcomes||{}).open)||0),0);
   const chart=el('div',{class:'ins-chart',role:'group','aria-label':'Outcomes per week. Each part of a bar opens its tasks; the table below has the same numbers.'},weeks.map(w=>{const o=w.outcomes||{},n=count(w);
@@ -4520,7 +4538,7 @@ function histRow(r){const open=()=>showWorkItem(r.id),depth=r.depth||0;
     el('td',{class:'hend'+(r.failed?' bad':''),'data-label':'End reason',title:(r.end_reasons||[]).join(' → ')},histEnd(r)),
     el('td',{class:'num','data-label':'Minutes'},r.minutes===undefined?'Not recorded':Number(r.minutes).toFixed(1)),
     el('td',{'data-label':'Finished',title:r.updated||''},(r.updated||'').slice(0,10)||'Not recorded'))}
-function readHistoryRoute(r){const p=r.params||new URLSearchParams();for(const [k,id] of Object.entries(HFIELDS)){if(['state','source','creator'].includes(k)&&p.get(k))histFill(id,[p.get(k)],'All '+k+'s');$(id).value=p.get(k)||''}$('h-q').value=p.get('q')||'';HIST.failed=p.get('failed')==='1';$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));HIST.outcome=p.get('outcome')&&p.get('since')&&p.get('until')?{outcome:p.get('outcome'),since:p.get('since'),until:p.get('until')}:null;histOutcomeChip();const trail=p.getAll('cursor');HIST.cursors=['',...trail]}
+function readHistoryRoute(r){insScopeRead(r);const p=r.params||new URLSearchParams();for(const [k,id] of Object.entries(HFIELDS)){if(['state','source','creator'].includes(k)&&p.get(k))histFill(id,[p.get(k)],'All '+k+'s');$(id).value=p.get(k)||''}$('h-q').value=p.get('q')||'';HIST.failed=p.get('failed')==='1';$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));HIST.outcome=p.get('outcome')&&p.get('since')&&p.get('until')?{outcome:p.get('outcome'),since:p.get('since'),until:p.get('until')}:null;histOutcomeChip();const trail=p.getAll('cursor');HIST.cursors=['',...trail]}
 function saveHistoryRoute(){const p=histParams();for(const c of HIST.cursors.slice(1))p.append('cursor',c);routeQuery('insights/history',p)}
 async function loadHistory(){const request=++HIST.request,note=$('h-note'),p=histParams(),filtered=[...p.keys()].length>0,cursor=HIST.cursors[HIST.cursors.length-1];
   $('h-clear').hidden=!filtered;if(!validDates($('h-from'),$('h-to'),note)){$('h-table').hidden=true;$('h-pager').hidden=true;return}p.set('limit','50');if(cursor)p.set('cursor',cursor);
