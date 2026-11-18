@@ -1,4 +1,5 @@
-// Team (#486): four tabs, Repositories, Members, Roles and Sessions on this host,
+// Team (#486, #907 step 2): Users (where #team opens), Permissions, Nodes and devices and
+// Activity, then under More Repositories, Roles and Sessions on this host,
 // showing what Team showed before minus Working now (moved to the Agents list);
 // Repositories is a table (repository, checkout, routing, open tasks, working, a
 // link to its tasks); an owner adds a checkout already on this host from the page
@@ -32,31 +33,34 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   if(u.pathname==='/api/chat')return json({chats:[],roles:[],gateway_ready:false});
   return json({})}}});
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()};
-const go=async h=>{w.location.hash=h;await settle()},tabs=()=>[...doc.querySelectorAll('#team-tabs a')],current=()=>doc.querySelector('#team-tabs a[aria-current="page"]');
-const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textContent===text);
+const go=async h=>{w.location.hash=h;await settle()},tabs=()=>[...doc.querySelectorAll('#team-tabs a[data-tab]')],more=()=>[...doc.querySelectorAll('#team-tabs a[data-tab-more]')],current=()=>{const a=doc.querySelector('#team-tabs a[aria-current="page"]');return a&&{dataset:{tab:a.dataset.tab||a.dataset.tabMore}}};
+const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textContent===text);
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
- // Five tabs with their counts (Nodes, #831: this fixture has none); #team is Repositories; Team has no second panel and no Working now.
- assert.deepEqual(tabs().map(a=>a.dataset.tab),['repositories','members','roles','host','nodes','who']);
- assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Repositories','Members','Roles','Sessions on this host','Nodes and devices','Who is on what']);
- assert.deepEqual(tabs().map(a=>(a.querySelector('.n')||{}).textContent||''),['1','2','2','','0','']);
- assert.equal(current().dataset.tab,'repositories');assert(doc.body.classList.contains('no-panel'),'Team still has a second panel');
+ // Four tabs with their counts (Nodes, #831: this fixture has none); #team is Users; Team has no second panel and no Working now.
+ assert.deepEqual(tabs().map(a=>a.dataset.tab),['users','permissions','nodes','activity']);
+ assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Users','Permissions','Nodes and devices','Activity']);
+ assert.deepEqual(tabs().map(a=>(a.querySelector('.n')||{}).textContent||''),['2','','0','']);
+ assert.equal(current().dataset.tab,'users');assert(view().querySelector('a[href="#team/member/bob"]'),'#team does not open on Users');assert(doc.querySelector('#repo-add').hidden,'the repository form shows on Users');
+ // Repositories, Roles and Sessions on this host stay reachable under More until Settings is regrouped (#907 step 4).
+ assert.deepEqual(more().map(a=>a.getAttribute('href')),['#team/repositories','#team/roles','#team/host']);
+ await go('#team/repositories');assert.equal(current().dataset.tab,'repositories');assert(doc.body.classList.contains('no-panel'),'Team still has a second panel');
  assert(!tabs().some(a=>/Working now/.test(a.textContent)),'Working now is a tab');
  // Repositories: a row per checkout with its routing, open tasks, working and a link to its tasks.
- const view=()=>doc.querySelector('#team-view'),rowOf=p=>view().querySelector('.repo-row[data-repo="'+p+'"]');
+ const rowOf=p=>view().querySelector('.repo-row[data-repo="'+p+'"]');
  let r=rowOf('/srv/alpha');assert(r,'no row for /srv/alpha');
  assert.equal(r.querySelector('[data-route]').textContent,'On');assert.equal(r.querySelector('[data-open]').textContent,'2','open tasks are not counted as Tasks counts them');assert.equal(r.querySelector('[data-working]').textContent,'1');
  assert.equal(r.querySelector('a.repo-tasks').getAttribute('href'),'#issues?project=acme%2Falpha');assert.equal(r.querySelector('.repo-path').textContent,'/srv/alpha');
  assert.deepEqual([...view().querySelectorAll('.repo-colhead span')].map(n=>n.textContent),['Repository','Checkout','Routing','Open tasks','Working','']);
  // The other tabs: Members, Roles (with the role files that could not be read, as text), Sessions on this host.
- await go('#team/members');assert.equal(current().dataset.tab,'members');assert(view().querySelector('a[href="#team/member/bob"]'),'no member row');assert(view().textContent.includes('dev'));assert(doc.querySelector('#repo-add').hidden);
+ await go('#team/members');assert.equal(current().dataset.tab,'users','#team/members is not Users');assert(view().querySelector('a[href="#team/member/bob"]'),'no member row');assert(view().textContent.includes('dev'));assert(doc.querySelector('#repo-add').hidden);
  await go('#team/roles');assert.equal(current().dataset.tab,'roles');assert(view().querySelector('a[href="#team/role/coder"]'),'no role row');
  const prob=view().querySelector('[data-problems]');assert(prob&&prob.textContent.includes('1 role files could not be read'),'the role problems are lost');assert(prob.textContent.includes(evil)&&!prob.querySelector('img'),'a problem became markup');
  await go('#team/host');assert.equal(current().dataset.tab,'host');assert(!doc.querySelector('#team-host').hidden,'no sessions on this host');assert(doc.querySelector('#agents [data-session-id="s-1"]'),'the session is not listed');
  await go('#team/role/coder');assert.equal(current().dataset.tab,'roles','a role page is not under Roles');
  await go('#team/working');assert(view().querySelector('[data-moved="working"]'),'#team/working does not say where it went');assert(!current(),'a tab is marked on #team/working');
  // An owner: Add a repository opens the form; Clone from URL says to clone in a terminal and posts nothing.
- await go('#team');const form=doc.querySelector('#repo-add');assert(form.hidden,'the form shows before it is asked for');
+ await go('#team/repositories');const form=doc.querySelector('#repo-add');assert(form.hidden,'the form shows before it is asked for');
  btn(doc.querySelector('#team-head'),'Add a repository').click();await settle();assert(!form.hidden,'the form did not open');assert.equal(doc.activeElement&&doc.activeElement.id,'repo-add-dir');
  btn(form,'Clone from URL').click();await settle();assert(form.querySelector('[data-clone]').textContent.includes('Clone it in a terminal on this host first'));assert(!form.querySelector('#repo-add-dir'),'Clone from URL has a field');assert(form.textContent.includes('git clone URL DIR'));
  btn(form,'A checkout on this host').click();await settle();assert(form.querySelector('#repo-add-dir'),'no directory field');

@@ -57,6 +57,24 @@ button.stat{background:none;border:0;padding:0;font:inherit;cursor:pointer}butto
 .tokenbox{display:flex;gap:6px;align-items:center;margin-left:auto}.tokenbox input{width:150px}
 #now{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
 #tokstate{font-size:12px;color:var(--mute)}
+/* region:css-overview: Overview's load cards and running tasks (#907) */
+.ov-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-items:start;margin-bottom:20px}
+.ov-card{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px;min-width:0}
+.ov-chead,.ov-shead{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}.ov-chead h3,.ov-shead h3{margin:0;font-size:var(--fs-l);font-weight:600}
+.ov-fresh{margin-left:auto;font-size:var(--fs-xs);color:var(--mute);white-space:nowrap}.ov-fresh.old{color:var(--red)}
+.ov-figs{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:0}.ov-figs dt{color:var(--mute);font-size:var(--fs-s)}.ov-figs dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.ov-more{display:inline-block;margin-top:8px;font-size:var(--fs-s)}.ov-running .feed-stale,.ov-running>.state{margin-bottom:8px}#ov-body>.feed-stale{margin-bottom:12px}
+.ov-table tbody tr{cursor:pointer}.ov-table tbody tr:hover{background:var(--hover)}.working-table.ov-table th:nth-child(n){width:auto}.working-table.ov-table th:first-child{width:28%}.ov-warn{color:var(--red)}
+@media(max-width:860px){.ov-cards{grid-template-columns:1fr}.working-table.ov-table table,.working-table.ov-table tbody,.working-table.ov-table tr,.working-table.ov-table td{display:block;width:auto}.working-table.ov-table thead{display:none}.working-table.ov-table tr{border-bottom:1px solid var(--line);padding:6px 0}.working-table.ov-table tr:last-child{border-bottom:0}
+  .working-table.ov-table td{border:0;padding:3px 12px;display:flex;gap:12px;justify-content:space-between}.working-table.ov-table td::before{content:attr(data-label);color:var(--mute);font-size:var(--fs-s);flex:none}.working-table.ov-table td:first-child::before{content:none}.working-table.ov-table td>a{white-space:normal}}
+/* end:css-overview */
+/* region:css-permissions: Team > Permissions (#907) */
+.tm-tabs-more{display:inline-flex;align-items:center;gap:2px;margin-left:auto;padding-left:12px;font-size:var(--fs-s)}.tm-tabs-more>.mute{padding:0 4px}
+.perm-form{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px;margin:12px 0 20px}.perm-form h4{margin:0 0 4px;font-size:var(--fs-m)}.perm-form>p{margin:0 0 8px}
+.perm-fields{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end}.perm-field{display:flex;flex-direction:column;gap:3px;font-size:var(--fs-s);color:var(--mute)}.perm-field input,.perm-field select{min-width:160px}.perm-check{flex-direction:row;align-items:center;gap:6px;color:var(--fg)}.perm-check input{min-width:0}
+.perm-acts{display:flex;gap:8px;margin-top:10px}.perm-form [data-perm-error]{margin:8px 0 0}.perm-form [data-perm-error][hidden]{display:none}.working-table.perm-table th:nth-child(n){width:auto}
+@media(max-width:860px){.tm-tabs-more{margin-left:0}.perm-field,.perm-field input,.perm-field select{width:100%;min-width:0}.working-table.perm-table table,.working-table.perm-table tbody,.working-table.perm-table tr,.working-table.perm-table td{display:block;width:auto}.working-table.perm-table thead{display:none}.working-table.perm-table tr{border-bottom:1px solid var(--line);padding:6px 0}.working-table.perm-table td{border:0;padding:3px 12px;display:flex;gap:12px;justify-content:space-between}.working-table.perm-table td::before{content:attr(data-label);color:var(--mute);font-size:var(--fs-s)}}
+/* end:css-permissions */
 /* region:css-shell: left rail | Agents list | second panel | top bar over the page.
    On a phone the rail is a bottom bar, and the Agents list and the second panel drawers. */
 .shell{--ag-col:var(--agents-w);flex:1;display:grid;grid-template-columns:var(--rail-w) var(--ag-col) var(--side-w) minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0}
@@ -1243,7 +1261,8 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div class="shell">
 <!-- region:rail -->
 <nav class="rail" id="rail" aria-label="Server">
-  <a class="rail-mark" href="#inbox" title="AgentD Server" aria-label="AgentD Server, go to Inbox"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
+  <a class="rail-mark" href="#overview" title="AgentD Server" aria-label="AgentD Server, go to Overview"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
+  <a class="rail-item" data-rail="overview" href="#overview"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 14.5a6.5 6.5 0 1 1 13 0"/><path d="m10 14.5 3-4"/><path d="M3.5 16.5h13"/></svg></span><span class="rail-label">Overview</span></a>
   <a class="rail-item" data-rail="home" href="#home"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9 10 3.5 16.5 9"/><path d="M5 8v8.5h10V8"/><path d="M8.5 16.5v-4.5h3v4.5"/></svg></span><span class="rail-label">Home</span></a>
   <a class="rail-item" data-rail="inbox" href="#inbox"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 5 4.5h10l2 7v4H3z"/><path d="M3 11.5h4.2l1 2h3.6l1-2H17"/></svg><span class="rail-badge" id="inbox-badge" hidden></span></span><span class="rail-label">Inbox</span></a>
   <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg></span><span class="rail-label">Tasks</span></a>
@@ -1319,6 +1338,12 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div id="appwatchdog" class="state" role="status" hidden></div>
 <div class="access-note" id="access-note" role="status" hidden></div>
 <main id="main" tabindex="-1">
+<!-- region:page-overview: the team server's landing page (libraos/agentd-core#907 step 1), drawn by region:overview -->
+<div id="page-overview" class="page" hidden>
+  <div class="ib-head"><h2 id="ov-title">What is running</h2><p class="ib-note">How loaded the server, its tasks and its agents are, and every task with a worker on it now. Read again every 10 seconds.</p></div>
+  <div id="ov-body"><div class="empty">Loading…</div></div>
+</div>
+<!-- end:page-overview -->
 <!-- region:page-home: the landing page (libraos/agentd-core#850), drawn by region:home -->
 <div id="page-home" class="page" hidden>
   <div class="ib-head"><h2 id="home-title">Work by status</h2><p class="ib-note">The team's tasks from the same list Tasks shows, grouped by where they stand. A row opens its task.</p></div>
@@ -1809,8 +1834,8 @@ const PAGES=Object.create(null),ALIASES=Object.assign(Object.create(null),{work:
 let ROUTE={item:'',view:'',rest:[]},panelOpener=null;
 function dashPage(name,def){PAGES[name]=def}
 // parseRoute: an old hash lands where it now lives; anything unknown lands on Issues, as it did on Work.
-function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'home').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
-  const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='home'&&rest.length>0||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
+function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'overview').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
+  const invalidView=views&&rest[0]&&!views.includes(rest[0])||(item==='home'||item==='overview')&&rest.length>0||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['users','permissions','activity','host','working','roles','members','repositories','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
 function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());if(BY)p.set('by',BY);routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
 function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';BY=/^(person|source):./.test(p.get('by')||'')?p.get('by'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
@@ -2145,8 +2170,8 @@ const PRESENCE={data:null,err:'',at:0,req:0,okAt:0,user:null};
 function presenceLoad(){const req=++PRESENCE.req;PRESENCE.at=Date.now();
   fetch('/api/presence',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
     .then(j=>{if(req!==PRESENCE.req)return;PRESENCE.data=j&&typeof j==='object'?{...j,sessions:Array.isArray(j.sessions)?j.sessions:[]}:{sessions:[]};feedOk(PRESENCE)},e=>{if(req!==PRESENCE.req)return;feedFail(PRESENCE,e)})
-    .then(()=>{if(req!==PRESENCE.req)return;if(ROUTE.item==='team'&&teamTab()==='who')teamDraw()})}
-function presencePoll(){feedFresh(PRESENCE);if(ROUTE.item==='team'&&teamTab()==='who'&&Date.now()-PRESENCE.at>8000)presenceLoad()}
+    .then(()=>{if(req!==PRESENCE.req)return;if(ROUTE.item==='team'&&teamTab()==='activity')teamDraw()})}
+function presencePoll(){feedFresh(PRESENCE);if(ROUTE.item==='team'&&teamTab()==='activity'&&Date.now()-PRESENCE.at>8000)presenceLoad()}
 function presenceWho(o){return (o.user||'someone')+' on '+(o.node||'?')+' ('+o.session+')'}
 // presenceRes: a record's name as a person reads it: the issue, the branch
 // (repository@branch), the path in its repository, a directory.
@@ -2215,6 +2240,7 @@ async function teamLoadLists(){const req=++TEAM.listsReq;TEAM.listsAt=Date.now()
 async function teamLoadDetail(){const t=teamTarget();if(!t)return;const req=++TEAM.detailReq;TEAM.detailAt=Date.now();try{const j=await teamFetch('?'+t.key);if(req!==TEAM.detailReq)return;TEAM.detail=j;TEAM.detailErr=''}catch(e){if(req!==TEAM.detailReq)return;TEAM.detail=null;TEAM.detailErr=e.message}teamDraw()}
 function teamMoved(r){const t=teamTarget(r),key=t?t.key:'';if(key!==TEAM.detailKey){TEAM.detailKey=key;TEAM.detail=null;TEAM.detailErr='';teamFormClose(false);TEAM.detailReq++;const m=document.querySelector('main');if(m)m.scrollTop=0}
   if(t){$('page-title').append(el('span',{},' / '+t.name));document.title=t.name+' · AgentD Server'}
+  if(!t&&teamTab(r)==='permissions'&&!APP.on&&lastDash&&lastDash.mode!=='app'){PERM.drawn='';permLoad()}
   teamLoadLists();if(t)teamLoadDetail();if(lastDash)teamLoadActivity(lastDash);teamDraw()}
 // keep: redraw a box without losing the keyboard focus inside it.
 function teamKeep(box,kids){const a=document.activeElement,k=box.contains(a)&&a.dataset?a.dataset.tk:'';box.replaceChildren(...kids);if(k){const n=box.querySelector('[data-tk="'+CSS.escape(k)+'"]');if(n)n.focus()}}
@@ -2234,13 +2260,17 @@ function teamWorking(d){const roles=(TEAM.lists||{}).handoff_roles||{},open=d.ha
   return out.sort((a,b)=>(b.wait-a.wait)||String(a.name).localeCompare(String(b.name)))}
 function teamWorkItem(w){return teamItem({name:w.name,sub:(w.wait?w.status+': ':'')+w.task,dot:w.dot,dotTitle:w.status,side:w.handoff&&markEl(w.handoff.mark),href:w.href,tk:'hof-'+(w.handoff&&w.handoff.id),onclick:()=>{setPanel(false);showWorkItem(w.handoff.id)}})}
 function teamRoleTool(r,lists){return r.tool||(lists||{}).default_tool||''}
-// teamTab: which of Team's four tabs the route shows (#486); a detail page is under
-// its list's tab, and #team itself is Repositories, as the design has it.
-function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'members':'host';const g=r.rest&&r.rest[0];return g==='working'?'':['roles','members','host','nodes','who'].includes(g)?g:'repositories'}
-function teamTabs(){const l=TEAM.lists,tab=teamTab(),n=v=>v===undefined||v===null?'':String(v);
-  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host',''],['nodes','Nodes and devices',NODES.data?NODES.data.length+(DEVICES.data||[]).length:''],['who','Who is on what',PRESENCE.data?PRESENCE.data.sessions.length:'']];
-  if(!REPOS.data&&!REPOS.err&&reposStale())reposLoad();
-  teamKeep($('team-tabs'),tabs.map(([k,name,c])=>el('a',{href:'#team/'+k,'data-tk':'tab-'+k,'data-tab':k,'aria-current':tab===k?'page':null},name,n(c)!==''?el('span',{class:'n'},n(c)):null)))}
+// teamTab: which tab the route shows (#907 step 2): Users (#team itself, and #team/members as
+// it was), Permissions, Nodes and devices, Activity (#team/who as it was), and, until Settings
+// is regrouped (step 4), Repositories, Roles and Sessions on this host under More. A detail page
+// is under its list's tab.
+function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'users':'host';const g=r.rest&&r.rest[0];
+  return g==='working'?'':g==='members'?'users':g==='who'?'activity':['users','permissions','activity','roles','host','nodes','repositories'].includes(g)?g:'users'}
+function teamTabs(){const l=TEAM.lists,tab=teamTab(),n=v=>v===undefined||v===null?'':String(v),link=([k,name,c],more)=>el('a',{href:'#team/'+k,'data-tk':'tab-'+k,[more?'data-tab-more':'data-tab']:k,'aria-current':tab===k?'page':null},name,n(c)!==''?el('span',{class:'n'},n(c)):null);
+  const tabs=[['users','Users',l?(l.members||[]).length:''],['permissions','Permissions',''],['nodes','Nodes and devices',NODES.data?NODES.data.length+(DEVICES.data||[]).length:''],['activity','Activity',PRESENCE.data?PRESENCE.data.sessions.length:'']];
+  const more=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host','']];
+  if(tab==='repositories'&&!REPOS.data&&!REPOS.err&&reposStale())reposLoad();
+  teamKeep($('team-tabs'),[...tabs.map(t=>link(t,false)),el('span',{class:'tm-tabs-more','data-tabs-more':''},el('span',{class:'mute'},'More:'),...more.map(t=>link(t,true)))])}
 
 /* figures: a missing price or token count stays missing, a partial total is a floor */
 function teamUsd(u){if(!u||!u.workers)return 'no runs';const missing=u.missing_usd??0;if(u.usd===undefined)return missing?'price missing ('+missing+' run'+(missing>1?'s':'')+')':'nothing spent';return (missing?'≥ ':'')+'$'+u.usd.toFixed(2)+' est.'+(missing?', '+missing+' run'+(missing>1?'s':'')+' unpriced':'')}
@@ -2290,13 +2320,15 @@ async function teamLoadActivity(d){const req=++TEAM.activityReq;TEAM.activityAt=
 // member's line add up; the server's own tab is not a session.
 function memberSessions(d,name){const xs=(d.sessions||[]).filter(s=>s.user===name&&(s.host_state==='busy'||s.host_state==='idle')),busy=xs.filter(s=>s.host_state==='busy').length;
   return xs.length?xs.length+' session'+(xs.length>1?'s':'')+', '+busy+' working':''}
+// teamUserLine: a user's live sessions and the tasks they asked for that have a worker running now.
+function teamUserLine(d,name){const run=(d.handoff_list||[]).filter(h=>h.worker_running&&h.from_user===name).length;return [memberSessions(d,name),run?run+' running now':''].filter(Boolean).join(' · ')}
 function teamOverview(d){const l=TEAM.lists,working=teamWorking(d),row=(href,tk,name,sub,side,onclick)=>href?el('a',{class:'tm-row',href,'data-tk':tk},el('span',{class:'tm-main'},name,sub?el('span',{class:'tm-why'},sub):null),side?el('span',{class:'tm-fig'},side):null):el('div',{class:'tm-row'},el('span',{class:'tm-main'},el('button',{type:'button',class:'linkish','data-tk':tk,onclick},name),sub?el('span',{class:'tm-why'},sub):null),side?el('span',{class:'tm-fig'},side):null);
   // Running workers moved to the Agents list (#479); #team/working, an old address, says where.
   const group=ROUTE.rest[0],out=[];
   if(group==='working')return [el('div',{class:'state','data-moved':'working'},el('span',{},working.length?working.length+' working now. ':'','Running workers are in the Agents list beside the rail: each row has its task, agent, state, time, cost so far and latest activity.'),agentsShown()&&!PHONE.matches?null:el('button',{type:'button',onclick:()=>agentsSet(true)},'Show the Agents list'))];
   // Each is a tab (#486): Roles with the role files that could not be read (the panel had them), Members.
   if(l){if(group==='roles')out.push(el('p',{class:'mute tm-intro'},'agents/NAME.md in each repository: tool, model, sandbox, budget. A task offered with that role starts a worker defined by the file.'),...teamSec('Roles',(l.roles||[]).length||'',(l.roles||[]).length?l.roles.map(r=>row(teamHref('role',r.name),'r-'+r.name,r.name,r.description,toolName(teamRoleTool(r,l)))):[el('div',{class:'empty'},'No agents/*.md in a known checkout.')]),...(l.problems||[]).length?[el('details',{class:'tm-problem','data-problems':''},el('summary',{},l.problems.length+' role files could not be read'),l.problems.map(p=>el('div',{},p)))]:[]);
-    if(group==='members')out.push(el('p',{class:'mute tm-intro'},'People on this ledger and their role: owners approve and change settings, developers start work, viewers read. Invite from Settings > Team.'),...teamSec('Members',(l.members||[]).length||'',(l.members||[]).length?l.members.map(m=>row(teamHref('member',m.name),'m-'+m.name,m.name,memberSessions(d,m.name),m.role||'not added')):[el('div',{class:'empty'},'No users on this ledger.')]))}
+    if(teamTab()==='users')out.push(el('p',{class:'mute tm-intro'},'Users on this server and their role: owners approve and change settings, developers start work, viewers read. Who has which role in each organization, team and project is under ',el('a',{href:'#team/permissions'},'Permissions'),'. Invite a user, reset a password or disable a user in ',el('a',{href:'#settings/members'},'Settings > Members and roles'),'.'),...teamSec('Users',(l.members||[]).length||'',(l.members||[]).length?l.members.map(m=>row(teamHref('member',m.name),'m-'+m.name,m.name,teamUserLine(d,m.name),m.role||'not added')):[el('div',{class:'empty'},'No users on this server.')]))}
   else if(TEAM.listsErr)out.push(el('div',{class:'state error',role:'alert'},'Could not load roles and members: '+TEAM.listsErr));
   return out}
 function teamDraw(){const d=lastDash||{};teamTabs();const t=teamTarget(),view=$('team-view'),head=$('team-head');repoAddShow(!t&&teamTab()==='repositories');
@@ -2304,7 +2336,8 @@ function teamDraw(){const d=lastDash||{};teamTabs();const t=teamTarget(),view=$(
   if(hostView)body=[el('h2',{},'Sessions on this host'),el('p',{class:'mute'},'Sessions connected to agentd, grouped by checkout. Recently ended sessions, and Claude sessions on this host that are not connected to agentd, are below.')];
   else if(!t&&teamTab()==='repositories'){top=[reposHead()];body=reposBody()}
   else if(!t&&teamTab()==='nodes')body=nodesBody();
-  else if(!t&&teamTab()==='who'){presencePoll();body=presenceBody()}
+  else if(!t&&teamTab()==='activity'){presencePoll();body=presenceBody()}
+  else if(!t&&teamTab()==='permissions'){if(!PERM.at)permLoad();const key=PERM.ver+'|'+(PERM.pending?PERM.pending.title:'')+'|'+USER;if(PERM.drawn===key&&view.querySelector('[data-perm-view]'))return;PERM.drawn=key;body=[el('div',{'data-perm-view':''},...permBody())]}
   else if(!t)body=!lastDash?[el('div',{class:'state'},'Loading…')]:teamOverview(d);
   else if(TEAM.detailErr)body=[el('div',{class:'state error',role:'alert'},'Could not load this page: '+TEAM.detailErr),el('p',{},el('a',{href:'#team'},'Back to Team'))];
   else if(!TEAM.detail)body=[el('div',{class:'state'},'Loading…')];
@@ -2319,6 +2352,77 @@ function teamFormOpen(roleName){return newHandoffSheet(roleName)}
 dashPage('team',{title:'Team',panel:false,enter(r){teamMoved(r)},unlock(){teamLoadLists();teamLoadDetail();teamLoadActivity(lastDash||{})},
   render(d){agents(d);left(d);unlinked(d);nodesPoll();presencePoll();if(ROUTE.item!=='team')return;const now=Date.now();if(now-TEAM.listsAt>8000)teamLoadLists();if(now-TEAM.activityAt>8000)teamLoadActivity(d);if(now-TEAM.detailAt>8000&&teamTarget())teamLoadDetail();teamDraw()}});
 // end:team
+// region:permissions: Team > Permissions (libraos/agentd-core#907 step 2). Who has which role
+// where, from GET /api/grants (scope, user, role, granted by, since) and the approval policies
+// from GET /api/policies (project, action, approver role, approvers, self approval). Both are
+// an owner's or admin's: anyone else gets 403 and reads "Only an owner or admin can read this",
+// with no form. Whoever reads them may change them: Grant, Revoke, Save policy and Remove each
+// POST /api/grants or /api/policies with the person's password asked again in that form. The
+// password is read from its field when the change is sent, the field cleared at once, and it is
+// never kept in a variable, storage or a log; the request goes with the person's own sign-in
+// cookie and without the shared dash token, which the server refuses for a change. A refusal
+// shows the server's reason (its message and code). Read when the tab opens and after a change,
+// not polled, so a form being filled in is not redrawn under the person (Reload reads again).
+const PERM={grants:null,policies:null,err:'',status:0,req:0,at:0,ver:0,drawn:'',pending:null,busy:false};
+function permShown(){return ROUTE.item==='team'&&!teamTarget()&&teamTab()==='permissions'&&!APP.on&&!!lastDash&&lastDash.mode!=='app'}
+async function permLoad(){const req=++PERM.req;PERM.at=Date.now();
+  const get=async p=>{const r=await fetch(p,{cache:'no-store',headers:auth()});if(!r.ok){let m='';try{m=((await r.json())||{}).error||''}catch(e){}const e=httpErr(r);if(m)e.message=String(m);throw e}return r.json()};
+  try{const [g,p]=await Promise.all([get('/api/grants'),get('/api/policies')]);if(req!==PERM.req)return;PERM.grants=g&&typeof g==='object'?g:{};PERM.policies=p&&typeof p==='object'?p:{};PERM.err='';PERM.status=0;PERM.user=USER}
+  catch(e){if(req!==PERM.req)return;PERM.err=e.message||'could not load';PERM.status=e.status||0;if(e.status===401||e.status===403){PERM.grants=PERM.policies=null}}
+  PERM.ver++;if(permShown())teamDraw()}
+function permArr(v){return Array.isArray(v)?v:[]}
+function permScopes(g){const s=(g&&g.scopes)||{};return [...permArr(s.orgs).map(o=>'org:'+o),...permArr(s.teams).map(t=>'team:'+t),...permArr(s.projects).map(p=>'project:'+(p&&p.name||p))]}
+function permOpts(sel,values,label){sel.replaceChildren(...values.map(v=>el('option',{value:v},label?label(v):v)));return sel}
+function permSay(e,status){const j=e||{};return 'Refused: '+(j.message||j.error||('HTTP '+status))+(j.error&&j.message?' ('+j.error+')':'')}
+// permSend: one change. The password goes from the field into the request body and the field is
+// emptied before the request leaves; nothing else holds it.
+async function permSend(route,body,form){const pw=form.querySelector('input[type=password]'),err=form.querySelector('[data-perm-error]'),btn=form.querySelector('button[type=submit]');
+  err.hidden=true;err.textContent='';if(!pw.value){err.textContent='Enter your password to make this change.';err.hidden=false;pw.focus();return}
+  const payload=JSON.stringify({...body,password:pw.value});pw.value='';btn.disabled=true;PERM.busy=true;
+  try{const r=await fetch('/api/'+route,{method:'POST',cache:'no-store',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:payload});let j=null;try{j=await r.json()}catch(e){}
+    if(!r.ok||!j||j.ok!==true){err.textContent=permSay(j,r.status);err.hidden=false;return}
+    toast(route==='grants'?(body.op==='grant'?'Role granted':'Role revoked'):(body.op==='set'?'Policy saved':'Policy removed'),true);PERM.pending=null;PERM.drawn='';permLoad()}
+  catch(e){err.textContent=errorText(e);err.hidden=false}
+  finally{btn.disabled=false;PERM.busy=false}}
+function permPassword(id){return el('label',{class:'perm-field',for:id},'Your password',el('input',{type:'password',id,name:'password',autocomplete:'current-password',required:true}))}
+function permForm(o){const f=el('form',{class:'perm-form','data-perm-form':o.key,'aria-label':o.title},el('h4',{},o.title),o.note?el('p',{class:'mute'},o.note):null,
+  el('div',{class:'perm-fields'},...o.fields,permPassword('perm-pw-'+o.key)),el('p',{class:'state error',role:'alert','data-perm-error':'',hidden:true}),
+  el('div',{class:'perm-acts'},el('button',{type:'submit',class:o.danger?'danger':'ok'},o.action),o.cancel?el('button',{type:'button',onclick:o.cancel},'Cancel'):null));
+  f.addEventListener('submit',e=>{e.preventDefault();if(!PERM.busy)permSend(o.route,o.body(f),f)});return f}
+function permField(label,id,input){input.id=id;return el('label',{class:'perm-field',for:id},label,input)}
+function permAsk(p){PERM.pending=p;PERM.drawn='';teamDraw();const f=document.querySelector('[data-perm-form="confirm"] input[type=password]');if(f)f.focus()}
+function permConfirm(){const p=PERM.pending;if(!p)return null;return permForm({key:'confirm',title:p.title,note:'This change is audited.',route:p.route,body:()=>p.body,action:p.action,danger:true,cancel:()=>{PERM.pending=null;PERM.drawn='';teamDraw()}})}
+function permGrantForm(g){const roles=permArr(g.roles).filter(r=>r!=='worker'),scopes=permScopes(g),users=permArr((TEAM.lists||{}).members).map(m=>m.name);
+  if(!scopes.length)return el('p',{class:'mute'},'No organization, team or project to grant in yet: add one with agentd project add at the terminal.');
+  const user=el('input',{type:'text',name:'principal',required:true,autocomplete:'off',list:'perm-users',placeholder:'user name'});
+  return permForm({key:'grant',title:'Grant a role',note:'A grant gives at most your own role.',route:'grants',action:'Grant',
+    fields:[permField('Where','perm-scope',permOpts(el('select',{name:'scope'}),scopes)),permField('User','perm-user',user),el('datalist',{id:'perm-users'},users.map(u=>el('option',{value:u}))),permField('Role','perm-role',permOpts(el('select',{name:'role'}),roles))],
+    body:f=>({op:'grant',scope:f.elements.scope.value,principal:f.elements.principal.value.trim(),role:f.elements.role.value})})}
+function permPolicyForm(p){const projects=permArr(p.projects).map(x=>x&&x.name||x).filter(Boolean),actions=permArr(p.actions),roles=permArr(p.approver_roles);
+  if(!projects.length)return el('p',{class:'mute'},'No project to set a policy on yet.');
+  return permForm({key:'policy',title:'Set a policy',note:'Who answers an approval of this kind in the project, and how many must.',route:'policies',action:'Save policy',
+    fields:[permField('Project','perm-project',permOpts(el('select',{name:'project'}),projects)),permField('Action','perm-action',permOpts(el('select',{name:'action'}),actions,word)),
+      permField('Approver role','perm-approver',permOpts(el('select',{name:'approver_role'}),roles)),permField('Approvers','perm-approvers',el('input',{type:'number',name:'approvers',min:'1',value:'1',required:true})),
+      el('label',{class:'perm-field perm-check',for:'perm-self'},el('input',{type:'checkbox',id:'perm-self',name:'self_approval'}),'The requester may approve')],
+    body:f=>({op:'set',project:f.elements.project.value,action:f.elements.action.value,approver_role:f.elements.approver_role.value,approvers:Math.max(1,parseInt(f.elements.approvers.value,10)||1),self_approval:f.elements.self_approval.checked})})}
+function permTable(cols,rows,empty){if(!rows.length)return el('div',{class:'empty'},empty);
+  return el('div',{class:'working-table perm-table'},el('table',{},el('thead',{},el('tr',{},cols.map(c=>el('th',{scope:'col'},c)))),el('tbody',{},rows.map(([attrs,cells])=>el('tr',attrs,cells.map((c,i)=>el('td',{'data-label':cols[i]},c===null||c===undefined||c===''?'—':c)))))))}
+function permDay(t){if(!t)return '';const d=new Date(t);return isNaN(d)?String(t):d.toLocaleDateString()}
+function permBody(){if(!USER&&!PERM.grants)return [el('div',{class:'state','data-perm-denied':''},'Only an owner or admin can read this. Sign in with your user name and password.')];
+  if(PERM.user!==undefined&&PERM.user!==USER&&PERM.grants){PERM.grants=PERM.policies=null;PERM.user=undefined;permLoad()}
+  if(PERM.status===403||PERM.status===401)return [el('div',{class:'state','data-perm-denied':''},'Only an owner or admin can read this.')];
+  if(PERM.err&&!PERM.grants)return [el('div',{class:'state error',role:'alert'},'Could not load permissions: '+PERM.err+'. ',el('button',{type:'button',onclick:permLoad},'Retry'))];
+  if(!PERM.grants)return [el('div',{class:'state'},'Loading…')];
+  const g=PERM.grants,p=PERM.policies||{},grants=permArr(g.grants),pols=permArr(p.policies),busy=!!PERM.pending;
+  const revoke=x=>el('button',{type:'button',disabled:busy,'data-perm-revoke':x.scope+' '+x.principal,onclick:()=>permAsk({title:'Revoke '+x.principal+'’s role in '+x.scope+'?',route:'grants',body:{op:'revoke',scope:x.scope,principal:x.principal},action:'Revoke'})},'Revoke');
+  const remove=x=>el('button',{type:'button',disabled:busy,'data-perm-remove':x.project+' '+x.action,onclick:()=>permAsk({title:'Remove the '+word(x.action)+' policy of '+x.project+'?',route:'policies',body:{op:'remove',project:x.project,action:x.action},action:'Remove'})},'Remove');
+  return [el('p',{class:'mute tm-intro'},(g.all?'Every grant and policy on this server':'The grants and policies of the projects you administer')+'. A change needs your password again and is audited. ',el('button',{type:'button',class:'linkish','data-perm-reload':'',onclick:()=>{PERM.drawn='';permLoad()}},'Reload')),
+    permConfirm(),
+    el('section',{'data-perm':'grants'},...teamSec('Grants',grants.length,[permTable(['Where','User','Role','Granted by','Since',''],grants.map(x=>[{'data-grant':x.scope+' '+x.principal},[x.scope,x.principal,x.role,x.granted_by,permDay(x.created),revoke(x)]]),'No grants yet.')])),
+    busy?null:permGrantForm(g),
+    el('section',{'data-perm':'policies'},...teamSec('Approval policies',pols.length,[permTable(['Project','Action','Approver role','Approvers','Self approval','Updated',''],pols.map(x=>[{'data-policy':x.project+' '+x.action},[x.project,word(x.action),x.approver_role,String(x.approvers||1),x.self_approval?'allowed':'not allowed',[permDay(x.updated),x.updated_by?' by '+x.updated_by:''].join(''),remove(x)]]),'No policies: every approval uses the default rule.')])),
+    busy?null:permPolicyForm(p)].filter(Boolean)}
+// end:permissions
 // region:repositories
 /* Team > Repositories (#team, #team/repositories): every checkout this host offers
    for work, from GET /api/repositories, as a table (repository, checkout, routing,
@@ -3793,6 +3897,87 @@ dashPage('home',{title:'Home',panel:false,agents:false,enter(r){homeRead(r.param
 function appHomePage(){const p=$('app-page');if(!p||!APP.on||APPS.page!=='home'||!lastDash)return;const a=document.activeElement,keep=a&&p.contains(a)&&a.id?a.id:'';
   p.replaceChildren(appPageHead('Home'),el('div',{class:'home-app'},el('p',{class:'home-hint'},'Tasks by where they stand, yours and others’. A task row opens it.'),...homeView(lastDash,true)));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
 // end:home
+// region:overview: the team server's landing page (libraos/agentd-core#907 step 1). Three
+// load cards, Server, Tasks and Agents, from GET /api/load, and the running tasks table from
+// GET /api/running (who asked, project, node, tool and model, elapsed, spend against budget,
+// state), each row opening its task. Both are read when the page opens and every 10 s while
+// it shows. A read that fails after a good one keeps the rows under the stale notice with
+// Retry (region:nodes' feedStale, #904 step 1); a 401 or 403 drops them. Read only. Only the
+// team dash asks: agentd app answers 404 for these routes, so nothing here runs in app mode
+// (render is not called there, and enter and the timer check APP.on and the snapshot's mode).
+const LOAD={data:null,err:'',at:0,req:0,okAt:0,user:null},RUNNING={data:null,err:'',at:0,req:0,okAt:0,user:null},OV={timer:0},OV_EVERY=10000;
+function ovOn(){return ROUTE.item==='overview'&&!!lastDash&&!APP.on&&lastDash.mode!=='app'}
+function ovFetch(F,path,take){const req=++F.req;F.at=Date.now();
+  return fetch(path,{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==F.req)return;F.data=take(j&&typeof j==='object'?j:{});feedOk(F)},e=>{if(req!==F.req)return;feedFail(F,e)})
+    .then(()=>{if(req===F.req)ovDraw()})}
+function loadLoad(){return ovFetch(LOAD,'/api/load',j=>j)}
+function runningLoad(){return ovFetch(RUNNING,'/api/running',j=>({at:j.at||'',running:Array.isArray(j.running)?j.running:[]}))}
+// ovPoll: each feed when it is 10 s old (force: now), only while Overview shows on the team dash.
+function ovPoll(force){if(!ovOn())return;feedFresh(LOAD);feedFresh(RUNNING);const now=Date.now();if(force||now-LOAD.at>=OV_EVERY-500)loadLoad();if(force||now-RUNNING.at>=OV_EVERY-500)runningLoad()}
+function ovClock(t){const d=new Date(t);return isNaN(d)?'':d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function ovNum(v){return typeof v==='number'&&isFinite(v)?v:null}
+function ovDur(s){s=ovNum(s);if(s===null)return '';if(s<60)return Math.round(s)+'s';if(s<3600)return Math.round(s/60)+' min';if(s<86400)return Math.floor(s/3600)+'h '+String(Math.round(s%3600/60)).padStart(2,'0')+'m';return Math.floor(s/86400)+'d '+Math.floor(s%86400/3600)+'h'}
+function ovUsd(v){return '$'+Number(v).toFixed(2)}
+// ovFresh: how fresh a card is: the time the server read it, and the failed refresh if the last one failed.
+function ovFresh(F,at){const stale=feedIsStale(F),t=ovClock(at||F.okAt);return el('span',{class:'ov-fresh'+(stale?' old':''),'data-ov-fresh':''},stale?'as of '+t:'updated '+t)}
+function ovCard(key,title,F,at,rows,foot){return el('section',{class:'ov-card','data-ov-card':key,'aria-labelledby':'ov-h-'+key},
+  el('div',{class:'ov-chead'},el('h3',{id:'ov-h-'+key},title),ovFresh(F,at)),
+  el('dl',{class:'ov-figs'},rows.filter(Boolean).map(([k,v,title,id])=>[el('dt',{},k),el('dd',{title:title||null,'data-ov-fig':id||null},v===null||v===undefined||v===''?'—':v)])),foot||null)}
+function ovFailed(F,what,key,retry){const denied=F.err&&/HTTP 40[13]/.test(F.err);
+  return el('div',{class:'state error',role:'alert','data-feed-error':key},el('span',{},denied?'You cannot read '+what+' here: sign in as a user of this server. ':'Could not load '+what+': '+F.err+'. '),denied?null:el('button',{type:'button',onclick:retry},'Retry'))}
+function ovServer(d){const s=d.server||{},lat=s.latency||{},h=s.host||{},cpu=ovNum(h.cpu_pct),mem=ovNum(h.mem_used_pct),total=ovNum(h.mem_total_mb);
+  return [['Up since',s.started?el('span',{},ovClock(s.started)||s.started,el('span',{class:'tm-why'},' up '+ovDur(s.up_s))):null,s.started,'up'],
+    ['Database',s.store||null,'',"store"],
+    ['Queue depth',ovNum(s.queue_depth)!==null?String(s.queue_depth):null,'Offered tasks waiting for a worker','queue'],
+    ['Lease pass',ovNum(s.lease_pass_age_s)!==null?ovDur(s.lease_pass_age_s)+' ago':'not run here','The last lease pass of agentd server','lease'],
+    ['API latency',ovNum(lat.p50_ms)!==null?'p50 '+Math.round(lat.p50_ms)+' ms · p95 '+Math.round(ovNum(lat.p95_ms)||0)+' ms':'no requests','Over the dash’s API requests of the last '+Math.round((ovNum(lat.window_s)||300)/60)+' minutes'+(ovNum(lat.requests)!==null?': '+lat.requests:''),'latency'],
+    ['Host CPU',cpu!==null?Math.round(cpu)+'%'+(ovNum(h.cpus)!==null?' of '+h.cpus+' cores':''):'not readable','1-minute load over cores'+(ovNum(h.load1)!==null?' (load '+h.load1+')':''),'cpu'],
+    ['Host memory',mem!==null?Math.round(mem)+'% used'+(total!==null?' of '+(total/1024).toFixed(1)+' GB':''):'not readable','','mem']]}
+function ovTasks(d){const t=d.tasks||{},n=k=>ovNum(t[k])!==null?String(t[k]):null;
+  return [['Running',n('running'),'Claimed with a worker on it','running'],['Queued',n('queued'),'Offered, waiting for a worker','queued'],['Blocked',n('blocked'),'Waiting on other tasks','blocked'],
+    ['Waiting on a person',n('waiting_person'),'A worker waits on a prompt or a question, or the task is parked','waiting'],['Approvals pending',n('approvals_pending'),'','approvals'],['Finished today',n('finished_today'),t.day_since?'Done since '+t.day_since:'','finished']]}
+function ovAgents(d){const a=d.agents||{},nodes=a.nodes||{},c=k=>Math.max(0,ovNum(nodes[k])||0),per=Array.isArray(a.sessions_per_person)?a.sessions_per_person:[];
+  const nodeText=ovNum(a.nodes_total)===0?'none connected':[c('idle')+' idle',c('busy')+' busy',c('not_ready')+' not ready',c('offline')+' offline'].join(' · ');
+  return [['Nodes',nodeText,'Offline: not seen for 5 minutes','nodes'],['Leases',ovNum(a.leases)!==null?a.leases+' of '+(ovNum(a.capacity)||0):null,'Leases and the nodes’ own workers, of the capacity of nodes not offline','leases'],
+    ['Live sessions',ovNum(a.sessions)!==null?String(a.sessions):null,'Sessions seen in the last 2 minutes','sessions'],
+    per.length?['Per user',el('span',{class:'ov-people'},per.map((p,i)=>el('span',{'data-ov-person':p.person||''},(i?', ':'')+(p.person||'no user')+' '+(ovNum(p.sessions)||0)))),'','people']:null]}
+// ovSpend: dollars against the budget; null dollars are unknown, unpriced attempts make it a floor.
+function ovSpend(r){const b=r.budget||{},usd=ovNum(r.spend_usd),floor=usd!==null&&(r.spend_unpriced||0)>0,cap=ovNum(b.usd);
+  const spent=usd===null?'unknown':(floor?'≥ ':'')+ovUsd(usd);return cap!==null?spent+' of '+ovUsd(cap):b.text?spent+' (budget '+b.text+')':spent}
+function ovElapsed(r){const m=ovNum(r.elapsed_min),cap=ovNum((r.budget||{}).minutes);return (m!==null?fmtMin(m):'–')+(cap!==null?' of '+fmtMin(cap):'')}
+// ovState: a worker's state as a person reads it; blocked is a worker waiting on a prompt, not a task waiting on others.
+const OV_STATES={running:'running',blocked:'waiting on a prompt',waiting_answer:'waiting on an answer',stalled:'quiet',exited:'exited'};
+function ovState(r){if(r.parked)return 'parked';const s=r.worker_state||'running';return OV_STATES[s]||String(s).replace(/_/g,' ')}
+function ovRunning(){const rs=RUNNING.data.running,cols=['Task','User','Project','Node','Tool and model','Elapsed','Spend','State'];
+  if(!rs.length)return el('div',{class:'empty','data-ov-empty':''},'Nothing is running now.');
+  return el('div',{class:'working-table ov-table'},el('table',{},el('thead',{},el('tr',{},cols.map(c=>el('th',{scope:'col'},c)))),
+    el('tbody',{},rs.map(r=>{const href='#issues/'+encodeURIComponent(r.id),warn=r.parked||r.worker_state&&r.worker_state!=='running';
+      const cell=(i,v,title)=>el('td',{'data-label':cols[i],title:title||null},v===null||v===undefined||v===''?'—':v);
+      return el('tr',{'data-running':r.id,onclick:e=>{if(!e.target.closest('a'))location.hash=href}},
+        cell(0,el('a',{href,title:r.goal||r.id},r.goal||r.id)),cell(1,r.person),cell(2,r.project?shortProject(r.project):'',r.project),
+        cell(3,r.node?r.node+(r.where==='local'?' (this host)':''):''),cell(4,[toolName(r.tool),r.model].filter(Boolean).join(' · ')),
+        cell(5,ovElapsed(r),r.started?'Started '+r.started:''),cell(6,ovSpend(r)),cell(7,el('span',{class:warn?'ov-warn':null},ovState(r))))}))))}
+function ovView(){const out=[],load=feedFresh(LOAD),run=feedFresh(RUNNING);
+  if(LOAD.err&&!load)out.push(ovFailed(LOAD,'the server’s load','load',loadLoad));
+  else if(!load)out.push(el('div',{class:'state'},'Loading…'));
+  else{const st=feedStale(LOAD,'load',loadLoad);if(st)out.push(st);
+    out.push(el('div',{class:'ov-cards'},ovCard('server','Server',LOAD,load.at,ovServer(load)),ovCard('tasks','Tasks',LOAD,load.at,ovTasks(load)),
+      ovCard('agents','Agents',LOAD,load.at,ovAgents(load),el('a',{class:'ov-more',href:'#team/nodes'},'Nodes and devices'))))}
+  const head=el('div',{class:'ov-shead'},el('h3',{id:'ov-running-h'},'Running tasks'),run?el('span',{class:'n','data-ov-count':''},String(run.running.length)):null,run?ovFresh(RUNNING,run.at):null);
+  const sec=el('section',{class:'ov-running','aria-labelledby':'ov-running-h'},head);
+  if(RUNNING.err&&!run)sec.append(ovFailed(RUNNING,'the running tasks','running',runningLoad));
+  else if(!run)sec.append(el('div',{class:'state'},'Loading…'));
+  else{const st=feedStale(RUNNING,'running',runningLoad);if(st)sec.append(st);sec.append(ovRunning())}
+  out.push(sec);return out}
+function ovDraw(){if(ROUTE.item!=='overview'||APP.on)return;const box=$('ov-body'),a=document.activeElement,keep=a&&box.contains(a)?(a.closest('[data-feed-stale],[data-feed-error]')||{}).dataset:null;
+  box.replaceChildren(...ovView());if(keep){const k=keep.feedStale||keep.feedError,n=box.querySelector('[data-feed-stale="'+k+'"] button,[data-feed-error="'+k+'"] button')||box.querySelector('a');if(n)n.focus({preventScroll:true})}}
+dashPage('overview',{title:'Overview',panel:false,agents:false,
+  enter(){clearInterval(OV.timer);OV.timer=setInterval(()=>ovPoll(false),OV_EVERY);ovDraw();ovPoll(true)},
+  unlock(){ovPoll(true)},
+  render(){if(ROUTE.item!=='overview')return;ovPoll(false);ovDraw()},
+  leave(){clearInterval(OV.timer);OV.timer=0;LOAD.req++;RUNNING.req++}});
+// end:overview
 // region:filter: typed filters on the board (#456). One filter, read from the
 // box (free words match the title; agent:, status:, pr:, project:, person:
 // narrow it) and written by the Agent, Status, PR and Person dropdowns, so both
@@ -4880,7 +5065,7 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
   unlock(){if(setupOwner()){setupLoad();setupDoctor()}else setupRender()},
   // On landing, an owner whose install is not set up is taken to it, once a page load.
   render(){const who=USER+'|'+ROLE;if(!setupOwner()||SETUP.asked===who)return;SETUP.asked=who;
-    setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'||h==='#home'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
+    setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'||h==='#home'||h==='#overview'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
 // end:setup
 // region:app: the personal app's frame (#561). When /api/dash says mode "app" (agentd app,
 // libraos/agentd-core#560), render() hands the snapshot here instead of the team pages:

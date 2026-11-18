@@ -1,4 +1,4 @@
-// Who is on what (agentd-core#849): Team > Who is on what reads GET
+// Who is on what (agentd-core#849): Team > Activity (#team/who, #907) reads GET
 // /api/presence and lists every live session, grouped by person: host, tool,
 // activity, issue, age, and its issues, checkouts, claims and edited files; a
 // record another session also holds is marked shared, naming the others.
@@ -42,7 +42,7 @@ const view=()=>doc.querySelector('#team-view'),row=s=>view().querySelector('[dat
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
  assert(requests.includes('GET /api/presence'),'the dash never asks for /api/presence');
- const tab=doc.querySelector('#team-tabs a[data-tab="who"]');assert(tab,'no Who is on what tab');assert.equal(tab.getAttribute('aria-current'),'page');assert.equal(tab.querySelector('.n').textContent,'3');
+ const tab=doc.querySelector('#team-tabs a[data-tab="activity"]');assert(tab,'no Activity tab (Who is on what)');assert.equal(tab.getAttribute('aria-current'),'page');assert.equal(tab.querySelector('.n').textContent,'3');
  // Grouped by person; every live session listed with host, tool, activity, issue and age.
  assert.deepEqual([...view().querySelectorAll('[data-presence-group]')].map(g=>g.dataset.presenceGroup),['ann','bob','cid']);
  const at=row('s-ann').textContent;for(const want of ['fixing login','ann-laptop','acme/app#7','on 5m','s-ann','acme/app@fix-login','src/login.go'])assert(at.includes(want),'ann row lacks '+want+': '+at);

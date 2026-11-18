@@ -2,8 +2,8 @@
 // Waiting on another task, Review and validation and Closed recently, each a count and a short list, from
 // issueItems, the list Tasks draws, so the counts match Tasks' columns. Each row opens its task.
 // Created by (people, and services or triggers by source) and project narrow every group and
-// are the address (#home?by=...&project=...), so a reload keeps them. It is the default landing
-// page, read only, the same for a viewer; in agentd app it is the Home page over the centre,
+// are the address (#home?by=...&project=...), so a reload keeps them. It is at #home (a bare address
+// lands on Overview since #907), read only, the same for a viewer; in agentd app it is the Home page over the centre,
 // from the snapshot it already has (no new route: it never asks for /api/issues), and a row opens
 // the task's workspace. Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_home.cjs dash.html
@@ -41,9 +41,9 @@ const count=(root,key)=>root.querySelector('[data-home-count="'+key+'"]').textCo
 const pick=async(w,root,field,value)=>{const s=root.querySelector('select[data-home-filter="'+field+'"]');assert(s,'no '+field+' filter');assert([...s.options].some(o=>o.value===value),field+' filter lacks '+value+': '+[...s.options].map(o=>o.value));s.value=value;s.dispatchEvent(new w.Event('change',{bubbles:true}));await settle()};
 const hashParams=w=>new URLSearchParams(w.location.hash.split('?')[1]||'');
 (async()=>{
- // The server: Home is where a bare address lands.
- {const hits=[],dom=page('http://127.0.0.1:21620/',()=>snap,hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
-  assert(!doc.getElementById('page-home').hidden,'a bare address does not land on Home');assert.equal(doc.querySelector('.rail-item[aria-current="page"]').dataset.rail,'home');
+ // The server: a bare address lands on Overview (#907); Home is at #home.
+ {const hits=[],dom=page('http://127.0.0.1:21620/#home',()=>snap,hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
+  assert(!doc.getElementById('page-home').hidden,'#home does not open Home');assert.equal(doc.querySelector('.rail-item[aria-current="page"]').dataset.rail,'home');
   assert.equal(doc.querySelector('#page-title').textContent,'Home');
   const root=doc.getElementById('home-body');
   assert.deepEqual([...root.querySelectorAll('[data-home-group]')].map(g=>g.querySelector('h3').textContent),['Working','Needs attention (team)','Waiting on another task','Review and validation','Closed recently']);
