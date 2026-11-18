@@ -220,7 +220,7 @@ a.tm-row:hover{background:var(--hover);text-decoration:none}a.tm-row:focus-visib
 .tm-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin:0 0 16px;overflow-x:auto;scrollbar-width:none}.tm-tabs::-webkit-scrollbar{display:none}
 .tm-tabs a{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--mute);font-weight:400;white-space:nowrap;text-decoration:none}
 .tm-tabs a:hover{color:var(--fg);text-decoration:none}.tm-tabs a[aria-current="page"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:500}.tm-tabs .n{font-size:var(--fs-s);color:var(--mute);font-variant-numeric:tabular-nums}
-.tm-intro{margin:0 0 4px;overflow-wrap:anywhere}
+.tm-intro{margin:0 0 4px;overflow-wrap:anywhere}.tm-cmd code{font-size:var(--fs-s);overflow-wrap:anywhere;user-select:all}.tm-flag{color:var(--amber);font-weight:600}
 @media(max-width:860px){.tm-tabs a{min-height:44px}}
 /* end:css-team */
 /* region:css-repositories: Team > Repositories, a table, and the owner's Add a repository form (#486) */
@@ -378,7 +378,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .home-row .status{flex:none;order:2;padding-top:1px}
 .home-main{min-width:0;flex:1}.home-open{display:block;overflow-wrap:anywhere;font-weight:500;text-align:left;color:var(--fg)}
 .home-meta{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:var(--mute)}
-.home-more{display:inline-block;margin-top:6px;font-size:12px}.home-note{margin:12px 0 0;font-size:12px;color:var(--mute)}
+.home-more{display:inline-block;margin-top:6px;font-size:12px}.home-note{margin:12px 0 0;font-size:12px;color:var(--mute)}.home-workers{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:0 0 12px;font-size:var(--fs-s)}.home-workers-off{color:var(--amber);font-weight:600}.home-workers-off:before{content:'\25CF ';}
 .home-app .home-group{background:var(--o-card,var(--panel));border-color:var(--o-border,var(--line))}.home-app .wfilter{margin-top:8px}
 @media(max-width:860px){.home-groups{grid-template-columns:1fr}.home-filters .issue-proj{flex:1 1 100%}.home-filters select{flex:1}}
 /* end:css-home */
@@ -2052,35 +2052,69 @@ function stats(d){
   const n=t=>((d.counts||{})[t]||{}).active||0,hs=d.handoffs||{};
   $('now-tiles').replaceChildren(...[[n('claude'),'registered Claude sessions'],[n('codex'),'registered Codex sessions'],[hs.offered||0,'unassigned tasks'],[d.claims_open||0,'reserved resources'],[d.runs_running||0,'runs in progress'],[d.events_1h||0,'events in the last hour']].map(([v,l])=>el('span',{class:'now-stat'},el('b',{},v),' '+l)))}
 // region:nodes
-/* Worker nodes under each account (#831), read only, from GET /api/nodes: each
-   card names its person, null for a dedicated worker an owner enrolled (Server).
-   Account > Your nodes: the signed-in person's; Team > Nodes: every node grouped
-   by person, Server last. Loaded with the dash's refresh (Team's render).
-   Enrolling, draining and revoking stay at the terminal. */
-const NODES={data:null,err:'',at:0,req:0};
+/* Worker nodes and devices under each account (#831, libraos/agentd-core#900), read
+   only. GET /api/nodes: each card names its person, null for a dedicated worker an
+   owner enrolled (Server), its version (null from an older worker) and the server's
+   own as server_version. GET /api/devices: the devices agentd server devices lists
+   (an owner every one, anyone else their own; 404 from a server without it).
+   Account > Your nodes: the signed-in person's nodes; Team > Nodes and devices: under
+   each person their nodes, then their devices, Server last. Loaded with the dash's
+   refresh (Team's render). Enrolling, draining and revoking stay at the terminal:
+   each row shows its command, never a button. */
+const NODES={data:null,err:'',at:0,req:0,serverVersion:null};
+const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0};
+function nodesTabShown(){return ROUTE.item==='team'&&teamTab()==='nodes'}
 function nodesLoad(){const req=++NODES.req;NODES.at=Date.now();
   fetch('/api/nodes',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.err=''},e=>{if(req!==NODES.req)return;NODES.err=e.message||'could not load'})
-    .then(()=>{if(req!==NODES.req)return;nodesAccount();if(ROUTE.item==='team'&&teamTab()==='nodes')teamDraw()})}
-function nodesPoll(){if((USER||ROUTE.item==='team'&&teamTab()==='nodes')&&Date.now()-NODES.at>8000)nodesLoad();nodesAccount()}
+    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.serverVersion=j&&typeof j.server_version==='string'&&j.server_version?j.server_version:null;NODES.err=''},e=>{if(req!==NODES.req)return;NODES.err=e.message||'could not load'})
+    .then(()=>{if(req!==NODES.req)return;nodesAccount();if(nodesTabShown())teamDraw()})}
+function devicesLoad(){const req=++DEVICES.req;DEVICES.at=Date.now();
+  fetch('/api/devices',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+    .then(j=>{if(req!==DEVICES.req)return;DEVICES.err='';DEVICES.missing=j===null;DEVICES.data=j&&Array.isArray(j.devices)?j.devices:[];DEVICES.scope=j&&typeof j.scope==='string'?j.scope:''},e=>{if(req!==DEVICES.req)return;DEVICES.err=e.message||'could not load'})
+    .then(()=>{if(req!==DEVICES.req)return;if(nodesTabShown())teamDraw()})}
+function nodesPoll(){if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if(nodesTabShown()&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
 // nodeState: one word for a node, the first that holds: drained, offline, not
 // accepting server work, busy, not ready (cannot commit), idle.
 function nodeState(n){const word=n.drained?'drained':n.offline?'offline':n.accept_server_work===false?'not accepting':n.state==='busy'?'busy':n.state==='not_ready'?'not ready':'idle';
   return {word,dot:word==='idle'?'idle':word==='busy'?'busy':'stale',why:n.why||(word==='offline'?'not seen for '+n.seen_ago:word==='not accepting'?'its person has not opted in to server work':'')}}
+// releaseParts reads vX.Y.Z (a leading v and a suffix allowed); nodeOlder holds only
+// when both the node's and the server's version read and the node's is lower: a node
+// with no version (an older worker reports none) is never marked.
+function releaseParts(v){const m=/^v?(\d+)\.(\d+)\.(\d+)/.exec(typeof v==='string'?v.trim():'');return m?m.slice(1).map(Number):null}
+function nodeOlder(n,server){const a=releaseParts(n&&n.version),b=releaseParts(server);if(!a||!b)return false;for(let i=0;i<3;i++)if(a[i]!==b[i])return a[i]<b[i];return false}
 function nodeLoad(n){return el('span',{class:'tm-fig',title:'Server leases running of its capacity (--max)'+(n.local_workers?'; '+n.local_workers+' started on the node itself':'')},(n.leases||0)+'/'+(n.capacity||1))}
 function nodesAccount(){const box=$('account-nodes');if(!box)return;box.hidden=!USER;if(!USER){box.replaceChildren();return}
   const mine=(NODES.data||[]).filter(n=>n.person===USER).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
   box.replaceChildren(el('b',{},'Your nodes'),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Nodes could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
     return el('a',{href:'#team/nodes','data-node':n.name,title:s.why||s.word,onclick:()=>{$('account').open=false}},el('span',{class:'dot '+s.dot}),' ',n.name,el('span',{class:'tm-why'},s.word+' · '+(n.leases||0)+'/'+(n.capacity||1)))}):[el('span',{class:'mute'},NODES.data?'No nodes yet':'Loading…')]))}
+function termCmd(label,cmd){return el('span',{class:'tm-why tm-cmd'},label+' at the server: ',el('code',{},cmd))}
 function nodeRow(n){const s=nodeState(n),about=[n.kind,n.host,(n.tools||[]).join(', '),(n.repos||[]).join(', ')].filter(Boolean).join(' · ');
-  return el('div',{class:'tm-row','data-node':n.name},el('span',{class:'dot '+s.dot,title:s.word}),el('div',{class:'tm-main'},el('b',{},n.name),about?el('span',{class:'tm-why'},about):null),
-    el('span',{class:'tm-fig'},s.word,s.why?el('span',{class:'tm-why'},s.why):null),nodeLoad(n),el('span',{class:'tm-fig',title:n.seen||''},n.seen_ago?'seen '+n.seen_ago+' ago':'never seen'))}
-function nodesBody(){if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
-  const groups=new Map(),server=[];for(const n of NODES.data){if(n.person===null||n.person===undefined||n.person==='')server.push(n);else{if(!groups.has(n.person))groups.set(n.person,[]);groups.get(n.person).push(n)}}
-  const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),sec=(key,label,list)=>el('section',{'data-node-group':key},...teamSec(label,list.length,list.sort(byName).map(nodeRow)));
-  const out=[el('p',{class:'mute tm-intro'},'Nodes running agentd worker against this server, under the person whose device enrolled each; Server is dedicated workers an owner enrolled. Drain and revoke stay at the terminal (agentd server devices).')];
-  for(const p of [...groups.keys()].sort())out.push(sec(p,p,groups.get(p)));if(server.length)out.push(sec('Server','Server',server));
-  if(!NODES.data.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when agentd worker starts against this server.'));return out}
+  const ver=typeof n.version==='string'&&n.version?n.version:'',older=nodeOlder(n,NODES.serverVersion);
+  return el('div',{class:'tm-row','data-node':n.name},el('span',{class:'dot '+s.dot,title:s.word}),el('div',{class:'tm-main'},el('b',{},n.name),about?el('span',{class:'tm-why'},about):null,
+      termCmd(n.drained?'Undrain':'Drain','agentd server workers '+(n.drained?'undrain ':'drain ')+n.name)),
+    el('span',{class:'tm-fig'},s.word,s.why?el('span',{class:'tm-why'},s.why):null),nodeLoad(n),
+    el('span',{class:'tm-fig','data-node-version':ver||null,title:ver?'The release this node\'s agentd worker reports'+(NODES.serverVersion?'; the server runs '+NODES.serverVersion:''):'This node\'s worker reports no release (an older agentd)'},ver||'release unknown',
+      older?el('span',{class:'tm-flag','data-older':'',title:'Older than the server\'s '+NODES.serverVersion+': upgrade agentd on this node (agentd upgrade)'},' older release'):null),
+    n.mirrored?el('span',{class:'tm-fig',title:n.mirrored},'mirrored '+whenText(n.mirrored)):null,
+    el('span',{class:'tm-fig',title:n.seen||''},n.seen_ago?'seen '+n.seen_ago+' ago':'never seen'))}
+function deviceRow(v){const revoked=v.state==='revoked',seen=v.last_seen?whenText(v.last_seen):'',made=v.created?whenText(v.created):'';
+  const about=[(v.kind||'unknown kind')+' device',v.label?v.id:'',v.worker?'worker '+v.worker:''].filter(Boolean).join(' · ');
+  return el('div',{class:'tm-row tm-device','data-device':v.id,'data-device-kind':v.kind||'','data-device-state':v.state||''},el('span',{class:'dot '+(revoked?'stale':'idle'),title:revoked?'revoked':'active'}),
+    el('div',{class:'tm-main'},el('b',{},v.label||v.id),el('span',{class:'tm-why'},about),revoked?null:termCmd('Revoke','agentd server devices revoke '+v.id)),
+    el('span',{class:'tm-fig'},revoked?'revoked':'active',revoked&&(v.revoked||v.revoked_by)?el('span',{class:'tm-why',title:v.revoked||''},[v.revoked?whenText(v.revoked):'',v.revoked_by?'by '+v.revoked_by:''].filter(Boolean).join(' ')):null),
+    el('span',{class:'tm-fig',title:v.created||''},made?'created '+made:'created at an unknown time'),
+    el('span',{class:'tm-fig',title:v.last_seen||''},seen?'seen '+seen:'never seen'))}
+function nodesBody(){if(!DEVICES.at)devicesLoad();if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
+  const who=x=>x.person===null||x.person===undefined||x.person===''?'':String(x.person),groups=new Map(),add=(p,k,x)=>{if(!groups.has(p))groups.set(p,{nodes:[],devices:[]});groups.get(p)[k].push(x)};
+  const devices=DEVICES.data||[];for(const n of NODES.data)add(who(n),'nodes',n);for(const v of devices)add(who(v),'devices',v);
+  const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),active=(a,b)=>(a.state==='revoked')-(b.state==='revoked');
+  const sec=(key,label,g)=>el('section',{'data-node-group':key},...teamSec(label,g.nodes.length+g.devices.length,[...g.nodes.sort(byName).map(nodeRow),...g.devices.slice().sort(active).map(deviceRow)]));
+  const out=[el('p',{class:'mute tm-intro'},'Nodes running agentd worker against this server, then the devices enrolled, under the person each belongs to; Server is dedicated workers an owner enrolled. Read only: draining and revoking stay at the server\'s terminal, and each row shows its command.'+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':''))];
+  if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'Devices: yours only; an owner sees everyone\'s.'));
+  if(DEVICES.err)out.push(el('p',{class:'mute tm-intro','data-devices-note':'error',role:'alert'},'Devices could not load: '+DEVICES.err));
+  else if(DEVICES.missing)out.push(el('p',{class:'mute tm-intro','data-devices-note':'missing'},'This server does not list devices (an older agentd); agentd server devices does, at its terminal.'));
+  for(const p of [...groups.keys()].filter(Boolean).sort())out.push(sec(p,p,groups.get(p)));if(groups.has(''))out.push(sec('Server','Server',groups.get('')));
+  if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when agentd worker starts against this server.'));return out}
 // end:nodes
 // region:presence
 /* Who is on what (agentd-core#849), read only, from GET /api/presence: every
@@ -2186,7 +2220,7 @@ function teamRoleTool(r,lists){return r.tool||(lists||{}).default_tool||''}
 // its list's tab, and #team itself is Repositories, as the design has it.
 function teamTab(r){r=r||ROUTE;const t=teamTarget(r);if(t)return t.kind==='role'?'roles':t.kind==='member'?'members':'host';const g=r.rest&&r.rest[0];return g==='working'?'':['roles','members','host','nodes','who'].includes(g)?g:'repositories'}
 function teamTabs(){const l=TEAM.lists,tab=teamTab(),n=v=>v===undefined||v===null?'':String(v);
-  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host',''],['nodes','Nodes',NODES.data?NODES.data.length:''],['who','Who is on what',PRESENCE.data?PRESENCE.data.sessions.length:'']];
+  const tabs=[['repositories','Repositories',REPOS.data?(REPOS.data.repositories||[]).length:''],['members','Members',l?(l.members||[]).length:''],['roles','Roles',l?(l.roles||[]).length:''],['host','Sessions on this host',''],['nodes','Nodes and devices',NODES.data?NODES.data.length+(DEVICES.data||[]).length:''],['who','Who is on what',PRESENCE.data?PRESENCE.data.sessions.length:'']];
   if(!REPOS.data&&!REPOS.err&&reposStale())reposLoad();
   teamKeep($('team-tabs'),tabs.map(([k,name,c])=>el('a',{href:'#team/'+k,'data-tk':'tab-'+k,'data-tab':k,'aria-current':tab===k?'page':null},name,n(c)!==''?el('span',{class:'n'},n(c)):null)))}
 
@@ -3707,7 +3741,17 @@ function homeView(d,app){const m=homeModel(d,HOME),sfx=app?'-app':'',opt=(v,labe
       xs.length?el('ul',{class:'home-rows'},xs.slice(0,HOME_CAP).map(i=>homeRow(i,app))):el('p',{class:'home-empty'},filtered?'Nothing here matches these filters.':'Nothing here.'),
       xs.length>HOME_CAP?more(key,xs.length):null)}));
   const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:'#issues?'+new URLSearchParams({view:'all',layout:'board',column:'todo',...(HOME.project?{project:HOME.project}:{})})},'See them in Tasks')):null;
-  return [bar,groups,note].filter(Boolean)}
+  return [homeWorkers(d),bar,groups,note].filter(Boolean)}
+// homeWorkers: one line of the team server's worker nodes by state, from /api/dash's nodes
+// (the cards counted by count_as, libraos/agentd-core#900), linked to Team > Nodes and devices
+// and marked when a node is offline. Nothing where the snapshot has no nodes (agentd app, an
+// older server, a dash that is not a team server).
+function homeWorkers(d){const c=d&&d.nodes;if(!c||typeof c!=='object')return null;const num=k=>Math.max(0,Number(c[k])||0),off=num('offline');
+  const parts=[num('idle')+' idle',num('busy')+' busy',num('drained')+' drained'];for(const [k,w] of [['offline','offline'],['not_accepting','not accepting'],['not_ready','not ready']])if(num(k))parts.push(num(k)+' '+w);
+  const text=num('total')||parts.some(x=>!/^0 /.test(x))?'Workers: '+parts.join(' · '):'Workers: none connected';
+  return el('p',{class:'home-workers'+(off?' off':''),'data-home-workers':'','data-offline':off?String(off):null},
+    el('a',{href:'#team/nodes',title:'Worker nodes on this server, in Team > Nodes and devices'},text),
+    off?el('span',{class:'home-workers-off',role:'status'},(off===1?'A node is':off+' nodes are')+' offline'):null)}
 function homeDraw(){if(APP.on||ROUTE.item!=='home'||!lastDash)return;const box=$('home-body'),a=document.activeElement,keep=a&&box.contains(a)&&a.id?a.id:'';
   box.replaceChildren(...homeView(lastDash,false));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
 dashPage('home',{title:'Home',panel:false,agents:false,enter(r){homeRead(r.params);homeDraw();if(lastDash&&!APP.on)loadIssues()},

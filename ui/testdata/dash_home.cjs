@@ -73,6 +73,19 @@ const hashParams=w=>new URLSearchParams(w.location.hash.split('?')[1]||'');
   // Home writes nothing.
   assert(!root.querySelector('[data-write],form'),'Home has an action');
   dom.window.close()}
+ // Workers (libraos/agentd-core#900): one line of node counts by state from /api/dash's nodes,
+ // linked to Team > Nodes and devices, marked when one is offline; none without nodes.
+ {const hits=[];let nodes={total:3,idle:2,busy:0,drained:1,offline:0,not_accepting:0,not_ready:0};
+  const dom=page('http://127.0.0.1:21620/#home',()=>({...snap,nodes}),hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
+  const line=()=>doc.querySelector('#home-body [data-home-workers]');assert(line(),'Home has no workers line');
+  assert.equal(line().querySelector('a').textContent,'Workers: 2 idle · 0 busy · 1 drained');assert.equal(line().querySelector('a').getAttribute('href'),'#team/nodes');
+  assert(!line().dataset.offline&&!line().querySelector('.home-workers-off'),'marked offline with none offline');
+  nodes={total:4,idle:1,busy:1,drained:1,offline:1,not_accepting:0,not_ready:0};w.eval('refresh()');await settle();
+  assert.equal(line().querySelector('a').textContent,'Workers: 1 idle · 1 busy · 1 drained · 1 offline');
+  assert.equal(line().dataset.offline,'1');assert(line().classList.contains('off'));assert.equal(line().querySelector('.home-workers-off').textContent,'A node is offline');
+  nodes={total:0,idle:0,busy:0,drained:0,offline:0,not_accepting:0,not_ready:0};w.eval('refresh()');await settle();assert.equal(line().querySelector('a').textContent,'Workers: none connected');
+  dom.window.close()}
+ {const dom=page('http://127.0.0.1:21620/#home',()=>snap,[]);await settle();assert(!dom.window.document.querySelector('[data-home-workers]'),'a workers line without nodes in the snapshot');dom.window.close()}
  // A reload with filters in the address keeps them; a viewer sees the same page, read only.
  {const hits=[],viewer={...snap,role:'viewer'},dom=page('http://127.0.0.1:21620/#home?by=person%3Abob&project=acme%2Fapp',()=>viewer,hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
   const root=doc.getElementById('home-body');assert.equal(root.querySelector('select[data-home-filter="by"]').value,'person:bob');assert.equal(root.querySelector('select[data-home-filter="project"]').value,'acme/app');
