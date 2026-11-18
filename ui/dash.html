@@ -4048,9 +4048,15 @@ function ovServer(d){const s=d.server||{},lat=s.latency||{},h=s.host||{},cpu=ovN
     ['API latency',ovNum(lat.p50_ms)!==null?'p50 '+Math.round(lat.p50_ms)+' ms · p95 '+Math.round(ovNum(lat.p95_ms)||0)+' ms':'no requests','Over the dash’s API requests of the last '+Math.round((ovNum(lat.window_s)||300)/60)+' minutes'+(ovNum(lat.requests)!==null?': '+lat.requests:''),'latency'],
     ['Host CPU',cpu!==null?Math.round(cpu)+'%'+(ovNum(h.cpus)!==null?' of '+h.cpus+' cores':''):'not readable','1-minute load over cores'+(ovNum(h.load1)!==null?' (load '+h.load1+')':''),'cpu'],
     ['Host memory',mem!==null?Math.round(mem)+'% used'+(total!==null?' of '+(total/1024).toFixed(1)+' GB':''):'not readable','','mem']]}
-function ovTasks(d){const t=d.tasks||{},n=k=>ovNum(t[k])!==null?String(t[k]):null;
-  return [['Running',n('running'),'Claimed with a worker on it','running'],['Queued',n('queued'),'Offered, waiting for a worker','queued'],['Blocked',n('blocked'),'Waiting on other tasks','blocked'],
-    ['Waiting on a person',n('waiting_person'),'A worker waits on a prompt or a question, or the task is parked','waiting'],['Approvals pending',n('approvals_pending'),'','approvals'],['Finished today',n('finished_today'),t.day_since?'Done since '+t.day_since:'','finished']]}
+// ovTasks: each count is this server's own tasks plus those devices mirror (#936), split
+// under it when hosts mirror any; a host not heard from lately has its open tasks shown apart, as stale.
+function ovTasks(d){const t=d.tasks||{},sp=t.split||{},own=sp.server||{},hs=sp.hosts||{},st=sp.hosts_stale||{},mirrored=Array.isArray(t.hosts)&&t.hosts.length>0,
+    staleHosts=(t.hosts||[]).filter(h=>h.stale).map(h=>h.node+(h.mirrored?' (last mirrored '+h.mirrored+')':'')).join(', ');
+  const n=k=>{if(ovNum(t[k])===null)return null;if(!mirrored)return String(t[k]);const old=ovNum(st[k])||0;
+    return el('span',{'data-ov-split':k},String(t[k]),el('span',{class:'tm-why'},' '+(ovNum(own[k])||0)+' here · '+(ovNum(hs[k])||0)+' on devices'+(old?' · '+old+' stale':'')))};
+  const why=(base,k)=>base+(mirrored?(base?'. ':'')+'This server’s own tasks and those mirrored from devices'+((ovNum(st[k])||0)?'; stale: from hosts not heard from lately, not counted ('+staleHosts+')':''):'');
+  return [['Running',n('running'),why('Claimed with a worker on it','running'),'running'],['Queued',n('queued'),why('Offered, waiting for a worker','queued'),'queued'],['Blocked',n('blocked'),why('Waiting on other tasks','blocked'),'blocked'],
+    ['Waiting on a person',n('waiting_person'),why('A worker waits on a prompt or a question, or the task is parked','waiting_person'),'waiting'],['Approvals pending',ovNum(t.approvals_pending)!==null?String(t.approvals_pending):null,'','approvals'],['Finished today',n('finished_today'),why(t.day_since?'Done since '+t.day_since:'','finished_today'),'finished']]}
 function ovAgents(d){const a=d.agents||{},nodes=a.nodes||{},c=k=>Math.max(0,ovNum(nodes[k])||0),per=Array.isArray(a.sessions_per_person)?a.sessions_per_person:[];
   const nodeText=ovNum(a.nodes_total)===0?'none connected':[c('idle')+' idle',c('busy')+' busy',c('not_ready')+' not ready',c('offline')+' offline'].join(' · ');
   return [['Nodes',nodeText,'Offline: not seen for 5 minutes','nodes'],['Leases',ovNum(a.leases)!==null?a.leases+' of '+(ovNum(a.capacity)||0):null,'Leases and the nodes’ own workers, of the capacity of nodes not offline','leases'],
@@ -4066,12 +4072,12 @@ function ovState(r){if(r.parked)return 'parked';const s=r.worker_state||'running
 function ovRunning(){const rs=RUNNING.data.running,cols=['Task','User','Project','Node','Tool and model','Elapsed','Spend','State'];
   if(!rs.length)return el('div',{class:'empty','data-ov-empty':''},'Nothing is running now.');
   return el('div',{class:'working-table ov-table'},el('table',{},el('thead',{},el('tr',{},cols.map(c=>el('th',{scope:'col'},c)))),
-    el('tbody',{},rs.map(r=>{const href='#issues/'+encodeURIComponent(r.id),warn=r.parked||r.worker_state&&r.worker_state!=='running';
+    el('tbody',{},rs.map(r=>{const href='#issues/'+encodeURIComponent(r.id),warn=r.stale||r.parked||r.worker_state&&r.worker_state!=='running';
       const cell=(i,v,title)=>el('td',{'data-label':cols[i],title:title||null},v===null||v===undefined||v===''?'—':v);
-      return el('tr',{'data-running':r.id,onclick:e=>{if(!e.target.closest('a'))location.hash=href}},
+      return el('tr',{'data-running':r.id,'data-running-host':r.where==='host'?r.node:null,onclick:e=>{if(!e.target.closest('a'))location.hash=href}},
         cell(0,el('a',{href,title:r.goal||r.id},r.goal||r.id)),cell(1,r.person),cell(2,r.project?shortProject(r.project):'',r.project),
-        cell(3,r.node?r.node+(r.where==='local'?' (this host)':''):''),cell(4,[toolName(r.tool),r.model].filter(Boolean).join(' · ')),
-        cell(5,ovElapsed(r),r.started?'Started '+r.started:''),cell(6,ovSpend(r)),cell(7,el('span',{class:warn?'ov-warn':null},ovState(r))))}))))}
+        cell(3,r.node?el('span',{},r.node+(r.where==='local'?' (this host)':''),r.where==='host'?el('span',{class:'host-tag',title:'Mirrored from device '+r.node+(r.host_person?' ('+r.host_person+')':'')+'; read only here'+(r.mirrored?'; last mirrored '+r.mirrored:'')},r.stale?' device · stale':' device'):null):''),cell(4,[toolName(r.tool),r.model].filter(Boolean).join(' · ')),
+        cell(5,ovElapsed(r),r.started?'Started '+r.started:''),cell(6,ovSpend(r)),cell(7,el('span',{class:warn?'ov-warn':null},r.stale?'as of '+(r.mirrored||'its last mirror'):ovState(r))))}))))}
 // ovNeeds: Needs a person (#907): the Tasks card's two numbers, waiting on a person and
 // approvals pending (/api/load), then the tasks behind the first, from what this page already
 // has: the running tasks a worker waits on (a prompt, an answer) or parked, and the snapshot's
