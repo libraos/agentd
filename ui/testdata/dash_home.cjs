@@ -1,5 +1,5 @@
-// The landing page (libraos/agentd-core#850): Home groups the team's tasks into Working,
-// Needs you, Blocked, Ready to review and Done (recent), each a count and a short list, from
+// The landing page (libraos/agentd-core#850): Home groups the team's tasks into Working, Needs attention (team),
+// Waiting on another task, Review and validation and Closed recently, each a count and a short list, from
 // issueItems, the list Tasks draws, so the counts match Tasks' columns. Each row opens its task.
 // Created by (people, and services or triggers by source) and project narrow every group and
 // are the address (#home?by=...&project=...), so a reload keeps them. It is the default landing
@@ -46,7 +46,7 @@ const hashParams=w=>new URLSearchParams(w.location.hash.split('?')[1]||'');
   assert(!doc.getElementById('page-home').hidden,'a bare address does not land on Home');assert.equal(doc.querySelector('.rail-item[aria-current="page"]').dataset.rail,'home');
   assert.equal(doc.querySelector('#page-title').textContent,'Home');
   const root=doc.getElementById('home-body');
-  assert.deepEqual([...root.querySelectorAll('[data-home-group]')].map(g=>g.querySelector('h3').textContent),['Working','Needs you','Blocked','Ready to review','Done (recent)']);
+  assert.deepEqual([...root.querySelectorAll('[data-home-group]')].map(g=>g.querySelector('h3').textContent),['Working','Needs attention (team)','Waiting on another task','Review and validation','Closed recently']);
   assert.deepEqual(groupIds(root,'working'),['hof-work']);assert.deepEqual(groupIds(root,'needs'),['hof-need']);assert.deepEqual(groupIds(root,'blocked'),['hof-blk']);
   assert.deepEqual(groupIds(root,'review'),['hof-rev']);assert.deepEqual(groupIds(root,'done').sort(),['hof-bdone','hof-done']);
   assert.equal(count(root,'done'),'2');assert.equal(root.querySelector('[data-home-todo]').dataset.homeTodo,'1','To do is not named under the groups');

@@ -415,7 +415,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .usage-group{display:flex;align-items:center;gap:12px;margin:16px 0 8px;font-size:12px;color:var(--mute)}.runs .runs{border:0;padding:0}.runs table pre{max-width:100%;white-space:pre-wrap}#page-metrics #metrics{padding-top:16px}.hfilter #h-failed[aria-pressed="true"]{background:var(--sel);color:var(--fg);border-color:var(--edge)}
 /* end:css-insights */
 /* region:css-insights-overview: Insights > Metrics' four cards, outcomes per week, failure classes and the table by agent and model (#485) */
-.ins-head{padding:0 0 10px}.host-tag{border:1px solid var(--line);border-radius:4px;font-size:11px;margin-left:6px;padding:0 4px;white-space:nowrap}#ins-head #ins-scope{margin-left:auto}#ins-head #ins-scope~#ins-period{margin-left:10px}.ins-head .mrange{margin-left:auto}
+.ins-head{padding:0 0 10px}.host-tag{border:1px solid var(--line);border-radius:4px;font-size:11px;margin-left:6px;padding:0 4px;white-space:nowrap}.ins-scope{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:0 0 12px;font-size:var(--fs-s)}.ins-scope label{font-weight:600}.pr-scope{font-size:var(--fs-s);margin-left:8px}.ins-head .mrange{margin-left:auto}
 .ins-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
 .ins-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .ins-card .ins-label,.ins-card .ins-note{font-size:12px;color:var(--mute)}.ins-card b{font-size:22px;font-weight:500;line-height:1.2;font-variant-numeric:tabular-nums}.ins-card b.ins-none{font-size:15px;color:var(--mute);font-weight:400}
@@ -1387,8 +1387,10 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 </div>
 <div id="page-metrics" class="page" hidden>
   <!-- Metrics, Usage and History as tabs. Their home is Metrics' head, the default view, so the row is inside a page and hidden with it until Insights shows; insightsTabs moves it to the top of the view shown (beside Metrics' period picker). Outside every page it showed on Tasks before the first snapshot. -->
-  <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav><select id="ins-scope" aria-label="Whose work" title="Work leased through this server, or members' own hosts mirrored here"><option value="">All work</option><option value="server">Leased through this server</option><option value="hosts">Members' own hosts</option></select><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
+  <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/usage" data-tab="usage">Usage</a><a href="#insights/history" data-tab="history">History</a></nav><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
   <section class="ins-overview" id="ins-overview" aria-label="Outcomes of dispatched tasks">
+    <!-- Whose work (#848) sits beside what it narrows (libraos/agentd-core#904): insightsTabs moves it to the top of Usage and History too. -->
+    <div class="ins-scope" id="ins-scope-box" data-scope-box><label for="ins-scope">Whose work</label><select id="ins-scope" title="Work leased through this server, or members' own hosts mirrored here"><option value="">All work</option><option value="server">Leased through this server</option><option value="hosts">Members' own hosts</option></select><span class="mute" id="ins-scope-note"></span></div>
     <div class="ins-cards" id="ins-cards"></div>
     <div class="ins-cols">
       <section class="runs" aria-labelledby="ins-weeks-h"><div class="colhead"><h2 id="ins-weeks-h">Outcomes per week</h2><span class="n">A bar opens the finished tasks behind it</span></div><div id="ins-weeks"></div></section>
@@ -1396,10 +1398,10 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     </div>
     <section class="runs" aria-labelledby="ins-agents-h"><div class="colhead"><h2 id="ins-agents-h">By agent and model</h2></div><div id="ins-agents"></div></section>
   </section>
-  <section class="runs" id="metrics" aria-label="PR metrics" hidden><div class="colhead"><h2>PR metrics</h2><span class="n" id="n-metrics">0</span></div><div id="m-body"></div></section>
+  <section class="runs" id="metrics" aria-label="PR metrics" hidden><div class="colhead"><h2>PR metrics</h2><span class="mute pr-scope" data-pr-scope>PR ledger · not filtered by host</span><span class="n" id="n-metrics">0</span></div><div id="m-body"></div></section>
   <section class="runs" id="now-box" aria-label="Right now"><div class="colhead"><h2>Right now</h2></div><div class="mtiles" id="now-tiles"></div></section>
   <section class="runs" id="factory" aria-label="Factory report" hidden><div class="colhead"><h2>Factory</h2><span class="n" id="n-factory">0</span></div><div id="f-body"></div></section>
-  <section class="runs" id="bench" aria-label="Bench rounds" hidden><div class="colhead"><h2>Bench rounds</h2><span class="n" id="n-bench">0</span></div><div id="b-body"></div><div id="b-pick" class="bpickbar" hidden></div><div id="b-compare" class="bround" hidden></div><div id="b-round" class="bround" hidden></div></section>
+  <section class="runs" id="bench" aria-label="Bench rounds" hidden><div class="colhead"><h2>Bench rounds</h2><span class="mute pr-scope" data-bench-scope>Bench rounds · not filtered by host</span><span class="n" id="n-bench">0</span></div><div id="b-body"></div><div id="b-pick" class="bpickbar" hidden></div><div id="b-compare" class="bround" hidden></div><div id="b-round" class="bround" hidden></div></section>
   <section class="runs" id="runs" aria-label="Latest runs" hidden><div class="colhead"><h2>Latest runs</h2><span class="n" id="n-runs">0</span></div><div class="tablewrap phone-rows"><table><thead><tr><th>Project and arm</th><th>Status</th><th class="num">Checks</th><th class="num">Min</th><th class="num">$</th><th>Failure step</th><th>Started</th></tr></thead><tbody id="t-runs"></tbody></table></div></section>
 </div>
 <div id="page-usage" class="page" hidden>
@@ -1810,8 +1812,8 @@ function dashPage(name,def){PAGES[name]=def}
 function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'home').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
   const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='home'&&rest.length>0||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
-function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
-function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
+function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());if(BY)p.set('by',BY);routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
+function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';BY=/^(person|source):./.test(p.get('by')||'')?p.get('by'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
 function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.replaceState(null,'','#'+ALIASES[raw]);
   const r=parseRoute(location.hash),def=PAGES[r.item],moved=r.item!==ROUTE.item||r.view!==ROUTE.view,pageId=r.view||def.pageId||r.item,path='#'+r.item+(r.view?'/'+r.view:'');if(moved&&PAGES[ROUTE.item]?.leave)PAGES[ROUTE.item].leave();ROUTE=r;
   setPanel(false);$('account').open=false;
@@ -2061,18 +2063,31 @@ function stats(d){
    each person their nodes, then their devices, Server last. Loaded with the dash's
    refresh (Team's render). Enrolling, draining and revoking stay at the terminal:
    each row shows its command, never a button. */
-const NODES={data:null,err:'',at:0,req:0,serverVersion:null};
-const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0};
+const NODES={data:null,err:'',at:0,req:0,serverVersion:null,okAt:0,user:null};
+const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0,okAt:0,user:null};
+/* A polled feed's freshness (libraos/agentd-core#904): okAt is the last good read and
+   user the signed-in person it was read for. feedOk records a good read; feedFail keeps
+   the rows of a failed one (feedStale then says so, with Retry) unless the answer was
+   401 or 403, which drops them: what was readable then is not readable now. feedFresh
+   drops rows read for another person. HTTP errors carry their status. */
+function httpErr(r){const e=new Error('HTTP '+r.status);e.status=r.status;return e}
+function feedOk(F){F.err='';F.okAt=Date.now();F.user=USER}
+function feedFail(F,e){F.err=e&&e.message||'could not load';if(e&&(e.status===401||e.status===403)){F.data=null;F.okAt=0;F.user=null}}
+function feedFresh(F){if(F.data&&F.user!==null&&F.user!==USER){F.data=null;F.okAt=0;F.user=null}return F.data}
+function feedIsStale(F){return !!(F.err&&F.data&&F.okAt)}
+function feedStale(F,key,retry){if(!feedIsStale(F))return null;const at=new Date(F.okAt);
+  return el('div',{class:'state error feed-stale',role:'alert','data-feed-stale':key,title:F.err},el('span',{},'Couldn\u2019t refresh · last updated '+at.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Ages below are as of then.'),
+    el('button',{type:'button',onclick:retry},'Retry'))}
 function nodesTabShown(){return ROUTE.item==='team'&&teamTab()==='nodes'}
 function nodesLoad(){const req=++NODES.req;NODES.at=Date.now();
-  fetch('/api/nodes',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.serverVersion=j&&typeof j.server_version==='string'&&j.server_version?j.server_version:null;NODES.err=''},e=>{if(req!==NODES.req)return;NODES.err=e.message||'could not load'})
+  fetch('/api/nodes',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.serverVersion=j&&typeof j.server_version==='string'&&j.server_version?j.server_version:null;feedOk(NODES)},e=>{if(req!==NODES.req)return;feedFail(NODES,e)})
     .then(()=>{if(req!==NODES.req)return;nodesAccount();if(nodesTabShown())teamDraw()})}
 function devicesLoad(){const req=++DEVICES.req;DEVICES.at=Date.now();
-  fetch('/api/devices',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(j=>{if(req!==DEVICES.req)return;DEVICES.err='';DEVICES.missing=j===null;DEVICES.data=j&&Array.isArray(j.devices)?j.devices:[];DEVICES.scope=j&&typeof j.scope==='string'?j.scope:''},e=>{if(req!==DEVICES.req)return;DEVICES.err=e.message||'could not load'})
+  fetch('/api/devices',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==DEVICES.req)return;feedOk(DEVICES);DEVICES.missing=j===null;DEVICES.data=j&&Array.isArray(j.devices)?j.devices:[];DEVICES.scope=j&&typeof j.scope==='string'?j.scope:''},e=>{if(req!==DEVICES.req)return;feedFail(DEVICES,e)})
     .then(()=>{if(req!==DEVICES.req)return;if(nodesTabShown())teamDraw()})}
-function nodesPoll(){if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if(nodesTabShown()&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
+function nodesPoll(){feedFresh(NODES);feedFresh(DEVICES);if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if(nodesTabShown()&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
 // nodeState: one word for a node, the first that holds: drained, offline, not
 // accepting server work, busy, not ready (cannot commit), idle.
 function nodeState(n){const word=n.drained?'drained':n.offline?'offline':n.accept_server_work===false?'not accepting':n.state==='busy'?'busy':n.state==='not_ready'?'not ready':'idle';
@@ -2085,7 +2100,7 @@ function nodeOlder(n,server){const a=releaseParts(n&&n.version),b=releaseParts(s
 function nodeLoad(n){return el('span',{class:'tm-fig',title:'Server leases running of its capacity (--max)'+(n.local_workers?'; '+n.local_workers+' started on the node itself':'')},(n.leases||0)+'/'+(n.capacity||1))}
 function nodesAccount(){const box=$('account-nodes');if(!box)return;box.hidden=!USER;if(!USER){box.replaceChildren();return}
   const mine=(NODES.data||[]).filter(n=>n.person===USER).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
-  box.replaceChildren(el('b',{},'Your nodes'),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Nodes could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
+  box.replaceChildren(el('b',{},'Your nodes'),...(feedIsStale(NODES)?[el('span',{class:'mute','data-feed-stale':'account-nodes',title:NODES.err},'Couldn\u2019t refresh · last updated '+new Date(NODES.okAt).toLocaleTimeString())]:[]),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Nodes could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
     return el('a',{href:'#team/nodes','data-node':n.name,title:s.why||s.word,onclick:()=>{$('account').open=false}},el('span',{class:'dot '+s.dot}),' ',n.name,el('span',{class:'tm-why'},s.word+' · '+(n.leases||0)+'/'+(n.capacity||1)))}):[el('span',{class:'mute'},NODES.data?'No nodes yet':'Loading…')]))}
 function termCmd(label,cmd){return el('span',{class:'tm-why tm-cmd'},label+' at the server: ',el('code',{},cmd))}
 function nodeRow(n){const s=nodeState(n),about=[n.kind,n.host,(n.tools||[]).join(', '),(n.repos||[]).join(', ')].filter(Boolean).join(' · ');
@@ -2104,14 +2119,16 @@ function deviceRow(v){const revoked=v.state==='revoked',seen=v.last_seen?whenTex
     el('span',{class:'tm-fig'},revoked?'revoked':'active',revoked&&(v.revoked||v.revoked_by)?el('span',{class:'tm-why',title:v.revoked||''},[v.revoked?whenText(v.revoked):'',v.revoked_by?'by '+v.revoked_by:''].filter(Boolean).join(' ')):null),
     el('span',{class:'tm-fig',title:v.created||''},made?'created '+made:'created at an unknown time'),
     el('span',{class:'tm-fig',title:v.last_seen||''},seen?'seen '+seen:'never seen'))}
-function nodesBody(){if(!DEVICES.at)devicesLoad();if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
+function nodesBody(){if(!DEVICES.at)devicesLoad();feedFresh(NODES);feedFresh(DEVICES);if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
   const who=x=>x.person===null||x.person===undefined||x.person===''?'':String(x.person),groups=new Map(),add=(p,k,x)=>{if(!groups.has(p))groups.set(p,{nodes:[],devices:[]});groups.get(p)[k].push(x)};
   const devices=DEVICES.data||[];for(const n of NODES.data)add(who(n),'nodes',n);for(const v of devices)add(who(v),'devices',v);
   const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),active=(a,b)=>(a.state==='revoked')-(b.state==='revoked');
   const sec=(key,label,g)=>el('section',{'data-node-group':key},...teamSec(label,g.nodes.length+g.devices.length,[...g.nodes.sort(byName).map(nodeRow),...g.devices.slice().sort(active).map(deviceRow)]));
   const out=[el('p',{class:'mute tm-intro'},'Nodes running agentd worker against this server, then the devices enrolled, under the person each belongs to; Server is dedicated workers an owner enrolled. Read only: draining and revoking stay at the server\'s terminal, and each row shows its command.'+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':''))];
+  const ns=feedStale(NODES,'nodes',()=>{nodesLoad();devicesLoad()});if(ns)out.push(ns);
   if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'Devices: yours only; an owner sees everyone\'s.'));
-  if(DEVICES.err)out.push(el('p',{class:'mute tm-intro','data-devices-note':'error',role:'alert'},'Devices could not load: '+DEVICES.err));
+  if(feedIsStale(DEVICES)){const n=feedStale(DEVICES,'devices',devicesLoad);n.dataset.devicesNote='error';out.push(n)}
+  else if(DEVICES.err)out.push(el('p',{class:'mute tm-intro','data-devices-note':'error',role:'alert'},'Devices could not load: '+DEVICES.err));
   else if(DEVICES.missing)out.push(el('p',{class:'mute tm-intro','data-devices-note':'missing'},'This server does not list devices (an older agentd); agentd server devices does, at its terminal.'));
   for(const p of [...groups.keys()].filter(Boolean).sort())out.push(sec(p,p,groups.get(p)));if(groups.has(''))out.push(sec('Server','Server',groups.get('')));
   if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when agentd worker starts against this server.'));return out}
@@ -2124,12 +2141,12 @@ function nodesBody(){if(!DEVICES.at)devicesLoad();if(NODES.err&&!NODES.data)retu
    what it holds; a record another session also holds (one issue, one branch,
    a path inside another) is marked Shared with the others named. Grouped by
    person. A session drops out when its records lapse (the lease rule), not here. */
-const PRESENCE={data:null,err:'',at:0,req:0};
+const PRESENCE={data:null,err:'',at:0,req:0,okAt:0,user:null};
 function presenceLoad(){const req=++PRESENCE.req;PRESENCE.at=Date.now();
-  fetch('/api/presence',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(j=>{if(req!==PRESENCE.req)return;PRESENCE.data=j&&typeof j==='object'?{...j,sessions:Array.isArray(j.sessions)?j.sessions:[]}:{sessions:[]};PRESENCE.err=''},e=>{if(req!==PRESENCE.req)return;PRESENCE.err=e.message||'could not load'})
+  fetch('/api/presence',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==PRESENCE.req)return;PRESENCE.data=j&&typeof j==='object'?{...j,sessions:Array.isArray(j.sessions)?j.sessions:[]}:{sessions:[]};feedOk(PRESENCE)},e=>{if(req!==PRESENCE.req)return;feedFail(PRESENCE,e)})
     .then(()=>{if(req!==PRESENCE.req)return;if(ROUTE.item==='team'&&teamTab()==='who')teamDraw()})}
-function presencePoll(){if(ROUTE.item==='team'&&teamTab()==='who'&&Date.now()-PRESENCE.at>8000)presenceLoad()}
+function presencePoll(){feedFresh(PRESENCE);if(ROUTE.item==='team'&&teamTab()==='who'&&Date.now()-PRESENCE.at>8000)presenceLoad()}
 function presenceWho(o){return (o.user||'someone')+' on '+(o.node||'?')+' ('+o.session+')'}
 // presenceRes: a record's name as a person reads it: the issue, the branch
 // (repository@branch), the path in its repository, a directory.
@@ -2139,15 +2156,16 @@ function presenceItems(label,kind,list){if(!list||!list.length)return null;
   return el('div',{class:'pr-items','data-presence-kind':kind},el('span',{class:'tm-why'},label+': '),...list.map((x,i)=>{const shared=x.others&&x.others.length;
     return el('span',{class:'pr-item'+(shared?' pr-shared':''),'data-shared':shared?'':null,title:String(x.resource||'')+(shared?'\nalso held by '+x.others.map(presenceWho).join(', '):'')},i?', ':'',presenceRes(x),x.mode==='exclusive'?' (exclusive)':'',x.state?' ('+x.state+')':'',
       shared?el('b',{class:'pr-flag'},' shared with '+x.others.map(o=>(o.user||'someone')+' on '+(o.node||'?')).join(', ')):null)}))}
-function presenceRow(p){const about=[p.node,toolName(p.tool||'')||p.tool,p.local?'this host':''].filter(Boolean).join(' · ');
-  return el('div',{class:'tm-row pr-row'+(p.overlaps?' pr-overlap':''),'data-presence':p.session},el('span',{class:'dot '+(p.overlaps?'stale':'busy'),title:p.overlaps?'shares an issue or path with another session':'live'}),
+function presenceRow(p){const old=feedIsStale(PRESENCE),about=[p.node,toolName(p.tool||'')||p.tool,p.local?'this host':''].filter(Boolean).join(' · ');
+  return el('div',{class:'tm-row pr-row'+(p.overlaps?' pr-overlap':''),'data-presence':p.session},el('span',{class:'dot '+(p.overlaps?'stale':'busy'),title:old?'as of the last read':p.overlaps?'shares an issue or path with another session':'live'}),
     el('div',{class:'tm-main'},el('b',{},p.activity||(p.handoff?p.handoff:'no activity stated')),el('span',{class:'tm-why'},about),
       p.issue?el('span',{class:'tm-why','data-presence-issue':''},'issue '+p.issue):null,
       presenceItems('Issues','issues',p.issues),presenceItems('Checkouts','trees',p.trees),presenceItems('Claims','claims',p.claims),presenceItems('Editing','files',p.files)),
     el('span',{class:'tm-fig',title:p.since||''},p.age?'on '+p.age:''),el('span',{class:'tm-fig mute'},p.session))}
-function presenceBody(){if(PRESENCE.err&&!PRESENCE.data)return [el('div',{class:'state error',role:'alert'},'Could not load who is on what: '+PRESENCE.err)];if(!PRESENCE.data)return [el('div',{class:'state'},'Loading…')];
+function presenceBody(){feedFresh(PRESENCE);if(PRESENCE.err&&!PRESENCE.data)return [el('div',{class:'state error',role:'alert'},'Could not load who is on what: '+PRESENCE.err)];if(!PRESENCE.data)return [el('div',{class:'state'},'Loading…')];
   const ss=PRESENCE.data.sessions,groups=new Map();for(const p of ss){const k=p.user||'Unknown';if(!groups.has(k))groups.set(k,[]);groups.get(k).push(p)}
   const n=PRESENCE.data.overlap_count||0,out=[el('p',{class:'mute tm-intro'},'Live sessions on every host joined to this server and on this one: what each says it is doing, its issue, checkouts, claims and the files it edits. A session leaves this list when its records lapse.'+(n?' ':''),n?el('b',{'data-overlap-count':''},n+' shared issue'+(n>1?'s or paths':' or path')):null)];
+  const st=feedStale(PRESENCE,'presence',presenceLoad);if(st)out.push(st);
   for(const k of [...groups.keys()].sort())out.push(el('section',{'data-presence-group':k},...teamSec(k,groups.get(k).length,groups.get(k).map(presenceRow))));
   if(!ss.length)out.push(el('div',{class:'empty'},'No live sessions. Sessions on joined hosts show up here as they work.'));
   if(PRESENCE.data.truncated)out.push(el('p',{class:'mute'},'Showing the most recent records only.'));return out}
@@ -3236,8 +3254,9 @@ function drawCards(d){
   // In the Needs you view a folded open PR keeps its own card: that is where it is merged or rejected.
   const onBoard=i=>!i.folded||VIEW==='needs'&&i.openPR,inView=(i,v)=>v==='all'||v==='mine'&&i.mine||v==='agents'&&i.status==='progress'||v==='needs'&&(i.status==='needs'||i.status==='failed');
   const cards=items.filter(onBoard);if(VIEW==='mine'&&!CAN()&&!cards.some(i=>inView(i,'mine'))&&!ROUTE.params.has('view')){VIEW='all';VIEW_FALLBACK=true}drawIssuePanel(projects,cards,inView);issueNote();
-  const shown=cards.filter(i=>!PROJ||i.project===PROJ).filter(i=>inView(i,VIEW)).filter(bfMatch);
-  if(drawMarks(items.filter(i=>i.mark&&(!PROJ||i.project===PROJ)&&inView(i,VIEW)&&bfMatch(i))))return;
+  const live=homeLive(d),byOK=i=>!BY||homeCreator(i,live)===BY;
+  const shown=cards.filter(i=>!PROJ||i.project===PROJ).filter(i=>inView(i,VIEW)).filter(bfMatch).filter(byOK);
+  if(drawMarks(items.filter(i=>i.mark&&(!PROJ||i.project===PROJ)&&inView(i,VIEW)&&bfMatch(i)&&byOK(i))))return;
   if(LAYOUT==='board'){drawBoard(shown);return}
   // Panels: by name, ignoring case, as the sidebar lists them; no checkout last.
   const groups=new Map();for(const i of shown){if(!groups.has(i.project))groups.set(i.project,[]);groups.get(i.project).push(i)}
@@ -3249,8 +3268,11 @@ function drawCards(d){
     const finBox=fin.length?el('details',{class:'finished','data-finished':k,open:finOpen},el('summary',{},'Finished ('+fin.length+')'),el('div',{class:'cards'},fin.map(i=>i.node))):null;if(finBox)finBox.addEventListener('toggle',()=>{try{localStorage.setItem(finKey,finBox.open?'1':'0')}catch(e){}});
     const p=el('details',{class:'proj','data-project':k,open:isOpen},el('summary',{},el('h2',{},k||'No checkout'),el('span',{class:'n',title:live.length+' open, '+fin.length+' finished'},live.length+' open'),need?el('span',{class:'n hot'},need+' need'+(need>1?'':'s')+' attention'):null),el('div',{class:'cards'},live.map(i=>i.node)),finBox);
     p.addEventListener('toggle',()=>{try{localStorage.setItem('dash-proj-'+k,p.open?'1':'0')}catch(e){}});return p});
-  board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ||BF_TEXT.trim()?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]))}
+  board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ||BY||BF_TEXT.trim()?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]))}
 /* views and filters */
+// BY: Home's Created by (person:NAME or source:NAME, homeCreator's rule), carried in by Home's
+// counted links (libraos/agentd-core#904) so Tasks shows the set Home counted.
+let BY='';
 const WF={source:'',stage:''};let VIEW_FALLBACK=false,VIEW='mine';try{VIEW=localStorage.getItem('dash-view')||'mine'}catch(e){}if(!['all','mine','agents','needs'].includes(VIEW))VIEW='all';
 let ISSUE_FILTERS_OPEN=false;let LAYOUT='board',PROJ='';try{LAYOUT=localStorage.getItem('dash-layout')==='list'?'list':'board'}catch(e){}
 // drawBoard: one column per status, each card naming its project.
@@ -3457,8 +3479,9 @@ function issueItem(it,ctx,needRows){
     el('div',{class:'kmeta'},el('code',{class:'kref',title:it.ref},num),who?whoLink(who):el('span',{},'Unassigned'),ended?el('span',{},ended):null,changeEl(hs.filter(h=>h.change).pop()),it.updated_ago?el('span',{class:'age'},it.updated_ago+' ago'):null),
     ...(needs.length?needRows(needs):[]));
   return {kind:'issue',project:it.repo,status,sid:who||'',src:it,mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
-function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ='';bfRead(new URLSearchParams());VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
-function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
+function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ=BY='';bfRead(new URLSearchParams());VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
+function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ||BY);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
+  if(BY)out.push(el('div',{class:'filter-note','data-by-filter':BY},'Only work created by '+homeByLabel(BY)+', as Home counted it. ',el('button',{type:'button',onclick:()=>{BY='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}},'Show everyone\u2019s')));
   if(VIEW_FALLBACK)out.push(el('div',{class:'filter-note'},'Showing All because nothing is assigned to you in Started by me.'));
   if(WF.source||WF.stage)out.push(el('div',{class:'filter-note'},'Source and stage apply to tasks. Standalone pull requests and sessions are hidden.'));
   if(!(lastDash||{}).dispatch&&(ROLE==='owner'||TOKEN&&!ROLE))out.push(el('div',{class:'filter-note'},'Starting work from here is off. Set ',el('code',{},'[dash] dispatch = true'),'.'));
@@ -3677,7 +3700,8 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
 // end:issues
 // region:home: the landing page (libraos/agentd-core#850). Five groups, each a count and a
-// short list: Working, Needs you, Blocked, Ready to review, Done (recent). They come from
+// short list: Working, Needs attention (team), Waiting on another task, Review and validation,
+// Closed recently. They come from
 // issueItems, the list Tasks draws (its handoffs, the day's finished ones, open PRs, issue
 // cards, sessions working with no task, mirrored member-host tasks), so the numbers agree
 // with Tasks' columns: Working is In progress, Needs you is Needs attention and Failed,
@@ -3686,10 +3710,14 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
 // Filters: created by (a person, the sender's user; or a service or trigger, the handoff's
 // source when it is not interactive or cli) and project. They narrow every group and are
 // the address, #home?by=person:NAME|source:NAME&project=OWNER/REPO, so a link or reload keeps
-// them. Read only: rows are links to the task (#issues/...); nothing here writes, so a viewer
+// them. A group's "All N in Tasks" carries both filters (Tasks reads by= with the same rule),
+// so it opens the N counted; a link to a wider list says Browse Tasks with no count.
+// Read only: rows are links to the task (#issues/...); nothing here writes, so a viewer
 // sees the same page. In agentd app (region:app) the same view is the Home page over the
 // centre, from the snapshot it already has: no new route, a task row opens the workspace.
-const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs you','A question, an approval, or a blocked, failed or stopped worker.'],['blocked','Blocked','Waiting on other tasks to finish first.'],['review','Ready to review','Finished with a pull request open, or at the review or validate stage.'],['done','Done (recent)','Finished in the last 24 hours.']],
+// Labels say whose each group is (libraos/agentd-core#904): Needs attention is the team's,
+// unlike Inbox, which is the signed-in person's alone.
+const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs attention (team)','A question, an approval, or a blocked, failed or stopped worker, whoever started it.'],['blocked','Waiting on another task','Waiting on other tasks to finish first.'],['review','Review and validation','A pull request open, or an agent at the review or validate stage.'],['done','Closed recently','Done, cancelled or declined in the last 24 hours.']],
   HOME_COLUMN={working:'progress',needs:'needs',blocked:'todo',review:'review',done:'done'},HOME_CAP=5,HOME_PERSON_SOURCES=new Set(['','interactive','cli']),HOME={by:'',project:''};
 // homeGroupOf: which of the five groups an item is in, '' for To do that waits on nothing.
 function homeGroupOf(i){const s=i.status,x=i.src||{};if(s==='needs'||s==='failed')return 'needs';if(s==='progress')return 'working';if(s==='review')return 'review';if(FINISHED.has(s))return 'done';
@@ -3699,7 +3727,8 @@ function homeCreatorOf(x){if(!x)return '';const src=x.source||'';if(!HOME_PERSON
 function homeCreator(i,live){const x=i.src||{};if(i.kind==='issue'){const h=(x.handoffs||[])[0];return h?homeCreatorOf(live.get(h.id)||h):''}if(i.kind==='session')return x.user?'person:'+x.user:'';if(i.kind==='pr')return '';return homeCreatorOf(x)}
 function homeByLabel(by){return by.startsWith('source:')?word(by.slice(7)):by.replace(/^person:/,'')}
 // homeModel: the groups under the filters, and every creator and project there is to choose.
-function homeModel(d,f){f=f||HOME;const live=new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,x])]);
+function homeLive(d){return new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,x])])}
+function homeModel(d,f){f=f||HOME;const live=homeLive(d);
   const items=issueItems(d,true).filter(i=>!i.folded),people=new Set(),sources=new Set(),projects=new Set(),groups=Object.fromEntries(HOME_GROUPS.map(([k])=>[k,[]]));let todo=0;
   for(const i of items){i.by=homeCreator(i,live);if(i.by.startsWith('person:'))people.add(i.by.slice(7));else if(i.by.startsWith('source:'))sources.add(i.by.slice(7));if(i.project)projects.add(i.project)}
   for(const i of items){if(f.by&&i.by!==f.by||f.project&&i.project!==f.project)continue;const g=homeGroupOf(i);if(g)groups[g].push(i);else if(i.status==='todo')todo++}
@@ -3733,14 +3762,18 @@ function homeView(d,app){const m=homeModel(d,HOME),sfx=app?'-app':'',opt=(v,labe
   if(HOME.project&&!m.projects.includes(HOME.project))proj.append(opt(HOME.project,shortProject(HOME.project)));proj.value=HOME.project;
   const bar=el('div',{class:'wfilter home-filters',role:'group','aria-label':'Filters'},el('label',{class:'issue-proj',for:'home-by'+sfx},'Created by ',by),el('label',{class:'issue-proj',for:'home-project'+sfx},'Project ',proj),
     filtered?el('button',{type:'button','data-home-clear':'',onclick:()=>{HOME.by=HOME.project='';homeSet('','')}},'Clear filters'):null);
-  const more=(key,n)=>{if(app)return el('button',{type:'button',class:'linkish home-more',onclick:()=>appPage('tasks')},'All '+n+' in Tasks');const p=new URLSearchParams({view:'all',layout:'board',column:HOME_COLUMN[key]});if(HOME.project)p.set('project',HOME.project);return el('a',{class:'home-more',href:'#issues?'+p},'All '+n+' in Tasks')};
+  // A link that opens exactly the set counted names the count; one that opens a wider list
+  // (agentd app's Tasks, the To do column for Waiting on another task) says Browse Tasks.
+  const tasksHref=column=>{const p=new URLSearchParams({view:'all',layout:'board',column});if(HOME.project)p.set('project',HOME.project);if(HOME.by)p.set('by',HOME.by);return '#issues?'+p};
+  const more=(key,n)=>{if(app)return el('button',{type:'button',class:'linkish home-more',onclick:()=>appPage('tasks')},'Browse Tasks');const exact=key!=='blocked';
+    return el('a',{class:'home-more',href:tasksHref(HOME_COLUMN[key]),title:exact?null:'Opens To do, which also holds tasks not waiting on another'},exact?'All '+n+' in Tasks':'Browse Tasks')};
   const groups=el('div',{class:'home-groups'},HOME_GROUPS.map(([key,label,hint])=>{const xs=m.groups[key],hid='home-h-'+key+sfx;
     return el('section',{class:'home-group','data-home-group':key,'aria-labelledby':hid},
       el('div',{class:'home-ghead'},el('h3',{id:hid},label),el('span',{class:'n','data-home-count':key,title:xs.length+' in '+label},String(xs.length))),
-      el('p',{class:'home-hint'},hint),
+      el('p',{class:'home-hint'},hint,key==='needs'?[' What waits on you alone is in ',app?'Your Inbox':el('a',{href:'#inbox'},'Your Inbox'),'.']:null),
       xs.length?el('ul',{class:'home-rows'},xs.slice(0,HOME_CAP).map(i=>homeRow(i,app))):el('p',{class:'home-empty'},filtered?'Nothing here matches these filters.':'Nothing here.'),
       xs.length>HOME_CAP?more(key,xs.length):null)}));
-  const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:'#issues?'+new URLSearchParams({view:'all',layout:'board',column:'todo',...(HOME.project?{project:HOME.project}:{})})},'See them in Tasks')):null;
+  const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:tasksHref('todo'),title:'To do also holds the tasks waiting on another'},'Browse Tasks')):null;
   return [homeWorkers(d),bar,groups,note].filter(Boolean)}
 // homeWorkers: one line of the team server's worker nodes by state, from /api/dash's nodes
 // (the cards counted by count_as, libraos/agentd-core#900), linked to Team > Nodes and devices
@@ -4147,13 +4180,12 @@ async function showHistory(id,host,preserve=false){if(!preserve)setDrawerRoute('
 // When Metrics and Usage last read their numbers. Those two are read on entering the
 // view only if that was longer ago than their 5-minute refresh; History every time.
 const INS_READ={metrics:0,usage:0},INS_EVERY=300000;
-function insightsEnter(r){insightsTabs(r);if(r.view==='history'){readHistoryRoute(r);loadHistory();}else {readInsightsRoute(r);if(Date.now()-INS_READ[r.view]>=INS_EVERY)(r.view==='metrics'?loadMetrics:loadUsage)()}}
-function readInsightsRoute(r){const p=r.params||new URLSearchParams(),prefix=r.view==='metrics'?'m':'u',range=p.get('range');if(range&&[...$(prefix+'-range').options].some(o=>o.value===range)){$(prefix+'-range').value=range;INS_READ[r.view]=0}if(prefix==='m'){for(const key of ['from','to']){$('m-'+key).value=p.get(key)||'';$('m-'+key).hidden=$('m-range').value!=='dates'}}}
-function saveInsightsRoute(view){if(ROUTE.item!=='insights'||ROUTE.view!==view)return;const prefix=view==='metrics'?'m':'u',p=new URLSearchParams({range:$(prefix+'-range').value});if(prefix==='m'&&p.get('range')==='dates')for(const k of ['from','to'])if($('m-'+k).value)p.set(k,$('m-'+k).value);routeQuery('insights/'+view,p,true)}
+function insightsEnter(r){insScopeRead(r);insightsTabs(r);if(r.view==='history'){readHistoryRoute(r);loadHistory();}else {readInsightsRoute(r);if(Date.now()-INS_READ[r.view]>=INS_EVERY)(r.view==='metrics'?loadMetrics:loadUsage)()}}
+function readInsightsRoute(r){insScopeRead(r);const p=r.params||new URLSearchParams(),prefix=r.view==='metrics'?'m':'u',range=p.get('range');if(range&&[...$(prefix+'-range').options].some(o=>o.value===range)){$(prefix+'-range').value=range;INS_READ[r.view]=0}if(prefix==='m'){for(const key of ['from','to']){$('m-'+key).value=p.get(key)||'';$('m-'+key).hidden=$('m-range').value!=='dates'}}}
+function saveInsightsRoute(view){if(ROUTE.item!=='insights'||ROUTE.view!==view)return;const prefix=view==='metrics'?'m':'u',p=new URLSearchParams({range:$(prefix+'-range').value});if(prefix==='m'&&p.get('range')==='dates')for(const k of ['from','to'])if($('m-'+k).value)p.set(k,$('m-'+k).value);if(insScope())p.set('scope',insScope());routeQuery('insights/'+view,p,true)}
 // insightsTabs: the one tab row, moved to the top of the view shown (into Metrics' head, beside its period picker).
 function insightsTabs(r){const t=$('ins-tabs'),at=r.view==='metrics'?$('ins-head'):$('page-'+r.view);if(at&&t.parentElement!==at)at.prepend(t);
-  // Whose work (#848) goes with the tabs: it filters Metrics, Usage and History.
-  const sc=$('ins-scope');if(sc&&sc.previousElementSibling!==t)t.after(sc);
+  insScopePlace(r.view);
   for(const a of t.querySelectorAll('a')){if(a.dataset.tab===r.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}}
 dashPage('insights',{title:'Insights',panel:false,views:['metrics','usage','history'],viewTitle:{metrics:'Metrics',usage:'Usage',history:'History'},
   render(d){runs(d)},
@@ -4210,7 +4242,8 @@ function metricsBody(m){const co=m.cost,box=metricsGroups(m);if(!m.tasks.all&&!m
   const cov=m.coverage||{};
   if(cov.covered===false)box.push(el('details',{class:'coverage-note'},el('summary',{},'Some repository history is missing. How to fill it.'),el('div',{class:'field-hint'},(cov.repos||[]).filter(r=>!r.covered).map(r=>el('p',{},r.repo+(r.reaches_back_to?' has history from '+dayLabel(r.reaches_back_to):' has not been synced'))),ROLE==='owner'||TOKEN&&!ROLE?el('p',{},'Add repositories under ',el('code',{},'[sync] repos'),', then run ',el('code',{},cov.fill||'agentd pr sync-gh'),'.'):el('p',{},'Ask the host owner to sync the missing repository history.'))));
   if(m.not_synced)box.push(el('div',{class:'state'},m.not_synced+' more merged but not synced, left out: run pr sync-gh --all --limit N.'));
-  if(!m.merged&&!m.not_synced)box.push(el('div',{class:'empty'},'No merged PRs in this range.'));
+  if(metricsNoPRs(m))box.push(el('div',{class:'empty','data-no-prs':''},'No PRs recorded for this period. The PR ledger holds what agentd pr sync-gh brought in; ',el('a',{href:'#settings/connections'},'repository sync settings'),' say which repositories it reads.'));
+  else if(!m.merged&&!m.not_synced)box.push(el('div',{class:'empty'},'No merged PRs in this range.'));
   const ch=m.chart;
   if(ch&&(ch.opened||m.merged)){const pts=ch.points,missing=m.merged-co.prs,day=p=>(ch.unit==='week'?'Week of ':'')+p.start;
     const counts=barChart({title:'Opened and merged, per '+ch.unit,points:pts,int:true,series:[['opened','m-opened','Opened'],['merged','m-merged','Merged']],
@@ -4411,7 +4444,7 @@ async function loadMetrics(){rangeSegments('m-range');const request=++metricsReq
     if(!r.ok)throw new Error((await r.text()).trim()||'HTTP '+r.status);
     const m=await r.json();if(request!==metricsRequest)return;
     INS.m=m;INS.mErr='';insCards();
-    sec.hidden=false;$('n-metrics').textContent=m.merged;$('m-body').replaceChildren(...metricsBody(m))}
+    sec.hidden=false;$('n-metrics').textContent=metricsNoPRs(m)?'':m.merged;$('m-body').replaceChildren(...metricsBody(m))}
   catch(e){if(request!==metricsRequest)return;INS.mErr=e.message;insCards();INS_READ.metrics=0;sec.hidden=false;$('m-body').replaceChildren(el('div',{class:'state error'},'Could not load PR metrics: '+e.message))}}
 $('m-range').addEventListener('change',()=>{const dates=$('m-range').value==='dates';$('m-from').hidden=!dates;$('m-to').hidden=!dates;loadMetrics()});
 $('m-from').addEventListener('change',loadMetrics);$('m-to').addEventListener('change',loadMetrics);
@@ -4433,7 +4466,18 @@ $('u-range').addEventListener('change',loadUsage);
 // ins-scope (#848): all work, the server's own (leased) or members' hosts (mirrored).
 function insScope(){const s=$('ins-scope');return s?s.value:''}
 function insScopeQ(){const v=insScope();return v?'&scope='+encodeURIComponent(v):''}
-$('ins-scope').addEventListener('change',()=>{const tab=(location.hash.match(/insights\/(\w+)/)||[])[1]||'metrics';if(tab==='usage')loadUsage();else if(tab==='history'){HIST.cursors=[''];loadHistory()}else loadMetrics()});
+// The scope is in every Insights address (scope=server|hosts), so a shared or reloaded
+// link keeps it; an address without one keeps the choice already made. A change read
+// from the address makes Metrics and Usage read again.
+function insScopeRead(r){const p=r&&r.params;if(!p||!p.has('scope'))return;const v=p.get('scope'),s=$('ins-scope');if(![...s.options].some(o=>o.value===v)||s.value===v)return;s.value=v;INS_READ.metrics=INS_READ.usage=0}
+// insScopePlace: the control goes beside the numbers it narrows on each view, says what it
+// leaves out, and the tabs carry it.
+const INS_SCOPE_NOTE={metrics:'Narrows the cards, outcomes per week, failure classes, the table by agent and model, and Factory. PR metrics and bench rounds are not filtered by host.',usage:'Narrows the usage numbers below.',history:'Narrows the finished tasks below.'};
+function insScopePlace(view){const box=$('ins-scope-box'),at=view==='usage'?$('u-totals'):view==='history'?$('h-note'):$('ins-overview').firstElementChild;
+  if(view==='metrics'){if($('ins-overview').firstElementChild!==box)$('ins-overview').prepend(box)}else if(at&&at.previousElementSibling!==box)at.before(box);
+  $('ins-scope-note').textContent=INS_SCOPE_NOTE[view]||'';insScopeTabs()}
+function insScopeTabs(){const v=insScope();for(const a of $('ins-tabs').querySelectorAll('a'))a.setAttribute('href','#insights/'+a.dataset.tab+(v?'?scope='+encodeURIComponent(v):''))}
+$('ins-scope').addEventListener('change',()=>{insScopeTabs();const tab=(location.hash.match(/insights\/(\w+)/)||[])[1]||'metrics';INS_READ.metrics=INS_READ.usage=0;if(tab==='usage')loadUsage();else if(tab==='history')histRestart();else loadMetrics()});
 // History: finished handoffs from /api/history, a page at a time. cursors holds
 // the cursor of each page up to this one, so Newer goes back to the same rows;
 // a change of filter starts again from the newest.
@@ -4455,8 +4499,13 @@ function insCards(){const f=INS.f,t=f?f.total||{}:null,m=INS.m,val=(have,pick)=>
     insCard('autonomous','Autonomous completion',val(t,()=>ac.not_computable||ac.n===undefined?null:ac.n+' of '+ac.of),'accepted with no intervention · '+Math.round(Number(ac.pct)||0)+'%',ac.not_computable,INS.fErr),
     insCard('cost','Cost per accepted task',val(t,()=>c.median_usd===undefined?null:'$'+Number(c.median_usd).toFixed(2)),'median of the accepted tasks\' worker cost'+(c.unpriced?' · '+c.unpriced+' unpriced':''),c.not_computable||'no accepted task has a price',INS.fErr),
     insCard('interventions','Interventions per task',val(t,()=>iv.not_computable||iv.mean===undefined?null:Number(iv.mean).toFixed(2)),'messages, approvals, takeovers · '+iv.with_any+' of '+iv.of+' tasks had one',iv.not_computable,INS.fErr),
-    insCard('latency','PR workflow latency',val(m,()=>!lat||!lat.n?null:Number(lat.median_hours).toFixed(1)+' h'),'open to merge, median · '+(lat&&lat.n)+' merged PRs','no PR merged in this period',INS.mErr))}
-function insWeekHref(w,k){return '#insights/history?'+new URLSearchParams({outcome:k,since:w.since||w.week,until:w.until})}
+    insCard('latency','PR workflow latency',val(m,()=>!lat||!lat.n?null:Number(lat.median_hours).toFixed(1)+' h'),'open to merge, median · '+(lat&&lat.n)+' merged PRs · '+PR_LEDGER,(metricsNoPRs(m)?'No PRs recorded for this period':'no PR merged in this period')+' · '+PR_LEDGER,INS.mErr))}
+// The PR cards read the PR ledger, which is not attributed to hosts: Whose work does not narrow them.
+const PR_LEDGER='PR ledger · not filtered by host';
+// metricsNoPRs: the period has no PR rows at all (none merged, opened or left unsynced), so
+// the page says none were recorded, not that the team made none.
+function metricsNoPRs(m){return !!m&&!m.merged&&!m.not_synced&&!(m.chart&&m.chart.opened)}
+function insWeekHref(w,k){const p=new URLSearchParams({outcome:k,since:w.since||w.week,until:w.until});if(insScope())p.set('scope',insScope());return '#insights/history?'+p}
 function insWeeks(f){const weeks=f.by_week||[];if(!weeks.length)return [el('div',{class:'empty'},'No week in this period.')];
   const count=w=>{const o=w.outcomes||{};return INS_OUT.reduce((a,[k])=>a+(Number(o[k])||0),0)},most=Math.max(0,...weeks.map(count)),open=weeks.reduce((a,w)=>a+(Number((w.outcomes||{}).open)||0),0);
   const chart=el('div',{class:'ins-chart',role:'group','aria-label':'Outcomes per week. Each part of a bar opens its tasks; the table below has the same numbers.'},weeks.map(w=>{const o=w.outcomes||{},n=count(w);
@@ -4504,7 +4553,7 @@ function histRow(r){const open=()=>showWorkItem(r.id),depth=r.depth||0;
     el('td',{class:'hend'+(r.failed?' bad':''),'data-label':'End reason',title:(r.end_reasons||[]).join(' → ')},histEnd(r)),
     el('td',{class:'num','data-label':'Minutes'},r.minutes===undefined?'Not recorded':Number(r.minutes).toFixed(1)),
     el('td',{'data-label':'Finished',title:r.updated||''},(r.updated||'').slice(0,10)||'Not recorded'))}
-function readHistoryRoute(r){const p=r.params||new URLSearchParams();for(const [k,id] of Object.entries(HFIELDS)){if(['state','source','creator'].includes(k)&&p.get(k))histFill(id,[p.get(k)],'All '+k+'s');$(id).value=p.get(k)||''}$('h-q').value=p.get('q')||'';HIST.failed=p.get('failed')==='1';$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));HIST.outcome=p.get('outcome')&&p.get('since')&&p.get('until')?{outcome:p.get('outcome'),since:p.get('since'),until:p.get('until')}:null;histOutcomeChip();const trail=p.getAll('cursor');HIST.cursors=['',...trail]}
+function readHistoryRoute(r){insScopeRead(r);const p=r.params||new URLSearchParams();for(const [k,id] of Object.entries(HFIELDS)){if(['state','source','creator'].includes(k)&&p.get(k))histFill(id,[p.get(k)],'All '+k+'s');$(id).value=p.get(k)||''}$('h-q').value=p.get('q')||'';HIST.failed=p.get('failed')==='1';$('h-failed').setAttribute('aria-pressed',String(HIST.failed));$('h-failed').setAttribute('aria-checked',String(HIST.failed));HIST.outcome=p.get('outcome')&&p.get('since')&&p.get('until')?{outcome:p.get('outcome'),since:p.get('since'),until:p.get('until')}:null;histOutcomeChip();const trail=p.getAll('cursor');HIST.cursors=['',...trail]}
 function saveHistoryRoute(){const p=histParams();for(const c of HIST.cursors.slice(1))p.append('cursor',c);routeQuery('insights/history',p)}
 async function loadHistory(){const request=++HIST.request,note=$('h-note'),p=histParams(),filtered=[...p.keys()].length>0,cursor=HIST.cursors[HIST.cursors.length-1];
   $('h-clear').hidden=!filtered;if(!validDates($('h-from'),$('h-to'),note)){$('h-table').hidden=true;$('h-pager').hidden=true;return}p.set('limit','50');if(cursor)p.set('cursor',cursor);
