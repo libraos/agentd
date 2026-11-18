@@ -2122,10 +2122,15 @@ function stats(d){
    (an owner every one, anyone else their own; 404 from a server without it).
    Account > Your nodes: the signed-in person's nodes; Team > Nodes and devices: under
    each person their nodes, then their devices, Server last. Loaded with the dash's
-   refresh (Team's render). Enrolling, draining and revoking stay at the terminal:
-   each row shows its command, never a button. */
+   refresh (Team's render). An owner on the team dash drains or undrains a node and
+   revokes a device here (libraos/agentd-core#917: POST /api/action node_drain,
+   node_undrain, device_revoke; owner only, audited, refused by agentd app); anyone
+   else sees each row's terminal command instead. Waiting for a node: GET /api/queue,
+   each remote handoff no node has leased with the lease path's reason. Enrolling stays
+   at a person's terminal: the page shows the command. */
 const NODES={data:null,err:'',at:0,req:0,serverVersion:null,okAt:0,user:null};
 const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0,okAt:0,user:null};
+const QUEUE={data:null,err:'',missing:false,at:0,req:0,okAt:0,user:null};
 /* A polled feed's freshness (libraos/agentd-core#904): okAt is the last good read and
    user the signed-in person it was read for. feedOk records a good read; feedFail keeps
    the rows of a failed one (feedStale then says so, with Retry) unless the answer was
@@ -2148,7 +2153,31 @@ function devicesLoad(){const req=++DEVICES.req;DEVICES.at=Date.now();
   fetch('/api/devices',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw httpErr(r);return r.json()})
     .then(j=>{if(req!==DEVICES.req)return;feedOk(DEVICES);DEVICES.missing=j===null;DEVICES.data=j&&Array.isArray(j.devices)?j.devices:[];DEVICES.scope=j&&typeof j.scope==='string'?j.scope:''},e=>{if(req!==DEVICES.req)return;feedFail(DEVICES,e)})
     .then(()=>{if(req!==DEVICES.req)return;if(nodesTabShown()||teamUsersShown())teamDraw()})}
-function nodesPoll(){feedFresh(NODES);feedFresh(DEVICES);if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if((nodesTabShown()||teamUsersShown())&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
+function queueLoad(){const req=++QUEUE.req;QUEUE.at=Date.now();
+  fetch('/api/queue',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==QUEUE.req)return;feedOk(QUEUE);QUEUE.missing=j===null;QUEUE.data=j&&Array.isArray(j.queue)?j.queue:[]},e=>{if(req!==QUEUE.req)return;feedFail(QUEUE,e)})
+    .then(()=>{if(req!==QUEUE.req)return;if(nodesTabShown())teamDraw()})}
+// nodeManage: the signed-in owner on the team dash acts on nodes and devices here
+// (#917); agentd app never does, and the server refuses everyone else.
+function nodeManage(){return ROLE==='owner'&&!!USER&&!(lastDash&&lastDash.mode==='app')}
+function nodeAct(o,ref,body,done){NODES.at=0;DEVICES.at=0;QUEUE.at=0;return actionSheet(o,ref,()=>{NODES.at=0;DEVICES.at=0;QUEUE.at=0;return body},done)}
+function nodeDrainButton(n){const drain=!n.drained,leases=n.leases||0;
+  return el('button',{type:'button','data-write':true,'data-node-action':drain?'drain':'undrain',onclick:()=>nodeAct({title:(drain?'Drain ':'Undrain ')+n.name+'?',
+      description:drain?'No new server work goes to '+n.name+'. '+(leases?leases+' running lease'+(leases>1?'s finish':' finishes')+' within '+(leases>1?'their':'its')+' budget.':'It has no running lease.')+' The same as agentd server workers drain '+n.name+'; recorded in the audit log.':n.name+' takes server work again. The same as agentd server workers undrain '+n.name+'; recorded in the audit log.',
+      action:drain?'Drain':'Undrain'},'node:'+n.name,{action:drain?'node_drain':'node_undrain',node:n.name},n.name+(drain?' drained':' undrained'))},drain?'Drain':'Undrain')}
+function deviceRevokeButton(v){const name=v.label||v.id;
+  return el('button',{type:'button','data-write':true,'data-device-action':'revoke',onclick:()=>nodeAct({title:'Revoke '+name+'?',
+      description:'Device '+v.id+(v.person?' of '+v.person:'')+(v.worker?' (worker '+v.worker+')':'')+' is refused from its next request and its open connections close. It cannot be undone: the device enrolls again with a new ticket. The same as agentd server devices revoke '+v.id+'; recorded in the audit log.',
+      action:'Revoke'},'device:'+v.id,{action:'device_revoke',device:v.id},name+' revoked')},'Revoke')}
+function queueRow(q){return el('div',{class:'tm-row','data-queue':q.id},el('span',{class:'dot stale',title:'waiting for a node'}),
+    el('div',{class:'tm-main'},el('b',{},q.goal||q.id),el('span',{class:'tm-why'},[q.id,q.project,q.worker,q.stage].filter(Boolean).join(' · ')),
+      el('span',{class:'tm-why','data-queue-reason':''},q.queue_reason||'awaiting eligible worker poll')),
+    el('span',{class:'tm-fig',title:q.created||''},q.waiting?'waiting '+q.waiting:''))}
+function queueSection(){feedFresh(QUEUE);if(QUEUE.missing||!QUEUE.data&&!QUEUE.err)return [];
+  const list=QUEUE.data||[],body=QUEUE.err&&!QUEUE.data?[el('div',{class:'state error',role:'alert'},'Could not load the queue: '+QUEUE.err)]:list.length?list.map(queueRow):[el('div',{class:'empty'},'Nothing is waiting for a node.')];
+  const st=feedStale(QUEUE,'queue',queueLoad);
+  return [el('section',{'data-queue-group':''},...teamSec('Waiting for a node',list.length,[...(st?[st]:[]),...body]))]}
+function nodesPoll(){feedFresh(NODES);feedFresh(DEVICES);if(nodesTabShown()&&Date.now()-QUEUE.at>8000)queueLoad();if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if((nodesTabShown()||teamUsersShown())&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
 // nodeState: one word for a node, the first that holds: drained, offline, not
 // accepting server work, busy, not ready (cannot commit), idle.
 function nodeState(n){const word=n.drained?'drained':n.offline?'offline':n.accept_server_work===false?'not accepting':n.state==='busy'?'busy':n.state==='not_ready'?'not ready':'idle';
@@ -2167,25 +2196,27 @@ function termCmd(label,cmd){return el('span',{class:'tm-why tm-cmd'},label+' at 
 function nodeRow(n){const s=nodeState(n),about=[n.kind,n.host,(n.tools||[]).join(', '),(n.repos||[]).join(', ')].filter(Boolean).join(' · ');
   const ver=typeof n.version==='string'&&n.version?n.version:'',older=nodeOlder(n,NODES.serverVersion);
   return el('div',{class:'tm-row','data-node':n.name},el('span',{class:'dot '+s.dot,title:s.word}),el('div',{class:'tm-main'},el('b',{},n.name),about?el('span',{class:'tm-why'},about):null,
-      termCmd(n.drained?'Undrain':'Drain','agentd server workers '+(n.drained?'undrain ':'drain ')+n.name)),
+      n.drained&&n.leases?el('span',{class:'tm-why','data-draining':''},'draining: '+n.leases+' lease'+(n.leases>1?'s':'')+' still running'):null,
+      nodeManage()?null:termCmd(n.drained?'Undrain':'Drain','agentd server workers '+(n.drained?'undrain ':'drain ')+n.name)),
     el('span',{class:'tm-fig'},s.word,s.why?el('span',{class:'tm-why'},s.why):null),nodeLoad(n),
     el('span',{class:'tm-fig','data-node-version':ver||null,title:ver?'The release this node\'s agentd worker reports'+(NODES.serverVersion?'; the server runs '+NODES.serverVersion:''):'This node\'s worker reports no release (an older agentd)'},ver||'release unknown',
       older?el('span',{class:'tm-flag','data-older':'',title:'Older than the server\'s '+NODES.serverVersion+': upgrade agentd on this node (agentd upgrade)'},' older release'):null),
     n.mirrored?el('span',{class:'tm-fig',title:n.mirrored},'mirrored '+whenText(n.mirrored)):null,
-    el('span',{class:'tm-fig',title:n.seen||''},n.seen_ago?'seen '+n.seen_ago+' ago':'never seen'))}
+    el('span',{class:'tm-fig',title:n.seen||''},n.seen_ago?'seen '+n.seen_ago+' ago':'never seen'),nodeManage()?nodeDrainButton(n):null)}
 function deviceRow(v){const revoked=v.state==='revoked',seen=v.last_seen?whenText(v.last_seen):'',made=v.created?whenText(v.created):'';
   const about=[(v.kind||'unknown kind')+' device',v.label?v.id:'',v.worker?'worker '+v.worker:''].filter(Boolean).join(' · ');
   return el('div',{class:'tm-row tm-device','data-device':v.id,'data-device-kind':v.kind||'','data-device-state':v.state||''},el('span',{class:'dot '+(revoked?'stale':'idle'),title:revoked?'revoked':'active'}),
-    el('div',{class:'tm-main'},el('b',{},v.label||v.id),el('span',{class:'tm-why'},about),revoked?null:termCmd('Revoke','agentd server devices revoke '+v.id)),
+    el('div',{class:'tm-main'},el('b',{},v.label||v.id),el('span',{class:'tm-why'},about),revoked||nodeManage()?null:termCmd('Revoke','agentd server devices revoke '+v.id)),
     el('span',{class:'tm-fig'},revoked?'revoked':'active',revoked&&(v.revoked||v.revoked_by)?el('span',{class:'tm-why',title:v.revoked||''},[v.revoked?whenText(v.revoked):'',v.revoked_by?'by '+v.revoked_by:''].filter(Boolean).join(' ')):null),
     el('span',{class:'tm-fig',title:v.created||''},made?'created '+made:'created at an unknown time'),
-    el('span',{class:'tm-fig',title:v.last_seen||''},seen?'seen '+seen:'never seen'))}
-function nodesBody(){if(!DEVICES.at)devicesLoad();feedFresh(NODES);feedFresh(DEVICES);if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
+    el('span',{class:'tm-fig',title:v.last_seen||''},seen?'seen '+seen:'never seen'),!revoked&&nodeManage()?deviceRevokeButton(v):null)}
+function nodesBody(){if(!DEVICES.at)devicesLoad();if(!QUEUE.at)queueLoad();feedFresh(NODES);feedFresh(DEVICES);if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
   const who=x=>x.person===null||x.person===undefined||x.person===''?'':String(x.person),groups=new Map(),add=(p,k,x)=>{if(!groups.has(p))groups.set(p,{nodes:[],devices:[]});groups.get(p)[k].push(x)};
   const devices=DEVICES.data||[];for(const n of NODES.data)add(who(n),'nodes',n);for(const v of devices)add(who(v),'devices',v);
   const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),active=(a,b)=>(a.state==='revoked')-(b.state==='revoked');
   const sec=(key,label,g)=>el('section',{'data-node-group':key},...teamSec(label,g.nodes.length+g.devices.length,[...g.nodes.sort(byName).map(nodeRow),...g.devices.slice().sort(active).map(deviceRow)]));
-  const out=[el('p',{class:'mute tm-intro'},'Nodes running agentd worker against this server, then the devices enrolled, under the person each belongs to; Server is dedicated workers an owner enrolled. Read only: draining and revoking stay at the server\'s terminal, and each row shows its command.'+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':''))];
+  const out=[el('p',{class:'mute tm-intro'},'Nodes running agentd worker against this server, then the devices enrolled, under the person each belongs to; Server is dedicated workers an owner enrolled. '+(nodeManage()?'As an owner you drain a node and revoke a device here; each is recorded in the audit log.':'Draining and revoking are an owner\'s: each row shows the command for the server\'s terminal.')+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':'')),
+    el('p',{class:'mute tm-intro','data-enroll-note':''},'Add a node at a person\'s own terminal, not here: ',el('code',{},'agentd server enroll --worker NAME'),' on the server, then ',el('code',{},'agentd worker --server URL --ticket'),' on the node; a person joins with ',el('code',{},'agentd join LINK'),'.'),...queueSection()];
   const ns=feedStale(NODES,'nodes',()=>{nodesLoad();devicesLoad()});if(ns)out.push(ns);
   if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'Devices: yours only; an owner sees everyone\'s.'));
   if(feedIsStale(DEVICES)){const n=feedStale(DEVICES,'devices',devicesLoad);n.dataset.devicesNote='error';out.push(n)}
