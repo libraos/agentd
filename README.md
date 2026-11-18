@@ -61,7 +61,7 @@ On Windows, open a new terminal after each install so the new PATH applies.
 
    `init` connects every installed client, trusts the repository for Claude Code and adds you as its owner. It is safe to run again, and `--dry-run` shows what it would change. `agentd connect --repo-rule` optionally adds an untracked rule telling your sessions to send implementation work through agentd.
 
-   No activation code or invitation is needed. `agentd activate` optionally links this machine to your LibraOS account, for Cloud Workers, the hosted knowledge base and sending feedback or diagnostics; get the code at [console.libraos.com/agentd](https://console.libraos.com/agentd).
+   No activation code or invitation is needed. Cloud Workers and the hosted knowledge base need only their key file from Console. `agentd activate` optionally links this machine to your LibraOS account, for sending feedback and diagnostics; get the code at [console.libraos.com/agentd](https://console.libraos.com/agentd).
 
 2. **Run a task:**
 
@@ -80,12 +80,42 @@ agentd dash link --user YOUR_NAME        # open the printed link to sign in
 
 The dashboard has Inbox, Issues, Team, Chat and Insights. Chat needs a model on an OpenAI-compatible gateway, set under `[gateway]` in `config.toml`. To let Chat start workers, set `dispatch = true` under `[dash]`. Nothing starts until a person presses **Start** on the proposed task.
 
-## Agents
+## Install in Claude Code and Codex
 
-- **Claude Code and Codex** connect as sessions and run as workers.
-- **opencode** connects as a session, and runs as a worker once `[dispatch] opencode_model` names its model.
+agentd is a program on your machine, not an extension installed from inside a client. Install it once, then `agentd init` adds it to every client it finds. A client reads its MCP servers when a session starts, so close running sessions and start new ones afterwards.
 
-`agentd init` and `agentd connect` add the agentd MCP server, hooks and Skills to each installed client. They back up every file they change, and `agentd uninstall` and the steps below undo them.
+**From a Claude Code session.** Run the installer in the session with the `!` prefix, then start a new session in your repository and paste the setup prompt from [Get Started](#get-started):
+
+```text
+! curl -fsSL https://console.libraos.com/agentd/install.sh | sh
+```
+
+**From Codex.** Run the installer in a terminal, then start a new Codex session in your repository and paste the same prompt. Install Codex before agentd, or run the installer again afterwards, so the Skills are added for it.
+
+What each step adds:
+
+| | Claude Code | Codex |
+| --- | --- | --- |
+| Skills `agentd-setup` and `agentd` (installer) | `~/.claude/skills/` (`$CLAUDE_CONFIG_DIR/skills/` when set) | `~/.agents/skills/` |
+| MCP server (`init`, `connect`) | User scope, in `~/.claude.json` | `[mcp_servers.agentd]` in `~/.codex/config.toml` (`$CODEX_HOME` when set), with `default_tools_approval_mode = "approve"` so Codex workers, which run without approval prompts, can call it |
+| Hooks (`init`, `connect`) | `agentd hook` on `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `Stop` and `PostCompact`, in `~/.claude/settings.json` | None. Codex gets agentd's rules from the MCP server's instructions |
+| Repository trust (`init`) | The repository is marked trusted for Claude Code | Not needed |
+| Check | `claude mcp get agentd` | `codex mcp get agentd` |
+
+`agentd doctor` checks both. To connect one client only, run `agentd connect claude` or `agentd connect codex`. If you install a client after agentd, run the installer again for its Skills, then `agentd connect`.
+
+By hand, the MCP registration is:
+
+```sh
+claude mcp add --scope user agentd -- "$(command -v agentd)" mcp --tool claude --label claude
+codex mcp add agentd -- "$(command -v agentd)" mcp --tool codex --label codex
+```
+
+For Codex, also add `default_tools_approval_mode = "approve"` under `[mcp_servers.agentd]` in `~/.codex/config.toml`. Without it, `codex exec` blocks every agentd call.
+
+`init` and `connect` back up every file they change, and `agentd uninstall` and the steps in [Upgrade and Uninstall](#upgrade-and-uninstall) undo them.
+
+**opencode** connects as a session too, and runs as a worker once `[dispatch] opencode_model` names its model.
 
 ## Models and Billing
 
