@@ -3268,7 +3268,7 @@ function drawCards(d){
     const finBox=fin.length?el('details',{class:'finished','data-finished':k,open:finOpen},el('summary',{},'Finished ('+fin.length+')'),el('div',{class:'cards'},fin.map(i=>i.node))):null;if(finBox)finBox.addEventListener('toggle',()=>{try{localStorage.setItem(finKey,finBox.open?'1':'0')}catch(e){}});
     const p=el('details',{class:'proj','data-project':k,open:isOpen},el('summary',{},el('h2',{},k||'No checkout'),el('span',{class:'n',title:live.length+' open, '+fin.length+' finished'},live.length+' open'),need?el('span',{class:'n hot'},need+' need'+(need>1?'':'s')+' attention'):null),el('div',{class:'cards'},live.map(i=>i.node)),finBox);
     p.addEventListener('toggle',()=>{try{localStorage.setItem('dash-proj-'+k,p.open?'1':'0')}catch(e){}});return p});
-  board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ||BF_TEXT.trim()?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]))}
+  board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ||BY||BF_TEXT.trim()?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]))}
 /* views and filters */
 // BY: Home's Created by (person:NAME or source:NAME, homeCreator's rule), carried in by Home's
 // counted links (libraos/agentd-core#904) so Tasks shows the set Home counted.
