@@ -1,4 +1,5 @@
-// Home's counted links open the set they counted (libraos/agentd-core#904 item 3).
+// Home's counted links open the set they counted (libraos/agentd-core#904 item 3); Home is Overview on
+// the team server since #907, so this keeps the Tasks side: a creator and project in the address narrow it.
 // "All N in Tasks" keeps the creator as well as the project, so Tasks shows the same N;
 // a link that opens a wider list carries no count and says Browse Tasks. Group labels
 // say whose they are: Needs attention (team), Waiting on another task, Review and
@@ -25,23 +26,14 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()};
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
- const root=doc.getElementById('home-body');
- // Labels say whose each group is.
- assert.deepEqual([...root.querySelectorAll('[data-home-group] h3')].map(h=>h.textContent),['Working','Needs attention (team)','Waiting on another task','Review and validation','Closed recently']);
- assert(root.querySelector('[data-home-group="needs"] a[href="#inbox"]')&&/Your Inbox/.test(root.querySelector('[data-home-group="needs"]').textContent),'Needs attention does not point to Your Inbox for what is yours');
- // Needs attention under ann + acme/app counts 6; its link names 6 and keeps the creator.
- assert.equal(root.querySelector('[data-home-count="needs"]').textContent,'6');
- const more=root.querySelector('[data-home-group="needs"] a.home-more');assert(more,'no link to the rest');assert.equal(more.textContent,'All 6 in Tasks');
- const q=new URLSearchParams(more.getAttribute('href').split('?')[1]);assert.equal(q.get('by'),'person:ann','the counted link drops the creator: '+more.getAttribute('href'));assert.equal(q.get('project'),'acme/app');
- // Blocked opens the whole To do column, wider than it counts: no number, Browse Tasks.
- const wide=root.querySelector('[data-home-group="blocked"] a.home-more');assert(wide,'no link for the blocked group');assert.equal(wide.textContent,'Browse Tasks','a wider link carries a count: '+wide.textContent);
- assert(!/\d/.test(wide.textContent));
- const todo=root.querySelector('[data-home-todo] a');assert(todo&&!/\d/.test(todo.textContent),'the To do link carries a count');
+ // #home is Overview on the team server since #907 step 4; the counted link it had opens the same set from Overview's Needs a person.
+ assert(!doc.getElementById('page-overview').hidden,'#home does not open Overview');
+ const counted='#issues?view=needs&by=person%3Aann&project=acme%2Fapp';
  // Following the counted link: Tasks shows the same 6.
- w.location.hash=more.getAttribute('href');await settle();
+ w.location.hash=counted;await settle();
  assert(!doc.getElementById('page-work').hidden||!doc.getElementById('page-issues')?.hidden,'Tasks did not open');
  const shown=w.eval("(()=>{const o=[...document.querySelectorAll('#board-column option')].find(o=>o.value==='needs');return o?o.textContent:''})()");
- assert(/· 6$/.test(shown),'Tasks shows a different set from the 6 Home counted: '+shown);
+ assert(/· 6$/.test(shown),'Tasks shows a different set from the 6 counted: '+shown);
  const note=doc.querySelector('[data-by-filter]');assert(note&&/ann/.test(note.textContent),'Tasks does not say it is narrowed to ann');
  // Its own filter can be removed; then Tasks shows everyone's 8.
  note.querySelector('button').click();await settle();

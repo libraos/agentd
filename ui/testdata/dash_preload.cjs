@@ -34,7 +34,7 @@ const strays=()=>[...doc.querySelectorAll('#main *')].filter(n=>shown(n)&&!n.clo
  assert(!shown(tabs),'the Insights tabs show on Tasks after the snapshot');
  assert(!doc.getElementById('page-work').hidden,'Tasks is not shown once the snapshot arrived');
  // Insights still has its tabs, at the top of the view shown.
- for(const v of ['metrics','usage','history']){w.location.hash='#insights/'+v;await settle();
+ for(const v of ['success','cost','usage','metrics','history','workers']){w.location.hash='#insights/'+v;await settle();
   assert(shown(tabs),'the tabs are hidden on '+v);assert(doc.getElementById('page-'+v).contains(tabs),'the tabs are not in '+v)}
  w.location.hash='#issues';await settle();assert(!shown(tabs),'the Insights tabs show on Tasks after a visit to Insights');
  assert(!errors.length,errors.join('\n'));

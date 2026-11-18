@@ -37,7 +37,7 @@ const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
  for(const [n,name] of [[left,'left sidebar'],[center,'centre'],[right,'right sidebar'],[status,'status bar']])assert(n&&shell.contains(n)&&shown(n),'no '+name);
  assert.equal(left.tagName,'ASIDE');assert.equal(right.tagName,'ASIDE');assert.equal(status.getAttribute('role'),'status');
  assert(!shown(doc.querySelector('.shell')),'the team shell shows in app mode');
- for(const id of ['rail','agents-list','side','page-home','page-inbox','page-work','page-team','page-insights','page-metrics','page-usage','page-chat','page-settings','page-triggers','page-setup','page-help'].filter(id=>$(id)))assert(!shown($(id)),id+' shows in app mode');
+ for(const id of ['rail','agents-list','side','page-home','page-inbox','page-work','page-team','page-insights','page-metrics','page-success','page-cost','page-usage','page-workers','page-chat','page-settings','page-triggers','page-setup','page-help'].filter(id=>$(id)))assert(!shown($(id)),id+' shows in app mode');
  assert(!shown(doc.querySelector('.shell header')),'the team top bar shows');
  // Each region has its mount point, empty for the issues that fill it.
  for(const r of ['projects','tabs','tab-body','right-panel'])assert(shell.querySelector('[data-region="'+r+'"]'),'no mount point '+r);

@@ -44,7 +44,7 @@ const evalJS=s=>w.eval(s);
  let before=requests.length;sel.value='hosts';sel.dispatchEvent(new w.Event('change'));await settle();
  const hist=requests.slice(before).filter(r=>r.startsWith('/api/history?')).pop();assert(hist,'no history request after the scope changed');
  assert.equal(new URL('http://x'+hist).searchParams.get('scope'),'hosts');
- w.location.hash='#insights/usage';await settle();
+ w.location.hash='#insights/workers';await settle();
  const usage=requests.filter(r=>r.startsWith('/api/usage?')).pop();assert(usage&&new URL('http://x'+usage).searchParams.get('scope')==='hosts','usage without scope: '+usage);
  w.location.hash='#insights/metrics';await settle();
  const fac=requests.filter(r=>r.startsWith('/api/factory?')).pop();assert(fac&&new URL('http://x'+fac).searchParams.get('scope')==='hosts','factory without scope: '+fac);

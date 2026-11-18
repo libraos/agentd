@@ -6,7 +6,8 @@
 // templates first, Settings now and Latest runs beside them, each run linking
 // to its task, an empty list saying so) and read-only Improve and Signals
 // cards; every request the page makes is a read or a template write, and none
-// turns triggers, improve or signals on. Runs in every mode:
+// turns triggers, improve or signals on. #907 step 4: it sits under Settings > Server and is shown
+// to owners only. Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_triggers.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
@@ -116,6 +117,18 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  mode='denied';button(doc.getElementById('page-triggers'),'Refresh').click();await settle();
  assert.equal(doc.getElementById('trig-error').hidden,false);assert.equal(doc.getElementById('trig-error').textContent,'Triggers are for owners');
  assert.equal(body().children.length,0,'a non-owner sees triggers');assert.equal(doc.getElementById('trig-meta').textContent,'','a non-owner sees the state');
+ // A user who is not an owner (#907 step 4): Triggers is not shown anywhere (no rail item, no Settings
+ // section or line, not in Help), and its address says it is for owners without reading /api/triggers.
+ assert(!doc.querySelector('#rail [data-rail="triggers"]'),'Triggers is a rail item');
+ mode='on';dash.role='dev';dash.user='dave';w.eval('refresh()');await settle();await route('#settings/workers');
+ assert(!doc.querySelector('#settings-sections a[data-section="triggers"]'),'a non-owner sees Triggers in Settings');assert(doc.getElementById('set-triggers').hidden,'a non-owner sees the Triggers line');
+ assert([...doc.querySelectorAll('[data-owner-only]')].every(n=>n.hidden),'an owner-only mention shows to a non-owner');
+ const ownerGets=triggerGets.length;await route('#triggers');assert.equal(triggerGets.length,ownerGets,'a non-owner read /api/triggers');
+ assert.equal(doc.getElementById('trig-error').textContent,'Triggers are for owners.');assert.equal(body().children.length,0,'a non-owner sees triggers');
+ // Back to an owner: the section, the line and the page again.
+ dash.role='owner';dash.user='alice';w.eval('refresh()');await settle();await route('#settings/workers');
+ assert(doc.querySelector('#settings-sections a[data-section="triggers"][href="#triggers"]'),'an owner has no Triggers section');assert(!doc.getElementById('set-triggers').hidden);
+ await route('#triggers');assert(body().children.length>0,'an owner does not see triggers again');
  // Phone: the config text scrolls in its box rather than widening the page.
  const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');assert(/@media\(max-width:860px\)\{\.trig-cols\{grid-template-columns:minmax\(0,1fr\)\}/.test(css),'the columns do not stack on a phone');assert(/\.trig-tpl pre\{[^}]*overflow-x:auto/.test(css)&&/\.trig-tpl>\*\{min-width:0\}/.test(css),'template text does not scroll in place');
  assert(!errors.length,errors.join('\n'));

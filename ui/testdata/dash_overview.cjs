@@ -63,6 +63,23 @@ const poll=async()=>{w.eval('LOAD.at=0;RUNNING.at=0;ovPoll(false)');await settle
  assert.equal(body().querySelector('[data-ov-count]').textContent,'2');
  rows[1].querySelector('td:nth-child(3)').click();await settle();assert.equal(w.location.hash,'#issues/hof-run2','a row click does not open its task');
  w.location.hash='#overview';await settle();assert(body().querySelector('tr[data-running="hof-run1"]'),'Overview did not come back');
+ // Needs a person (#907): the two numbers from /api/load, the tasks behind them, each opening its task; Approvals opens Needs me's Approvals.
+ {const needs=()=>body().querySelector('[data-ov-needs]');assert(needs(),'no Needs a person block');assert.equal(needs().querySelector('h3').textContent,'Needs a person');
+  assert.equal(needs().querySelector('[data-ov-need="waiting"]').textContent,'1 waiting on a person');
+  const ap=needs().querySelector('[data-ov-need="approvals"] a');assert(ap&&ap.getAttribute('href')==='#inbox/approvals'&&ap.textContent==='2 approvals pending','approvals do not link to Needs me\'s Approvals');
+  assert.deepEqual([...needs().querySelectorAll('[data-ov-need-row]')].map(r=>r.dataset.ovNeedRow),['hof-run2'],'the blocked task is not listed');
+  const row=needs().querySelector('[data-ov-need-row="hof-run2"]');assert.equal(row.querySelector('a').getAttribute('href'),'#issues/hof-run2');assert(/waiting on a prompt · asked by bob/.test(row.textContent),row.textContent);
+  assert(!needs().querySelector('[data-ov-need-all]'),'All in Tasks with five or fewer');assert.equal(needs().querySelector('[data-ov-needs-me]').getAttribute('href'),'#inbox');
+  // A handoff the snapshot says is blocked joins the list, once; more than five link to all in Tasks.
+  dash={...dash,handoff_list:[{id:'hof-run2',goal:'Write the docs',worker_state:'blocked'},...[1,2,3,4,5].map(i=>({id:'hof-b'+i,goal:'Blocked '+i+evil,worker_state:i%2?'blocked':'waiting_answer',worker_wait:'a question',from_user:'cy'}))]};
+  w.eval('refresh()');await settle();
+  assert.deepEqual([...needs().querySelectorAll('[data-ov-need-row]')].map(r=>r.dataset.ovNeedRow),['hof-run2','hof-b1','hof-b2','hof-b3','hof-b4'],'not capped at five, or listed twice');
+  assert.equal(needs().querySelector('[data-ov-need-all]').getAttribute('href'),'#issues?view=needs');assert(!needs().querySelector('img'),'a goal became markup');
+  // No task waits and no approval: says so, the approvals figure is not a link.
+  const quiet={...load,tasks:{...load.tasks,waiting_person:0,approvals_pending:0}},saved=running.running;
+  dash={...dash,handoff_list:[]};running.running=saved.filter(r=>r.worker_state!=='blocked');w.eval('refresh()');await settle();
+  w.eval('LOAD.data='+JSON.stringify(quiet)+';RUNNING.data='+JSON.stringify(running)+';ovDraw()');assert(needs().querySelector('[data-ov-need-empty]'),'an empty list is not said');assert(!needs().querySelector('[data-ov-need="approvals"] a'),'zero approvals is a link');
+  running.running=saved;w.eval('refresh()');await poll()}
  // Polled every 10 s while it shows.
  assert(intervals.includes(10000),'no 10 s poll: '+intervals);assert.equal(w.eval('OV_EVERY'),10000);
  {const b=count('/api/load'),c=count('/api/running');await poll();assert(count('/api/load')>b&&count('/api/running')>c,'a due poll did not read both feeds')}

@@ -1,4 +1,4 @@
-// The landing page (libraos/agentd-core#850): Home groups the team's tasks into Working, Needs attention (team),
+// The landing page (libraos/agentd-core#850; on the team server an alias of Overview since #907 step 4): Home groups the team's tasks into Working, Needs attention (team),
 // Waiting on another task, Review and validation and Closed recently, each a count and a short list, from
 // issueItems, the list Tasks draws, so the counts match Tasks' columns. Each row opens its task.
 // Created by (people, and services or triggers by source) and project narrow every group and
@@ -41,57 +41,14 @@ const count=(root,key)=>root.querySelector('[data-home-count="'+key+'"]').textCo
 const pick=async(w,root,field,value)=>{const s=root.querySelector('select[data-home-filter="'+field+'"]');assert(s,'no '+field+' filter');assert([...s.options].some(o=>o.value===value),field+' filter lacks '+value+': '+[...s.options].map(o=>o.value));s.value=value;s.dispatchEvent(new w.Event('change',{bubbles:true}));await settle()};
 const hashParams=w=>new URLSearchParams(w.location.hash.split('?')[1]||'');
 (async()=>{
- // The server: a bare address lands on Overview (#907); Home is at #home.
- {const hits=[],dom=page('http://127.0.0.1:21620/#home',()=>snap,hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
-  assert(!doc.getElementById('page-home').hidden,'#home does not open Home');assert.equal(doc.querySelector('.rail-item[aria-current="page"]').dataset.rail,'home');
-  assert.equal(doc.querySelector('#page-title').textContent,'Home');
-  const root=doc.getElementById('home-body');
-  assert.deepEqual([...root.querySelectorAll('[data-home-group]')].map(g=>g.querySelector('h3').textContent),['Working','Needs attention (team)','Waiting on another task','Review and validation','Closed recently']);
-  assert.deepEqual(groupIds(root,'working'),['hof-work']);assert.deepEqual(groupIds(root,'needs'),['hof-need']);assert.deepEqual(groupIds(root,'blocked'),['hof-blk']);
-  assert.deepEqual(groupIds(root,'review'),['hof-rev']);assert.deepEqual(groupIds(root,'done').sort(),['hof-bdone','hof-done']);
-  assert.equal(count(root,'done'),'2');assert.equal(root.querySelector('[data-home-todo]').dataset.homeTodo,'1','To do is not named under the groups');
-  // The same list Tasks draws: its board columns hold the same tasks.
-  {const m=w.eval("(()=>{const items=issueItems(lastDash,true).filter(i=>!i.folded);return {progress:items.filter(i=>i.status==='progress').length,review:items.filter(i=>i.status==='review').length}})()");
-   assert.equal(String(m.progress),count(root,'working'));assert.equal(String(m.review),count(root,'review'))}
-  // Each row opens its task; a title is text, never markup.
-  const work=root.querySelector('[data-home-row="hof-work"] a.home-open');assert.equal(work.getAttribute('href'),'#issues/hof-work');
-  assert(work.textContent.includes('Fix login')&&!root.querySelector('img'),'a title became markup');
-  assert.equal(root.querySelector('[data-home-row="hof-done"] a.home-open').getAttribute('href'),'#issues/hof-done');
-  assert(root.querySelector('[data-home-row="hof-rev"] [data-home-by="source:trigger"]'),'a trigger task does not say a trigger made it');
-  // Created by: people and services; it narrows every group and is in the address.
-  await pick(w,root,'by','person:bob');
-  assert.equal(hashParams(w).get('by'),'person:bob','the creator filter is not in the address: '+w.location.hash);
-  assert.deepEqual(groupIds(root,'working'),[]);assert.deepEqual(groupIds(root,'needs'),['hof-need']);assert.deepEqual(groupIds(root,'done'),['hof-bdone']);assert.equal(root.querySelector('[data-home-todo]').dataset.homeTodo,'1');
-  assert(root.querySelector('[data-home-group="working"] .home-empty'),'an empty group says so');
-  await pick(w,root,'by','source:trigger');assert.deepEqual(groupIds(root,'review'),['hof-rev']);assert.deepEqual(groupIds(root,'needs'),[]);
-  // Project with a creator: both apply.
-  await pick(w,root,'by','person:ann');await pick(w,root,'project','acme/site');
-  assert.equal(hashParams(w).get('project'),'acme/site');assert.equal(hashParams(w).get('by'),'person:ann');
-  assert.deepEqual(groupIds(root,'done'),['hof-done']);assert.deepEqual(groupIds(root,'working'),[]);assert.deepEqual(groupIds(root,'blocked'),[]);
-  // Clear filters empties the address's query.
-  root.querySelector('[data-home-clear]').click();await settle();assert.equal(w.location.hash,'#home');assert.deepEqual(groupIds(root,'working'),['hof-work']);
-  // Home writes nothing.
-  assert(!root.querySelector('[data-write],form'),'Home has an action');
-  dom.window.close()}
- // Workers (libraos/agentd-core#900): one line of node counts by state from /api/dash's nodes,
- // linked to Team > Nodes and devices, marked when one is offline; none without nodes.
- {const hits=[];let nodes={total:3,idle:2,busy:0,drained:1,offline:0,not_accepting:0,not_ready:0};
-  const dom=page('http://127.0.0.1:21620/#home',()=>({...snap,nodes}),hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
-  const line=()=>doc.querySelector('#home-body [data-home-workers]');assert(line(),'Home has no workers line');
-  assert.equal(line().querySelector('a').textContent,'Workers: 2 idle · 0 busy · 1 drained');assert.equal(line().querySelector('a').getAttribute('href'),'#team/nodes');
-  assert(!line().dataset.offline&&!line().querySelector('.home-workers-off'),'marked offline with none offline');
-  nodes={total:4,idle:1,busy:1,drained:1,offline:1,not_accepting:0,not_ready:0};w.eval('refresh()');await settle();
-  assert.equal(line().querySelector('a').textContent,'Workers: 1 idle · 1 busy · 1 drained · 1 offline');
-  assert.equal(line().dataset.offline,'1');assert(line().classList.contains('off'));assert.equal(line().querySelector('.home-workers-off').textContent,'A node is offline');
-  nodes={total:0,idle:0,busy:0,drained:0,offline:0,not_accepting:0,not_ready:0};w.eval('refresh()');await settle();assert.equal(line().querySelector('a').textContent,'Workers: none connected');
-  dom.window.close()}
- {const dom=page('http://127.0.0.1:21620/#home',()=>snap,[]);await settle();assert(!dom.window.document.querySelector('[data-home-workers]'),'a workers line without nodes in the snapshot');dom.window.close()}
- // A reload with filters in the address keeps them; a viewer sees the same page, read only.
- {const hits=[],viewer={...snap,role:'viewer'},dom=page('http://127.0.0.1:21620/#home?by=person%3Abob&project=acme%2Fapp',()=>viewer,hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
-  const root=doc.getElementById('home-body');assert.equal(root.querySelector('select[data-home-filter="by"]').value,'person:bob');assert.equal(root.querySelector('select[data-home-filter="project"]').value,'acme/app');
-  assert.deepEqual(groupIds(root,'needs'),[],'bob\'s acme/site task shows under acme/app');assert.deepEqual(groupIds(root,'done'),['hof-bdone']);
-  assert(root.querySelector('[data-home-row="hof-bdone"] a.home-open'),'a viewer cannot open a task');
-  assert(!hits.includes('/api/action'),'Home acted: '+hits.join(','));
+ // The team server: #home is an alias of Overview (#907 step 4), the address kept as typed (agentd app
+ // reads #home?... itself), under Overview in the rail; no Home rail item is left. Home's groups and
+ // filters are agentd app's now, tested below; the server's worker nodes are on Overview's Agents card.
+ {const hits=[],dom=page('http://127.0.0.1:21620/#home?by=person%3Abob',()=>snap,hits),w=dom.window,doc=w.document;await settle();assert(!errors.length,errors.join('\n'));
+  assert(!doc.getElementById('page-overview').hidden,'#home does not open Overview');assert(doc.getElementById('page-home').hidden,'the server still shows its Home');
+  assert.equal(doc.querySelector('.rail-item[aria-current="page"]').dataset.rail,'overview');assert(!doc.querySelector('.rail-item[data-rail="home"]'),'Home is still a rail item');
+  assert.equal(doc.querySelector('#page-title').textContent,'Overview');assert(w.location.hash.startsWith('#home'),'the address was rewritten: '+w.location.hash);
+  assert(!doc.querySelector('#home-body [data-home-group]'),'the server drew Home\'s groups');
   dom.window.close()}
  // agentd app: Home over the centre from the same snapshot, no new route; a task row opens it.
  {const hits=[],app={...snap,mode:'app',watchdog:{running:true,start:'agentd install'},spend_today:{usd:0,workers:0,unpriced:0,pending:0}};

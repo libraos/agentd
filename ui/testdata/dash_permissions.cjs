@@ -30,6 +30,7 @@ function boot(user,role,readStatus){const requests=[],posts=[],errors=[],logs=[]
    if(u.pathname==='/api/grants')return readStatus===200?json(grants):json({error:'policies are read by an owner or an admin'},readStatus);
    if(u.pathname==='/api/policies')return readStatus===200?json(policies):json({error:'policies are read by an owner or an admin'},readStatus);
    if(u.pathname==='/api/team')return json({roles:[],members,problems:[],handoff_roles:{}});
+   if(u.pathname==='/api/settings')return json({owner:role==='owner',config:{},models:{},users:role==='owner'?members.map(m=>({...m,state:'active'})):[],invites:[]});
    if(u.pathname==='/api/chat')return json({chats:[],roles:[],gateway_ready:false});
    return json({})}}});
  return {dom,w:dom.window,doc:dom.window.document,requests,posts,errors,logs,setAnswer:f=>{answer=f}}}
@@ -39,8 +40,8 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  {const t=boot('ann','owner',200),{w,doc}=t,view=()=>doc.querySelector('#team-view'),go=async h=>{w.location.hash=h;await settle()};await settle();assert(!t.errors.length,t.errors.join('\n'));
   // Team opens on Users: each user, their role, and a running task they asked for.
   assert.equal(doc.querySelector('#team-tabs a[aria-current="page"]').dataset.tab,'users','Team does not open on Users');
-  assert(view().querySelector('a[href="#team/member/bob"]'),'no user row');assert(/1 running now/.test(view().querySelector('a[href="#team/member/bob"]').textContent),'a user\'s running task is not said');
-  assert(view().querySelector('a[href="#settings/members"]'),'Users does not say where to invite, reset or disable');
+  assert(view().querySelector('tr[data-user="bob"] a[href="#team/member/bob"]'),'no user row');assert(/1 running now/.test(view().querySelector('tr[data-user="bob"]').textContent),'a user\'s running task is not said');
+  assert(view().querySelector('[data-users-acts]'),'Users has no owner actions (invite, create)');
   assert(!t.requests.some(r=>/\/api\/(grants|policies)$/.test(r)),'Users asked for grants before Permissions opened');
   // Permissions: the grants and the policies, as text.
   await go('#team/permissions');assert.equal(doc.querySelector('#team-tabs a[aria-current="page"]').dataset.tab,'permissions');
