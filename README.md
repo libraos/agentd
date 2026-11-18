@@ -166,7 +166,7 @@ A Cloud Worker runs one task on LibraOS infrastructure instead of your machine. 
 
 - Each job runs in its own isolated virtual machine, with repository and model access for that job only, revoked when it ends.
 - The worker pushes an `agentd/…` branch to your repository. Nothing is merged; you review it as usual.
-- A job holds its dollar budget from your Console credits and is charged for what it uses: US$0.04 per active minute plus model use at list price.
+- A job holds its dollar budget from your Console credits and is charged for what it uses: Cloud Workers by the active minute by machine size (for example $0.002484 a minute at 2 vCPU + 4 GiB; see [libraos.com/pricing](https://libraos.com/pricing)), plus model use, which your provider or Claude plan bills instead with `--model-access byok` or `subscription`.
 
 ```sh
 agentd handoff offer --cloud --budget '$10' --goal 'Fix the failing checkout test' --project OWNER/REPO
