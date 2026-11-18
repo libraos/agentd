@@ -1812,8 +1812,8 @@ function dashPage(name,def){PAGES[name]=def}
 function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||path||'home').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
   const invalidView=views&&rest[0]&&!views.includes(rest[0])||item==='home'&&rest.length>0||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['host','working','roles','members','repositories','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
-function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
-function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
+function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());if(BY)p.set('by',BY);routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
+function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';BY=/^(person|source):./.test(p.get('by')||'')?p.get('by'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
 function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.replaceState(null,'','#'+ALIASES[raw]);
   const r=parseRoute(location.hash),def=PAGES[r.item],moved=r.item!==ROUTE.item||r.view!==ROUTE.view,pageId=r.view||def.pageId||r.item,path='#'+r.item+(r.view?'/'+r.view:'');if(moved&&PAGES[ROUTE.item]?.leave)PAGES[ROUTE.item].leave();ROUTE=r;
   setPanel(false);$('account').open=false;
@@ -3254,8 +3254,9 @@ function drawCards(d){
   // In the Needs you view a folded open PR keeps its own card: that is where it is merged or rejected.
   const onBoard=i=>!i.folded||VIEW==='needs'&&i.openPR,inView=(i,v)=>v==='all'||v==='mine'&&i.mine||v==='agents'&&i.status==='progress'||v==='needs'&&(i.status==='needs'||i.status==='failed');
   const cards=items.filter(onBoard);if(VIEW==='mine'&&!CAN()&&!cards.some(i=>inView(i,'mine'))&&!ROUTE.params.has('view')){VIEW='all';VIEW_FALLBACK=true}drawIssuePanel(projects,cards,inView);issueNote();
-  const shown=cards.filter(i=>!PROJ||i.project===PROJ).filter(i=>inView(i,VIEW)).filter(bfMatch);
-  if(drawMarks(items.filter(i=>i.mark&&(!PROJ||i.project===PROJ)&&inView(i,VIEW)&&bfMatch(i))))return;
+  const live=homeLive(d),byOK=i=>!BY||homeCreator(i,live)===BY;
+  const shown=cards.filter(i=>!PROJ||i.project===PROJ).filter(i=>inView(i,VIEW)).filter(bfMatch).filter(byOK);
+  if(drawMarks(items.filter(i=>i.mark&&(!PROJ||i.project===PROJ)&&inView(i,VIEW)&&bfMatch(i)&&byOK(i))))return;
   if(LAYOUT==='board'){drawBoard(shown);return}
   // Panels: by name, ignoring case, as the sidebar lists them; no checkout last.
   const groups=new Map();for(const i of shown){if(!groups.has(i.project))groups.set(i.project,[]);groups.get(i.project).push(i)}
@@ -3269,6 +3270,9 @@ function drawCards(d){
     p.addEventListener('toggle',()=>{try{localStorage.setItem('dash-proj-'+k,p.open?'1':'0')}catch(e){}});return p});
   board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ||BF_TEXT.trim()?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]))}
 /* views and filters */
+// BY: Home's Created by (person:NAME or source:NAME, homeCreator's rule), carried in by Home's
+// counted links (libraos/agentd-core#904) so Tasks shows the set Home counted.
+let BY='';
 const WF={source:'',stage:''};let VIEW_FALLBACK=false,VIEW='mine';try{VIEW=localStorage.getItem('dash-view')||'mine'}catch(e){}if(!['all','mine','agents','needs'].includes(VIEW))VIEW='all';
 let ISSUE_FILTERS_OPEN=false;let LAYOUT='board',PROJ='';try{LAYOUT=localStorage.getItem('dash-layout')==='list'?'list':'board'}catch(e){}
 // drawBoard: one column per status, each card naming its project.
@@ -3475,8 +3479,9 @@ function issueItem(it,ctx,needRows){
     el('div',{class:'kmeta'},el('code',{class:'kref',title:it.ref},num),who?whoLink(who):el('span',{},'Unassigned'),ended?el('span',{},ended):null,changeEl(hs.filter(h=>h.change).pop()),it.updated_ago?el('span',{class:'age'},it.updated_ago+' ago'):null),
     ...(needs.length?needRows(needs):[]));
   return {kind:'issue',project:it.repo,status,sid:who||'',src:it,mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
-function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ='';bfRead(new URLSearchParams());VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
-function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
+function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ=BY='';bfRead(new URLSearchParams());VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
+function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ||BY);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
+  if(BY)out.push(el('div',{class:'filter-note','data-by-filter':BY},'Only work created by '+homeByLabel(BY)+', as Home counted it. ',el('button',{type:'button',onclick:()=>{BY='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}},'Show everyone\u2019s')));
   if(VIEW_FALLBACK)out.push(el('div',{class:'filter-note'},'Showing All because nothing is assigned to you in Started by me.'));
   if(WF.source||WF.stage)out.push(el('div',{class:'filter-note'},'Source and stage apply to tasks. Standalone pull requests and sessions are hidden.'));
   if(!(lastDash||{}).dispatch&&(ROLE==='owner'||TOKEN&&!ROLE))out.push(el('div',{class:'filter-note'},'Starting work from here is off. Set ',el('code',{},'[dash] dispatch = true'),'.'));
@@ -3695,7 +3700,8 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
 // end:issues
 // region:home: the landing page (libraos/agentd-core#850). Five groups, each a count and a
-// short list: Working, Needs you, Blocked, Ready to review, Done (recent). They come from
+// short list: Working, Needs attention (team), Waiting on another task, Review and validation,
+// Closed recently. They come from
 // issueItems, the list Tasks draws (its handoffs, the day's finished ones, open PRs, issue
 // cards, sessions working with no task, mirrored member-host tasks), so the numbers agree
 // with Tasks' columns: Working is In progress, Needs you is Needs attention and Failed,
@@ -3704,10 +3710,14 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
 // Filters: created by (a person, the sender's user; or a service or trigger, the handoff's
 // source when it is not interactive or cli) and project. They narrow every group and are
 // the address, #home?by=person:NAME|source:NAME&project=OWNER/REPO, so a link or reload keeps
-// them. Read only: rows are links to the task (#issues/...); nothing here writes, so a viewer
+// them. A group's "All N in Tasks" carries both filters (Tasks reads by= with the same rule),
+// so it opens the N counted; a link to a wider list says Browse Tasks with no count.
+// Read only: rows are links to the task (#issues/...); nothing here writes, so a viewer
 // sees the same page. In agentd app (region:app) the same view is the Home page over the
 // centre, from the snapshot it already has: no new route, a task row opens the workspace.
-const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs you','A question, an approval, or a blocked, failed or stopped worker.'],['blocked','Blocked','Waiting on other tasks to finish first.'],['review','Ready to review','Finished with a pull request open, or at the review or validate stage.'],['done','Done (recent)','Finished in the last 24 hours.']],
+// Labels say whose each group is (libraos/agentd-core#904): Needs attention is the team's,
+// unlike Inbox, which is the signed-in person's alone.
+const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs attention (team)','A question, an approval, or a blocked, failed or stopped worker, whoever started it.'],['blocked','Waiting on another task','Waiting on other tasks to finish first.'],['review','Review and validation','A pull request open, or an agent at the review or validate stage.'],['done','Closed recently','Done, cancelled or declined in the last 24 hours.']],
   HOME_COLUMN={working:'progress',needs:'needs',blocked:'todo',review:'review',done:'done'},HOME_CAP=5,HOME_PERSON_SOURCES=new Set(['','interactive','cli']),HOME={by:'',project:''};
 // homeGroupOf: which of the five groups an item is in, '' for To do that waits on nothing.
 function homeGroupOf(i){const s=i.status,x=i.src||{};if(s==='needs'||s==='failed')return 'needs';if(s==='progress')return 'working';if(s==='review')return 'review';if(FINISHED.has(s))return 'done';
@@ -3717,7 +3727,8 @@ function homeCreatorOf(x){if(!x)return '';const src=x.source||'';if(!HOME_PERSON
 function homeCreator(i,live){const x=i.src||{};if(i.kind==='issue'){const h=(x.handoffs||[])[0];return h?homeCreatorOf(live.get(h.id)||h):''}if(i.kind==='session')return x.user?'person:'+x.user:'';if(i.kind==='pr')return '';return homeCreatorOf(x)}
 function homeByLabel(by){return by.startsWith('source:')?word(by.slice(7)):by.replace(/^person:/,'')}
 // homeModel: the groups under the filters, and every creator and project there is to choose.
-function homeModel(d,f){f=f||HOME;const live=new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,x])]);
+function homeLive(d){return new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,x])])}
+function homeModel(d,f){f=f||HOME;const live=homeLive(d);
   const items=issueItems(d,true).filter(i=>!i.folded),people=new Set(),sources=new Set(),projects=new Set(),groups=Object.fromEntries(HOME_GROUPS.map(([k])=>[k,[]]));let todo=0;
   for(const i of items){i.by=homeCreator(i,live);if(i.by.startsWith('person:'))people.add(i.by.slice(7));else if(i.by.startsWith('source:'))sources.add(i.by.slice(7));if(i.project)projects.add(i.project)}
   for(const i of items){if(f.by&&i.by!==f.by||f.project&&i.project!==f.project)continue;const g=homeGroupOf(i);if(g)groups[g].push(i);else if(i.status==='todo')todo++}
@@ -3751,14 +3762,18 @@ function homeView(d,app){const m=homeModel(d,HOME),sfx=app?'-app':'',opt=(v,labe
   if(HOME.project&&!m.projects.includes(HOME.project))proj.append(opt(HOME.project,shortProject(HOME.project)));proj.value=HOME.project;
   const bar=el('div',{class:'wfilter home-filters',role:'group','aria-label':'Filters'},el('label',{class:'issue-proj',for:'home-by'+sfx},'Created by ',by),el('label',{class:'issue-proj',for:'home-project'+sfx},'Project ',proj),
     filtered?el('button',{type:'button','data-home-clear':'',onclick:()=>{HOME.by=HOME.project='';homeSet('','')}},'Clear filters'):null);
-  const more=(key,n)=>{if(app)return el('button',{type:'button',class:'linkish home-more',onclick:()=>appPage('tasks')},'All '+n+' in Tasks');const p=new URLSearchParams({view:'all',layout:'board',column:HOME_COLUMN[key]});if(HOME.project)p.set('project',HOME.project);return el('a',{class:'home-more',href:'#issues?'+p},'All '+n+' in Tasks')};
+  // A link that opens exactly the set counted names the count; one that opens a wider list
+  // (agentd app's Tasks, the To do column for Waiting on another task) says Browse Tasks.
+  const tasksHref=column=>{const p=new URLSearchParams({view:'all',layout:'board',column});if(HOME.project)p.set('project',HOME.project);if(HOME.by)p.set('by',HOME.by);return '#issues?'+p};
+  const more=(key,n)=>{if(app)return el('button',{type:'button',class:'linkish home-more',onclick:()=>appPage('tasks')},'Browse Tasks');const exact=key!=='blocked';
+    return el('a',{class:'home-more',href:tasksHref(HOME_COLUMN[key]),title:exact?null:'Opens To do, which also holds tasks not waiting on another'},exact?'All '+n+' in Tasks':'Browse Tasks')};
   const groups=el('div',{class:'home-groups'},HOME_GROUPS.map(([key,label,hint])=>{const xs=m.groups[key],hid='home-h-'+key+sfx;
     return el('section',{class:'home-group','data-home-group':key,'aria-labelledby':hid},
       el('div',{class:'home-ghead'},el('h3',{id:hid},label),el('span',{class:'n','data-home-count':key,title:xs.length+' in '+label},String(xs.length))),
-      el('p',{class:'home-hint'},hint),
+      el('p',{class:'home-hint'},hint,key==='needs'?[' What waits on you alone is in ',app?'Your Inbox':el('a',{href:'#inbox'},'Your Inbox'),'.']:null),
       xs.length?el('ul',{class:'home-rows'},xs.slice(0,HOME_CAP).map(i=>homeRow(i,app))):el('p',{class:'home-empty'},filtered?'Nothing here matches these filters.':'Nothing here.'),
       xs.length>HOME_CAP?more(key,xs.length):null)}));
-  const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:'#issues?'+new URLSearchParams({view:'all',layout:'board',column:'todo',...(HOME.project?{project:HOME.project}:{})})},'See them in Tasks')):null;
+  const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:tasksHref('todo'),title:'To do also holds the tasks waiting on another'},'Browse Tasks')):null;
   return [homeWorkers(d),bar,groups,note].filter(Boolean)}
 // homeWorkers: one line of the team server's worker nodes by state, from /api/dash's nodes
 // (the cards counted by count_as, libraos/agentd-core#900), linked to Team > Nodes and devices
