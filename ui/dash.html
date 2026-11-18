@@ -4488,8 +4488,8 @@ const IX_VIEWS=['success','cost','usage'],IX={data:null,err:'',status:0,req:0,ke
 function ixKey(){return $('ix-range').value+'|'+insScope()}
 function ixRead(r){const p=r.params||new URLSearchParams(),v=p.get('range');if(v&&[...$('ix-range').options].some(o=>o.value===v))$('ix-range').value=v}
 function ixSave(){if(ROUTE.item!=='insights'||!IX_VIEWS.includes(ROUTE.view))return;const p=new URLSearchParams({range:$('ix-range').value});if(insScope())p.set('scope',insScope());routeQuery('insights/'+ROUTE.view,p,true)}
-function ixEnter(r){ixRead(r);const pg=$('page-'+r.view),bar=$('ix-bar');if(bar.parentElement!==pg)$('ix-'+r.view).before(bar);ixDraw();if(IX.key!==ixKey()||Date.now()-IX.at>=INS_EVERY)ixLoad();else ixSave()}
-async function ixLoad(){const req=++IX.req,key=ixKey(),q=new URLSearchParams({since:$('ix-range').value});if(insScope())q.set('scope',insScope());IX.at=Date.now();IX.key=key;ixSave();if(!IX.data||IX.data._key!==key){IX.data=null;IX.err=''}ixDraw();
+function ixEnter(r){if(APP.on)return;ixRead(r);const pg=$('page-'+r.view),bar=$('ix-bar');if(bar.parentElement!==pg)$('ix-'+r.view).before(bar);ixDraw();if(IX.key!==ixKey()||Date.now()-IX.at>=INS_EVERY)ixLoad();else ixSave()}
+async function ixLoad(){if(APP.on)return;const req=++IX.req,key=ixKey(),q=new URLSearchParams({since:$('ix-range').value});if(insScope())q.set('scope',insScope());IX.at=Date.now();IX.key=key;ixSave();if(!IX.data||IX.data._key!==key){IX.data=null;IX.err=''}ixDraw();
   try{const r=await fetch('/api/insights?'+q,{cache:'no-store',headers:auth()});let j=null,t='';try{t=await r.text();j=JSON.parse(t)}catch(e){}if(req!==IX.req)return;
     if(!r.ok){const e=httpErr(r);e.message=(j&&j.error)||t.trim()||e.message;throw e}IX.data=j&&typeof j==='object'?{...j,_key:key}:{_key:key};IX.err='';IX.status=0}
   catch(e){if(req!==IX.req)return;IX.err=e.message||'could not load';IX.status=e.status||0;IX.at=0;if(e.status===401||e.status===403)IX.data=null}
@@ -5051,7 +5051,7 @@ function notifySettings(){
 // own keys), or with Ctrl, Cmd or Alt held (Ctrl+K is search's own). Every key has
 // a pointer twin: the rail for g, New task for n, the search button for / and
 // the account menu's Keyboard shortcuts (on a phone too) for ?.
-const KEYS_GO={i:['#inbox','Inbox'],b:['#issues','the board (Tasks)'],c:['#chat','Chat'],m:['#insights/metrics','Metrics']};
+const KEYS_GO={i:['#inbox','Needs me (Tasks)'],b:['#issues','the board (Tasks)'],c:['#chat','Chat'],m:['#insights/metrics','Metrics']};
 const KEYS_LIST=[[['?'],'Show this list of shortcuts'],...Object.entries(KEYS_GO).map(([k,[,name]])=>[['g',k],'Go to '+name]),[['n'],'New task'],[['/'],['Ctrl','K']],[['j'],'Next item in a list'],[['k'],'Previous item in a list'],[['Enter'],'Open the selected item'],[['Esc'],'Close a sheet, menu or panel']];
 const KEYS_ROWS='.ib-row,.kcard,.tm-row,.hrow,.working-table tbody tr,.chat-rowbox';
 let keysPrefix=0;
@@ -5081,7 +5081,8 @@ document.addEventListener('keydown',e=>{
   // Enter on a list row's link opens it once (a button's Enter is the browser's own click).
   else if(k==='Enter'&&!e.shiftKey&&e.target.matches&&e.target.matches('a[href]')&&e.target.closest(KEYS_ROWS)){e.preventDefault();e.target.click()}});
 $('keys-open').addEventListener('click',()=>{$('account').open=false;keysSheet()});
-for(const [k,[hash]] of Object.entries(KEYS_GO))for(const a of document.querySelectorAll('.rail a[href="'+hash.split('/')[0]+'"].rail-item'))a.setAttribute('aria-keyshortcuts','G '+k.toUpperCase());
+// Inbox is no rail item since #907: G I is said on Tasks' Needs me link instead.
+for(const [k,[hash]] of Object.entries(KEYS_GO))for(const a of document.querySelectorAll('.rail a[href="'+hash.split('/')[0]+'"].rail-item,a[data-needs-me][href="'+hash+'"]'))a.setAttribute('aria-keyshortcuts','G '+k.toUpperCase());
 // end:keys
 // region:triggers: the Triggers page for owners (#460). GET /api/triggers is what
 // `agentd trigger status` prints (the same function) and the templates as

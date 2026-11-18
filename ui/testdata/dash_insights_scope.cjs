@@ -32,6 +32,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   else if(u.pathname==='/api/bench')body={rounds:[]};
   else if(u.pathname==='/api/factory')body=factory;
   else if(u.pathname==='/api/usage')body={totals:{workers:0}};
+  else if(u.pathname==='/api/insights')body={since:'2026-11-11T00:00:00Z',until:'2026-11-18T00:00:00Z',scope:u.searchParams.get('scope')||'all',handoffs:0,total:{handoffs:0,coverage:{attempts:0}},by_person:[],by_model:[],by_project:[],rules:{}};
   else if(u.pathname==='/api/history')body={rows:[],total:0,groups:0,next:null,limit:50,facets:{states:[],sources:[],creators:[]}};
   return {ok:true,status:200,json:async()=>JSON.parse(JSON.stringify(body)),text:async()=>JSON.stringify(body)}}}});
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()},route=async h=>{w.location.hash=h;await settle()};
@@ -61,9 +62,11 @@ const hashParams=()=>new URLSearchParams(w.location.hash.split('?')[1]||'');
  // Changing it puts it in the address.
  sel.value='server';sel.dispatchEvent(new w.Event('change'));await settle();
  assert.equal(hashParams().get('scope'),'server','the scope is not in the address: '+w.location.hash);assert.equal(last('/api/factory').get('scope'),'server');
- // Usage and History read it from the address and hold the filter beside their own numbers.
- await route('#insights/usage?range=30d&scope=hosts');assert.equal(sel.value,'hosts');assert.equal(last('/api/usage').get('scope'),'hosts','usage without the link\'s scope');
- assert(doc.getElementById('page-usage').contains(sel),'Whose work is not on Usage');
+ // Worker usage, Usage and History read it from the address and hold the filter beside their own numbers.
+ await route('#insights/workers?range=30d&scope=hosts');assert.equal(sel.value,'hosts');assert.equal(last('/api/usage').get('scope'),'hosts','worker usage without the link\'s scope');
+ assert(doc.getElementById('page-workers').contains(sel),'Whose work is not on Worker usage');
+ await route('#insights/usage?range=7d&scope=server');assert.equal(sel.value,'server');assert.equal(last('/api/insights').get('scope'),'server','insights without the link\'s scope');assert.equal(last('/api/insights').get('since'),'7d');
+ assert(doc.getElementById('ix-bar').contains(sel),'Whose work is not in Usage\'s control row');
  await route('#insights/history?scope=server');assert.equal(sel.value,'server');assert.equal(last('/api/history').get('scope'),'server','history without the link\'s scope');
  assert(doc.getElementById('page-history').contains(sel),'Whose work is not on History');
  // All work drops it from the address.

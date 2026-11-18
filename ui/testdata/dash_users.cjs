@@ -1,6 +1,7 @@
-// Users and password sign-in: Settings > Members and roles has a Users section for
-// owners (create with a temporary password or an invitation, reset, disable, enable,
-// each behind the confirmation sheet), the unlock sheet leads to a name and password
+// Users and password sign-in: Team > Users (libraos/agentd-core#907, moved from Settings >
+// Members and roles) lists each user with their devices and last active, and for owners
+// has the actions (create with a temporary password or an invitation, reset, disable,
+// enable, each behind the confirmation sheet; invitations resent or revoked), the unlock sheet leads to a name and password
 // sign-in (locked, https_required and wrong credentials named), and a session that
 // must change its password gets a full-page form that replaces the app until the
 // change succeeds, whether the snapshot says so or any call answers 403
@@ -17,6 +18,8 @@ const users=()=>[{name:'alice',role:'owner',github:'alice-gh',state:'active',mus
  {name:'bob',role:'dev',state:'active',must_change:true,last_login:null,has_password:true,has_key:false},
  {name:'dave',role:'viewer',state:'disabled',must_change:false,last_login:'2026-11-01T10:00:00Z',has_password:true,has_key:false},
  {name:evil,role:'dev',state:'pending',must_change:true,last_login:null,has_password:false,has_key:false}];
+const devices=[{id:'d1',person:'alice',label:'laptop',kind:'desktop',state:'active',last_seen:now},{id:'d2',person:'bob',label:'phone',kind:'mobile',state:'active',last_seen:'2026-11-10T09:00:00Z'},{id:'d3',person:'bob',label:'old',kind:'desktop',state:'revoked',last_seen:'2026-10-01T09:00:00Z'}];
+const teamBase={roles:[],members:[{name:'alice',role:'owner'},{name:'bob',role:'dev'}],handoff_roles:{}};
 const settingsBase=()=>({owner:true,config:{},models:{},members:[{name:'alice',role:'owner'},{name:'bob',role:'dev'}],invites:[],users:users(),personal:null,email:{},telegram:{},history:[],chat_roles:[]});
 
 // One page: fixture answers in `api`, every request and console line kept.
@@ -47,22 +50,33 @@ function clean(p,where,except=[]){
 }
 
 async function usersPanel(){
- let settings=settingsBase(),answer=null;
+ let settings=settingsBase(),answer=null,devScope='';
  const p=page('http://127.0.0.1:21620/#settings/members',(u,method,body)=>{
   if(u.pathname==='/api/auth')return [204,{}];
   if(u.pathname==='/api/dash')return [200,dashBase];
+  if(u.pathname==='/api/team')return [200,teamBase];
+  if(u.pathname==='/api/devices')return [200,devScope?{scope:devScope,devices:devices.filter(v=>v.person==='bob')}:{devices}];
   if(u.pathname==='/api/settings'){if(method!=='POST')return [200,settings];const a=answer;answer=null;return a||[200,{changed:true}]}
   return [200,{}]});
  const {w,doc,calls}=p,posts=()=>calls.filter(c=>c.method==='POST'&&c.path==='/api/settings').map(c=>c.body);
  await settle();assert(!p.errors.length,p.errors.join('\n'));
- const sec=()=>doc.getElementById('set-users');
- assert(sec(),'no Users section under Members and roles');assert(doc.getElementById('set-members').contains(sec()),'Users is not in Members and roles');
- const rows=()=>[...sec().querySelectorAll('tbody tr')];
+ // The old address lands on Team > Users; Settings has no Members section left.
+ assert.equal(w.location.hash,'#team/users','#settings/members does not open Team > Users');assert(!doc.getElementById('page-team').hidden);assert(!doc.getElementById('set-members'),'Members and roles is still in Settings');
+ const view=()=>doc.getElementById('team-view'),sec=()=>doc.getElementById('team-users');
+ assert(sec(),'no Users on Team > Users');
+ const rows=()=>[...sec().querySelectorAll('tbody tr[data-user]')];
  const cells=rows().map(r=>[...r.children].map(td=>td.textContent));
+ assert.deepEqual([...sec().querySelectorAll('thead th')].map(t=>t.textContent),['User','Role','GitHub','State','Devices','Last active','Running now','Must change password','Actions']);
  assert.deepEqual(cells.map(r=>[r[0],r[1],r[3]]),[['alice','owner','Active'],['bob','dev','Active'],['dave','viewer','Disabled'],[evil,'dev','Pending']],'name, role, state');
  assert.deepEqual(cells.map(r=>r[2]),['alice-gh','—','—','—'],'GitHub login column');
- assert.equal(cells[1][4],'Never','last login of someone who never signed in');assert(cells[2][4].includes('2026-11-01'),cells[2][4]);
- assert.equal(cells[1][5],'Yes');assert.equal(cells[0][5],'No');
+ // Devices and last active: a revoked device is listed but not counted; the later of sign-in and device contact.
+ const devCell=n=>sec().querySelector('[data-user-devices="'+n+'"]').textContent,actCell=n=>sec().querySelector('[data-user-active="'+n+'"]');
+ assert(devCell('alice').startsWith('1 device')&&devCell('alice').includes('laptop'),devCell('alice'));
+ assert(devCell('bob').startsWith('1 device')&&devCell('bob').includes('old (desktop, revoked)'),devCell('bob'));
+ assert.equal(devCell('dave'),'none');
+ assert.equal(actCell('bob').title,'2026-11-10T09:00:00.000Z','bob\'s last active is not his phone\'s last contact');assert.equal(actCell('dave').title,'2026-11-01T10:00:00.000Z');
+ assert.equal(actCell(evil).textContent,'never seen');
+ assert.equal(cells[1][7],'Yes');assert.equal(cells[0][7],'No');
  assert(!sec().querySelector('img'),'a name became markup');
  // Per row: Reset password and Disable or Enable; nobody disables themselves here.
  assert(!btn(rows()[0],'Disable'),'an owner can disable themselves');
@@ -81,7 +95,7 @@ async function usersPanel(){
  assert.deepEqual(posts().at(-1),{action:'user_github',name:'alice',github:''},'clearing body');
 
  // Create user with a temporary password: shown once, cleared on Dismiss.
- btn(sec(),'Create user').click();await tick();
+ btn(view(),'Create user').click();await tick();
  assert(dialog(doc),'no Create user sheet');assert.equal(field(doc,'role').value,'dev','role default');
  assert.deepEqual([...field(doc,'role').options].map(o=>o.value),['dev','viewer','owner']);
  assert.equal(field(doc,'delivery').value,'password','default delivery');
@@ -97,16 +111,22 @@ async function usersPanel(){
  clean(p,'after Dismiss');
 
  // With an email and owner role; leaving the page clears the box.
- btn(sec(),'Create user').click();await tick();
+ btn(view(),'Create user').click();await tick();
  setv(w,field(doc,'name'),'erin');setv(w,field(doc,'email'),'erin@example.invalid');field(doc,'role').value='owner';
  answer=[200,{user:'erin',role:'owner',temp_password:TEMP[3]}];await submit(w,doc);
  assert.deepEqual(posts().at(-1),{action:'user_create',name:'erin',role:'owner',email:'erin@example.invalid'});
  assert.equal(box.querySelector('input').value,TEMP[3]);
- w.location.hash='#board';await settle();clean(p,'after leaving Settings');
- w.location.hash='#settings/members';await settle();assert(box.hidden,'the box came back');
+ w.location.hash='#board';await settle();clean(p,'after leaving Team');
+ w.location.hash='#team/users';await settle();assert(box.hidden,'the box came back');
+ // Moving to another Team tab clears it too.
+ btn(view(),'Create user').click();await tick();setv(w,field(doc,'name'),'hal');answer=[200,{user:'hal',role:'dev',temp_password:TEMP[4]}];await submit(w,doc);
+ assert.equal(box.querySelector('input').value,TEMP[4]);w.location.hash='#team/permissions';await settle();assert(box.hidden&&!box.children.length,'another tab left the password');clean(p,'after another tab');
+ w.location.hash='#team/users';await settle();
+ // Invite user is its own button too, the sheet Settings had.
+ btn(view(),'Invite user').click();await tick();assert(dialog(doc)&&/Invite user/.test(dialog(doc).textContent),'no Invite user sheet');btn(dialog(doc),'Cancel').click();await tick();
 
  // Send an invitation instead: the existing invite action, which needs an email.
- btn(sec(),'Create user').click();await tick();
+ btn(view(),'Create user').click();await tick();
  setv(w,field(doc,'name'),'fay');field(doc,'delivery').value='invite';const before=posts().length;
  await submit(w,doc);assert(dialog(doc),'an invitation without email was sent');assert.equal(posts().length,before);
  assert(/email/i.test(dialog(doc).textContent),'no email error');
@@ -118,7 +138,7 @@ async function usersPanel(){
  assert(inputs().includes(TEMP[5]),'the invitation\'s one-time password not shown');assert(/once/i.test(box.textContent)&&box.textContent.includes('fay'),'the box does not say whose or that it is shown once');
  btn(box,'Dismiss').click();await tick();assert(box.hidden&&!box.children.length,'Dismiss left the box');clean(p,'after the invitation');
  // Emailed (no link on the page): the one-time password is still shown once, never sent.
- btn(sec(),'Create user').click();await tick();setv(w,field(doc,'name'),'gil');field(doc,'delivery').value='invite';setv(w,field(doc,'email'),'gil@example.invalid');
+ btn(view(),'Create user').click();await tick();setv(w,field(doc,'name'),'gil');field(doc,'delivery').value='invite';setv(w,field(doc,'email'),'gil@example.invalid');
  answer=[200,{user:'gil',sent:true,temp_password:TEMP[5]}];await submit(w,doc);
  assert(inputs().includes(TEMP[5])&&/emailed/i.test(box.textContent),'emailed invitation: '+box.textContent);btn(box,'Dismiss').click();await tick();clean(p,'after the emailed invitation');
 
@@ -147,12 +167,16 @@ async function usersPanel(){
  assert(box.hidden,'a refused reset showed the box');
  clean(p,'owner panel');
 
- // Someone who is not an owner sees no Users section.
- settings={...settingsBase(),owner:false,users:[users()[1]]};w.eval("TOKEN='';COOKIE=true;USER='bob';ROLE='dev';settingsAccess()");await settle();
- assert(!sec(),'a non-owner sees the Users section');
- // The existing members table and invitations stay.
- settings=settingsBase();w.eval("USER='alice';ROLE='owner';settingsAccess()");await settle();
- assert(doc.getElementById('set-members').textContent.includes('Invite member'),'Invite member gone');
+ // Invitations: resend and revoke, as Settings had them.
+ settings={...settingsBase(),invites:[{id:'i1',user:'ivy',email:'ivy@example.invalid',state:'pending'}]};w.eval('SETTINGS.at=0;settingsLoad()');await settle();
+ const inv=view().querySelector('[data-invites]');assert(inv&&inv.textContent.includes('ivy@example.invalid'),'no invitations');assert(btn(inv,'Resend')&&btn(inv,'Revoke'),'no Resend or Revoke');
+ // Someone who is not an owner: the users with their own devices only, and no actions.
+ settings={...settingsBase(),owner:false,users:[users()[1]]};devScope='own';w.eval("TOKEN='';COOKIE=true;USER='bob';ROLE='dev';DEVICES.at=0;settingsAccess();devicesLoad()");await settle();
+ assert.deepEqual([...sec().querySelectorAll('thead th')].map(t=>t.textContent),['User','Role','Devices','Last active','Running now'],'a non-owner sees owner columns');
+ assert(!btn(view(),'Create user')&&!btn(view(),'Invite user')&&!btn(view(),'Reset password')&&!btn(view(),'Disable'),'a non-owner has owner actions');
+ assert(view().querySelector('[data-devices-note="own"]'),'no note that devices are your own');assert.equal(devCell('alice'),'—');assert(devCell('bob').startsWith('1 device'));
+ assert(/An owner invites users/.test(view().textContent));
+ settings=settingsBase();devScope='';w.eval("USER='alice';ROLE='owner';settingsAccess()");await settle();
  assert(!p.errors.length,p.errors.join('\n'));
 }
 
@@ -264,17 +288,19 @@ async function inviteFlow(){
  }
 }
 
-// A person who is not an owner sets their own GitHub login from Members.
+// A person who is not an owner sets their own GitHub login from Team > Users.
 async function ownGitHub(){
  const settings={...settingsBase(),owner:false,users:[{name:'bob',role:'dev',state:'active',must_change:false,last_login:now,has_password:true,has_key:false}]};
- const p=page('http://127.0.0.1:21620/#settings/members',(u,method)=>{
+ const p=page('http://127.0.0.1:21620/#team/users',(u,method)=>{
   if(u.pathname==='/api/auth')return [204,{}];
   if(u.pathname==='/api/dash')return [200,{...dashBase,user:'bob',role:'dev'}];
+  if(u.pathname==='/api/team')return [200,teamBase];
+  if(u.pathname==='/api/devices')return [200,{scope:'own',devices:[]}];
   if(u.pathname==='/api/settings')return [200,method==='POST'?{changed:true}:settings];
   return [200,{}]});
  const {w,doc,calls}=p;await settle();assert(!p.errors.length,p.errors.join('\n'));
- assert(!doc.getElementById('set-users'),'a dev sees the Users section');
- const members=doc.getElementById('set-members');assert(/No GitHub login recorded/.test(members.textContent),'no own GitHub login line');
+ assert(!btn(doc.getElementById('team-view'),'Create user'),'a dev sees Create user');
+ const members=doc.querySelector('[data-own-github]');assert(members,'no own GitHub login section');assert(/No GitHub login recorded/.test(members.textContent),'no own GitHub login line');
  btn(members,'Set GitHub login').click();await tick();setv(w,field(doc,'github'),'bob-gh');await submit(w,doc);
  assert.deepEqual(calls.filter(c=>c.method==='POST'&&c.path==='/api/settings').at(-1).body,{action:'user_github',name:'bob',github:'bob-gh'});
  p.w.close();

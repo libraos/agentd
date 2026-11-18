@@ -45,14 +45,14 @@ const go=async(target,a,b)=>{key(target,a);key(target,b);await settle()};
  let s=sheetOpen();assert(s,'? did not open a sheet');assert.equal(s.id,'keys-sheet');assert.equal(s.querySelector('h2').textContent,'Keyboard shortcuts');
  const rows=[...s.querySelectorAll('#keys-list dt')].map(dt=>[...dt.querySelectorAll('kbd')].map(k=>k.textContent).join(' '));
  for(const want of ['?','g i','g b','g c','g m','n','/ Ctrl K','j','k','Enter','Esc'])assert(rows.includes(want),'the sheet does not list '+want+': '+rows.join(' | '));
- const text=s.querySelector('#keys-list').textContent;for(const w of ['Inbox','board','Chat','Metrics','New task','Search','Next item','Previous item','Open'])assert(text.includes(w),'the sheet does not say '+w);
+ const text=s.querySelector('#keys-list').textContent;for(const w of ['Needs me','board','Chat','Metrics','New task','Search','Next item','Previous item','Open'])assert(text.includes(w),'the sheet does not say '+w);
  assert(s.contains(d.activeElement)&&d.activeElement.textContent==='Close','the focus is not on Close in the sheet');
  // Inside the sheet the shortcuts are off: g i does not move the page.
  const before=w.location.hash;await go(d.activeElement,'g','i');assert.equal(w.location.hash,before,'g i fired over the open sheet');
  await closeSheet();
 
  // g i, g b, g c, g m go where the sheet says; a lone i or a slow second key does nothing.
- await go(body,'g','i');assert.equal(w.location.hash,'#inbox','g i did not open Inbox');
+ await go(body,'g','i');assert.equal(w.location.hash,'#inbox','g i did not open Needs me');
  await go(body,'g','c');assert.equal(w.location.hash,'#chat','g c did not open Chat');
  await go(body,'g','m');assert(/^#insights\/metrics(\?|$)/.test(w.location.hash),'g m did not open Metrics: '+w.location.hash);
  await go(body,'g','b');assert(w.location.hash.startsWith('#issues'),'g b did not open the board: '+w.location.hash);
@@ -60,7 +60,8 @@ const go=async(target,a,b)=>{key(target,a);key(target,b);await settle()};
  key(body,'g');w.eval('keysPrefix=Date.now()-5000');key(body,'i');await settle();assert(w.location.hash.startsWith('#issues'),'g then i seconds later moved the page');
  key(body,'g',{ctrlKey:true});key(body,'i');await settle();assert(w.location.hash.startsWith('#issues'),'Ctrl+G then i moved the page');
  // The rail links say which keys reach them.
- assert.equal(d.querySelector('.rail-item[data-rail="inbox"]').getAttribute('aria-keyshortcuts'),'G I');
+ assert.equal(d.querySelector('a[data-needs-me]').getAttribute('aria-keyshortcuts'),'G I','Needs me does not say G I');
+ assert.equal(d.querySelector('.rail-item[data-rail="issues"]').getAttribute('aria-keyshortcuts'),'G B');
  assert.equal(d.querySelector('.rail-item[data-rail="chat"]').getAttribute('aria-keyshortcuts'),'G C');
 
  // j and k move through the board's cards; Enter opens the one with the focus.

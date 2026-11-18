@@ -100,12 +100,13 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  const chip=doc.getElementById('h-outcome');assert(!chip.hidden);assert.equal(chip.textContent,'Failed · week of 2026-10-15 ×');assert(!doc.getElementById('h-clear').hidden,'Clear hidden while filtered');
  assert(doc.getElementById('h-rows').textContent.includes('Fix the flaky test'));
  chip.click();await settle();assert(chip.hidden);const after=requests.filter(r=>r.startsWith('/api/history?')).pop();assert(!new URL('http://x'+after).searchParams.has('outcome'),'the outcome stayed after removing it');assert(!w.location.hash.includes('outcome='));
- // No second panel: Metrics, Usage and History are tabs at the top of the page, Metrics' beside its period picker; addresses unchanged.
+ // No second panel: Success, Cost and Usage are tabs at the top of the page, Metrics, History and Worker usage under More, Metrics' beside its period picker.
+ const TABS=[['success','Success'],['cost','Cost'],['usage','Usage'],['metrics','Metrics'],['history','History'],['workers','Worker usage']];
  assert.equal(w.eval("PAGES.insights.panel"),false,'Insights still has a second panel');assert(!doc.getElementById('panel-insights').children.length,'the Insights panel element is not empty');
  const tabsAt=async v=>{await route('#insights/'+v);const t=doc.getElementById('ins-tabs');assert(!doc.getElementById('side').contains(t),'the tabs are in the panel');
-  assert(doc.body.classList.contains('no-panel'));assert.deepEqual([...t.querySelectorAll('a')].map(a=>[a.getAttribute('href'),a.textContent,a.getAttribute('aria-current')]),['metrics','usage','history'].map(k=>['#insights/'+k,k[0].toUpperCase()+k.slice(1),k===v?'page':null]));return t};
+  assert(doc.body.classList.contains('no-panel'));assert.deepEqual([...t.querySelectorAll('a')].map(a=>[a.getAttribute('href'),a.textContent,a.getAttribute('aria-current')]),TABS.map(([k,l])=>['#insights/'+k,l,k===v?'page':null]));assert.deepEqual([...t.querySelectorAll('[data-tabs-more] a')].map(a=>a.dataset.tab),['metrics','history','workers'],'More does not hold the older views');return t};
  let t=await tabsAt('metrics');assert.equal(t.parentElement.id,'ins-head','Metrics\' tabs are not beside the period picker');assert(t.parentElement.querySelector('#m-range'));
- t=await tabsAt('usage');assert.equal(t.parentElement.id,'page-usage');assert.equal(t.parentElement.firstElementChild,t,'Usage\'s tabs are not at the top');
+ for(const v of ['success','cost','usage','workers']){t=await tabsAt(v);assert.equal(t.parentElement.id,'page-'+v);assert.equal(t.parentElement.firstElementChild,t,v+'\'s tabs are not at the top')}
  t=await tabsAt('history');assert.equal(t.parentElement.id,'page-history');assert.equal(t.parentElement.firstElementChild,t,'History\'s tabs are not at the top');
  // PR workflow latency: a slow /api/metrics shows Loading, then the value; it never stays loading.
  await route('#insights/metrics');metricsDelay=200;latency={n:3,median_hours:0.48};w.eval("INS_READ.metrics=0;loadMetrics()");await settle();

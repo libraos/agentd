@@ -1,4 +1,5 @@
-// The shell (#479): the rail's eight items, with Tasks where Issues was; the
+// The shell (#479, libraos/agentd-core#907 step 4): the rail's six items (Overview, Tasks, Team,
+// Insights, Chat, Settings) with Help a link at its foot, every old route opening its new place; the
 // persistent Agents list (Needs you first, then open tasks by repository, counts,
 // New task, Add a repository) shown on Inbox, Tasks and Triggers (Chat has its conversations) and
 // collapsed elsewhere, the choice remembered; a row opens its task in place, the
@@ -43,11 +44,23 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  const rows=()=>[...doc.querySelectorAll('#agents-rows .ag-row')],ids=()=>rows().map(r=>r.dataset.agentId),row=id=>doc.querySelector('#agents-rows [data-agent-id="'+id+'"]');
  const collapsed=()=>doc.body.classList.contains('agents-collapsed'),drawer=()=>doc.body.classList.contains('agents-open');
  // The rail: its items with those names, in that order, the last two at its foot.
- assert.deepEqual([...doc.querySelectorAll('#rail .rail-item')].map(a=>a.querySelector('.rail-label').textContent),['Overview','Home','Inbox','Tasks','Chat','Triggers','Insights','Team','Settings','Help']);
- assert.deepEqual([...doc.querySelectorAll('#rail .rail-foot .rail-item')].map(a=>a.dataset.rail),['settings','help']);
- assert.equal(doc.querySelector('.rail-item[data-rail="triggers"]').getAttribute('href'),'#triggers','Triggers is not a rail item');
+ const railItems=[...doc.querySelectorAll('#rail .rail-item')];assert(railItems.length<=6,'more than six rail items');
+ assert.deepEqual(railItems.map(a=>a.querySelector('.rail-label').textContent),['Overview','Tasks','Team','Insights','Chat','Settings']);
+ assert.deepEqual([...doc.querySelectorAll('#rail .rail-foot [data-rail]')].map(a=>a.dataset.rail),['settings','help'],'Settings and Help are not at the foot');
+ assert(!doc.querySelector('#rail .rail-aux[data-rail="help"]').matches('.rail-item'),'Help counts as a rail item');
+ for(const gone of ['home','inbox','triggers'])assert(!doc.querySelector('#rail [data-rail="'+gone+'"]'),gone+' is still in the rail');
+ // Every old route opens its new place, under the rail item that now holds it.
+ const old={'#home':['page-overview','overview','#home'],'#inbox':['page-inbox','issues','#inbox'],'#inbox/approvals':['page-inbox','issues','#inbox/approvals'],'#triggers':['page-triggers','settings','#triggers'],
+  '#team/repositories':['page-team','settings','#settings/repositories'],'#team/roles':['page-team','settings','#settings/roles'],'#team/host':['page-team','settings','#settings/sessions'],'#team/members':['page-team','team','#team/members'],'#team/who':['page-team','team','#team/who'],
+  '#settings/members':['page-team','team','#team/users'],'#work':['page-work','issues','#issues'],'#metrics':['page-metrics','insights','#insights/metrics'],'#usage':['page-usage','insights','#insights/usage'],'#history':['page-history','insights','#insights/history'],'#insights/workers':['page-workers','insights','#insights/workers']};
+ for(const [hash,[id,rail,lands]] of Object.entries(old)){await go(hash);assert(!doc.getElementById(id).hidden,hash+' does not open '+id);assert(doc.getElementById('page-notfound').hidden,hash+' lands on Page not found');
+  assert.equal(doc.querySelector('#rail [aria-current="page"]').dataset.rail,rail,hash+' is not under '+rail);assert.equal(w.location.hash.split('?')[0],lands,hash+' does not land at '+lands)}
+ await go('#inbox');assert.equal(doc.querySelector('#page-title').textContent,'Tasks / Needs me');assert(doc.querySelector('#page-inbox a.ib-board[href="#issues"]'),'Needs me has no way back to the board');
+ await go('#team/repositories');assert(doc.querySelector('#team-tabs').hidden,'Team tabs show on a Settings section');assert.equal(doc.querySelector('#page-title').textContent,'Settings / Repositories');
+ assert.equal(doc.querySelector('#settings-sections a[aria-current="page"]').dataset.section,'repositories','the panel does not mark Repositories');
+ await go('#team');assert.deepEqual([...doc.querySelectorAll('#team-tabs a')].map(a=>a.dataset.tab),['users','permissions','nodes','activity'],'Team has more than its four tabs');assert(!doc.querySelector('#team-tabs [data-tab-more]'),'Team still has a More strip');
  // Every page still opens, and on none does a label say Issues (text, title, aria-label or placeholder).
- const pages={'#overview':'page-overview','#home':'page-home','#team/users':'page-team','#team/permissions':'page-team','#team/activity':'page-team','#inbox':'page-inbox','#inbox/failed':'page-inbox','#issues':'page-work','#issues/hof-work':'page-work','#chat':'page-chat','#triggers':'page-triggers','#insights/metrics':'page-metrics','#insights/usage':'page-usage','#insights/history':'page-history','#team':'page-team','#team/host':'page-team','#team/repositories':'page-team','#team/working':'page-team','#settings':'page-settings','#help':'page-help'};
+ const pages={'#overview':'page-overview','#home':'page-overview','#team/users':'page-team','#team/permissions':'page-team','#team/activity':'page-team','#inbox':'page-inbox','#inbox/failed':'page-inbox','#issues':'page-work','#issues/hof-work':'page-work','#chat':'page-chat','#triggers':'page-triggers','#insights/success':'page-success','#insights/cost':'page-cost','#insights/metrics':'page-metrics','#insights/usage':'page-usage','#insights/history':'page-history','#team':'page-team','#settings/sessions':'page-team','#settings/repositories':'page-team','#settings/roles':'page-team','#team/working':'page-team','#settings':'page-settings','#help':'page-help'};
  const labels=()=>{const out=[];const walk=n=>{if(n.nodeType===3){if(!n.parentElement.closest('script,style,[hidden]'))out.push(n.textContent)}else if(n.nodeType===1&&!n.matches('script,style')){for(const a of ['title','aria-label','placeholder'])if(n.getAttribute(a))out.push(n.getAttribute(a));if(!n.hidden)for(const c of n.childNodes)walk(c)}};walk(doc.body);out.push(doc.title);return out};
  for(const [hash,id] of Object.entries(pages)){await go(hash);assert(!doc.getElementById(id).hidden,hash+' does not open '+id);assert(doc.getElementById('page-notfound').hidden,hash+' lands on Page not found');
   const bad=labels().filter(t=>/\bIssues\b/.test(t));assert(!bad.length,hash+': a label says Issues: '+bad.join(' | '))}
@@ -62,7 +75,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  const sub=row('hof-work').querySelector('.ag-sub').textContent;for(const want of ['Codex','working now','#12','12 min','$0.40'])assert(sub.includes(want),'the row lacks '+want+': '+sub);
  assert(row('hof-ask').querySelector('.ag-sub').textContent.includes('Claude · waiting on you'),row('hof-ask').textContent);
  assert.equal(row('s-solo').getAttribute('href'),'#team/session/s-solo');assert(row('s-solo').textContent.includes('Exploring the gamma repo'));
- assert.equal(doc.querySelector('#agents-add').getAttribute('href'),'#team/repositories','Add a repository does not lead to Team');
+ assert.equal(doc.querySelector('#agents-add').getAttribute('href'),'#settings/repositories','Add a repository does not lead to Settings > Repositories');
  assert.equal(doc.querySelector('#agents-new').textContent,'New task');
  // Shown on Inbox, Tasks and Triggers, collapsed on Chat (its conversation list takes the list's place, #483), Insights, Team and Settings (desktop); the toggle says which.
  if(!phone){for(const h of ['#inbox','#issues','#triggers']){await go(h);assert(!collapsed(),'the list is not shown on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'true');assert(!doc.querySelector('#agents-list').inert)}
