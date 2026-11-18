@@ -1491,12 +1491,13 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <p>A session is an agent connected to this host. A handoff records a task, its context, and who has taken it. A worker is a session started for a handoff. Tasks brings the work together; the Agents list beside the rail shows what needs you and what is running; Inbox holds decisions and updates that need you.</p>
   <section class="runs" aria-label="Where things are"><div class="colhead"><h2>Where things are</h2></div>
     <dl>
+      <dt><a href="#overview">Overview</a></dt><dd>Where the server opens: how loaded the server, its tasks and its agents are, and every task running now.</dd>
       <dt><a href="#inbox">Inbox</a></dt><dd>What needs you: approvals, blocked and failed workers.</dd>
       <dt><a href="#issues">Tasks</a></dt><dd>The board of work, and the New handoff form when dispatch is on.</dd>
       <dt><a href="#chat">Chat</a></dt><dd>Conversations with a role.</dd>
       <dt><a href="#triggers">Triggers</a></dt><dd>What starts a worker on its own, and templates for it. Owners only.</dd>
       <dt><a href="#insights">Insights</a></dt><dd>Metrics, Usage and History.</dd>
-      <dt><a href="#team">Team</a></dt><dd>The sessions, roles, members and repositories on this ledger. Pick a session to open its console.</dd>
+      <dt><a href="#team">Team</a></dt><dd>Users, Permissions (who has which role where; an owner or admin changes them with their password), Nodes and devices, and Activity. Repositories, roles and this host’s sessions are under More.</dd>
     </dl></section>
   <section class="runs" aria-label="Words used here"><div class="colhead"><h2>Words used here</h2></div><dl><dt>Unassigned</dt><dd>A task offered for an agent to take.</dd><dt>Working</dt><dd>The host process reports activity; a session can be connected without doing work.</dd><dt>Not seen</dt><dd>The session has not checked in recently. This is separate from the task’s result.</dd><dt>Reserved resource</dt><dd>A path or port an agent says it is using, recorded as a claim.</dd><dt>Validation</dt><dd>A check of the work. A passing check does not merge or publish it.</dd><dt>Lower bound (≥)</dt><dd>At least this amount is known; some usage or prices are missing.</dd><dt>From / Taken by</dt><dd>The session that offered the task and the session that claimed it.</dd></dl></section>
   <section class="runs" aria-label="From the command line"><div class="colhead"><h2>From the command line</h2></div>
@@ -2337,7 +2338,7 @@ function teamDraw(){const d=lastDash||{};teamTabs();const t=teamTarget(),view=$(
   else if(!t&&teamTab()==='repositories'){top=[reposHead()];body=reposBody()}
   else if(!t&&teamTab()==='nodes')body=nodesBody();
   else if(!t&&teamTab()==='activity'){presencePoll();body=presenceBody()}
-  else if(!t&&teamTab()==='permissions'){if(!PERM.at)permLoad();const key=PERM.ver+'|'+(PERM.pending?PERM.pending.title:'')+'|'+USER;if(PERM.drawn===key&&view.querySelector('[data-perm-view]'))return;PERM.drawn=key;body=[el('div',{'data-perm-view':''},...permBody())]}
+  else if(!t&&teamTab()==='permissions'){if(!PERM.at&&permShown())permLoad();const key=PERM.ver+'|'+(PERM.pending?PERM.pending.title:'')+'|'+USER;if(PERM.drawn===key&&view.querySelector('[data-perm-view]'))return;body=[el('div',{'data-perm-view':''},...permBody())];PERM.drawn=key}
   else if(!t)body=!lastDash?[el('div',{class:'state'},'Loading…')]:teamOverview(d);
   else if(TEAM.detailErr)body=[el('div',{class:'state error',role:'alert'},'Could not load this page: '+TEAM.detailErr),el('p',{},el('a',{href:'#team'},'Back to Team'))];
   else if(!TEAM.detail)body=[el('div',{class:'state'},'Loading…')];
@@ -2365,7 +2366,7 @@ dashPage('team',{title:'Team',panel:false,enter(r){teamMoved(r)},unlock(){teamLo
 // not polled, so a form being filled in is not redrawn under the person (Reload reads again).
 const PERM={grants:null,policies:null,err:'',status:0,req:0,at:0,ver:0,drawn:'',pending:null,busy:false};
 function permShown(){return ROUTE.item==='team'&&!teamTarget()&&teamTab()==='permissions'&&!APP.on&&!!lastDash&&lastDash.mode!=='app'}
-async function permLoad(){const req=++PERM.req;PERM.at=Date.now();
+async function permLoad(){if(!permShown())return;const req=++PERM.req;PERM.at=Date.now();
   const get=async p=>{const r=await fetch(p,{cache:'no-store',headers:auth()});if(!r.ok){let m='';try{m=((await r.json())||{}).error||''}catch(e){}const e=httpErr(r);if(m)e.message=String(m);throw e}return r.json()};
   try{const [g,p]=await Promise.all([get('/api/grants'),get('/api/policies')]);if(req!==PERM.req)return;PERM.grants=g&&typeof g==='object'?g:{};PERM.policies=p&&typeof p==='object'?p:{};PERM.err='';PERM.status=0;PERM.user=USER}
   catch(e){if(req!==PERM.req)return;PERM.err=e.message||'could not load';PERM.status=e.status||0;if(e.status===401||e.status===403){PERM.grants=PERM.policies=null}}
@@ -2384,9 +2385,9 @@ async function permSend(route,body,form){const pw=form.querySelector('input[type
     toast(route==='grants'?(body.op==='grant'?'Role granted':'Role revoked'):(body.op==='set'?'Policy saved':'Policy removed'),true);PERM.pending=null;PERM.drawn='';permLoad()}
   catch(e){err.textContent=errorText(e);err.hidden=false}
   finally{btn.disabled=false;PERM.busy=false}}
-function permPassword(id){return el('label',{class:'perm-field',for:id},'Your password',el('input',{type:'password',id,name:'password',autocomplete:'current-password',required:true}))}
+function permPassword(id){return el('label',{class:'perm-field',for:id},'Your password',el('input',{type:'password',id,name:'password',autocomplete:'current-password','aria-required':'true'}))}
 function permForm(o){const f=el('form',{class:'perm-form','data-perm-form':o.key,'aria-label':o.title},el('h4',{},o.title),o.note?el('p',{class:'mute'},o.note):null,
-  el('div',{class:'perm-fields'},...o.fields,permPassword('perm-pw-'+o.key)),el('p',{class:'state error',role:'alert','data-perm-error':'',hidden:true}),
+  el('div',{class:'perm-fields'},...(o.fields||[]),permPassword('perm-pw-'+o.key)),el('p',{class:'state error',role:'alert','data-perm-error':'',hidden:true}),
   el('div',{class:'perm-acts'},el('button',{type:'submit',class:o.danger?'danger':'ok'},o.action),o.cancel?el('button',{type:'button',onclick:o.cancel},'Cancel'):null));
   f.addEventListener('submit',e=>{e.preventDefault();if(!PERM.busy)permSend(o.route,o.body(f),f)});return f}
 function permField(label,id,input){input.id=id;return el('label',{class:'perm-field',for:id},label,input)}
