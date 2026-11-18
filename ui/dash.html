@@ -2061,18 +2061,31 @@ function stats(d){
    each person their nodes, then their devices, Server last. Loaded with the dash's
    refresh (Team's render). Enrolling, draining and revoking stay at the terminal:
    each row shows its command, never a button. */
-const NODES={data:null,err:'',at:0,req:0,serverVersion:null};
-const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0};
+const NODES={data:null,err:'',at:0,req:0,serverVersion:null,okAt:0,user:null};
+const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0,okAt:0,user:null};
+/* A polled feed's freshness (libraos/agentd-core#904): okAt is the last good read and
+   user the signed-in person it was read for. feedOk records a good read; feedFail keeps
+   the rows of a failed one (feedStale then says so, with Retry) unless the answer was
+   401 or 403, which drops them: what was readable then is not readable now. feedFresh
+   drops rows read for another person. HTTP errors carry their status. */
+function httpErr(r){const e=new Error('HTTP '+r.status);e.status=r.status;return e}
+function feedOk(F){F.err='';F.okAt=Date.now();F.user=USER}
+function feedFail(F,e){F.err=e&&e.message||'could not load';if(e&&(e.status===401||e.status===403)){F.data=null;F.okAt=0;F.user=null}}
+function feedFresh(F){if(F.data&&F.user!==null&&F.user!==USER){F.data=null;F.okAt=0;F.user=null}return F.data}
+function feedIsStale(F){return !!(F.err&&F.data&&F.okAt)}
+function feedStale(F,key,retry){if(!feedIsStale(F))return null;const at=new Date(F.okAt);
+  return el('div',{class:'state error feed-stale',role:'alert','data-feed-stale':key,title:F.err},el('span',{},'Couldn\u2019t refresh · last updated '+at.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})+'. Ages below are as of then.'),
+    el('button',{type:'button',onclick:retry},'Retry'))}
 function nodesTabShown(){return ROUTE.item==='team'&&teamTab()==='nodes'}
 function nodesLoad(){const req=++NODES.req;NODES.at=Date.now();
-  fetch('/api/nodes',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.serverVersion=j&&typeof j.server_version==='string'&&j.server_version?j.server_version:null;NODES.err=''},e=>{if(req!==NODES.req)return;NODES.err=e.message||'could not load'})
+  fetch('/api/nodes',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.serverVersion=j&&typeof j.server_version==='string'&&j.server_version?j.server_version:null;feedOk(NODES)},e=>{if(req!==NODES.req)return;feedFail(NODES,e)})
     .then(()=>{if(req!==NODES.req)return;nodesAccount();if(nodesTabShown())teamDraw()})}
 function devicesLoad(){const req=++DEVICES.req;DEVICES.at=Date.now();
-  fetch('/api/devices',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(j=>{if(req!==DEVICES.req)return;DEVICES.err='';DEVICES.missing=j===null;DEVICES.data=j&&Array.isArray(j.devices)?j.devices:[];DEVICES.scope=j&&typeof j.scope==='string'?j.scope:''},e=>{if(req!==DEVICES.req)return;DEVICES.err=e.message||'could not load'})
+  fetch('/api/devices',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==DEVICES.req)return;feedOk(DEVICES);DEVICES.missing=j===null;DEVICES.data=j&&Array.isArray(j.devices)?j.devices:[];DEVICES.scope=j&&typeof j.scope==='string'?j.scope:''},e=>{if(req!==DEVICES.req)return;feedFail(DEVICES,e)})
     .then(()=>{if(req!==DEVICES.req)return;if(nodesTabShown())teamDraw()})}
-function nodesPoll(){if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if(nodesTabShown()&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
+function nodesPoll(){feedFresh(NODES);feedFresh(DEVICES);if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if(nodesTabShown()&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
 // nodeState: one word for a node, the first that holds: drained, offline, not
 // accepting server work, busy, not ready (cannot commit), idle.
 function nodeState(n){const word=n.drained?'drained':n.offline?'offline':n.accept_server_work===false?'not accepting':n.state==='busy'?'busy':n.state==='not_ready'?'not ready':'idle';
@@ -2085,7 +2098,7 @@ function nodeOlder(n,server){const a=releaseParts(n&&n.version),b=releaseParts(s
 function nodeLoad(n){return el('span',{class:'tm-fig',title:'Server leases running of its capacity (--max)'+(n.local_workers?'; '+n.local_workers+' started on the node itself':'')},(n.leases||0)+'/'+(n.capacity||1))}
 function nodesAccount(){const box=$('account-nodes');if(!box)return;box.hidden=!USER;if(!USER){box.replaceChildren();return}
   const mine=(NODES.data||[]).filter(n=>n.person===USER).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
-  box.replaceChildren(el('b',{},'Your nodes'),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Nodes could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
+  box.replaceChildren(el('b',{},'Your nodes'),...(feedIsStale(NODES)?[el('span',{class:'mute','data-feed-stale':'account-nodes',title:NODES.err},'Couldn\u2019t refresh · last updated '+new Date(NODES.okAt).toLocaleTimeString())]:[]),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Nodes could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
     return el('a',{href:'#team/nodes','data-node':n.name,title:s.why||s.word,onclick:()=>{$('account').open=false}},el('span',{class:'dot '+s.dot}),' ',n.name,el('span',{class:'tm-why'},s.word+' · '+(n.leases||0)+'/'+(n.capacity||1)))}):[el('span',{class:'mute'},NODES.data?'No nodes yet':'Loading…')]))}
 function termCmd(label,cmd){return el('span',{class:'tm-why tm-cmd'},label+' at the server: ',el('code',{},cmd))}
 function nodeRow(n){const s=nodeState(n),about=[n.kind,n.host,(n.tools||[]).join(', '),(n.repos||[]).join(', ')].filter(Boolean).join(' · ');
@@ -2104,14 +2117,16 @@ function deviceRow(v){const revoked=v.state==='revoked',seen=v.last_seen?whenTex
     el('span',{class:'tm-fig'},revoked?'revoked':'active',revoked&&(v.revoked||v.revoked_by)?el('span',{class:'tm-why',title:v.revoked||''},[v.revoked?whenText(v.revoked):'',v.revoked_by?'by '+v.revoked_by:''].filter(Boolean).join(' ')):null),
     el('span',{class:'tm-fig',title:v.created||''},made?'created '+made:'created at an unknown time'),
     el('span',{class:'tm-fig',title:v.last_seen||''},seen?'seen '+seen:'never seen'))}
-function nodesBody(){if(!DEVICES.at)devicesLoad();if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
+function nodesBody(){if(!DEVICES.at)devicesLoad();feedFresh(NODES);feedFresh(DEVICES);if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
   const who=x=>x.person===null||x.person===undefined||x.person===''?'':String(x.person),groups=new Map(),add=(p,k,x)=>{if(!groups.has(p))groups.set(p,{nodes:[],devices:[]});groups.get(p)[k].push(x)};
   const devices=DEVICES.data||[];for(const n of NODES.data)add(who(n),'nodes',n);for(const v of devices)add(who(v),'devices',v);
   const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),active=(a,b)=>(a.state==='revoked')-(b.state==='revoked');
   const sec=(key,label,g)=>el('section',{'data-node-group':key},...teamSec(label,g.nodes.length+g.devices.length,[...g.nodes.sort(byName).map(nodeRow),...g.devices.slice().sort(active).map(deviceRow)]));
   const out=[el('p',{class:'mute tm-intro'},'Nodes running agentd worker against this server, then the devices enrolled, under the person each belongs to; Server is dedicated workers an owner enrolled. Read only: draining and revoking stay at the server\'s terminal, and each row shows its command.'+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':''))];
+  const ns=feedStale(NODES,'nodes',()=>{nodesLoad();devicesLoad()});if(ns)out.push(ns);
   if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'Devices: yours only; an owner sees everyone\'s.'));
-  if(DEVICES.err)out.push(el('p',{class:'mute tm-intro','data-devices-note':'error',role:'alert'},'Devices could not load: '+DEVICES.err));
+  if(feedIsStale(DEVICES)){const n=feedStale(DEVICES,'devices',devicesLoad);n.dataset.devicesNote='error';out.push(n)}
+  else if(DEVICES.err)out.push(el('p',{class:'mute tm-intro','data-devices-note':'error',role:'alert'},'Devices could not load: '+DEVICES.err));
   else if(DEVICES.missing)out.push(el('p',{class:'mute tm-intro','data-devices-note':'missing'},'This server does not list devices (an older agentd); agentd server devices does, at its terminal.'));
   for(const p of [...groups.keys()].filter(Boolean).sort())out.push(sec(p,p,groups.get(p)));if(groups.has(''))out.push(sec('Server','Server',groups.get('')));
   if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when agentd worker starts against this server.'));return out}
@@ -2124,12 +2139,12 @@ function nodesBody(){if(!DEVICES.at)devicesLoad();if(NODES.err&&!NODES.data)retu
    what it holds; a record another session also holds (one issue, one branch,
    a path inside another) is marked Shared with the others named. Grouped by
    person. A session drops out when its records lapse (the lease rule), not here. */
-const PRESENCE={data:null,err:'',at:0,req:0};
+const PRESENCE={data:null,err:'',at:0,req:0,okAt:0,user:null};
 function presenceLoad(){const req=++PRESENCE.req;PRESENCE.at=Date.now();
-  fetch('/api/presence',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(j=>{if(req!==PRESENCE.req)return;PRESENCE.data=j&&typeof j==='object'?{...j,sessions:Array.isArray(j.sessions)?j.sessions:[]}:{sessions:[]};PRESENCE.err=''},e=>{if(req!==PRESENCE.req)return;PRESENCE.err=e.message||'could not load'})
+  fetch('/api/presence',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
+    .then(j=>{if(req!==PRESENCE.req)return;PRESENCE.data=j&&typeof j==='object'?{...j,sessions:Array.isArray(j.sessions)?j.sessions:[]}:{sessions:[]};feedOk(PRESENCE)},e=>{if(req!==PRESENCE.req)return;feedFail(PRESENCE,e)})
     .then(()=>{if(req!==PRESENCE.req)return;if(ROUTE.item==='team'&&teamTab()==='who')teamDraw()})}
-function presencePoll(){if(ROUTE.item==='team'&&teamTab()==='who'&&Date.now()-PRESENCE.at>8000)presenceLoad()}
+function presencePoll(){feedFresh(PRESENCE);if(ROUTE.item==='team'&&teamTab()==='who'&&Date.now()-PRESENCE.at>8000)presenceLoad()}
 function presenceWho(o){return (o.user||'someone')+' on '+(o.node||'?')+' ('+o.session+')'}
 // presenceRes: a record's name as a person reads it: the issue, the branch
 // (repository@branch), the path in its repository, a directory.
@@ -2139,15 +2154,16 @@ function presenceItems(label,kind,list){if(!list||!list.length)return null;
   return el('div',{class:'pr-items','data-presence-kind':kind},el('span',{class:'tm-why'},label+': '),...list.map((x,i)=>{const shared=x.others&&x.others.length;
     return el('span',{class:'pr-item'+(shared?' pr-shared':''),'data-shared':shared?'':null,title:String(x.resource||'')+(shared?'\nalso held by '+x.others.map(presenceWho).join(', '):'')},i?', ':'',presenceRes(x),x.mode==='exclusive'?' (exclusive)':'',x.state?' ('+x.state+')':'',
       shared?el('b',{class:'pr-flag'},' shared with '+x.others.map(o=>(o.user||'someone')+' on '+(o.node||'?')).join(', ')):null)}))}
-function presenceRow(p){const about=[p.node,toolName(p.tool||'')||p.tool,p.local?'this host':''].filter(Boolean).join(' · ');
-  return el('div',{class:'tm-row pr-row'+(p.overlaps?' pr-overlap':''),'data-presence':p.session},el('span',{class:'dot '+(p.overlaps?'stale':'busy'),title:p.overlaps?'shares an issue or path with another session':'live'}),
+function presenceRow(p){const old=feedIsStale(PRESENCE),about=[p.node,toolName(p.tool||'')||p.tool,p.local?'this host':''].filter(Boolean).join(' · ');
+  return el('div',{class:'tm-row pr-row'+(p.overlaps?' pr-overlap':''),'data-presence':p.session},el('span',{class:'dot '+(p.overlaps?'stale':'busy'),title:old?'as of the last read':p.overlaps?'shares an issue or path with another session':'live'}),
     el('div',{class:'tm-main'},el('b',{},p.activity||(p.handoff?p.handoff:'no activity stated')),el('span',{class:'tm-why'},about),
       p.issue?el('span',{class:'tm-why','data-presence-issue':''},'issue '+p.issue):null,
       presenceItems('Issues','issues',p.issues),presenceItems('Checkouts','trees',p.trees),presenceItems('Claims','claims',p.claims),presenceItems('Editing','files',p.files)),
     el('span',{class:'tm-fig',title:p.since||''},p.age?'on '+p.age:''),el('span',{class:'tm-fig mute'},p.session))}
-function presenceBody(){if(PRESENCE.err&&!PRESENCE.data)return [el('div',{class:'state error',role:'alert'},'Could not load who is on what: '+PRESENCE.err)];if(!PRESENCE.data)return [el('div',{class:'state'},'Loading…')];
+function presenceBody(){feedFresh(PRESENCE);if(PRESENCE.err&&!PRESENCE.data)return [el('div',{class:'state error',role:'alert'},'Could not load who is on what: '+PRESENCE.err)];if(!PRESENCE.data)return [el('div',{class:'state'},'Loading…')];
   const ss=PRESENCE.data.sessions,groups=new Map();for(const p of ss){const k=p.user||'Unknown';if(!groups.has(k))groups.set(k,[]);groups.get(k).push(p)}
   const n=PRESENCE.data.overlap_count||0,out=[el('p',{class:'mute tm-intro'},'Live sessions on every host joined to this server and on this one: what each says it is doing, its issue, checkouts, claims and the files it edits. A session leaves this list when its records lapse.'+(n?' ':''),n?el('b',{'data-overlap-count':''},n+' shared issue'+(n>1?'s or paths':' or path')):null)];
+  const st=feedStale(PRESENCE,'presence',presenceLoad);if(st)out.push(st);
   for(const k of [...groups.keys()].sort())out.push(el('section',{'data-presence-group':k},...teamSec(k,groups.get(k).length,groups.get(k).map(presenceRow))));
   if(!ss.length)out.push(el('div',{class:'empty'},'No live sessions. Sessions on joined hosts show up here as they work.'));
   if(PRESENCE.data.truncated)out.push(el('p',{class:'mute'},'Showing the most recent records only.'));return out}
