@@ -2135,7 +2135,7 @@ function stats(d){
    else sees each row's terminal command instead. Waiting for a node: GET /api/queue,
    each remote handoff no node has leased with the lease path's reason. Enrolling stays
    at a person's terminal: the page shows the command. */
-const NODES={data:null,err:'',at:0,req:0,serverVersion:null,okAt:0,user:null};
+const NODES={data:null,err:'',at:0,req:0,serverVersion:null,copies:[],okAt:0,user:null};
 const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0,okAt:0,user:null};
 const QUEUE={data:null,err:'',missing:false,at:0,req:0,okAt:0,user:null};
 /* A polled feed's freshness (libraos/agentd-core#904): okAt is the last good read and
@@ -2154,7 +2154,7 @@ function feedStale(F,key,retry){if(!feedIsStale(F))return null;const at=new Date
 function nodesTabShown(){return ROUTE.item==='team'&&teamTab()==='nodes'}
 function nodesLoad(){const req=++NODES.req;NODES.at=Date.now();
   fetch('/api/nodes',{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
-    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.serverVersion=j&&typeof j.server_version==='string'&&j.server_version?j.server_version:null;feedOk(NODES)},e=>{if(req!==NODES.req)return;feedFail(NODES,e)})
+    .then(j=>{if(req!==NODES.req)return;NODES.data=Array.isArray(j&&j.nodes)?j.nodes:[];NODES.serverVersion=j&&typeof j.server_version==='string'&&j.server_version?j.server_version:null;NODES.copies=Array.isArray(j&&j.mirror_copies)?j.mirror_copies:[];feedOk(NODES)},e=>{if(req!==NODES.req)return;feedFail(NODES,e)})
     .then(()=>{if(req!==NODES.req)return;nodesAccount();if(nodesTabShown())teamDraw()})}
 function devicesLoad(){const req=++DEVICES.req;DEVICES.at=Date.now();
   fetch('/api/devices',{cache:'no-store',headers:auth()}).then(r=>{if(r.status===404)return null;if(!r.ok)throw httpErr(r);return r.json()})
@@ -2232,6 +2232,7 @@ function nodesBody(){if(!DEVICES.at)devicesLoad();if(!QUEUE.at)queueLoad();feedF
   const sec=(key,label,g)=>el('section',{'data-node-group':key},...teamSec(label,nodeDeviceCount(g.nodes,g.devices),nodeDeviceCards(g.nodes,g.devices)));
   const out=[el('p',{class:'mute tm-intro'},'Machines and enrolled devices, grouped by person. A worker node and its enrolled device share one card; Server is dedicated workers an owner enrolled. '+(nodeManage()?'As an owner you drain a node and revoke a device here; each is recorded in the audit log.':'Draining and revoking are an owner\'s: each row shows the command for the server\'s terminal.')+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':'')),
     el('p',{class:'mute tm-intro','data-enroll-note':''},'Add a node at a person\'s own terminal, not here: ',el('code',{},'agentd server enroll --worker NAME'),' on the server, then ',el('code',{},'agentd worker --server URL --ticket'),' on the node; a person joins with ',el('code',{},'agentd join LINK'),'.'),...queueSection()];
+  for(const c of NODES.copies||[])out.push(el('p',{class:'state error tm-intro',role:'alert','data-mirror-copy':String(c.person)+'/'+String(c.node)},String(c.warning||'')));
   const ns=feedStale(NODES,'nodes',()=>{nodesLoad();devicesLoad()});if(ns)out.push(ns);
   if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'Devices: yours only; an owner sees everyone\'s.'));
   if(feedIsStale(DEVICES)){const n=feedStale(DEVICES,'devices',devicesLoad);n.dataset.devicesNote='error';out.push(n)}
