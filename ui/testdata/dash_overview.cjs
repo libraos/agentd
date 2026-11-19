@@ -10,13 +10,13 @@ const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const load={at:now,server:{started:'2026-11-18T08:00:00Z',up_s:9000,store:'postgres',queue_depth:3,lease_pass_at:now,lease_pass_age_s:4,latency:{window_s:300,requests:120,p50_ms:8.2,p95_ms:41},host:{cpus:8,load1:2,cpu_pct:25,mem_total_mb:16384,mem_available_mb:8192,mem_used_pct:50},server_mode:'server'},
- tasks:{running:2,queued:3,blocked:1,waiting_person:1,approvals_pending:2,finished_today:7,day_since:'2026-11-18T00:00:00Z'},
- agents:{nodes:{idle:1,busy:2,not_ready:0,offline:1},nodes_total:4,leases:3,capacity:6,sessions:5,sessions_per_person:[{person:'ann',sessions:3},{person:null,sessions:2}]}};
+ tasks:{running:2,running_locations:{server:1,leased:1,member_hosts:0},queued:3,stale_running:0,stale_queued:27,blocked:1,waiting_person:1,approvals_pending:2,finished_today:7,day_since:'2026-11-18T00:00:00Z'},
+ agents:{nodes:{idle:1,busy:2,not_ready:0,offline:1},nodes_total:4,leases:1,capacity:6,sessions:5,sessions_per_person:[{person:'ann',sessions:3},{person:null,sessions:2}]}};
 const running={at:now,running:[
  {id:'hof-run1',goal:'Fix login '+evil,person:'ann',project:'acme/app',stage:'implement',node:'box-1',where:'remote',tool:'codex',model:'gpt-5.4',started:now,elapsed_min:12,spend_usd:1.5,spend_unpriced:0,budget:{text:'30m,$5',minutes:30,usd:5,state:'ok'},worker_state:'running',parked:false},
  {id:'hof-run2',goal:'Write the docs',person:'bob',project:'acme/site',stage:'implement',node:'srv',where:'local',tool:'claude',model:null,started:now,elapsed_min:3,spend_usd:null,spend_unpriced:1,budget:{text:'',minutes:null,usd:null,state:''},worker_state:'blocked',parked:false}]};
 const status={load:200,running:200};
-let dash={user:'ann',role:'owner',now,team:true,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],waiting:[],claims:[],messages:[],inbox:[],checkouts:[]};
+let dash={user:'ann',role:'owner',now,team:true,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],waiting:[],claims:[],messages:[],inbox:[],checkouts:[],session_summary:{total:5,definition:'Agent connections seen within 2 minutes; excludes dashboard sessions.'}};
 const requests=[],errors=[];let intervals=[];
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const json=(body,st=200)=>({ok:st<400,status:st,json:async()=>JSON.parse(JSON.stringify(body)),text:async()=>JSON.stringify(body)});
@@ -50,9 +50,11 @@ const poll=async()=>{w.eval('LOAD.at=0;RUNNING.at=0;ovPoll(false)');await settle
  for(const k of ['server','tasks','agents'])assert(/^updated \d/.test(card(k).querySelector('[data-ov-fresh]').textContent),k+' card does not say how fresh it is');
  assert.equal(fig('server','store'),'postgres');assert.equal(fig('server','queue'),'3');assert(/p50 8 ms · p95 41 ms/.test(fig('server','latency')),'latency: '+fig('server','latency'));
  assert.equal(fig('server','cpu'),'25% of 8 cores');assert.equal(fig('server','mem'),'50% used of 16.0 GB');assert(/up 2h 30m/.test(fig('server','up')),'up: '+fig('server','up'));assert.equal(fig('server','lease'),'4s ago');
- assert.equal(fig('tasks','running'),'2');assert.equal(fig('tasks','queued'),'3');assert.equal(fig('tasks','blocked'),'1');assert.equal(fig('tasks','waiting'),'1');assert.equal(fig('tasks','approvals'),'2');assert.equal(fig('tasks','finished'),'7');
- assert.equal(fig('agents','nodes'),'1 idle · 2 busy · 0 not ready · 1 offline');assert.equal(fig('agents','leases'),'3 of 6');assert.equal(fig('agents','sessions'),'5');
- assert(/ann 3/.test(fig('agents','people'))&&/no user 2/.test(fig('agents','people')),'sessions per user: '+fig('agents','people'));
+ assert(fig('tasks','running').startsWith('2')&&fig('tasks','running').includes('1 server workers · 1 node leases · 0 member-host workers'),'running locations missing');assert.equal(fig('tasks','queued'),'3');assert.equal(fig('tasks','blocked'),'1');assert.equal(fig('tasks','waiting'),'1');assert.equal(fig('tasks','approvals'),'2');assert.equal(fig('tasks','finished'),'7');assert.equal(fig('tasks','stale-queued'),'27');
+ assert.equal(fig('agents','nodes'),'1 idle · 2 busy · 0 not ready · 1 offline');assert.equal(fig('agents','leases'),'1 of 6');assert.equal(fig('agents','sessions'),'5');
+ assert.equal(doc.querySelector('#stats [data-session-count]').textContent,fig('agents','sessions'),'header and card disagree on sessions');
+ for(const f of body().querySelectorAll('.ov-figure'))assert(f.querySelector('.ov-definition')&&f.querySelector('.ov-definition').textContent,'a figure has no visible definition');
+ assert(/ann 3/.test(fig('agents','people'))&&/Unattributed agent connections 2/.test(fig('agents','people')),'sessions per user: '+fig('agents','people'));
  // The running tasks: a row each, its columns, opening its task; a goal is text.
  const rows=[...body().querySelectorAll('tr[data-running]')];assert.deepEqual(rows.map(r=>r.dataset.running),['hof-run1','hof-run2']);
  assert.deepEqual([...body().querySelectorAll('.ov-table th')].map(t=>t.textContent),['Task','User','Project','Node','Tool and model','Elapsed','Spend','State']);
@@ -61,6 +63,11 @@ const poll=async()=>{w.eval('LOAD.at=0;RUNNING.at=0;ovPoll(false)');await settle
  assert.deepEqual(cells(rows[1]).slice(1),['bob','acme/site','srv (this host)','Claude','3 min','unknown','waiting on a prompt']);
  const a=rows[0].querySelector('a');assert.equal(a.getAttribute('href'),'#issues/hof-run1');assert(a.textContent.includes(evil)&&!body().querySelector('img'),'a goal became markup');
  assert.equal(body().querySelector('[data-ov-count]').textContent,'2');
+ // Stale rows have their own section and reason, never increasing Running.
+ running.running.push({...running.running[0],id:'hof-stale',where:'host',node:'quiet-laptop',stale:true,stale_reason:'member host has not mirrored recently',mirrored:now});load.tasks.stale_running=1;await poll();
+ assert.equal(body().querySelectorAll('tr[data-running]').length,2);assert.equal(body().querySelectorAll('tr[data-stale-running]').length,1);assert.equal(body().querySelector('[data-ov-count]').textContent,'2');assert.equal(fig('tasks','stale-running'),'1');
+ assert(body().querySelector('tr[data-stale-running]').textContent.includes('member host has not mirrored recently'),'stale worker has no visible reason');
+ running.running.pop();load.tasks.stale_running=0;await poll();
  rows[1].querySelector('td:nth-child(3)').click();await settle();assert.equal(w.location.hash,'#issues/hof-run2','a row click does not open its task');
  w.location.hash='#overview';await settle();assert(body().querySelector('tr[data-running="hof-run1"]'),'Overview did not come back');
  // Needs a person (#907): the two numbers from /api/load, the tasks behind them, each opening its task; Approvals opens Needs me's Approvals.

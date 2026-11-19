@@ -59,6 +59,17 @@ const view=()=>doc.querySelector('#team-view'),row=s=>view().querySelector('[dat
  // Read only: a viewer sees it, and nothing writes.
  assert(!view().querySelector('button[data-write]')&&!view().querySelector('form'),'Who is on what has an action');
  assert(!requests.some(r=>r.startsWith('POST /api/presence')),'the page wrote to /api/presence');
+ // Search matches a person, host, tool, task, issue or session. Typing and
+ // refreshes keep the control focused and its value, including empty results.
+ const search=()=>view().querySelector('input[type=search]');
+ const filter=async value=>{const s=search();s.focus();s.value=value;s.dispatchEvent(new w.Event('input'));await settle();assert.equal(doc.activeElement,search(),'search lost keyboard focus')};
+ for(const [query,ids] of [['ann',['s-ann']],['bob-desk',['s-bob']],['codex',['s-ann']],['fixing login',['s-ann']],['acme/app#7',['s-ann','s-bob']],['s-cid',['s-cid']]]){
+  await filter(query);assert.deepEqual([...view().querySelectorAll('[data-presence]')].map(r=>r.dataset.presence),ids,'search '+query);
+ }
+ await filter('nothing matches');assert(view().textContent.includes('No sessions match this search.'));
+ search().setSelectionRange(3,3);search().dispatchEvent(new w.Event('input'));await settle();assert.equal(search().selectionStart,3,'redraw moved the search caret');
+ w.eval('PRESENCE.at=0;refresh()');await settle();assert.equal(search().value,'nothing matches','refresh cleared search');assert.equal(doc.activeElement,search(),'refresh lost search focus');
+ await filter('');assert.equal(view().querySelectorAll('[data-presence]').length,3);
  // A session whose records lapsed drops out on the next read.
  presence={...presence,overlap_count:0,sessions:[sess('s-cid','cid','srv',{local:true})]};w.eval('PRESENCE.at=0;refresh()');await settle();
  assert(!row('s-ann')&&!row('s-bob')&&row('s-cid'),'lapsed sessions still shown');assert(!view().querySelector('[data-overlap-count]'));
