@@ -21,7 +21,7 @@ const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<
 const card=(name,person,extra)=>({name,person,kind:'worker',host:name+'.lan',protocol:2,tools:['codex'],models:[],labels:[],repos:['acme/alpha'],capacity:2,accept_server_work:true,state:'idle',why:null,local_workers:0,leases:0,drained:false,registered:now,seen:now,seen_ago:'5s',offline:false,state_at:null,...extra});
 let nodes=[card('zed-box',null,{leases:1}),card('alice-laptop','alice',{kind:'cli',state:'busy',why:'session s1 active '+evil,capacity:1}),card('alice-desk','alice',{accept_server_work:false,kind:'desktop'}),card('bob-host','bob',{offline:true,seen_ago:'3h'}),card('c2-03',null,{drained:true})];
 const ago=ms=>new Date(Date.now()-ms).toISOString();
-let devices=null,devicesStatus=404,serverVersion='v0.1.14';
+let devices=null,devicesStatus=404,serverVersion='v0.1.14',copies=[];
 let queue=[{id:'hof-q1',goal:'GPU task '+evil,project:'acme/alpha',worker:null,stage:null,created:now,waiting:'4m',queue_reason:'no worker has label gpu=a100 for project acme/alpha'}];const posts=[];
 let dash={user:'alice',role:'owner',now,team:true,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],waiting:[],claims:[],messages:[],inbox:[],checkouts:[]};
 const requests=[],errors=[];
@@ -34,7 +34,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
  w.fetch=async(url,opts={})=>{const u=new URL(url,w.location.href);requests.push((opts.method||'GET')+' '+u.pathname);
   if(u.pathname==='/api/auth')return {ok:true,status:204};
   if(u.pathname==='/api/dash')return json(dash);
-  if(u.pathname==='/api/nodes')return json({nodes,server_version:serverVersion,mirror_hosts:[]});
+  if(u.pathname==='/api/nodes')return json({nodes,server_version:serverVersion,mirror_hosts:[],mirror_copies:copies});
   if(u.pathname==='/api/queue')return json({queue});
   if(u.pathname==='/api/action'){const b=JSON.parse(opts.body);posts.push(b);return json({ok:true})}
   if(u.pathname==='/api/devices')return devicesStatus===200?json(devices):json({error:'no'},devicesStatus);
@@ -128,6 +128,13 @@ const mineNames=()=>[...mine().querySelectorAll('[data-node]')].map(n=>n.dataset
  assert(row('alice-laptop').querySelector('code').textContent==='agentd server workers drain alice-laptop');assert(row('c2-03').querySelector('code').textContent==='agentd server workers undrain c2-03');
  assert(dev('dev-c1').querySelector('code').textContent==='agentd server devices revoke dev-c1');
  assert(!view().querySelector('button[data-node-action],button[data-device-action]'),'a developer has a node action');
+ // A device mirroring another's handoffs (a copied ledger) is named in a warning, as text.
+ assert(!view().querySelector('[data-mirror-copy]'),'a mirror warning with no copies');
+ copies=[{person:'ann',node:'c2-03',other_person:'ann',other_node:'sealing13',ids:1019,warning:'ann/c2-03 mirrors 1019 handoffs another device already sends (ann/sealing13); is its ledger a copy? '+evil}];
+ w.eval('NODES.at=0;refresh()');await settle();
+ const cw=view().querySelector('[data-mirror-copy="ann/c2-03"]');assert(cw,'no mirror warning on Nodes and devices');
+ assert(cw.textContent.includes('ann/sealing13')&&cw.textContent.includes(evil)&&!cw.querySelector('img'),'mirror warning: '+cw.innerHTML);
+ copies=[];w.eval('NODES.at=0;refresh()');await settle();assert(!view().querySelector('[data-mirror-copy]'),'the mirror warning stays after it cleared');
  // Not signed in: no Your nodes block.
  dash={...dash,user:null,role:null};w.eval('refresh()');await settle();assert(mine().hidden,'Your nodes shows with no one signed in');
  assert(!errors.length,errors.join('\n'));
