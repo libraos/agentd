@@ -6207,7 +6207,9 @@ function awDetails(hid,load){const box=awSec('details');
         b.over?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-over'},'At its cap: the watchdog stops the worker. Raise the '+(b.user_cap?'cap':'budget')+' to go on.'):b.warn?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-warn'},'Past '+Math.round((b.warn_at||0.85)*100)+'% of its budget: the worker has been told to commit its best working state and finish.'):null,
         b.error?el('p',{class:'app-note'},b.error):null,b.raise?el('code',{class:'app-cli',title:'Raise it from a terminal'},b.raise):null);
     const delivery=el('section',{class:'app-psec','data-sec':'delivery'},el('h4',{},'Delivery'),el('span',{class:'app-verdict','data-outcome':dl.outcome||''},AW_OUTCOME[dl.outcome]||word(dl.outcome)),el('p',{style:'margin:6px 0 0'},dl.reason||''),el('code',{class:'app-cli'},dl.report||'agentd factory report'));
-    box.replaceChildren(agent,budget,delivery)};
+    // Approvals its worker decided itself or left to lapse (#948): the same lines handoff wait prints.
+    const apr=(d.approval_lines||[]).length?el('section',{class:'app-psec','data-sec':'approvals'},el('h4',{},'Approvals closed without an answer'),...d.approval_lines.map(l=>el('p',{class:'app-note','data-k':'approval-record'},l))):null;
+    box.replaceChildren(agent,budget,delivery,...(apr?[apr]:[]))};
   draw(AW_DET[hid]);awDetailLoad(hid).then(draw)}
 // end:app-workspace
 // region:app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), for a browser
