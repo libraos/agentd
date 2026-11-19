@@ -93,10 +93,11 @@ const mineNames=()=>[...mine().querySelectorAll('[data-node]')].map(n=>n.dataset
  w.eval('NODES.at=0;DEVICES.at=0;refresh()');await settle();assert(!errors.length,errors.join('\n'));
  assert(requests.includes('GET /api/devices'),'the tab never asks for /api/devices');
  assert(!view().querySelector('[data-devices-note]'),'an owner\'s full list has a note');
- assert.equal(doc.querySelector('#team-tabs a[data-tab="nodes"] .n').textContent,'9','the tab does not count nodes and devices');
+ assert.equal(doc.querySelector('#team-tabs a[data-tab="nodes"] .n').textContent,'8','the tab does not count merged node/device cards');
  assert.deepEqual([...view().querySelectorAll('[data-node-group]')].map(g=>g.dataset.nodeGroup),['alice','bob','carol','Server']);
  const order=g=>[...view().querySelectorAll('[data-node-group="'+g+'"] .tm-row')].map(r=>r.dataset.node||'dev:'+r.dataset.device);
  assert.deepEqual(order('alice'),['alice-desk','alice-laptop','dev:dev-a1','dev:dev-a2'],'nodes, then devices (active first)');
+ assert(view().querySelector('[data-machine="zed-box"] [data-device="dev-w1"]'),'worker device is not inside its node card');
  assert.deepEqual(order('carol'),['dev:dev-c1']);assert.deepEqual(order('Server'),['c2-03','zed-box','dev:dev-w1']);
  assert.equal(view().querySelector('[data-node-group="alice"] .n').textContent,'4');
  const dev=id=>view().querySelector('[data-device="'+id+'"]');
