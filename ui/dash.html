@@ -3269,11 +3269,13 @@ function newTaskSetup(ui,nt){const field=n=>ui.inputs[n].closest('.sheet-field')
   // The checkout's task file: its check fills the field until someone types.
   const note=el('p',{class:'field-hint newtask-file',hidden:true});field('accept').append(note);
   let asked='';nt.touched=false;nt.defaults=null;ui.inputs.check.addEventListener('input',()=>{nt.touched=true});
-  const load=async()=>{const cwd=ui.inputs.cwd.value;if(!cwd||cwd===asked)return;asked=cwd;nt.defaults=null;let t;
-    try{const r=await fetch('/api/taskdefaults?cwd='+encodeURIComponent(cwd),{cache:'no-store',headers:auth()});t=r.ok?await r.json():{error:(await r.text()).trim()||'HTTP '+r.status}}catch(e){t={error:errorText(e)}}
-    if(asked!==cwd)return;nt.defaults=t;if(!nt.touched)ui.inputs.check.value=t.check||'';if(nt.onDefaults)nt.onDefaults(t);
+  // The worker matters too: a Claude worker gets a worktree of its own on any branch. A new
+  // worker keeps the checkout's defaults until its own arrive, so a quick Save still counts them.
+  const load=async()=>{const cwd=ui.inputs.cwd.value,tool=ui.inputs.tool?ui.inputs.tool.value:'',key=cwd+'\n'+tool;if(!cwd||key===asked)return;if(!asked.startsWith(cwd+'\n'))nt.defaults=null;asked=key;let t;
+    try{const r=await fetch('/api/taskdefaults?cwd='+encodeURIComponent(cwd)+(tool?'&worker='+encodeURIComponent(tool):''),{cache:'no-store',headers:auth()});t=r.ok?await r.json():{error:(await r.text()).trim()||'HTTP '+r.status}}catch(e){t={error:errorText(e)}}
+    if(asked!==key)return;nt.defaults=t;if(!nt.touched)ui.inputs.check.value=t.check||'';if(nt.onDefaults)nt.onDefaults(t);
     note.textContent=[t.error?'The task file could not be read: '+t.error:'',(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; '):'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');note.hidden=!note.textContent};
-  for(const ev of ['input','change'])ui.inputs.cwd.addEventListener(ev,load);if(ui.inputs.role)ui.inputs.role.addEventListener('change',load);load()}
+  for(const ev of ['input','change'])ui.inputs.cwd.addEventListener(ev,load);if(ui.inputs.tool)for(const ev of ['input','change'])ui.inputs.tool.addEventListener(ev,load);if(ui.inputs.role)ui.inputs.role.addEventListener('change',load);load()}
 // newTaskValidate refuses in the sheet, before anything is sent, a task the
 // server would refuse for want of a PR, a goal, or criteria and a check; the
 // server's own refusals (a bad issue, a check that cannot run) show in the sheet too.
@@ -3353,7 +3355,7 @@ function ntFields(d,roles,roleName){const words={goal:{placeholder:'What should 
   const side=['tool','cwd','also','role','budget'];return {main:all.filter(f=>!side.includes(f.name)),side:side.map(n=>all.find(f=>f.name===n))}}
 function ntWhere(t){const box=$('nt-where');if(!box)return;const ws=t&&t.workspace,from=t&&t.branch_from;
   box.replaceChildren(el('div',{class:'sheet-field'},el('span',{class:'nt-label'},'Workspace'),el('div',{class:'views nt-static',role:'group','aria-label':'Workspace'},el('span',{class:ws==='worktree'?'on':''},'New worktree'),el('span',{class:ws==='checkout'?'on':''},'Main checkout')),
-    el('div',{class:'field-hint'},!t?'Choose a repository.':t.workspace_error?t.workspace_error:ws==='worktree'?'A worktree is its own branch and directory, so workers run side by side.':ws==='checkout'?'The checkout is not on its default branch, so the worker works in it as it is, on that branch.':'Not a git checkout: the worker works in the directory.')),
+    el('div',{class:'field-hint'},!t?'Choose a repository.':t.workspace_error?t.workspace_error:ws==='worktree'?'A worktree is its own branch and directory, so workers run side by side.':ws==='checkout'?'The checkout is not on its default branch or is a linked worktree, so this worker works in it as it is, on that branch.':'Not a git checkout: the worker works in the directory.')),
     el('div',{class:'sheet-field'},el('span',{class:'nt-label'},'Branch from'),el('code',{id:'nt-branch'},from||'—'),el('div',{class:'field-hint'},'Set by the checkout: switch it to another branch to change this.')))}
 // ntEstimate asks once per type and dollar cap what past tasks of that type cost.
 async function ntEstimate(){const ui=NT.ui;if(!ui)return;const kind=ui.inputs.kind.value==='review'?'review':'implement',b=(/\$\s*[0-9.]+/.exec(ui.inputs.budget.value)||[''])[0].replace(/\s/g,''),k=kind+'|'+b,seq=++NT.estSeq,box=$('nt-estimate');if(!box)return;
