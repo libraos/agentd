@@ -12,7 +12,7 @@
 
 </div>
 
-agentd runs Claude Code and Codex as a team on your development machine. Describe the work, and workers build it in parallel, each in its own git worktree with a budget and a test command. You review every change before it reaches GitHub.
+agentd runs Claude Code, Codex and opencode as a team on your development machine. Describe the work, and workers build it in parallel, each in its own git worktree with a budget and a test command. You review every change before it reaches GitHub.
 
 It works with the coding agents you already use and the logins you already have. Everything runs on your machine.
 
@@ -20,7 +20,7 @@ It works with the coding agents you already use and the logins you already have.
 
 ## What You Can Do
 
-- Run several Claude Code and Codex workers at once from one terminal, without juggling sessions.
+- Run several Claude Code, Codex and opencode workers at once from one terminal, without juggling sessions.
 - Give each task a budget and a check. agentd runs the check itself and records the result.
 - Read a result card for every task: check, changed files, minutes and dollars.
 - Open a draft pull request only when you say so. Workers never push, and agentd never merges.
@@ -78,7 +78,9 @@ agentd dash --serve 127.0.0.1:21480
 agentd dash link --user YOUR_NAME        # open the printed link to sign in
 ```
 
-The dashboard has Inbox, Issues, Team, Chat and Insights. Chat needs a model on an OpenAI-compatible gateway, set under `[gateway]` in `config.toml`. To let Chat start workers, set `dispatch = true` under `[dash]`. Nothing starts until a person presses **Start** on the proposed task.
+The dashboard has Overview, Tasks, Team, Insights, Chat and Settings, and an Inbox for what waits on you. Chat needs a model on an OpenAI-compatible gateway, set under `[gateway]` in `config.toml`. To let Chat start workers, set `dispatch = true` under `[dash]`. Nothing starts until a person presses **Start** on the proposed task.
+
+This release serves the dashboard to one person, on this machine only. A dashboard shared by a team, with more people, invitations and remote workers, is the team server: LibraOS Team hosts it and Enterprise runs it in its own environment ([pricing](https://libraos.com/pricing/)). Any install can join one with `agentd join LINK`, using the invitation link and your password.
 
 ## Install in Claude Code and Codex
 
@@ -166,7 +168,7 @@ A Cloud Worker runs one task on LibraOS infrastructure instead of your machine. 
 
 - Each job runs in its own isolated virtual machine, with repository and model access for that job only, revoked when it ends.
 - The worker pushes an `agentd/…` branch to your repository. Nothing is merged; you review it as usual.
-- A job holds its dollar budget from your Console credits and is charged for what it uses: Cloud Workers by the active minute by machine size (for example $0.0025 a minute at 2 vCPU + 4 GiB; see [libraos.com/pricing](https://libraos.com/pricing)), plus model use, which your provider or Claude plan bills instead with `--model-access byok` or `subscription`.
+- A job holds its dollar budget from your Console credits and is charged for what it uses: Cloud Workers by the active minute by machine size (for example $0.0025 a minute at 2 vCPU + 4 GiB; see [libraos.com/pricing](https://libraos.com/pricing)), plus model use, which your provider or your Claude or ChatGPT plan bills instead with `--model-access byok` or `subscription`.
 
 ```sh
 agentd handoff offer --cloud --budget '$10' --goal 'Fix the failing checkout test' --project OWNER/REPO
