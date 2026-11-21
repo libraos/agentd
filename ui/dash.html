@@ -58,14 +58,19 @@ button.stat{background:none;border:0;padding:0;font:inherit;cursor:pointer}butto
 #now{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
 #tokstate{font-size:12px;color:var(--mute)}
 /* region:css-overview: Overview's load cards and running tasks (#907) */
-.ov-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;align-items:start;margin-bottom:20px}
+.ov-cards{display:grid;gap:12px;margin-bottom:20px}
 .ov-card{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px;min-width:0}
 .ov-chead,.ov-shead{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}.ov-chead h3,.ov-shead h3{margin:0;font-size:var(--fs-l);font-weight:600}
 .ov-fresh{margin-left:auto;font-size:var(--fs-xs);color:var(--mute);white-space:nowrap}.ov-fresh.old{color:var(--red)}
-.ov-figs{margin:0}.ov-figure{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3px 12px;padding:8px 0;border-top:1px solid var(--line)}.ov-figure:first-child{border-top:0;padding-top:0}.ov-figs dt{color:var(--mute);font-size:var(--fs-s)}.ov-figs dd{display:contents}.ov-value{text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.ov-definition{grid-column:1/-1;display:block;font-size:var(--fs-xs);line-height:1.45;color:var(--mute)}
+.ov-figs{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px 16px}.ov-figure{min-width:0}.ov-figs dt{color:var(--mute);font-size:var(--fs-s)}.ov-figs dd{margin:0}.ov-value{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.ov-definition{font-size:var(--fs-xs);line-height:1.45;color:var(--mute)}
+.ov-stats .ov-figs{grid-template-columns:repeat(6,minmax(0,1fr))}.ov-stats .ov-value{display:block;font-size:24px;font-weight:600;line-height:1.3}.ov-stats .tm-why{font-size:var(--fs-xs);font-weight:400;line-height:1.5;margin-top:4px}.ov-quiet{display:flex;flex-wrap:wrap;gap:4px 24px;color:var(--mute);font-size:var(--fs-s)}.ov-quiet .ov-figure{display:flex;gap:6px}.ov-quiet dt,.ov-quiet dd{margin:0}
+.ov-agents .ov-chead{margin-bottom:4px}.ov-agents .ov-figs{grid-template-columns:2fr 1fr 1fr 2fr}.ov-agents .ov-more{margin-top:4px}
+.ov-history{margin:20px 0}.ov-range{display:flex;gap:4px;margin-left:auto}.ov-range button{padding:4px 12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--panel);cursor:pointer}.ov-range button[aria-pressed="true"]{background:var(--sel);border-color:var(--accent);color:var(--accent)}
+.ov-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ov-chart{min-width:0;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px}.ov-chart:first-child{grid-column:1/-1}.ov-chart h4{margin:0;font-size:var(--fs-m)}.ov-plot{position:relative;min-width:0}.ov-plot svg{display:block;width:100%;height:190px;touch-action:pan-y}.ov-plot .mtip{white-space:normal;max-width:100%;min-width:min(240px,100%);top:24px;left:0}.ov-chart-note{font-size:var(--fs-s);color:var(--mute);margin:4px 0 8px}.ov-chart .mtable{margin-top:6px}.ov-chart table{font-size:var(--fs-s);white-space:nowrap}.ov-chart caption{text-align:left;color:var(--mute)}
+.ov-created,.ov-cpu{fill:var(--accent);background:var(--accent)}.ov-done,.ov-memory{fill:var(--green);background:var(--green)}.ov-failed{fill:var(--red);background:var(--red)}.ov-member{opacity:.45;stroke:var(--fg);stroke-width:.6;stroke-dasharray:2 1}.ov-unpriced{fill:var(--amber);background:var(--amber)}.ov-resource{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}.ov-resource.ov-cpu{stroke:var(--accent)}.ov-resource.ov-memory{stroke:var(--green);stroke-dasharray:5 3}.ov-hit{fill:transparent}.ov-hit:focus{outline:none;stroke:var(--accent);stroke-width:2}.ov-chart .mchart-key{margin:4px 0}.ov-origin{font-size:var(--fs-xs);color:var(--mute)}
 .ov-more{display:inline-block;margin-top:8px;font-size:var(--fs-s)}.ov-running .feed-stale,.ov-running>.state{margin-bottom:8px}#ov-body>.feed-stale{margin-bottom:12px}
 .ov-table tbody tr{cursor:pointer}.ov-table tbody tr:hover{background:var(--hover)}.working-table.ov-table th:nth-child(n){width:auto}.working-table.ov-table th:first-child{width:28%}.ov-warn{color:var(--red)}
-@media(max-width:860px){.ov-cards{grid-template-columns:1fr}.working-table.ov-table table,.working-table.ov-table tbody,.working-table.ov-table tr,.working-table.ov-table td{display:block;width:auto}.working-table.ov-table thead{display:none}.working-table.ov-table tr{border-bottom:1px solid var(--line);padding:6px 0}.working-table.ov-table tr:last-child{border-bottom:0}
+@media(max-width:860px){.ov-stats .ov-figs{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-agents .ov-figs{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-charts{grid-template-columns:minmax(0,1fr)}.ov-shead{flex-wrap:wrap}.working-table.ov-table table,.working-table.ov-table tbody,.working-table.ov-table tr,.working-table.ov-table td{display:block;width:auto}.working-table.ov-table thead{display:none}.working-table.ov-table tr{border-bottom:1px solid var(--line);padding:6px 0}.working-table.ov-table tr:last-child{border-bottom:0}
   .working-table.ov-table td{border:0;padding:3px 12px;display:flex;gap:12px;justify-content:space-between}.working-table.ov-table td::before{content:attr(data-label);color:var(--mute);font-size:var(--fs-s);flex:none}.working-table.ov-table td:first-child::before{content:none}.working-table.ov-table td>a{white-space:normal}}
 /* end:css-overview */
 /* Overview's Needs a person (#907) */
@@ -1352,7 +1357,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <main id="main" tabindex="-1">
 <!-- region:page-overview: the team server's landing page (libraos/agentd-core#907 step 1), drawn by region:overview -->
 <div id="page-overview" class="page" hidden>
-  <div class="ib-head"><h2 id="ov-title">What is running</h2><p class="ib-note">Confirmed work on this server, leased nodes and member hosts. Stale records are shown separately. Updated every 10 seconds.</p></div>
+  <div class="ib-head"><h2 id="ov-title">Team overview</h2><p class="ib-note">Current work and server health, updated every 10 seconds. Explore task, cost and resource history over 24 hours or 7 days.</p></div>
   <div id="ov-body"><div class="empty">Loading…</div></div>
 </div>
 <!-- end:page-overview -->
@@ -4043,62 +4048,103 @@ dashPage('home',{title:'Home',panel:false,agents:false,enter(r){homeRead(r.param
 function appHomePage(){const p=$('app-page');if(!p||!APP.on||APPS.page!=='home'||!lastDash)return;const a=document.activeElement,keep=a&&p.contains(a)&&a.id?a.id:'';
   p.replaceChildren(appPageHead('Home'),el('div',{class:'home-app'},el('p',{class:'home-hint'},'Tasks by where they stand, yours and others’. A task row opens it.'),...homeView(lastDash,true)));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
 // end:home
-// region:overview: the team server's landing page (libraos/agentd-core#907 step 1). Three
-// load cards, Server, Tasks and Agents, from GET /api/load, and the running tasks table from
-// GET /api/running (who asked, project, node, tool and model, elapsed, spend against budget,
-// state), each row opening its task. Both are read when the page opens and every 10 s while
-// it shows. A read that fails after a good one keeps the rows under the stale notice with
-// Retry (region:nodes' feedStale, #904 step 1); a 401 or 403 drops them. Read only. Only the
-// team dash asks: agentd app answers 404 for these routes, so nothing here runs in app mode
-// (render is not called there, and enter and the timer check APP.on and the snapshot's mode).
-const LOAD={data:null,err:'',at:0,req:0,okAt:0,user:null},RUNNING={data:null,err:'',at:0,req:0,okAt:0,user:null},OV={timer:0},OV_EVERY=10000;
+// region:overview: load and running tasks every 10 s, history once a minute. All feeds
+// retain their last good answer on transient failure, and drop it on a refused read or
+// viewer change. App mode never asks for these team-server routes. Charts are local SVG.
+const LOAD={data:null,err:'',at:0,req:0,okAt:0,user:null},RUNNING={data:null,err:'',at:0,req:0,okAt:0,user:null},OV_SERIES={data:null,err:'',at:0,req:0,okAt:0,user:null},OV={timer:0,viewer:null,range:'24h',tables:new Set(),observers:[]},OV_EVERY=10000,OV_SERIES_EVERY=60000;
 function ovOn(){return ROUTE.item==='overview'&&!!lastDash&&!APP.on&&lastDash.mode!=='app'}
 function ovFetch(F,path,take){const req=++F.req;F.at=Date.now();
   return fetch(path,{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
-    .then(j=>{if(req!==F.req)return;F.data=take(j&&typeof j==='object'?j:{});feedOk(F)},e=>{if(req!==F.req)return;feedFail(F,e)})
+    .then(j=>{if(req!==F.req)return;F.data=take(j&&typeof j==='object'?j:{});feedOk(F)}).catch(e=>{if(req!==F.req)return;feedFail(F,e)})
     .then(()=>{if(req===F.req)ovDraw()})}
 function loadLoad(){return ovFetch(LOAD,'/api/load',j=>j)}
 function runningLoad(){return ovFetch(RUNNING,'/api/running',j=>({at:j.at||'',running:Array.isArray(j.running)?j.running:[]}))}
-// ovPoll: each feed when it is 10 s old (force: now), only while Overview shows on the team dash.
-function ovPoll(force){if(!ovOn())return;feedFresh(LOAD);feedFresh(RUNNING);const now=Date.now();if(force||now-LOAD.at>=OV_EVERY-500)loadLoad();if(force||now-RUNNING.at>=OV_EVERY-500)runningLoad()}
+function ovRangeKey(){return 'dash-overview-range:'+(USER||'anonymous')}
+function ovRangeSync(){const viewer=USER||'';if(OV.viewer===viewer)return;OV.viewer=viewer;LOAD.req++;RUNNING.req++;LOAD.at=0;RUNNING.at=0;OV.range='24h';try{if(localStorage.getItem(ovRangeKey())==='7d')OV.range='7d'}catch(e){}ovSeriesReset()}
+function ovSeriesReset(){OV_SERIES.req++;OV_SERIES.data=null;OV_SERIES.err='';OV_SERIES.at=0;OV_SERIES.okAt=0;OV.tables.clear()}
+function ovRangeSet(range){if(!['24h','7d'].includes(range)||range===OV.range)return;OV.range=range;try{localStorage.setItem(ovRangeKey(),range)}catch(e){}ovSeriesReset();ovDraw();if(ovOn())ovSeriesLoad()}
+function ovSeriesLoad(){ovRangeSync();return ovFetch(OV_SERIES,'/api/overview/series?range='+OV.range,j=>{if(j.range!==OV.range||!Array.isArray(j.buckets)||!j.host||!Array.isArray(j.host.samples))throw new Error('Invalid overview history answer');return j})}
+// force refreshes current load; history keeps its minute cadence across page entries.
+function ovPoll(force){if(!ovOn())return;ovRangeSync();feedFresh(LOAD);feedFresh(RUNNING);feedFresh(OV_SERIES);const now=Date.now();if(force||now-LOAD.at>=OV_EVERY-500)loadLoad();if(force||now-RUNNING.at>=OV_EVERY-500)runningLoad();if(now-OV_SERIES.at>=OV_SERIES_EVERY)ovSeriesLoad()}
 function ovClock(t){const d=new Date(t);return isNaN(d)?'':d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 function ovNum(v){return typeof v==='number'&&isFinite(v)?v:null}
 function ovDur(s){s=ovNum(s);if(s===null)return '';if(s<60)return Math.round(s)+'s';if(s<3600)return Math.round(s/60)+' min';if(s<86400)return Math.floor(s/3600)+'h '+String(Math.round(s%3600/60)).padStart(2,'0')+'m';return Math.floor(s/86400)+'d '+Math.floor(s%86400/3600)+'h'}
 function ovUsd(v){return '$'+Number(v).toFixed(2)}
 // ovFresh: how fresh a card is: the time the server read it, and the failed refresh if the last one failed.
 function ovFresh(F,at){const stale=feedIsStale(F),t=ovClock(at||F.okAt);return el('span',{class:'ov-fresh'+(stale?' old':''),'data-ov-fresh':''},stale?'as of '+t:'updated '+t)}
-function ovCard(key,title,F,at,rows,foot){return el('section',{class:'ov-card','data-ov-card':key,'aria-labelledby':'ov-h-'+key},
+function ovFigures(rows){return rows.filter(Boolean).map(([k,v,title,id])=>el('div',{class:'ov-figure',title:title||null},el('dt',{},k),el('dd',{},el('span',{class:'ov-value','data-ov-fig':id||null},v===null||v===undefined||v===''?'—':v))))}
+function ovCard(key,title,F,at,rows,foot,cls=''){return el('section',{class:'ov-card '+cls,'data-ov-card':key,'aria-labelledby':'ov-h-'+key},
   el('div',{class:'ov-chead'},el('h3',{id:'ov-h-'+key},title),ovFresh(F,at)),
-  el('dl',{class:'ov-figs'},rows.filter(Boolean).map(([k,v,title,id])=>el('div',{class:'ov-figure'},el('dt',{},k),el('dd',{},el('span',{class:'ov-value','data-ov-fig':id||null},v===null||v===undefined||v===''?'—':v),title?el('small',{class:'ov-definition'},title):null)))),foot||null)}
+  el('dl',{class:'ov-figs'},ovFigures(rows)),foot||null)}
 function ovFailed(F,what,key,retry){const denied=F.err&&/HTTP 40[13]/.test(F.err);
   return el('div',{class:'state error',role:'alert','data-feed-error':key},el('span',{},denied?'You cannot read '+what+' here: sign in as a user of this server. ':'Could not load '+what+': '+F.err+'. '),denied?null:el('button',{type:'button',onclick:retry},'Retry'))}
 function ovServer(d){const s=d.server||{},lat=s.latency||{},h=s.host||{},cpu=ovNum(h.cpu_pct),mem=ovNum(h.mem_used_pct),total=ovNum(h.mem_total_mb);
-  return [['Up since',s.started?el('span',{},ovClock(s.started)||s.started,el('span',{class:'tm-why'},' up '+ovDur(s.up_s))):null,'When this server process started','up'],
+  return [['Up since',s.started?el('span',{},ovClock(s.started)||s.started,el('span',{class:'tm-why'},' up '+ovDur(s.up_s))):null,'Started '+(s.started||'unknown')+' · uptime '+(ovNum(s.up_s)===null?'unknown':s.up_s)+' seconds','up'],
     ['Database',s.store||null,'The ledger backend this server uses',"store"],
     ['Queue depth',ovNum(s.queue_depth)!==null?String(s.queue_depth):null,'Non-stale offers held by this server; member-host queues are in Tasks','queue'],
-    ['Lease pass',ovNum(s.lease_pass_age_s)!==null?ovDur(s.lease_pass_age_s)+' ago':'not run here','The last lease pass of agentd server','lease'],
-    ['API latency',ovNum(lat.p50_ms)!==null?'p50 '+Math.round(lat.p50_ms)+' ms · p95 '+Math.round(ovNum(lat.p95_ms)||0)+' ms':'no requests','Over the dash’s API requests of the last '+Math.round((ovNum(lat.window_s)||300)/60)+' minutes'+(ovNum(lat.requests)!==null?': '+lat.requests:''),'latency'],
-    ['Host CPU',cpu!==null?Math.round(cpu)+'%'+(ovNum(h.cpus)!==null?' of '+h.cpus+' cores':''):'not readable','1-minute load over cores'+(ovNum(h.load1)!==null?' (load '+h.load1+')':''),'cpu'],
-    ['Host memory',mem!==null?Math.round(mem)+'% used'+(total!==null?' of '+(total/1024).toFixed(1)+' GB':''):'not readable','Physical memory used on this server’s machine','mem']]}
+    ['Lease pass',ovNum(s.lease_pass_age_s)!==null?ovDur(s.lease_pass_age_s)+' ago':'not run here','Last lease pass: '+(s.lease_pass_at||'not run here')+' · '+(ovNum(s.lease_pass_age_s)===null?'unknown age':s.lease_pass_age_s+' seconds ago'),'lease'],
+    ['API latency',ovNum(lat.p50_ms)!==null?'p50 '+lat.p50_ms+' ms · p95 '+(ovNum(lat.p95_ms)===null?'—':lat.p95_ms+' ms'):'no requests','Over '+(ovNum(lat.requests)===null?'unknown':lat.requests)+' dash API requests in '+(lat.window_s||300)+' seconds','latency'],
+    ['Host CPU',cpu!==null?cpu+'%'+(ovNum(h.cpus)!==null?' of '+h.cpus+' cores':''):'not readable','1-minute load over cores'+(ovNum(h.load1)!==null?' (load '+h.load1+')':''),'cpu'],
+    ['Host memory',mem!==null?mem+'% used'+(total!==null?' of '+(total/1024).toFixed(1)+' GB':''):'not readable','Physical memory on this server: '+(total===null?'unknown':total)+' MiB total; '+(ovNum(h.mem_available_mb)===null?'unknown':h.mem_available_mb)+' MiB available','mem']]}
 // ovTasks: each count is this server's own tasks plus those devices mirror (#936), split
 // under it when hosts mirror any; a host not heard from lately has its open tasks shown apart, as stale.
 function ovTasks(d){const t=d.tasks||{},sp=t.split||{},own=sp.server||{},hs=sp.hosts||{},loc=t.running_locations;
-  const n=k=>{if(ovNum(t[k])===null)return null;if(!(t.hosts||[]).length)return String(t[k]);return el('span',{'data-ov-split':k},String(t[k]),el('span',{class:'tm-why'},(ovNum(own[k])||0)+' server ledger · '+(ovNum(hs[k])||0)+' member hosts'))};
-  const running=loc?el('span',{},String(t.running||0),el('span',{class:'tm-why'},(loc.server||0)+' server workers · '+(loc.leased||0)+' node leases · '+(loc.member_hosts||0)+' member-host workers')):n('running');
+  const n=k=>{if(ovNum(t[k])===null)return null;return el('span',{'data-ov-split':k},String(t[k]),el('span',{class:'tm-why'},(ovNum(own[k])===null?(t[k]||0):own[k])+' server ledger · '+(ovNum(hs[k])||0)+' member hosts'))};
+  const running=loc?el('span',{},n('running'),el('span',{class:'tm-why'},(loc.server||0)+' server workers · '+(loc.leased||0)+' node leases · '+(loc.member_hosts||0)+' member-host workers')):n('running');
   return [['Running',running,'Confirmed live workers or valid node leases; member-host work does not use this server’s lease slots.','running'],
     ['Queued',n('queued'),'Non-stale offers on the server ledger and recently heard member hosts.','queued'],
     ['Unconfirmed / stale workers',String(t.stale_running||0),'Previously dispatched tasks without live evidence, including quiet member hosts; excluded from Running.','stale-running'],
     ['Stale offers',String(t.stale_queued||0),'Expired offers or offers on quiet member hosts; excluded from Queued.','stale-queued'],
     ['Blocked',n('blocked'),'Tasks waiting for other tasks to finish.','blocked'],
     ['Waiting on a person',n('waiting_person'),'Workers on prompts or questions, and parked tasks; may overlap Running.','waiting'],
-    ['Approvals pending',ovNum(t.approvals_pending)!==null?String(t.approvals_pending):null,'Unanswered approval requests held by this server.','approvals'],
+    ['Approvals pending',ovNum(t.approvals_pending)!==null?el('span',{},String(t.approvals_pending),el('span',{class:'tm-why'},'Server approval requests')):null,'Unanswered approval requests held by this server.','approvals'],
     ['Finished today',n('finished_today'),'Tasks marked done since '+(t.day_since||'midnight UTC')+'.','finished']]}
 function ovAgents(d){const a=d.agents||{},nodes=a.nodes||{},c=k=>Math.max(0,ovNum(nodes[k])||0),per=Array.isArray(a.sessions_per_person)?a.sessions_per_person:[];
   const nodeText=ovNum(a.nodes_total)===0?'none connected':[c('idle')+' idle',c('busy')+' busy',c('not_ready')+' not ready',c('offline')+' offline'].join(' · ');
-  return [['Nodes',nodeText,'Node availability: busy means the person is working there; leases are counted below. Offline after 5 minutes.','nodes'],
+  return [['Nodes',nodeText,(ovNum(a.nodes_total)===null?'':a.nodes_total+' nodes total. ')+'Node availability: busy means the person is working there; leases are counted below. Offline after 5 minutes.','nodes'],
     ['Leases',ovNum(a.leases)!==null?a.leases+' of '+(ovNum(a.capacity)||0):null,'Valid server leases against total online node capacity; excludes member hosts’ own workers.'+(a.leases_on_offline_nodes?' '+a.leases_on_offline_nodes+' leases remain on offline nodes.':'')+(a.leases_without_node?' '+a.leases_without_node+' leases have no current node card.':''),'leases'],
     ['Live sessions',ovNum(a.sessions)!==null?String(a.sessions):null,a.session_definition||'Agent connections seen within 2 minutes; excludes the dashboard.','sessions'],
     per.length?['Per user',el('span',{class:'ov-people'},per.map((p,i)=>el('span',{'data-ov-person':p.person||''},(i?', ':'')+(p.person||(p.kind==='worker_control'?'Worker control connections':'Unattributed agent connections'))+' '+(ovNum(p.sessions)||0)))),'The same live connections, grouped by person or connection type.','people']:null]}
+const OV_EVENTS=[['created','Created','ov-created'],['done','Done','ov-done'],['failed','Failed attempts','ov-failed']];
+function ovUTC(at){return String(at||'').replace('T',' ').replace(/:00Z$/,' UTC')}
+function ovCost(p,source){const n=ovNum((p.usd||{})[source]),u=(p.unpriced||{})[source]||0;return (n===null?'no priced attempts':(u?'≥ ':'')+ovUsd(n))+(u?' · '+u+' unpriced':'')}
+function ovSeriesTip(kind,p,j){if(kind==='host')return [ovUTC(p.at),'CPU: '+(ovNum(p.cpu_pct)===null?'not measured':p.cpu_pct+'%'),'Memory: '+(ovNum(p.mem_pct)===null?'not measured':p.mem_pct+'%')];
+  const interval=ovUTC(p.start)+' – '+ovUTC(new Date(Date.parse(p.start)+j.bucket_s*1000).toISOString());
+  return [interval,...(kind==='tasks'?OV_EVENTS.map(([k,label])=>label+': '+((p[k]||{}).server||0)+' server · '+((p[k]||{}).hosts||0)+' member hosts'):['Server: '+ovCost(p,'server'),'Member hosts: '+ovCost(p,'hosts')])]}
+// Tables are built on demand: seven days of minute samples can be ten thousand rows.
+function ovSeriesTable(kind,points,j){const body=el('div',{class:'tablewrap'}),details=el('details',{class:'mtable','data-ov-table':kind},el('summary',{},'View data table'),body);
+  const fill=()=>{if(body.childElementCount)return;const heads=kind==='tasks'?['UTC bucket',...OV_EVENTS.flatMap(([,label])=>[label+' · server',label+' · member hosts'])]:kind==='cost'?['UTC bucket','Server USD','Member hosts USD','Unpriced · server','Unpriced · member hosts']:['UTC sample','CPU %','Memory %'];
+    body.append(el('table',{},el('caption',{},kind==='host'?j.host.name+' · server host samples':'Bucket duration: '+j.bucket_s/3600+' hours · UTC'),el('thead',{},el('tr',{},heads.map(h=>el('th',{scope:'col'},h)))),el('tbody',{},points.map(p=>{
+      const values=kind==='tasks'?[ovUTC(p.start),...OV_EVENTS.flatMap(([k])=>[(p[k]||{}).server||0,(p[k]||{}).hosts||0])]:kind==='cost'?[ovUTC(p.start),ovCost(p,'server'),ovCost(p,'hosts'),(p.unpriced||{}).server||0,(p.unpriced||{}).hosts||0]:[ovUTC(p.at),ovNum(p.cpu_pct)===null?'not measured':p.cpu_pct,ovNum(p.mem_pct)===null?'not measured':p.mem_pct];return el('tr',{},values.map(v=>el('td',{},v)))}))))};
+  if(OV.tables.has(kind)){details.open=true;fill()}details.addEventListener('toggle',()=>{if(!details.isConnected)return;if(details.open){OV.tables.add(kind);fill()}else OV.tables.delete(kind)});return details}
+function ovChart(kind,j){const host=kind==='host',money=kind==='cost',points=host?j.host.samples:j.buckets,title=host?'Host CPU and memory':money?'Cost over time':'Tasks over time',
+    note=host?'Server host '+j.host.name+(ovNum(j.host.cores)===null?'':' · '+j.host.cores+' cores')+'. CPU is 1-minute load over cores; memory is used memory.':money?'Finished attempts, USD. Amber ! marks buckets with unpriced attempts; their measured sums are lower bounds.':'Created tasks, done tasks and failed attempts per '+j.bucket_s/3600+'h UTC bucket. Failures include retries.',
+    key=host?[['ov-cpu','CPU % (solid)'],['ov-memory','Memory % (dashed)']]:money?[['ov-created','Server'],['ov-created ov-member','Member hosts'],['ov-unpriced','! Unpriced']]:OV_EVENTS.map(([,label,c])=>[c,label]),
+    box=el('section',{class:'ov-chart','data-ov-chart':kind},el('h4',{},title),el('p',{class:'ov-chart-note'},note),el('div',{class:'mchart-key'},key.map(([c,label])=>el('span',{},el('i',{class:c}),label))));
+  if(kind==='tasks')box.append(el('div',{class:'ov-origin'},'Server: solid · Member hosts: lighter, outlined'));
+  if(host&&!points.length){box.append(el('p',{class:'empty','data-ov-no-samples':'',role:'status'},'No host samples. '+(j.host.note||'Only agentd server records samples where /proc is available; the first sample arrives after one minute.')));return box}
+  if(!points.length){box.append(el('p',{class:'empty'},'No history buckets in this range.'));return box}
+  const plot=el('div',{class:'ov-plot'}),svg=svgEl('svg',{role:'img',tabindex:0,'aria-label':title+' · '+j.range+'. '+note+' Use Left and Right arrows for values, or open the data table.'}),tip=el('div',{class:'mtip',hidden:true,role:'status'});
+  plot.append(svg,tip);box.append(plot,ovSeriesTable(kind,points,j));let left=42,W=600,band=1,selected=-1;
+  const start=Date.parse(j.buckets[0]?.start||points[0].at),end=j.buckets.length?Date.parse(j.buckets[j.buckets.length-1].start)+j.bucket_s*1000:Date.parse(points[points.length-1].at)+60000;
+  const xTime=t=>left+(W-left-8)*(Date.parse(t)-start)/(end-start),hide=()=>{tip.hidden=true},show=i=>{if(!points[i])return;selected=i;const [head,...rows]=ovSeriesTip(kind,points[i],j);tip.replaceChildren(el('b',{},head),rows.map(t=>el('div',{},t)));tip.hidden=false};
+  const draw=()=>{W=plot.clientWidth||(PHONE.matches?330:680);left=money?54:38;band=(W-left-8)/j.buckets.length;const top=12,bot=156,kids=[],max=host?100:niceMax(Math.max(0,...points.flatMap(p=>money?['server','hosts'].map(s=>ovNum((p.usd||{})[s])||0):OV_EVENTS.map(([k])=>((p[k]||{}).server||0)+((p[k]||{}).hosts||0))))),y=v=>bot-(bot-top)*v/max;
+    const text=(value,x,yy,anchor='end')=>{const t=svgEl('text',{class:'m-tick',x,y:yy,'text-anchor':anchor});t.textContent=value;return t};
+    for(const n of [0,max/2,max]){if(!host&&!money&&n%1)continue;kids.push(svgEl('line',{class:'m-grid',x1:left,x2:W-8,y1:y(n),y2:y(n)}),text(host?n+'%':money?'$'+Number(n.toPrecision(3)):n,left-5,y(n)+4))}
+    if(host){for(const [key,cls] of [['cpu_pct','ov-cpu'],['mem_pct','ov-memory']]){let path='',pen=false,last=0;for(const p of points){const v=ovNum(p[key]),at=Date.parse(p.at);if(v===null){pen=false;continue}const x=xTime(p.at),yy=y(v),joined=pen&&at-last<=Math.max(180,(j.sampling?.every_s||60)*3)*1000;path+=(joined?'L':'M')+x+' '+yy;pen=true;last=at;if(points.length<=100||!joined)kids.push(svgEl('circle',{class:cls,cx:x,cy:yy,r:1.7,'data-ov-sample':key}))}if(path)kids.push(svgEl('path',{class:'ov-resource '+cls,d:path,'data-ov-line':key}))}
+    }else points.forEach((p,i)=>{const n=money?2:3,bw=Math.max(.5,Math.min(18,(band-2)/n)),x0=left+i*band+(band-bw*n)/2;
+      if(money){['server','hosts'].forEach((s,k)=>{const v=ovNum((p.usd||{})[s]);if(v===null||v<=0)return;kids.push(svgEl('rect',{class:'ov-created'+(s==='hosts'?' ov-member':''),x:x0+k*bw,y:y(v),width:Math.max(.5,bw-1),height:bot-y(v),'data-ov-source':s,'data-ov-usd':v}))});if(((p.unpriced||{}).server||0)+((p.unpriced||{}).hosts||0)>0){const mark=text('!',left+(i+.5)*band,bot+13,'middle');mark.setAttribute('class','ov-unpriced');mark.setAttribute('data-ov-unpriced',i);kids.push(mark)}}
+      else OV_EVENTS.forEach(([event,,cls],k)=>{let base=0;for(const s of ['server','hosts']){const v=(p[event]||{})[s]||0;if(v>0)kids.push(svgEl('rect',{class:cls+(s==='hosts'?' ov-member':''),x:x0+k*bw,y:y(base+v),width:Math.max(.5,bw-1),height:(bot-top)*v/max,'data-ov-event':event,'data-ov-source':s,'data-ov-value':v}));base+=v}});
+      const hit=svgEl('rect',{class:'ov-hit',x:left+i*band,y:top,width:band,height:bot-top+14});const label=svgEl('title');label.textContent=ovSeriesTip(kind,p,j).join('\n');hit.append(label);kids.push(hit)});
+    const ticks=Math.max(2,Math.floor((W-left)/85)),every=Math.max(1,Math.ceil(j.buckets.length/ticks));j.buckets.forEach((p,i)=>{if(i%every)return;const label=j.range==='24h'?p.start.slice(11,16):p.start.slice(5,10)+' '+p.start.slice(11,13)+'h';kids.push(text(label,left+i*band,183,'start'))});
+    svg.setAttribute('viewBox','0 0 '+W+' 190');svg.replaceChildren(...kids)};
+  const pointer=e=>{const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)*(r.width?W/r.width:1);if(x<left||x>W-8)return hide();if(!host)return show(Math.min(points.length-1,Math.floor((x-left)/band)));
+    const at=start+(x-left)/(W-left-8)*(end-start);let lo=0,hi=points.length-1;while(lo<hi){const m=Math.floor((lo+hi)/2);if(Date.parse(points[m].at)<at)lo=m+1;else hi=m}if(lo&&at-Date.parse(points[lo-1].at)<Date.parse(points[lo].at)-at)lo--;show(lo)};
+  svg.addEventListener('pointermove',pointer);svg.addEventListener('pointerdown',pointer);svg.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')hide()});svg.addEventListener('blur',hide);
+  svg.addEventListener('keydown',e=>{if(e.key==='Escape')hide();else if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();show(e.key==='Home'?0:e.key==='End'?points.length-1:Math.max(0,Math.min(points.length-1,selected+(e.key==='ArrowRight'?1:-1))))}});
+  draw();const ro=new ResizeObserver(draw);ro.observe(plot);OV.observers.push(ro);return box}
+function ovHistory(){const j=feedFresh(OV_SERIES),range=el('div',{class:'ov-range',role:'group','aria-label':'History range'},['24h','7d'].map(r=>el('button',{type:'button','data-ov-range':r,'aria-pressed':String(r===OV.range),onclick:()=>ovRangeSet(r)},r))),box=el('section',{class:'ov-history','aria-labelledby':'ov-history-h'},el('div',{class:'ov-shead'},el('h3',{id:'ov-history-h'},'Activity over time'),j?ovFresh(OV_SERIES):null,range));
+  if(OV_SERIES.err&&!j)box.append(ovFailed(OV_SERIES,'overview history','series',ovSeriesLoad));else if(!j)box.append(el('div',{class:'state'},'Loading history…'));else{const stale=feedStale(OV_SERIES,'series',ovSeriesLoad);if(stale)box.append(stale);box.append(el('div',{class:'ov-charts'},['tasks','cost','host'].map(kind=>ovChart(kind,j))))}return box}
 // ovSpend: dollars against the budget; null dollars are unknown, unpriced attempts make it a floor.
 function ovSpend(r){const b=r.budget||{},usd=ovNum(r.spend_usd),floor=usd!==null&&(r.spend_unpriced||0)>0,cap=ovNum(b.usd);
   const spent=usd===null?'unknown':(floor?'≥ ':'')+ovUsd(usd);return cap!==null?spent+' of '+ovUsd(cap):b.text?spent+' (budget '+b.text+')':spent}
@@ -4138,21 +4184,26 @@ function ovView(){const out=[],load=feedFresh(LOAD),run=feedFresh(RUNNING);
   if(LOAD.err&&!load)out.push(ovFailed(LOAD,'the server’s load','load',loadLoad));
   else if(!load)out.push(el('div',{class:'state'},'Loading…'));
   else{const st=feedStale(LOAD,'load',loadLoad);if(st)out.push(st);
-    out.push(el('div',{class:'ov-cards'},ovCard('server','Server',LOAD,load.at,ovServer(load)),ovCard('tasks','Tasks',LOAD,load.at,ovTasks(load)),
-      ovCard('agents','Agents',LOAD,load.at,ovAgents(load),el('a',{class:'ov-more',href:'#team/nodes'},'Nodes and devices'))))}
+    const tasks=ovTasks(load),byId=id=>tasks.find(r=>r[3]===id);
+    out.push(el('div',{class:'ov-cards'},ovCard('tasks','Tasks',LOAD,load.at,['running','queued','waiting','blocked','approvals','finished'].map(byId),null,'ov-stats'),
+      el('dl',{class:'ov-quiet','data-ov-stale-counts':''},ovFigures(['stale-running','stale-queued'].map(byId))),
+      ovCard('server','Server health',LOAD,load.at,ovServer(load)),
+      ovCard('agents','Agents',LOAD,load.at,ovAgents(load),el('a',{class:'ov-more',href:'#team/nodes'},'Nodes and devices'),'ov-agents')))}
+  out.push(ovHistory());
   const head=el('div',{class:'ov-shead'},el('h3',{id:'ov-running-h'},'Running tasks'),run?el('span',{class:'n','data-ov-count':''},String(run.running.filter(r=>!r.stale).length)):null,run?ovFresh(RUNNING,run.at):null);
   const sec=el('section',{class:'ov-running','aria-labelledby':'ov-running-h'},head);
   if(RUNNING.err&&!run)sec.append(ovFailed(RUNNING,'the running tasks','running',runningLoad));
   else if(!run)sec.append(el('div',{class:'state'},'Loading…'));
   else{const st=feedStale(RUNNING,'running',runningLoad);if(st)sec.append(st);sec.append(ovRunning())}
   out.push(sec);if(run&&run.running.some(r=>r.stale))out.push(el('section',{class:'ov-running','data-ov-stale-workers':''},el('h3',{},'Unconfirmed / stale workers'),el('p',{class:'mute'},'These tasks are excluded from Running. Check their host or worker before treating them as active.'),ovRunning(true)));if(load)out.push(ovNeeds(load));return out}
-function ovDraw(){if(ROUTE.item!=='overview'||APP.on)return;const box=$('ov-body'),a=document.activeElement,keep=a&&box.contains(a)?(a.closest('[data-feed-stale],[data-feed-error]')||{}).dataset:null;
-  box.replaceChildren(...ovView());if(keep){const k=keep.feedStale||keep.feedError,n=box.querySelector('[data-feed-stale="'+k+'"] button,[data-feed-error="'+k+'"] button')||box.querySelector('a');if(n)n.focus({preventScroll:true})}}
+function ovDraw(){if(ROUTE.item!=='overview'||APP.on)return;ovRangeSync();const box=$('ov-body'),a=document.activeElement,keep=a&&box.contains(a)?(a.closest('[data-feed-stale],[data-feed-error],[data-ov-range],[data-ov-table],[data-ov-chart]')||{}).dataset:null;
+  OV.observers.forEach(ro=>ro.disconnect());OV.observers=[];box.replaceChildren(...ovView());if(keep){const k=keep.feedStale||keep.feedError,n=k?box.querySelector('[data-feed-stale="'+k+'"] button,[data-feed-error="'+k+'"] button'):keep.ovRange?box.querySelector('[data-ov-range="'+keep.ovRange+'"]'):keep.ovTable?box.querySelector('[data-ov-table="'+keep.ovTable+'"] summary'):box.querySelector('[data-ov-chart="'+keep.ovChart+'"] svg');if(n)n.focus({preventScroll:true})}}
+$('ov-body').addEventListener('pointerdown',e=>{for(const tip of $('ov-body').querySelectorAll('.ov-plot .mtip'))if(!tip.parentElement.contains(e.target))tip.hidden=true});
 dashPage('overview',{title:'Overview',panel:false,agents:false,
   enter(){clearInterval(OV.timer);OV.timer=setInterval(()=>ovPoll(false),OV_EVERY);ovDraw();ovPoll(true)},
   unlock(){ovPoll(true)},
   render(){if(ROUTE.item!=='overview')return;ovPoll(false);ovDraw()},
-  leave(){clearInterval(OV.timer);OV.timer=0;LOAD.req++;RUNNING.req++}});
+  leave(){clearInterval(OV.timer);OV.timer=0;LOAD.req++;RUNNING.req++;OV_SERIES.req++;if(!OV_SERIES.data)OV_SERIES.at=0;OV.observers.forEach(ro=>ro.disconnect());OV.observers=[]}});
 // end:overview
 // region:filter: typed filters on the board (#456). One filter, read from the
 // box (free words match the title; agent:, status:, pr:, project:, person:
