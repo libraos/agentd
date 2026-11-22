@@ -45,7 +45,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()};
 const body=()=>doc.getElementById('ov-body'),card=k=>body().querySelector('[data-ov-card="'+k+'"]'),fig=(k,f)=>(card(k)?.querySelector('[data-ov-fig="'+f+'"]')||body().querySelector('[data-ov-fig="'+f+'"]')).textContent;
 const stale=k=>body().querySelector('[data-feed-stale="'+k+'"]'),failed=k=>body().querySelector('[data-feed-error="'+k+'"]');
-const count=p=>requests.filter(r=>r==='GET '+p).length;
+const count=p=>requests.filter(r=>r.split('?')[0]==='GET '+p).length;
 const poll=async()=>{w.eval('LOAD.at=0;RUNNING.at=0;ovPoll(false)');await settle()};
 const historyPoll=async()=>{w.eval('OV_SERIES.at=0;ovPoll(false)');await settle()},chart=k=>body().querySelector('[data-ov-chart="'+k+'"]'),range=r=>body().querySelector('[data-ov-range="'+r+'"]');
 const table=async kind=>{const d=chart(kind).querySelector('details');d.open=true;d.dispatchEvent(new w.Event('toggle'));await tick();return [...d.querySelectorAll('tbody tr')].map(r=>[...r.cells].map(c=>c.textContent))};
@@ -58,15 +58,15 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  assert.equal(doc.querySelector('#page-title').textContent,'Overview');
  // Compact stats, smaller stale counts, one health strip, agents, charts, running table.
  assert.deepEqual([...body().querySelectorAll('[data-ov-card]')].map(c=>c.querySelector('h3').textContent),['Tasks','Server health','Agents']);
- assert.deepEqual([...card('tasks').querySelectorAll('dt')].map(c=>c.textContent),['Running','Queued','Waiting on a person','Blocked','Approvals pending','Finished today']);
+ assert.deepEqual([...card('tasks').querySelectorAll('dt')].map(c=>c.textContent),['Running','Queued','Waiting on a person','Blocked','Approvals pending','Finished today since midnight (UTC)']);
  assert(body().querySelector('.ov-quiet [data-ov-fig="stale-queued"]'),'stale counts are not apart from active totals');
  assert(card('server').compareDocumentPosition(body().querySelector('.ov-history'))&w.Node.DOCUMENT_POSITION_FOLLOWING);
  assert(body().querySelector('.ov-history').compareDocumentPosition(body().querySelector('.ov-running'))&w.Node.DOCUMENT_POSITION_FOLLOWING);
  for(const k of ['server','tasks','agents'])assert(/^updated \d/.test(card(k).querySelector('[data-ov-fresh]').textContent),k+' card does not say how fresh it is');
  assert.equal(fig('server','store'),'postgres');assert.equal(fig('server','queue'),'3');assert.equal(fig('server','latency'),'p50 8.2 ms · p95 41 ms');
  assert.equal(fig('server','cpu'),'25% of 8 cores');assert.equal(fig('server','mem'),'50% used of 16.0 GB');assert(/up 2h 30m/.test(fig('server','up')),'up: '+fig('server','up'));assert.equal(fig('server','lease'),'4s ago');
- assert.equal(fig('tasks','running'),'21 server ledger · 1 member hosts1 server workers · 0 node leases · 1 member-host workers');
- for(const [id,value] of [['queued','31 server ledger · 2 member hosts'],['blocked','11 server ledger · 0 member hosts'],['waiting','10 server ledger · 1 member hosts'],['approvals','2Server approval requests'],['finished','74 server ledger · 3 member hosts'],['stale-queued','27'],['stale-running','0']])assert.equal(fig('tasks',id),value,id+' count or split lost');
+ assert.equal(fig('tasks','running'),'21 server ledger · 1 users’ devices1 server workers · 0 node leases · 1 workers on users’ devices');
+ for(const [id,value] of [['queued','31 server ledger · 2 users’ devices'],['blocked','11 server ledger · 0 users’ devices'],['waiting','10 server ledger · 1 users’ devices'],['approvals','2Server approval requests'],['finished','74 server ledger · 3 users’ devices'],['stale-queued','27'],['stale-running','0']])assert.equal(fig('tasks',id),value,id+' count or split lost');
  assert.equal(fig('agents','nodes'),'1 idle · 2 busy · 0 not ready · 1 offline');assert.equal(fig('agents','leases'),'1 of 6');assert.equal(fig('agents','sessions'),'5');
  assert.equal(doc.querySelector('#stats [data-session-count]').textContent,fig('agents','sessions'),'header and card disagree on sessions');
  for(const f of body().querySelectorAll('.ov-figure'))assert(f.title,'a figure lost its definition tooltip');
@@ -136,6 +136,28 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  running.running.pop();load.tasks.stale_running=0;await poll();
  rows[1].querySelector('td:nth-child(3)').click();await settle();assert.equal(w.location.hash,'#issues/hof-run2','a row click does not open its task');
  w.location.hash='#overview';await settle();assert(body().querySelector('tr[data-running="hof-run1"]'),'Overview did not come back');
+ // Durations round the whole before splitting: never "60 min", "1m 60s" or "55h 60m".
+ for(const [expr,want] of [['fmtMin(59.6)','1h 00m'],['fmtMin(3359.7)','56h 00m'],['fmtMin(0.995)','1 min'],['fmtMin(59.4)','59 min'],['fmtMin(125.2)','2h 05m'],
+  ['ovDur(59.6*60)','1h 00m'],['ovDur(3359.7*60)','2d 8h'],['ovDur(59.6)','1 min'],['ovDur(86390)','1d 0h'],['ovDur(7199.9)','2h 00m'],
+  ['fmtDur(59600)','1m 00s'],['fmtDur(3599600)','1h 00m'],['fmtDur(9960)','10s'],['fmtDur(9940)','9.9s']])assert.equal(w.eval(expr),want,expr);
+ // /api/load is asked with the viewer's zone; Finished today says whose midnight it counts from, UTC for an older server.
+ {const tz=w.eval('Intl.DateTimeFormat().resolvedOptions().timeZone');assert(requests.includes('GET /api/load?tz='+encodeURIComponent(tz)),'no tz on /api/load: '+requests.filter(r=>r.includes('/api/load')));
+  const hint=()=>card('tasks').querySelector('[data-ov-day-tz]');assert.equal(hint().textContent,' since midnight (UTC)','an older server without day_tz is not labelled UTC');
+  load.tasks.day_tz='America/New_York';await poll();assert.equal(hint().textContent,' since midnight (America/New_York)');assert(/Finished today since midnight \(America\/New_York\)/.test(hint().closest('dt').textContent));
+  assert.equal(fig('tasks','finished'),'74 server ledger · 3 users’ devices','the finished count lost its split');delete load.tasks.day_tz;await poll()}
+ // Needs a person lists only what a person can unblock now: not an unconfirmed worker, a quiet host's mirrored task or an offered handoff with no worker.
+ {const needs=()=>body().querySelector('[data-ov-needs]'),ids=()=>[...needs().querySelectorAll('[data-ov-need-row]')].map(r=>r.dataset.ovNeedRow);
+  running.running.push({...running.running[1],id:'hof-unconf',where:'host',node:'quiet-laptop',stale:true,stale_reason:'member host has not confirmed a live worker',worker_state:'blocked'});
+  load.tasks.hosts=[...load.tasks.hosts,{node:'quiet-laptop',person:'cy',mirrored:now,stale:true,running:0,queued:0,blocked:0,waiting_person:0,finished_today:0}];
+  dash={...dash,handoff_list:[{id:'hof-unconf',goal:'Unconfirmed',state:'claimed',worker_state:'blocked',origin:'host',host:'quiet-laptop'},
+   {id:'hof-quiet',goal:'Quiet host',state:'claimed',worker_state:'waiting_answer',origin:'host',host:'quiet-laptop',mirror:{node:'quiet-laptop',person:'cy'}},
+   {id:'hof-released',goal:'Released',state:'offered',worker_state:'blocked'},
+   {id:'hof-live',goal:'Live host',state:'claimed',worker_state:'blocked',origin:'host',host:'ann-laptop',mirror:{node:'ann-laptop',person:'ann'}}]};
+  w.eval('refresh()');await poll();
+  assert.deepEqual(ids(),['hof-run2','hof-live'],'unconfirmed, quiet-host or released rows are listed under Needs a person');
+  assert(!needs().textContent.includes('unconfirmed'),'an unconfirmed state shows under Needs a person');
+  assert(body().querySelector('tr[data-stale-running="hof-unconf"]'),'the unconfirmed worker left Unconfirmed / stale workers');
+  running.running.pop();load.tasks.hosts.pop();dash={...dash,handoff_list:[]};w.eval('refresh()');await poll()}
  // Needs a person (#907): the two numbers from /api/load, the tasks behind them, each opening its task; Approvals opens Needs me's Approvals.
  {const needs=()=>body().querySelector('[data-ov-needs]');assert(needs(),'no Needs a person block');assert.equal(needs().querySelector('h3').textContent,'Needs a person');
   assert.equal(needs().querySelector('[data-ov-need="waiting"]').textContent,'1 waiting on a person');
