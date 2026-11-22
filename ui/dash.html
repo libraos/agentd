@@ -3662,6 +3662,20 @@ function mirrorBody(d){const row=(k,v)=>v===undefined||v===null||v===''?null:el(
   return el('div',{class:'mirror-item'},el('p',{class:'note'},d.note||'Mirrored from a member host; read only here.'),
     row('State',d.state+(d.worker_state?' ('+d.worker_state+')':'')),row('Host',d.host),row('Person',d.mirror&&d.mirror.person),row('Project',d.project),row('Worker',d.worker?toolName(d.worker):''),row('Model',d.model),row('End reason',d.end_reason),
     row('Minutes',d.minutes===undefined?'':Number(d.minutes).toFixed(1)),row('Cost',d.usd===undefined?'':'$'+Number(d.usd).toFixed(2)),row('Issues',(d.issues||[]).join(', ')),row('Pull requests',(d.prs||[]).join(', ')),row('Updated',d.updated))}
+// mirrorNote is the one line a mirrored task's page says (#848): where it lives and when the server last heard of it.
+function mirrorNote(d){const t=d.mirrored?new Date(d.mirrored):null,when=t&&!isNaN(t)?t.toLocaleString():'at an unknown time';
+  return 'Mirrored from '+(d.node||'a users device')+(d.person?' ('+d.person+')':'')+', last updated '+when+'. Act on it on that device.'}
+// mirrorDetail is a users device's handoff on the task page, read only: what its device sent, and no action,
+// message box, terminal or file panel, since nothing can be done to it on this server.
+function mirrorDetail(d){const x=(d.tree||[])[0]||{},runs=x.attempts||[],issues=(d.issues||[]).map(i=>i.ref||i).filter(Boolean),prs=x.prs||[];
+  const props=propRows([['State',(x.state||d.state||'')+(x.worker_state?' ('+x.worker_state+')':'')],['Device',d.node],['Person',d.person],['Project',x.project],['Stage',x.stage?word(x.stage):null],
+    ['Worker',x.worker?toolName(x.worker):null],['Branch',x.branch?el('code',{},x.branch):null],['Check',x.check],
+    ['Issue',issues.length?el('span',{},issues.map((r,i)=>[i?', ':'',el('a',{href:itemHash(r)},r)])):null],['Pull requests',prs.length?prs.join(', '):null],
+    ['Minutes',x.minutes===undefined?null:Number(x.minutes).toFixed(1)],['Cost',x.usd===undefined?null:(x.floor?'≥ ':'')+'$'+Number(x.usd).toFixed(2)],['Updated',x.updated_ago?x.updated_ago+' ago':null]]);
+  return el('div',{class:'mirror-item','data-read-only':'true'},el('h2',{class:'ititle'},d.title||x.goal||d.ref),
+    el('p',{class:'note mirror-note',role:'note'},mirrorNote(d)),
+    el('div',{class:'sec'},'Properties'),el('div',{class:'props'},...props),
+    el('div',{class:'sec'},'Runs',el('span',{class:'n'},runs.length)),runs.length?runs.map(a=>runRow(a)):el('p',{class:'mute'},'No worker ran on this, as far as its device sent.'))}
 async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',ref);
   const h=$('hist'),request=++wiRequest;historyRequest++;clearInterval(consoleTimer);consoleTimer=null;DR=null;
   if(!h.contains(document.activeElement))opener=document.activeElement;
@@ -3887,6 +3901,7 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
     const crumb=el('nav',{class:'icrumb','aria-label':'Where this is'},backChat?el('a',{href:'#chat/'+encodeURIComponent(backChat),class:'ibackchat'},'← Back to the conversation'):null,el('a',{href:'#issues'},'All tasks'),el('code',{},ref),isIssue?el('a',{href:ghHref(ref,DET.d&&DET.d.kind==='pr'?'PR':'issue'),target:'_blank',rel:'noopener'},'On '+trackerName(ref)):null);
     if(DET.error){box.replaceChildren(crumb,el('div',{class:'state error',role:'alert'},'Could not load this: '+DET.error));return}
     if(!DET.d){box.replaceChildren(crumb,el('div',{class:'state'},'Loading…'));return}
+    if(DET.d.mirror===true){box.replaceChildren(el('div',{class:'idetail mirror-detail'},crumb,mirrorDetail(DET.d)));return}
     const d=DET.d,dash=lastDash||{},ctx=issueStatusCtx(dash),tree=d.tree||[],issue=d.issue||null,focus=tree.find(x=>x.focus)||tree[0]||{},hLive=ctx.live.get(focus.id),body=d.body||{};
     const title=d.title||(d.pr&&d.pr.title)||focus.goal||body.goal||ref;
     const status=d.kind==='issue'?issueStatus({...issue,handoffs:tree,prs:d.prs},ctx):d.kind==='pr'?statusOf({what:'PR',state:d.pr&&d.pr.state!=='OPEN'?d.pr.state:''}):focus.id?statusOf({...(hLive||focus),prs:focus.prs},ctx.rows.get(focus.id)||[],ctx.openPR):null;

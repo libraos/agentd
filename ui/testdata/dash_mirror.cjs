@@ -22,6 +22,9 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   if(u.pathname==='/api/dash')return json(dash);
   if(u.pathname==='/api/history')return json({rows:[{id:'hof-m2',key:'mirror:alice@alice-laptop/hof-m2',state:'done',goal:'Mirrored finished task',origin:'host',host:'alice-laptop',mirror:{node:'alice-laptop',person:'alice',read_only:true},read_only:true,updated:now},{id:'hof-3',state:'done',goal:'Own task',origin:'server',updated:now}],total:2,groups:2,next:null,limit:50,scope:u.searchParams.get('scope')||'all',facets:{states:['done','cancelled','declined'],sources:[],creators:[],scopes:['server','hosts']}});
   if(u.pathname==='/api/workitem')return json({kind:'mirror',ref:'hof-m2',id:'hof-m2',title:'Mirrored finished task',state:'done',origin:'host',host:'alice-laptop',mirror:{node:'alice-laptop',person:'alice',read_only:true},read_only:true,worker:'codex',usd:1.25,minutes:12,note:'Mirrored from host alice-laptop (alice). It is read only here: open it on that host to act on it.',updated:now});
+  if(u.pathname==='/api/issue'&&u.searchParams.get('ref')==='hof-m1')return json({kind:'handoff',ref:'hof-m1',title:'Fix the parser on a laptop',mirror:true,read_only:true,node:'alice-laptop',person:'alice',mirrored:'2026-11-21T10:00:07Z',mirrored_ago:'1h',state:'claimed',issues:[{ref:'acme/widget#4'}],body:{goal:'Fix the parser on a laptop'},
+   tree:[{...mirrored,focus:true,worker:'claude',worker_state:'running',branch:'agentd/hof-m1',project:'acme/widget',log:[],usd:1.5,minutes:30,attempts:[{tool:'claude',model:'opus',started:now,end_reason:'done',minutes:30,usd:1.5,running:false}]}]});
+  if(u.pathname==='/api/issue'&&u.searchParams.get('ref')==='hof-o1')return json({kind:'handoff',ref:'hof-o1',title:'Server task',tree:[{...own,focus:true,log:[],attempts:[]}],body:{goal:'Server task'}});
   if(u.pathname==='/api/usage')return json({totals:{workers:0},daily:[],by_user:[],by_project:[],by_tool:[],by_model:[],errors:[]});
   if(u.pathname==='/api/chat')return json({chats:[],roles:[],gateway_ready:false});
   return json({})}}});
@@ -55,6 +58,22 @@ const evalJS=s=>w.eval(s);
  assert(box.textContent.includes('read only here'),'no read-only note: '+box.textContent.slice(0,200));
  assert(box.textContent.includes('alice-laptop'));
  assert.deepEqual([...box.querySelectorAll('.drawer-scroll button')].map(b=>b.textContent),[],'a mirrored work item has buttons');
+ // The task page of a mirrored handoff (/api/issue says mirror: true) is read only: the device note, what
+ // its device sent, and no action, message box, terminal or file panel.
+ w.closeHistory&&w.closeHistory();
+ before=requests.length;w.location.hash='#issues/hof-m1';await settle();
+ const det=doc.getElementById('issue-detail');
+ assert(requests.slice(before).some(r=>r==='/api/issue?ref=hof-m1'),'the task page did not ask /api/issue');
+ const note=det.querySelector('.mirror-note');assert(note,'no device note: '+det.textContent.slice(0,300));
+ assert(/^Mirrored from alice-laptop \(alice\), last updated .+\. Act on it on that device\.$/.test(note.textContent),'note: '+note.textContent);
+ assert(!/unknown handoff|Could not load/.test(det.textContent),'the page says it could not load: '+det.textContent.slice(0,200));
+ assert(det.textContent.includes('Fix the parser on a laptop')&&det.textContent.includes('agentd/hof-m1')&&det.textContent.includes('$1.50'),'the mirrored row is not drawn: '+det.textContent.slice(0,400));
+ assert.deepEqual([...det.querySelectorAll('button,textarea,input,select,[data-write],[data-task-act]')].map(b=>b.outerHTML.slice(0,80)),[],'a mirrored task page has controls');
+ assert(!det.querySelector('.tw-tabs,.tw-acts'),'a mirrored task page has the workspace tabs or actions');
+ assert(!requests.slice(before).some(r=>/^\/api\/(action|terminal|files|worklog|taskdetail|openpr)/.test(r)),'the mirrored page asked for worker data: '+requests.slice(before).join(' '));
+ // A server handoff's page is the workspace as before.
+ w.location.hash='#issues/hof-o1';await settle();
+ assert(!det.querySelector('.mirror-note'),'the server task got the device note');assert(det.querySelector('.tw-tabs'),'the server task lost its workspace');
  assert.deepEqual(errors,[]);
  console.log('dash_mirror: ok');process.exit(0)
 })().catch(e=>{console.error(e);process.exit(1)});
