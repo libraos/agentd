@@ -3021,7 +3021,8 @@ function endTick(a){const r=a.end_reason||'';
   if(a.running)return 'run';
   if(/^(cancelled|stopped|replaced)$/.test(r)||r==='done'&&a.check&&!/^passed/.test(a.check))return 'warn';
   return r==='done'?'ok':'bad'}
-function fmtMin(m){if(!(m>=0))return '–';if(m<1)return Math.round(m*60)+'s';if(m<60)return Math.round(m)+' min';return Math.floor(m/60)+'h '+String(Math.round(m%60)).padStart(2,'0')+'m'}
+// fmtMin rounds the whole first, then splits, so 59.6 min reads 1h 00m, never 60 min or 55h 60m.
+function fmtMin(m){if(!(m>=0))return '–';const s=Math.round(m*60);if(s<60)return s+'s';const t=Math.round(m);if(t<60)return t+' min';return Math.floor(t/60)+'h '+String(t%60).padStart(2,'0')+'m'}
 // runStrip is the cost of a handoff over every run: tokens, agent time and
 // dollars, each a floor ("≥") when a run did not report usage, and one bar
 // per run, its height the run's share of the time.
@@ -4057,7 +4058,9 @@ function ovFetch(F,path,take){const req=++F.req;F.at=Date.now();
   return fetch(path,{cache:'no-store',headers:auth()}).then(r=>{if(!r.ok)throw httpErr(r);return r.json()})
     .then(j=>{if(req!==F.req)return;F.data=take(j&&typeof j==='object'?j:{});feedOk(F)}).catch(e=>{if(req!==F.req)return;feedFail(F,e)})
     .then(()=>{if(req===F.req)ovDraw()})}
-function loadLoad(){return ovFetch(LOAD,'/api/load',j=>j)}
+// ovZone: the viewer's IANA zone, so the server counts Finished today from the viewer's midnight.
+function ovZone(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch(e){return ''}}
+function loadLoad(){const tz=ovZone();return ovFetch(LOAD,'/api/load'+(tz?'?tz='+encodeURIComponent(tz):''),j=>j)}
 function runningLoad(){return ovFetch(RUNNING,'/api/running',j=>({at:j.at||'',running:Array.isArray(j.running)?j.running:[]}))}
 function ovRangeKey(){return 'dash-overview-range:'+(USER||'anonymous')}
 function ovRangeSync(){const viewer=USER||'';if(OV.viewer===viewer)return;OV.viewer=viewer;LOAD.req++;RUNNING.req++;LOAD.at=0;RUNNING.at=0;OV.range='24h';try{if(localStorage.getItem(ovRangeKey())==='7d')OV.range='7d'}catch(e){}ovSeriesReset()}
@@ -4068,7 +4071,8 @@ function ovSeriesLoad(){ovRangeSync();return ovFetch(OV_SERIES,'/api/overview/se
 function ovPoll(force){if(!ovOn())return;ovRangeSync();feedFresh(LOAD);feedFresh(RUNNING);feedFresh(OV_SERIES);const now=Date.now();if(force||now-LOAD.at>=OV_EVERY-500)loadLoad();if(force||now-RUNNING.at>=OV_EVERY-500)runningLoad();if(now-OV_SERIES.at>=OV_SERIES_EVERY)ovSeriesLoad()}
 function ovClock(t){const d=new Date(t);return isNaN(d)?'':d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
 function ovNum(v){return typeof v==='number'&&isFinite(v)?v:null}
-function ovDur(s){s=ovNum(s);if(s===null)return '';if(s<60)return Math.round(s)+'s';if(s<3600)return Math.round(s/60)+' min';if(s<86400)return Math.floor(s/3600)+'h '+String(Math.round(s%3600/60)).padStart(2,'0')+'m';return Math.floor(s/86400)+'d '+Math.floor(s%86400/3600)+'h'}
+// ovDur, like fmtMin, rounds to the unit shown before splitting, so no part reads 60.
+function ovDur(s){s=ovNum(s);if(s===null)return '';if(Math.round(s)<60)return Math.round(s)+'s';const m=Math.round(s/60);if(m<60)return m+' min';if(m<1440)return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m';const h=Math.round(s/3600);return Math.floor(h/24)+'d '+h%24+'h'}
 function ovUsd(v){return '$'+Number(v).toFixed(2)}
 // ovFresh: how fresh a card is: the time the server read it, and the failed refresh if the last one failed.
 function ovFresh(F,at){const stale=feedIsStale(F),t=ovClock(at||F.okAt);return el('span',{class:'ov-fresh'+(stale?' old':''),'data-ov-fresh':''},stale?'as of '+t:'updated '+t)}
@@ -4089,16 +4093,18 @@ function ovServer(d){const s=d.server||{},lat=s.latency||{},h=s.host||{},cpu=ovN
 // ovTasks: each count is this server's own tasks plus those devices mirror (#936), split
 // under it when hosts mirror any; a host not heard from lately has its open tasks shown apart, as stale.
 function ovTasks(d){const t=d.tasks||{},sp=t.split||{},own=sp.server||{},hs=sp.hosts||{},loc=t.running_locations;
-  const n=k=>{if(ovNum(t[k])===null)return null;return el('span',{'data-ov-split':k},String(t[k]),el('span',{class:'tm-why'},(ovNum(own[k])===null?(t[k]||0):own[k])+' server ledger · '+(ovNum(hs[k])||0)+' member hosts'))};
-  const running=loc?el('span',{},n('running'),el('span',{class:'tm-why'},(loc.server||0)+' server workers · '+(loc.leased||0)+' node leases · '+(loc.member_hosts||0)+' member-host workers')):n('running');
-  return [['Running',running,'Confirmed live workers or valid node leases; member-host work does not use this server’s lease slots.','running'],
-    ['Queued',n('queued'),'Non-stale offers on the server ledger and recently heard member hosts.','queued'],
-    ['Unconfirmed / stale workers',String(t.stale_running||0),'Previously dispatched tasks without live evidence, including quiet member hosts; excluded from Running.','stale-running'],
-    ['Stale offers',String(t.stale_queued||0),'Expired offers or offers on quiet member hosts; excluded from Queued.','stale-queued'],
+  const n=k=>{if(ovNum(t[k])===null)return null;return el('span',{'data-ov-split':k},String(t[k]),el('span',{class:'tm-why'},(ovNum(own[k])===null?(t[k]||0):own[k])+' server ledger · '+(ovNum(hs[k])||0)+' users’ devices'))};
+  // Whose day Finished today counts: the zone the server used (tasks.day_tz); an older server counts from UTC.
+  const zone=t.day_tz||'UTC',today=el('span',{},'Finished today',el('small',{class:'tm-why','data-ov-day-tz':zone},' since midnight ('+zone+')'));
+  const running=loc?el('span',{},n('running'),el('span',{class:'tm-why'},(loc.server||0)+' server workers · '+(loc.leased||0)+' node leases · '+(loc.member_hosts||0)+' workers on users’ devices')):n('running');
+  return [['Running',running,'Confirmed live workers or valid node leases; work on users’ devices does not use this server’s lease slots.','running'],
+    ['Queued',n('queued'),'Non-stale offers on the server ledger and recently heard users’ devices.','queued'],
+    ['Unconfirmed / stale workers',String(t.stale_running||0),'Previously dispatched tasks without live evidence, including quiet hosts; excluded from Running.','stale-running'],
+    ['Stale offers',String(t.stale_queued||0),'Expired offers or offers on quiet hosts; excluded from Queued.','stale-queued'],
     ['Blocked',n('blocked'),'Tasks waiting for other tasks to finish.','blocked'],
-    ['Waiting on a person',n('waiting_person'),'Workers on prompts or questions, and parked tasks; may overlap Running.','waiting'],
+    ['Waiting on a person',n('waiting_person'),'Workers on prompts or questions, and parked tasks, that a person can unblock now; unconfirmed workers and quiet hosts are not counted. May overlap Running.','waiting'],
     ['Approvals pending',ovNum(t.approvals_pending)!==null?el('span',{},String(t.approvals_pending),el('span',{class:'tm-why'},'Server approval requests')):null,'Unanswered approval requests held by this server.','approvals'],
-    ['Finished today',n('finished_today'),'Tasks marked done since '+(t.day_since||'midnight UTC')+'.','finished']]}
+    [today,n('finished_today'),'Tasks marked done since midnight in '+zone+(t.day_since?' ('+t.day_since+')':'')+'.','finished']]}
 function ovAgents(d){const a=d.agents||{},nodes=a.nodes||{},c=k=>Math.max(0,ovNum(nodes[k])||0),per=Array.isArray(a.sessions_per_person)?a.sessions_per_person:[];
   const nodeText=ovNum(a.nodes_total)===0?'none connected':[c('idle')+' idle',c('busy')+' busy',c('not_ready')+' not ready',c('offline')+' offline'].join(' · ');
   return [['Nodes',nodeText,(ovNum(a.nodes_total)===null?'':a.nodes_total+' nodes total. ')+'Node availability: busy means the person is working there; leases are counted below. Offline after 5 minutes.','nodes'],
@@ -4167,9 +4173,13 @@ function ovRunning(stale=false){const rs=RUNNING.data.running.filter(r=>!!r.stal
 // handoffs whose worker is blocked. Each row opens its task; Approvals opens Needs me's
 // Approvals, and Needs me (the Inbox, folded into Tasks) has what waits on the signed-in user.
 const OV_NEEDS_CAP=5;
-function ovNeedRows(){const seen=new Set(),out=[],add=(id,goal,why,person)=>{if(!id||seen.has(id))return;seen.add(id);out.push({id,goal,why,person})};
-  for(const r of (RUNNING.data&&RUNNING.data.running)||[])if(r.parked||r.worker_state==='blocked'||r.worker_state==='waiting_answer')add(r.id,r.goal,ovState(r),r.person);
-  for(const h of (lastDash&&lastDash.handoff_list)||[])if(h.worker_state==='blocked'||h.worker_state==='waiting_answer'||h.parked)add(h.id,h.title||h.goal,h.parked?'parked':h.worker_state==='blocked'?'waiting on a prompt'+(h.worker_wait?': '+h.worker_wait:''):'waiting on an answer',h.from_user);
+// Only work a person can unblock now, as tasks.waiting_person counts it: an unconfirmed worker or a
+// quiet host's row is under Unconfirmed / stale workers, and an offered handoff has no worker left to wait.
+function ovNeedRows(){const seen=new Set(),out=[],add=(id,goal,why,person)=>{if(!id||seen.has(id))return;seen.add(id);out.push({id,goal,why,person})},run=(RUNNING.data&&RUNNING.data.running)||[];
+  for(const r of run)if(r.stale)seen.add(r.id);
+  const quiet=new Set((((LOAD.data||{}).tasks||{}).hosts||[]).filter(x=>x&&x.stale).map(x=>x.node)),staleHost=h=>h.stale||h.mirror&&h.mirror.stale||h.origin==='host'&&(quiet.has(h.host)||h.mirror&&quiet.has(h.mirror.node));
+  for(const r of run)if(!r.stale&&(r.parked||r.worker_state==='blocked'||r.worker_state==='waiting_answer'))add(r.id,r.goal,ovState(r),r.person);
+  for(const h of (lastDash&&lastDash.handoff_list)||[])if(!staleHost(h)&&(h.parked||h.state!=='offered'&&(h.worker_state==='blocked'||h.worker_state==='waiting_answer')))add(h.id,h.title||h.goal,h.parked?'parked':h.worker_state==='blocked'?'waiting on a prompt'+(h.worker_wait?': '+h.worker_wait:''):'waiting on an answer',h.from_user);
   return out}
 function ovNeeds(load){const t=(load&&load.tasks)||{},wait=ovNum(t.waiting_person),appr=ovNum(t.approvals_pending),rows=ovNeedRows(),mine=lastDash?inboxNeedCount(lastDash):0;
   const fig=(key,label,n,href,title)=>el('div',{class:'ov-need-fig','data-ov-need':key},href&&n?el('a',{href,title:title||null},el('b',{},String(n)),' ',label):[el('b',{},n===null?'—':String(n)),' ',label]);
@@ -4377,7 +4387,7 @@ function md(text){
     out.push(h?el('span',{class:'cc-h'},nodes):li?el('span',{class:'cc-li',style:'margin-left:'+li[1].length+'ch'},(/\d/.test(li[2])?li[2]:'•')+' ',nodes):nodes)}
   return out}
 // How long, as Claude Code writes it: 0.4s, 48s, 2m 03s, 1h 05m.
-function fmtDur(ms){if(!(ms>=0))return '';const s=ms/1000;if(s<0.1)return '<0.1s';if(s<10)return s.toFixed(1)+'s';if(s<60)return Math.round(s)+'s';const m=Math.floor(s/60);if(m<60)return m+'m '+String(Math.round(s%60)).padStart(2,'0')+'s';return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m'}
+function fmtDur(ms){if(!(ms>=0))return '';const s=ms/1000;if(s<0.1)return '<0.1s';if(s<9.95)return s.toFixed(1)+'s';const r=Math.round(s);if(r<60)return r+'s';const m=Math.floor(r/60);if(m<60)return m+'m '+String(r%60).padStart(2,'0')+'s';return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m'}
 function fmtTok(n){return n>=1e6?(n/1e6).toFixed(n>=1e7?0:1)+'M':n>=1000?(n/1000).toFixed(n>=100000?0:1)+'k':String(n)}
 function between(a,b){const x=Date.parse(a),y=Date.parse(b);return x&&y?y-x:NaN}
 // A subagent slower than 2 minutes is marked, past 5 red (Langfuse colours
