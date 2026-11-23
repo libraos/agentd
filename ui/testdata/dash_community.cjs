@@ -1,4 +1,4 @@
-// Community issues on Tasks (#community): GitHub issues opened by people outside the team,
+// Community issues on Tasks (#community): GitHub issues filed in the public repositories or by people outside the team,
 // from GET /api/issues (per row author, author_association, comments, community, created;
 // community_waiting at the top). Done when:
 //  1. only rows with community true are listed, open ones first, each with its ref, title,
