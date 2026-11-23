@@ -3982,22 +3982,23 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
 // end:issues
 // region:community: GitHub issues opened by people outside the team, from GET /api/issues
 // (the rows the board reads). Per row the server adds author, author_association, comments,
-// community (not OWNER, MEMBER or COLLABORATOR, and not a bot) and created (RFC 3339); at the
-// top, community_waiting: open community issues with no comment, no linked task or PR, opened
-// more than 3 days ago. A row that counts there is marked as waiting for a first answer. The
+// community (not OWNER, MEMBER or COLLABORATOR, and not a bot), created (RFC 3339) and
+// community_waiting (boolean: open, community, no comment, no linked task or PR, opened more
+// than 3 days before the server's snapshot); at the top, community_waiting is the number of
+// rows so marked. The mark is that per-row flag, never the browser's clock, so the marked rows
+// always agree with the count; a row without the flag carries no mark. The
 // view only reads: it links to the issue on GitHub and to its tasks, and offers nothing that
 // writes. Every string from GitHub goes in as text (el), never as markup. A server older than
 // these fields sends rows without community: the view says so and lists nothing.
-const COMMUNITY_WAIT_MS=3*24*3600*1000;
 function communityKnown(d){return !!d&&(typeof d.community_waiting==='number'||(d.issues||[]).some(i=>i&&typeof i.community==='boolean'))}
 function communityRows(d){return ((d&&d.issues)||[]).filter(i=>i&&i.community===true)}
-// communityWaiting: the server's rule for community_waiting, applied to one row.
-function communityWaiting(it,now){const t=Date.parse(it.created||'');return !isClosed(it)&&Number(it.comments)===0&&!(it.handoffs||[]).length&&!(it.prs||[]).length&&t>0&&now-t>COMMUNITY_WAIT_MS}
+// communityWaiting: the server's per-row community_waiting flag, taken as it is.
+function communityWaiting(it){return !!it&&it.community_waiting===true}
 function communityAge(created,now){const t=Date.parse(created||'');if(!(t>0))return '';const m=Math.max(0,Math.floor((now-t)/60000));return m<60?m+'m':m<48*60?Math.floor(m/60)+'h':Math.floor(m/1440)+'d'}
 function communityCount(){const n=$('community-n');if(!n)return;const d=ISS.d,w=d&&typeof d.community_waiting==='number'?d.community_waiting:0;
   n.textContent=w?String(w):'';const a=n.closest('a');if(a)a.title=w?w+' community issue'+(w===1?' waits':'s wait')+' for a first answer':'GitHub issues opened by people outside the team'}
 function communityRow(it,ctx,now){
-  const open=!isClosed(it),wait=open&&communityWaiting(it,now),age=communityAge(it.created,now),assoc=String(it.author_association||'').toUpperCase(),n=Number(it.comments)||0;
+  const open=!isClosed(it),wait=open&&communityWaiting(it),age=communityAge(it.created,now),assoc=String(it.author_association||'').toUpperCase(),n=Number(it.comments)||0;
   const waiting=open&&it.waiting_on?(it.waiting_on==='user'?'waiting on you':'waiting on '+it.waiting_on):'';
   const tasks=(it.handoffs||[]).map(h=>{const x=ctx.live.get(h.id)||h;return el('span',{'data-community-task':h.id},wkLink(h.id),taskStatus(x.mark?x:null,statusOf(x,ctx.rows.get(h.id)||[],ctx.openPR)))});
   const prs=(it.prs||[]).filter(p=>p&&p.ref).map(p=>el('span',{'data-community-pr':p.ref},el('a',{href:ghHref(p.ref,'PR'),target:'_blank',rel:'noopener'},'PR #'+(p.ref.split('#')[1]||'')),p.state?statusEl(statusOf({what:'PR',state:p.state==='OPEN'?'':p.state})):el('span',{class:'mute'},'not synced yet')));
@@ -4016,7 +4017,7 @@ function communityDraw(){if(ROUTE.item!=='community')return;const box=$('communi
   if(!communityKnown(d)){count.textContent='';box.replaceChildren(el('div',{class:'state','data-community-old':''},'This server does not report issue authors yet, so community issues cannot be told apart from the team’s. They show here once agentd on the server is updated.'));return}
   const ctx=issueStatusCtx(lastDash||{}),rows=communityRows(d).map((it,i)=>({it,i,open:!isClosed(it),t:Date.parse(it.created||'')||0}));
   rows.sort((a,b)=>(b.open-a.open)||(b.t-a.t)||(a.i-b.i));
-  const open=rows.filter(r=>r.open).length,w=typeof d.community_waiting==='number'?d.community_waiting:rows.filter(r=>communityWaiting(r.it,now)).length;
+  const open=rows.filter(r=>r.open).length,w=typeof d.community_waiting==='number'?d.community_waiting:rows.filter(r=>r.open&&communityWaiting(r.it)).length;
   count.textContent=rows.length?open+' open'+(w?', '+w+' waiting for a first answer':''):'';
   box.replaceChildren(...(ISS.error?[el('div',{class:'state error',role:'alert'},'Could not refresh the issues: '+ISS.error+'. This is the last list read.')]:[]),
     rows.length?el('section',{class:'proj cm-list','aria-labelledby':'community-title'},el('div',{class:'cards',style:'border-top:0'},rows.map(r=>communityRow(r.it,ctx,now)))):el('div',{class:'empty'},'No issues from outside the team.'))}
