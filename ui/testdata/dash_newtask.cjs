@@ -9,7 +9,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_newtask.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const html=fs.readFileSync(process.argv[2],'utf8');
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const dash={user:'alice',role:'owner',now,dispatch:true,dispatch_budget:'30m',checkouts:['/plain','/filed'],handoff_list:[],sessions:[],done:[],claims:[],messages:[],
  waiting:[{what:'PR',ref:'acme/repo#7',title:'Fix the parser',project:'acme/repo',age:'1m'},{what:'issue',ref:'acme/repo#3',title:'Not a PR',project:'acme/repo',age:'1m'}]};

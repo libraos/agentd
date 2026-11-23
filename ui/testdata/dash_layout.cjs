@@ -22,7 +22,7 @@ const inbox=[{id:'blocked:hof-ask',kind:'blocked',title:'worker asks',handoff:'h
 const dash={user:'alice',role:'owner',now,handoff_list:[run,ask,todo,bob],done:[],sessions,left:[],waiting:[],claims:[],messages:[],inbox,dispatch:true,checkouts:['/srv/alpha'],terminal:false,handoff_sources:['interactive'],handoff_stages:['implement']};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const json=body=>({ok:true,status:200,json:async()=>JSON.parse(JSON.stringify(body)),text:async()=>JSON.stringify(body)});
-function load(url){return new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+function load(url){return new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.fetch=async url=>{const u=new URL(url,w.location.href),id=u.searchParams.get('id');

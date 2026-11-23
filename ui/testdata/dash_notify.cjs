@@ -7,7 +7,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_notify.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const html=fs.readFileSync(process.argv[2],'utf8'),now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const task=(id,user)=>({id,title:'Task '+id,goal:'Goal of '+id+' '+evil,state:'claimed',claimer:'s-'+user,from:'s-'+user,from_user:user,claimer_user:user,to:'any',project:'acme/repo',stage:'implement',updated_ago:'1m',age:'1m',dispatched:now,worker_state:'blocked'});
 const blocked=(id,extra)=>({id:'blocked:'+id+':'+now,kind:'blocked',title:'claude worker waiting: permission',goal:'Goal of '+id+' '+evil,handoff:id,claimer:'s-alice',worker:'claude',from:'s-alice',age:'1m',at:now,read:false,mine:true,...extra});
 const dash={user:'alice',role:'owner',now,handoff_list:[task('hof-old','alice'),task('hof-new','alice'),task('hof-front','alice'),task('hof-bob','bob')],sessions:[],left:[],done:[],waiting:[],claims:[],messages:[],inbox:[blocked('hof-old')]};

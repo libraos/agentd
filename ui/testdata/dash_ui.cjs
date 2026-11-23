@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const page=fs.readFileSync(process.argv[2],'utf8');
+const page=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 // Every inline script parses as a whole: a name declared twice in one script stops the page.
 for(const m of page.matchAll(/<script>([\s\S]*?)<\/script>/g))new Function(m[1]);
 class N {

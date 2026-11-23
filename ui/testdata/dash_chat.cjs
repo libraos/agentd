@@ -1,6 +1,6 @@
 // Exercise the embedded Chat functions with no external DOM dependency.
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const page=fs.readFileSync(process.argv[2],'utf8');
+const page=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 class N {
   getBoundingClientRect(){return {left:0,right:1000,width:1000,top:0,bottom:700,height:700}}
  constructor(tag='div'){this.tagName=tag;this.children=[];this.attrs={};this.listeners={};this.dataset={};this.style={setProperty(){},removeProperty(){}};this.value='';this.hidden=false;this.open=false;this.className='';this.classList={toggle(){},add(){},remove(){}};}

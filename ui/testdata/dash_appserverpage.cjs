@@ -6,7 +6,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_appserverpage.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),html=fs.readFileSync(process.argv[2],'utf8');
+const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const snap={user:'alice',role:'owner',now,mode:'app',handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{},checkouts:[],watchdog:{running:true,start:'agentd install'},spend_today:{usd:0,workers:0,unpriced:0,pending:0,user:'alice'}};
 const NEW=/^\/api\/(load|running|grants|policies|insights|devices)$/;
 const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()};

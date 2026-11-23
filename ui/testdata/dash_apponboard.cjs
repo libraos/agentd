@@ -6,7 +6,7 @@
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
-const html=fs.readFileSync(process.argv[2],'utf8');
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const fresh=()=>({flowVersion:4,closedAt:null,outcome:null,lastCompletedStep:-1,checklist:{addedRepo:false,choseAgent:false,ranFirstAgent:false,ranSecondAgentOnSameTask:false,triedCmdJ:false,shapedSidebar:false,reviewedDiff:false,openedPr:false,addedFolder:false,openedFile:false,ranAgentOnFile:false,dismissed:false},surface:'terminal',defaultAgent:null,theme:'system',sound:'system',notifications:false,guideHidden:false,toursSeen:[],toastShown:false});
 const baseFacts=()=>({os:'linux',repositories:[],task_files:0,clients:[{tool:'claude',found:true,connected:false},{tool:'codex',found:true,connected:false},{tool:'opencode',found:false,connected:false}],default_tool:'codex',first_task:{done:false,handoff:null,count:0},gh:'not_installed',linear:false,commands:{repo_add:'agentd repo add DIR',connect:'agentd connect',new:'agentd new "GOAL" --cwd DIR --budget 30m',gh_login:'gh auth login'}});
 const snapBase={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{},checkouts:[]};

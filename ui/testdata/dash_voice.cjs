@@ -2,7 +2,7 @@
 // Run via TestDashUIDOM with DASH_UI_DOM_MODULE pointing at an installed jsdom.
 const fs=require('fs'),assert=require('assert'),vm=require('vm');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const page=fs.readFileSync(process.argv[2],'utf8'),vc=new VirtualConsole();
+const page=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),vc=new VirtualConsole();
 const dom=new JSDOM(page,{url:'http://vpn.test/#chat',runScripts:'outside-only',virtualConsole:vc});
 const w=dom.window,$=id=>w.document.getElementById(id),run=code=>vm.runInContext(code,dom.getInternalVMContext());
 const timers=new Map(),intervals=new Map(),requests=[],recorders=[];

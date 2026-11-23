@@ -7,7 +7,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_setup.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>',html=fs.readFileSync(process.argv[2],'utf8');
+const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>',html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const client=(tool,found,connected)=>({tool,found,connected});
 const state=o=>({show:true,reason:'no_repository',later:null,steps:{host:{command:'agentd doctor'},agents:{done:false,clients:[client('claude',true,false),client('codex',true,false),client('opencode',false,false)],command:'agentd connect'},repository:{done:false,repositories:[],command:'agentd repo add DIR --route on'},task:{done:false,handoff:null,budget:'30m',dispatch:true,default_tool:'claude',command:'agentd run "GOAL" --budget 30m'}},...o});
 const doctor={doctor:[{id:'ledger',status:'pass',detail:'ok'},{id:'claude-mcp',status:'fail',detail:'not registered',fix:'agentd connect claude'}],services:[],connect:[{tool:'claude',found:true}],checked_at:now};

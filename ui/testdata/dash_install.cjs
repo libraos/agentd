@@ -5,7 +5,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_install.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const html=fs.readFileSync(process.argv[2],'utf8'),theme=process.env.DASH_UI_THEME||'light',phone=process.env.DASH_UI_PHONE==='1';
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),theme=process.env.DASH_UI_THEME||'light',phone=process.env.DASH_UI_PHONE==='1';
 const dash={user:'alice',role:'owner',now:new Date().toISOString(),handoff_list:[],done:[],sessions:[],waiting:[],claims:[],messages:[],inbox:[]};
 const errors=[];
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});

@@ -17,7 +17,7 @@ const sched=(o)=>({schedule:'/src/web#nightly',name:'nightly',dir:'/src/web',ena
  runs:[{id:'sr1',scheduled_for:'2026-11-14T03:00:00Z',status:'offered',handoff:'hof-s1',handoff_state:'claimed'},{id:'sr2',scheduled_for:'2026-11-13T03:00:00Z',status:'skipped_precheck',reason:'precheck exited 1'}],...o});
 let trig={status:offStatus,templates:tpls,repo:'acme/web',author:'alice',enable:'agentd config set triggers.enabled true',schedules:{schedules:[]}},trigCode=200,posts=[],postFail='';
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.fetch=async(url,o={})=>{const u=new URL(url,w.location.href);let body={},status=200;
