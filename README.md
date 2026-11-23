@@ -180,7 +180,7 @@ It needs beta access, a cloud key from the Console and the LibraOS GitHub App on
 
 ## Upgrade and Uninstall
 
-**Upgrade:** from v0.1.9, run `libraos-core upgrade`: it checks the download against `SHA256SUMS`, keeps the previous binary beside it with an `.old` suffix and restarts the services it finds. From an older release, run the installer once, then restart the notifier (`systemctl --user restart agentd-notify.service` on Linux).
+**Upgrade:** from v0.1.9, run `libraos-core upgrade` (`agentd upgrade` on a release from before the rename): it checks the download against `SHA256SUMS`, keeps the previous binary beside it with an `.old` suffix and restarts the services it finds. From an older release, run the installer once, then restart the notifier (`systemctl --user restart agentd-notify.service` on Linux).
 
 **Uninstall:** on macOS and Windows, `libraos-core uninstall` removes the services. On Linux, disable and delete the `agentd-*` units in `~/.config/systemd/user`. Then remove the `agentd` MCP server and hooks from `~/.claude.json`, `~/.claude/settings.json` and `~/.codex/config.toml`, and delete the binary, the two Skills and the data directory, which holds your ledger (`~/.local/share/agentd` on Linux and macOS). If you started a Runtime, `libraos-core runtime down` stops it; see [Uninstall](https://libraos.com/docs/agentd/#uninstall) to remove its containers and data.
 
