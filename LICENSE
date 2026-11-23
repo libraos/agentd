@@ -1,19 +1,20 @@
-agentd License
+LibraOS Core License
 
 Copyright (c) 2026 Nebula Nova Inc. All rights reserved.
 
-The agentd binaries, installer, Skills and documentation published in this
-repository (the "Software") are licensed under the LibraOS End User Agreement
-in EULA.md. agentd shows it and asks you to accept it when you activate it
-(`agentd init`). If you do not accept it, do not install or use the Software.
-EULA.md is the same text that agentd shows at activation.
+The LibraOS Core binaries, installer, Skills and documentation published in
+this repository (the "Software") are licensed under the LibraOS End User
+Agreement in EULA.md. LibraOS Core shows it and asks you to accept it when
+you activate it (`agentd init`). If you do not accept it, do not install or
+use the Software. EULA.md is the same text that LibraOS Core shows at
+activation.
 
-Releases published before agentd asked for that acceptance (v0.1.3-rc.1 and
-earlier) remain under the license they were published with, kept in
+Releases published before LibraOS Core asked for that acceptance (v0.1.3-rc.1
+and earlier) remain under the license they were published with, kept in
 LICENSE-before-activation.
 
-The source code of agentd is not published and is not licensed to you, except
-the dashboard front end in the ui/ directory, which is available under the
-Elastic License 2.0 in ui/LICENSE.
+The source code of LibraOS Core is not published and is not licensed to you,
+except the dashboard front end in the ui/ directory, which is available under
+the Elastic License 2.0 in ui/LICENSE.
 
 Third-party components keep their own licenses; see THIRD_PARTY_NOTICES.
