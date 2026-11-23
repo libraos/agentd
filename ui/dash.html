@@ -1379,7 +1379,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   </div>
 </div>
 <!-- end:page-inbox -->
-<!-- region:page-community: GitHub issues opened by people outside the team (region:community draws it) -->
+<!-- region:page-community: GitHub issues filed in the public repositories or by people outside the team (region:community draws it) -->
 <div id="page-community" class="page" hidden>
   <div class="ib-head"><a class="ib-board" href="#issues" title="Every task, on the board">← All tasks</a><h2 id="community-title">Community issues</h2><span class="n" id="community-count"></span><p class="ib-note">GitHub issues opened by people who are not owners, members or collaborators of the repository, and not bots. Open issues come first. Answer them on GitHub.</p></div>
   <div id="community-body"><div class="empty">Loading…</div></div>
@@ -3558,8 +3558,8 @@ ISSUE_PROJ_PICK.onchange=e=>{PROJ=e.target.value;saveIssueRoute();if(lastDash)bo
 ISSUE_VIEWS.append(...[['needs','Needs attention'],['mine','Started by me'],['agents','Running now'],['all','All']].map(([key,label])=>el('button',{type:'button',class:(VIEW===key?'on':''),'aria-pressed':VIEW===key?'true':'false','data-view':key,onclick:()=>setView(key)},el('span',{},label),el('span',{class:'n','data-view-n':key}))),
   // Needs me: the Inbox, folded into Tasks (#907 step 4), with its count (inboxBadge); what waits on the signed-in user alone.
   el('a',{class:'needs-me',href:'#inbox','data-needs-me':'',title:'What waits on you: approvals, questions, blocked and failed workers'},el('span',{},'Needs me'),el('span',{class:'n',id:'needs-me-n'})),
-  // Community: GitHub issues from outside the team (region:community); its number is the server's community_waiting.
-  el('a',{class:'needs-me',href:'#community','data-community-link':'',title:'GitHub issues opened by people outside the team'},el('span',{},'Community'),el('span',{class:'n',id:'community-n'})));
+  // Community: GitHub issues from the public repositories or from outside the team (region:community); its number is the server's community_waiting.
+  el('a',{class:'needs-me',href:'#community','data-community-link':'',title:'GitHub issues filed in the public repositories or by people outside the team'},el('span',{},'Community'),el('span',{class:'n',id:'community-n'})));
 // drawIssuePanel: views counted within the chosen project, projects within the
 // chosen view, so each number is what choosing that view or project shows. Both
 // are in the board's filter row (Tasks has no second panel); a project's count is
@@ -3980,9 +3980,10 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
     if(ROUTE.item!=='issues')return;
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
 // end:issues
-// region:community: GitHub issues opened by people outside the team, from GET /api/issues
+// region:community: GitHub issues filed in the public repositories or by people outside the team, from GET /api/issues
 // (the rows the board reads). Per row the server adds author, author_association, comments,
-// community (not OWNER, MEMBER or COLLABORATOR, and not a bot), created (RFC 3339) and
+// community (the server's rule: not a bot, and filed in a public repository or by someone
+// outside the organisation), created (RFC 3339) and
 // community_waiting (boolean: open, community, no comment, no linked task or PR, opened more
 // than 3 days before the server's snapshot); at the top, community_waiting is the number of
 // rows so marked. The mark is that per-row flag, never the browser's clock, so the marked rows
@@ -3996,7 +3997,7 @@ function communityRows(d){return ((d&&d.issues)||[]).filter(i=>i&&i.community===
 function communityWaiting(it){return !!it&&it.community_waiting===true}
 function communityAge(created,now){const t=Date.parse(created||'');if(!(t>0))return '';const m=Math.max(0,Math.floor((now-t)/60000));return m<60?m+'m':m<48*60?Math.floor(m/60)+'h':Math.floor(m/1440)+'d'}
 function communityCount(){const n=$('community-n');if(!n)return;const d=ISS.d,w=d&&typeof d.community_waiting==='number'?d.community_waiting:0;
-  n.textContent=w?String(w):'';const a=n.closest('a');if(a)a.title=w?w+' community issue'+(w===1?' waits':'s wait')+' for a first answer':'GitHub issues opened by people outside the team'}
+  n.textContent=w?String(w):'';const a=n.closest('a');if(a)a.title=w?w+' community issue'+(w===1?' waits':'s wait')+' for a first answer':'GitHub issues filed in the public repositories or by people outside the team'}
 function communityRow(it,ctx,now){
   const open=!isClosed(it),wait=open&&communityWaiting(it),age=communityAge(it.created,now),assoc=String(it.author_association||'').toUpperCase(),n=Number(it.comments)||0;
   const waiting=open&&it.waiting_on?(it.waiting_on==='user'?'waiting on you':'waiting on '+it.waiting_on):'';
@@ -4020,7 +4021,7 @@ function communityDraw(){if(ROUTE.item!=='community')return;const box=$('communi
   const open=rows.filter(r=>r.open).length,w=typeof d.community_waiting==='number'?d.community_waiting:rows.filter(r=>r.open&&communityWaiting(r.it)).length;
   count.textContent=rows.length?open+' open'+(w?', '+w+' waiting for a first answer':''):'';
   box.replaceChildren(...(ISS.error?[el('div',{class:'state error',role:'alert'},'Could not refresh the issues: '+ISS.error+'. This is the last list read.')]:[]),
-    rows.length?el('section',{class:'proj cm-list','aria-labelledby':'community-title'},el('div',{class:'cards',style:'border-top:0'},rows.map(r=>communityRow(r.it,ctx,now)))):el('div',{class:'empty'},'No issues from outside the team.'))}
+    rows.length?el('section',{class:'proj cm-list','aria-labelledby':'community-title'},el('div',{class:'cards',style:'border-top:0'},rows.map(r=>communityRow(r.it,ctx,now)))):el('div',{class:'empty'},'No issues from the public repositories or from outside the team.'))}
 dashPage('community',{title:'Tasks',sub:'Community',rail:'issues',panel:false,enter(){communityDraw();if(!APP.on)loadIssues()},unlock(){if(!APP.on)loadIssues()},render(){if(ROUTE.item!=='community')return;communityDraw();if(!APP.on)loadIssues()}});
 // end:community
 // region:home: the landing page (libraos/agentd-core#850). Five groups, each a count and a
