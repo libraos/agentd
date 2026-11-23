@@ -67,7 +67,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
   schedules:{schedules:[sched(),sched({schedule:'/src/web#weekly',name:'weekly',enabled:false,next_run:null,runs:[]})]}};
  await openTriggers();
  const tx=page().textContent;
- assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/agentd config set triggers\.enabled false/.test(tx),'on: '+tx);
+ assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/libraos-core config set triggers\.enabled false/.test(tx),'on: '+tx);
  assert(btn('[data-appt-action="trigger_edit"]').disabled,'Edit is enabled while triggers are on');assert.equal(btn('[data-appt-action="trigger_edit"]').textContent,'Edit trigger');
  assert(!page().querySelector('img'),'text became markup');assert(tx.includes('Update deps '+evil)&&tx.includes('over the cap '+evil),'evil text not shown as text');
  btn('[data-appt-action="trigger_pause"]').click();await tick();assert(dialog(),'Pause asks first');await submit();
@@ -75,7 +75,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  // Schedules: nightly (enabled) has Run now and Pause, weekly Enable; its runs list, a skip with its reason.
  const night=page().querySelector('[data-schedule="nightly"]');
  assert(/skipped precheck/.test(night.textContent)&&/precheck exited 1/.test(night.textContent),'nightly runs: '+night.textContent);
- assert(/agentd schedule run nightly --repo \/src\/web/.test(night.textContent),'no CLI twin for run now');
+ assert(/libraos-core schedule run nightly --repo \/src\/web/.test(night.textContent),'no CLI twin for run now');
  night.querySelector('[data-appt-action="schedule_run"]').click();await settle();assert.deepEqual(posts.pop(),{action:'schedule_run',dir:'/src/web',name:'nightly'});
  await openTriggers();page().querySelector('[data-schedule="nightly"] [data-appt-action="schedule_disable"]').click();await settle();assert.deepEqual(posts.pop(),{action:'schedule_disable',dir:'/src/web',name:'nightly'});
  await openTriggers();assert(!page().querySelector('[data-schedule="weekly"] [data-appt-action="schedule_run"]'),'Run now on a schedule that is off');
@@ -90,7 +90,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  // Not an owner: the read-only commands and no control.
  trigCode=403;await openTriggers();
  const ro=page().textContent;
- assert(/Read only/.test(ro)&&/Only an owner/.test(ro)&&/agentd trigger status/.test(ro),'read only: '+ro);
+ assert(/Read only/.test(ro)&&/Only an owner/.test(ro)&&/libraos-core trigger status/.test(ro),'read only: '+ro);
  assert(!page().querySelector('input,textarea,select,form,[data-appt-action]'),'a non-owner has a control');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_apptriggers: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');

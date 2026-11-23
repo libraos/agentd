@@ -42,7 +42,7 @@ const type=t=>{box().value=t;box().dispatchEvent(new w.Event('input',{bubbles:tr
  const [s1,s2]=qa('[data-role="sent"]',conv());
  assert(/^> You: please add a test/.test(s1.textContent)&&s1.dataset.state==='answered'&&/answered · 5m ago/.test(s1.textContent),'first message: '+s1.textContent);
  assert(/^> bob: and the docs/.test(s2.textContent)&&/read · 1m ago/.test(s2.textContent),'another person’s message: '+s2.textContent);
- assert(/agentd msg status msg-1/.test(q('.app-fstate',s1).title),'no msg status command');
+ assert(/libraos-core msg status msg-1/.test(q('.app-fstate',s1).title),'no msg status command');
  assert(!q('#app-tab-body img')&&s1.textContent.includes('<img'),'text went in as HTML');
  // History lists the work item's log, not "No history yet".
  const feed=q('#app-tab-body .app-feed[aria-label="History"]');assert(feed&&/dispatched/.test(feed.textContent)&&/test added/.test(feed.textContent),'history: '+(feed&&feed.textContent));

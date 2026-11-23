@@ -66,7 +66,7 @@ const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySe
  btn(doc.querySelector('#team-head'),'Add a repository').click();await settle();assert(!form.hidden,'the form did not open');assert.equal(doc.activeElement&&doc.activeElement.id,'repo-add-dir');
  btn(form,'Clone from URL').click();await settle();assert(form.querySelector('[data-clone]').textContent.includes('Clone it in a terminal on this host first'));assert(!form.querySelector('#repo-add-dir'),'Clone from URL has a field');assert(form.textContent.includes('git clone URL DIR'));
  btn(form,'A checkout on this host').click();await settle();assert(form.querySelector('#repo-add-dir'),'no directory field');
- assert.deepEqual([...form.querySelectorAll('#repo-add-route option')].map(o=>o.textContent),['On','Off']);assert(form.textContent.includes('agentd repo add DIR --route on|off'));
+ assert.deepEqual([...form.querySelectorAll('#repo-add-route option')].map(o=>o.textContent),['On','Off']);assert(form.textContent.includes('libraos-core repo add DIR --route on|off'));
  const submit=async()=>{form.dispatchEvent(new w.Event('submit',{cancelable:true}));await settle()};
  // A refusal shows the server's reason; the form keeps what was typed; nothing is added.
  answer=()=>({status:400,body:{ok:false,error:'/srv/plain is not a git checkout (git rev-parse --show-toplevel finds none); clone or git init it in a terminal first'}});
@@ -86,7 +86,7 @@ const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySe
  assert([...cwd.querySelectorAll('option')].some(o=>o.value==='/srv/beta'),'New task does not offer the added checkout');[...ntForm.querySelectorAll('.nt-foot button')].find(b=>b.textContent==='Cancel').click();await settle();assert(w.location.hash!=='#new','New task did not close');
  // Anyone else: no Add a repository and no form, the terminal command instead.
  dash={...dash,user:'vera',role:'viewer'};w.eval('refresh()');await settle();await go('#team/repositories');
- assert(!btn(doc.querySelector('#team-head'),'Add a repository'),'a viewer is offered Add a repository');assert(doc.querySelector('#repo-add').hidden);assert(doc.querySelector('#team-head').textContent.includes('agentd repo add DIR'));
+ assert(!btn(doc.querySelector('#team-head'),'Add a repository'),'a viewer is offered Add a repository');assert(doc.querySelector('#repo-add').hidden);assert(doc.querySelector('#team-head').textContent.includes('libraos-core repo add DIR'));
  w.eval('repoAddOpen(true)');await settle();assert(doc.querySelector('#repo-add').hidden,'a viewer opened the form');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_team: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');w.close()})().catch(e=>{console.error(e);process.exit(1)});

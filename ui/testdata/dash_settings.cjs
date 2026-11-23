@@ -90,7 +90,7 @@ const teamDrawn={repositories:1,roles:1,sessions:1},links={triggers:'#triggers',
  assert(rows[1][3].startsWith(evil),'model not shown as text');assert(!doc.querySelector('#set-agents img'),'a model became markup');
  assert.deepEqual([...doc.querySelectorAll('#set-agents [data-connect-preview]')].map(b=>b.dataset.connectPreview),['claude','codex']);
  assert(text('set-agents').includes('Default for new tasks')&&text('set-agents').includes('Codex'),'default tool missing');
- assert(text('set-agents').includes('Settings that widen access')&&text('set-agents').includes('agentd config set triggers.enabled true'),'widening settings missing');
+ assert(text('set-agents').includes('Settings that widen access')&&text('set-agents').includes('libraos-core config set triggers.enabled true'),'widening settings missing');
  // No new setting is writable: outside the Edit and price sheets that existed, the
  // sections that show settings have no control that writes one.
  for(const id of ['agents','connections','terminal','app','history','diagnostics']){
