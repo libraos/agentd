@@ -397,6 +397,8 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 @container (max-width:860px){.tw-body{grid-template-columns:minmax(0,1fr)}.tw-more{display:inline-block}.tw-side>.tw-tabs{display:none}
   .idetail.tw:not([data-phone]) .tw-side{display:none}.idetail.tw[data-phone] .tw-main>.tw-panel{display:none}.idetail.tw[data-phone] .tw-main .tw-tab:not(.tw-more)[aria-selected="true"]{color:var(--mute);border-bottom-color:transparent}
   .idetail.tw[data-phone] .tw-main .tw-tabs{margin-bottom:0}.tw-side.iprops{border-top-left-radius:0;border-top-right-radius:0}}
+/* community issues (region:community) */
+.cm-list .kcard{padding:12px 16px}.cm-row .ktitle{-webkit-line-clamp:3}.cm-wait{color:var(--amber);font-weight:500;white-space:nowrap}.cm-links{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}.cm-links>span{display:inline-flex;gap:6px;align-items:center}.cm-note{white-space:pre-wrap}
 /* end:css-issues */
 /* region:css-tasks-row: Tasks with no second panel: its views (with open counts) and project filter in the board's filter row; card titles wrap at spaces */
 .issue-views button{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.issue-views .needs-me{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:3px 10px;border-radius:6px;color:var(--mute);text-decoration:none}.issue-views .needs-me:hover{color:var(--fg);background:var(--hover)}.issue-views .needs-me .n{color:var(--accent-ink);background:var(--accent-fill);border-radius:8px;padding:0 5px;font-size:11px}.issue-views .needs-me .n:empty{display:none}.issue-views .n{color:var(--mute);font-variant-numeric:tabular-nums}.issue-views .n:empty{display:none}
@@ -1377,6 +1379,12 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   </div>
 </div>
 <!-- end:page-inbox -->
+<!-- region:page-community: GitHub issues opened by people outside the team (region:community draws it) -->
+<div id="page-community" class="page" hidden>
+  <div class="ib-head"><a class="ib-board" href="#issues" title="Every task, on the board">← All tasks</a><h2 id="community-title">Community issues</h2><span class="n" id="community-count"></span><p class="ib-note">GitHub issues opened by people who are not owners, members or collaborators of the repository, and not bots. Open issues come first. Answer them on GitHub.</p></div>
+  <div id="community-body"><div class="empty">Loading…</div></div>
+</div>
+<!-- end:page-community -->
 <!-- region:page-issues -->
 <div id="page-work" class="page" hidden>
   <!-- The views (with counts of open tasks) and the project filter (with counts in its options): wfBar keeps them in this row -->
@@ -1869,7 +1877,7 @@ let ROUTE={item:'',view:'',rest:[]},panelOpener=null;
 function dashPage(name,def){PAGES[name]=def}
 // parseRoute: an old hash lands where it now lives; anything unknown lands on Issues, as it did on Work.
 function parseRoute(hash){const raw=String(hash||'').replace(/^#/,''),[path,query='']=raw.split('?'),parts=(ALIASES[path]||(path==='home'?HOME_ALIAS:path)||'overview').split('/'),item=PAGES[parts[0]]?parts[0]:'notfound',views=PAGES[item].views,rest=item===parts[0]?parts.slice(1):[];
-  const invalidView=views&&rest[0]&&!views.includes(rest[0])||(item==='home'||item==='overview')&&rest.length>0||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['users','permissions','activity','working','members','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||item==='help'&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
+  const invalidView=views&&rest[0]&&!views.includes(rest[0])||(item==='home'||item==='overview')&&rest.length>0||item==='inbox'&&(rest.length>1||rest[0]&&!['needs','approvals','blocked','failed','mine','expired'].includes(rest[0]))||item==='team'&&(rest.length>2||rest.length===1&&!['users','permissions','activity','working','members','nodes','who'].includes(rest[0])||rest.length===2&&!['role','member','session'].includes(rest[0]))||(item==='help'||item==='community')&&rest.length>0||item==='settings'&&(rest.length>1||rest.length===1&&!SET_IDS.includes(rest[0]));return {item:invalidView?'notfound':item,view:invalidView?'':views?(rest[0]||views[0]):'',rest,params:new URLSearchParams(query)}}
 function routeQuery(item,params,replace=false){const query=params.toString(),hash='#'+item+(query?'?'+query:'');if(location.hash===hash)return;history[replace?'replaceState':'pushState'](null,'',hash);ROUTE=parseRoute(hash)}
 function saveIssueRoute(replace=false){const p=new URLSearchParams({view:VIEW,layout:LAYOUT});if(PROJ)p.set('project',PROJ);if(WF.source)p.set('source',WF.source);if(WF.stage)p.set('stage',WF.stage);if(BOARD_PICKED)p.set('column',BOARD_COLUMN);if(MARK_PICK)p.set('mark',MARK_PICK);if(BF_TEXT.trim())p.set('q',BF_TEXT.trim());if(BY)p.set('by',BY);routeQuery('issues',p,replace);$('page-work').classList.remove('in-detail');DET.ref='';DET.request++}
 function readIssueRoute(r){const p=r.params||new URLSearchParams();if(p.has('view')&&['all','mine','agents','needs'].includes(p.get('view')))VIEW=p.get('view');if(p.has('layout'))LAYOUT=p.get('layout')==='list'?'list':'board';PROJ=p.get('project')||'';WF.source=p.get('source')||'';WF.stage=p.get('stage')||'';BOARD_PICKED=p.has('column');BOARD_COLUMN=p.get('column')||'needs';MARK_PICK=markOf(p.get('mark'))?p.get('mark'):'';BY=/^(person|source):./.test(p.get('by')||'')?p.get('by'):'';bfRead(p);if(p.has('view'))VIEW_FALLBACK=false;$('wfilter').dataset.key='';if(lastDash)board(lastDash)}
@@ -3549,7 +3557,9 @@ const ISSUE_VIEWS=$('issue-views'),ISSUE_PROJ=$('issue-proj'),ISSUE_PROJ_PICK=$(
 ISSUE_PROJ_PICK.onchange=e=>{PROJ=e.target.value;saveIssueRoute();if(lastDash)board(lastDash);lockState();toBoard()};
 ISSUE_VIEWS.append(...[['needs','Needs attention'],['mine','Started by me'],['agents','Running now'],['all','All']].map(([key,label])=>el('button',{type:'button',class:(VIEW===key?'on':''),'aria-pressed':VIEW===key?'true':'false','data-view':key,onclick:()=>setView(key)},el('span',{},label),el('span',{class:'n','data-view-n':key}))),
   // Needs me: the Inbox, folded into Tasks (#907 step 4), with its count (inboxBadge); what waits on the signed-in user alone.
-  el('a',{class:'needs-me',href:'#inbox','data-needs-me':'',title:'What waits on you: approvals, questions, blocked and failed workers'},el('span',{},'Needs me'),el('span',{class:'n',id:'needs-me-n'})));
+  el('a',{class:'needs-me',href:'#inbox','data-needs-me':'',title:'What waits on you: approvals, questions, blocked and failed workers'},el('span',{},'Needs me'),el('span',{class:'n',id:'needs-me-n'})),
+  // Community: GitHub issues from outside the team (region:community); its number is the server's community_waiting.
+  el('a',{class:'needs-me',href:'#community','data-community-link':'',title:'GitHub issues opened by people outside the team'},el('span',{},'Community'),el('span',{class:'n',id:'community-n'})));
 // drawIssuePanel: views counted within the chosen project, projects within the
 // chosen view, so each number is what choosing that view or project shows. Both
 // are in the board's filter row (Tasks has no second panel); a project's count is
@@ -3750,7 +3760,7 @@ function issueItem(it,ctx,needRows){
     ...(needs.length?needRows(needs):[]));
   return {kind:'issue',project:it.repo,status,sid:who||'',src:it,mine:hs.some(h=>mineOf(h,ctx.user,ctx.my))||needs.some(x=>x.mine)||!isClosed(it)&&it.waiting_on==='user',worker,issueCard:true,node}}
 function clearIssueFilters(){VIEW_FALLBACK=false;WF.source=WF.stage=PROJ=BY='';bfRead(new URLSearchParams());VIEW='all';$('wfilter').dataset.key='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}
-function issueNote(){const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ||BY);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
+function issueNote(){communityCount();const box=$('issue-note'),out=[];const clear=$('issue-clear');if(clear)clear.hidden=!(WF.source||WF.stage||PROJ||BY);for(const n of document.querySelectorAll('[data-filter-field]'))n.value=WF[n.dataset.filterField];
   if(BY)out.push(el('div',{class:'filter-note','data-by-filter':BY},'Only work created by '+homeByLabel(BY)+', as Home counted it. ',el('button',{type:'button',onclick:()=>{BY='';saveIssueRoute();if(lastDash)board(lastDash);lockState()}},'Show everyone\u2019s')));
   if(VIEW_FALLBACK)out.push(el('div',{class:'filter-note'},'Showing All because nothing is assigned to you in Started by me.'));
   if(WF.source||WF.stage)out.push(el('div',{class:'filter-note'},'Source and stage apply to tasks. Standalone pull requests and sessions are hidden.'));
@@ -3766,7 +3776,7 @@ async function loadIssues(){if(ISS.busy)return;ISS.busy=true;
     const text=await r.text();changed=text!==ISS.key||!!ISS.error;ISS.key=text;ISS.d=JSON.parse(text);noteLinearURLs(ISS.d.issues);ISS.error=''}
   catch(e){changed=ISS.error!==e.message;ISS.error=e.message}
   finally{ISS.busy=false}
-  if(changed&&lastDash){board(lastDash);homeDraw();lockState()}}
+  if(changed&&lastDash){board(lastDash);homeDraw();communityDraw();lockState()}}
 // Item page.
 async function loadDetail(ref,fresh){if(fresh){DET.ref=ref;DET.d=null;DET.error='';DET.text=null;DET.at=0;drawDetail()}
   const request=++DET.request;DET.at=Date.now();
@@ -3970,6 +3980,48 @@ dashPage('issues',{title:'Tasks',panel:false,pageId:'work',enter:issuesEnter,unl
     if(ROUTE.item!=='issues')return;
     if(DET.ref){drawDetail();if(Date.now()-DET.at>=30000)loadDetail(DET.ref,false)}else loadIssues()}});
 // end:issues
+// region:community: GitHub issues opened by people outside the team, from GET /api/issues
+// (the rows the board reads). Per row the server adds author, author_association, comments,
+// community (not OWNER, MEMBER or COLLABORATOR, and not a bot) and created (RFC 3339); at the
+// top, community_waiting: open community issues with no comment, no linked task or PR, opened
+// more than 3 days ago. A row that counts there is marked as waiting for a first answer. The
+// view only reads: it links to the issue on GitHub and to its tasks, and offers nothing that
+// writes. Every string from GitHub goes in as text (el), never as markup. A server older than
+// these fields sends rows without community: the view says so and lists nothing.
+const COMMUNITY_WAIT_MS=3*24*3600*1000;
+function communityKnown(d){return !!d&&(typeof d.community_waiting==='number'||(d.issues||[]).some(i=>i&&typeof i.community==='boolean'))}
+function communityRows(d){return ((d&&d.issues)||[]).filter(i=>i&&i.community===true)}
+// communityWaiting: the server's rule for community_waiting, applied to one row.
+function communityWaiting(it,now){const t=Date.parse(it.created||'');return !isClosed(it)&&Number(it.comments)===0&&!(it.handoffs||[]).length&&!(it.prs||[]).length&&t>0&&now-t>COMMUNITY_WAIT_MS}
+function communityAge(created,now){const t=Date.parse(created||'');if(!(t>0))return '';const m=Math.max(0,Math.floor((now-t)/60000));return m<60?m+'m':m<48*60?Math.floor(m/60)+'h':Math.floor(m/1440)+'d'}
+function communityCount(){const n=$('community-n');if(!n)return;const d=ISS.d,w=d&&typeof d.community_waiting==='number'?d.community_waiting:0;
+  n.textContent=w?String(w):'';const a=n.closest('a');if(a)a.title=w?w+' community issue'+(w===1?' waits':'s wait')+' for a first answer':'GitHub issues opened by people outside the team'}
+function communityRow(it,ctx,now){
+  const open=!isClosed(it),wait=open&&communityWaiting(it,now),age=communityAge(it.created,now),assoc=String(it.author_association||'').toUpperCase(),n=Number(it.comments)||0;
+  const waiting=open&&it.waiting_on?(it.waiting_on==='user'?'waiting on you':'waiting on '+it.waiting_on):'';
+  const tasks=(it.handoffs||[]).map(h=>{const x=ctx.live.get(h.id)||h;return el('span',{'data-community-task':h.id},wkLink(h.id),taskStatus(x.mark?x:null,statusOf(x,ctx.rows.get(h.id)||[],ctx.openPR)))});
+  const prs=(it.prs||[]).filter(p=>p&&p.ref).map(p=>el('span',{'data-community-pr':p.ref},el('a',{href:ghHref(p.ref,'PR'),target:'_blank',rel:'noopener'},'PR #'+(p.ref.split('#')[1]||'')),p.state?statusEl(statusOf({what:'PR',state:p.state==='OPEN'?'':p.state})):el('span',{class:'mute'},'not synced yet')));
+  return el('article',{class:'kcard cm-row','data-ref':it.ref,'data-community-row':it.ref,'data-open':open?'1':'0'},
+    el('div',{class:'ktop'},el('div',{class:'ktitle',title:it.title||it.ref},el('a',{href:itemHash(it.ref)},it.title||it.ref)),statusEl(issueStatus(it,ctx))),
+    el('div',{class:'kmeta'},el('a',{href:ghHref(it.ref,'issue'),target:'_blank',rel:'noopener',title:'Open on '+trackerName(it.ref)},el('code',{},it.ref)),
+      it.author?el('span',{'data-community-author':''},'by ',it.author,assoc&&assoc!=='NONE'?el('span',{class:'mute'},' ('+word(assoc.toLowerCase())+')'):null):null,
+      el('span',{'data-community-comments':''},n===1?'1 comment':n+' comments'),
+      wait?el('span',{class:'cm-wait','data-community-waiting':'',title:'No comment, task or pull request yet, opened more than 3 days ago'},'Waiting for a first answer'):null,
+      age?el('span',{class:'age',title:it.created},'opened '+age+' ago'):null),
+    it.note||waiting?el('div',{class:'krow'},el('span',{class:'why'},it.note?el('span',{class:'cm-note','data-community-note':''},it.note):null),waiting?el('span',{'data-community-waiting-on':''},waiting):null):null,
+    tasks.length||prs.length?el('div',{class:'krow cm-links'},tasks,prs):null)}
+function communityDraw(){if(ROUTE.item!=='community')return;const box=$('community-body'),count=$('community-count'),d=ISS.d,now=Date.now();
+  if(ISS.error&&!d){count.textContent='';box.replaceChildren(el('div',{class:'state error',role:'alert'},'Could not load the issues: '+ISS.error+'.'));return}
+  if(!d){box.replaceChildren(el('div',{class:'empty'},APP.on?'Community issues are on the team server’s dash.':'Loading…'));return}
+  if(!communityKnown(d)){count.textContent='';box.replaceChildren(el('div',{class:'state','data-community-old':''},'This server does not report issue authors yet, so community issues cannot be told apart from the team’s. They show here once agentd on the server is updated.'));return}
+  const ctx=issueStatusCtx(lastDash||{}),rows=communityRows(d).map((it,i)=>({it,i,open:!isClosed(it),t:Date.parse(it.created||'')||0}));
+  rows.sort((a,b)=>(b.open-a.open)||(b.t-a.t)||(a.i-b.i));
+  const open=rows.filter(r=>r.open).length,w=typeof d.community_waiting==='number'?d.community_waiting:rows.filter(r=>communityWaiting(r.it,now)).length;
+  count.textContent=rows.length?open+' open'+(w?', '+w+' waiting for a first answer':''):'';
+  box.replaceChildren(...(ISS.error?[el('div',{class:'state error',role:'alert'},'Could not refresh the issues: '+ISS.error+'. This is the last list read.')]:[]),
+    rows.length?el('section',{class:'proj cm-list','aria-labelledby':'community-title'},el('div',{class:'cards',style:'border-top:0'},rows.map(r=>communityRow(r.it,ctx,now)))):el('div',{class:'empty'},'No issues from outside the team.'))}
+dashPage('community',{title:'Tasks',sub:'Community',rail:'issues',panel:false,enter(){communityDraw();if(!APP.on)loadIssues()},unlock(){if(!APP.on)loadIssues()},render(){if(ROUTE.item!=='community')return;communityDraw();if(!APP.on)loadIssues()}});
+// end:community
 // region:home: the landing page (libraos/agentd-core#850). Five groups, each a count and a
 // short list: Working, Needs attention (team), Waiting on another task, Review and validation,
 // Closed recently. They come from
