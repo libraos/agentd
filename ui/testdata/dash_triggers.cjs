@@ -31,7 +31,7 @@ const page=()=>({status:mode==='off'?off:on,templates,repo:'o/r',author:mode==='
  improve:mode==='off'?improveOff:improveOn,improve_enable:'agentd config set improve.enabled true',signals:mode==='off'?signalsOff:signalsOn,signals_enable:'agentd config set signals.enabled true'});
 const dash={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#inbox',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#inbox',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:process.env.DASH_UI_PHONE==='1'&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.navigator.clipboard={writeText:async t=>{w.copied=t}};w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
@@ -54,7 +54,7 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  let p=pairs();const state=()=>body().querySelector('[data-trig=state]');
  assert(state(),'no state card');assert.equal(body().firstElementChild,state(),'the state card is not first');
  assert.equal(state().querySelector('strong').textContent,'On, but cannot fire: [triggers] authors is empty'+evil);
- assert(/agentd config set triggers\.enabled false/.test(state().textContent),'the state card has no terminal command to turn triggers off');
+ assert(/libraos-core config set triggers\.enabled false/.test(state().textContent),'the state card has no terminal command to turn triggers off');
  assert(!state().querySelector('[data-trig=later]'),'shows a later reason while on');
  assert.equal(doc.getElementById('trig-meta').textContent,'On · owners only');
  // Templates first, then Settings now and Latest runs beside them.

@@ -5,7 +5,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_issueanyway.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const html=fs.readFileSync(process.argv[2],'utf8');
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const base={from:'s-alice',from_user:'alice',to:'any',updated_ago:'1m',age:'1m',project:'acme/repo',state:'offered'};
 const free={...base,id:'hof-free',goal:'Free to dispatch',may_dispatch:true};

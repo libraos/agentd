@@ -24,7 +24,7 @@ const base={user:'alice',role:'owner',now,handoff_list:list,done,sessions:[],lef
 const app=(o)=>({...base,mode:'app',watchdog:{running:true,start:'agentd install'},spend_today:{usd:4.2,workers:3,unpriced:0,pending:0,user:'alice'},...o});
 let snap=app(),hits={};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.fetch=async(url)=>{const u=new URL(url,w.location.href);hits[u.pathname]=(hits[u.pathname]||0)+1;let body={};
@@ -46,7 +46,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert(body.classList.contains('app-mode'),'app mode is not on');await openLeft();
  // #667: the sidebar header uses the product name in every theme and viewport.
  const name=doc.querySelector('#app-left .app-name');
- assert.equal(name.textContent,'AgentD','sidebar product name');assert(shown(name),'sidebar product name is hidden');
+ assert.equal(name.textContent,'LibraOS Core','sidebar product name');assert(shown(name),'sidebar product name is hidden');
  // Grouping: my tasks by repository (folders sorted, each task under its own), finished ones too;
  // then Other people's with Bob's only.
  const it=items();
@@ -129,7 +129,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  key('Escape',{},doc.body);await tick();assert(!shown($('app-page')),'Escape does not close Triggers');
  // Add a repository: the terminal's command, never a request.
  await openLeft();doc.querySelector('#app-shell [data-app-action="add-repo"]').click();await tick();
- assert(shown($('app-repo-pop'))&&/agentd repo add/.test($('app-repo-pop').textContent),'add a repository');
+ assert(shown($('app-repo-pop'))&&/libraos-core repo add/.test($('app-repo-pop').textContent),'add a repository');
  key('Escape',{},doc.body);await tick();assert(!shown($('app-repo-pop')),'Escape does not close it');
  // Phone: opening a task closes the drawer.
  if(phone){await openLeft();row('hof-w1').click();await tick();assert(!body.classList.contains('app-left-open'),'the drawer stays open after a task is opened')}
@@ -138,7 +138,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert(!box().querySelector('.app-repo[data-repo="others"]'),'others group without mine');assert(row('hof-b1')&&!row('hof-b1').hasAttribute('data-readonly'));
  // No tasks: a note with the command.
  snap=app({handoff_list:[],done:[]});await w.refresh();await settle();
- assert(/agentd new/.test(box().textContent),'empty list: '+box().textContent);assert.equal(bell.querySelector('.app-count').textContent,'0');
+ assert(/libraos-core new/.test(box().textContent),'empty list: '+box().textContent);assert.equal(bell.querySelector('.app-count').textContent,'0');
  // Team mode: nothing of this, and n is the team server's again.
  snap={...base};await w.refresh();await settle();assert(!body.classList.contains('app-mode'));
  newClicks=0;key('n',{},doc.body);await tick();assert.equal(newClicks,0,'N presses the app’s button in team mode');

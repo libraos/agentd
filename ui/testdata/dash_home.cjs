@@ -10,7 +10,7 @@
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
-const html=fs.readFileSync(process.argv[2],'utf8');
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const base={from:'s-ann',from_user:'ann',to:'any',project:'acme/app',source:'interactive',updated_ago:'1m',age:'1m',mine:true};
 const open=[
  {...base,id:'hof-work',goal:'Fix login '+evil,state:'claimed',stage:'implement',claimer:'s-w1',worker:'codex',dispatched:true,attempts:[{tool:'codex',running:true}]},

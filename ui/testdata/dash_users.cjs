@@ -10,7 +10,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_users.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const html=fs.readFileSync(process.argv[2],'utf8'),phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const TEMP=['Tmp-Create-9f3kQ2xLmN7p','Tmp-Reset-4hR8sW1zYc6v','Tmp-Enable-2bN5tJ7qXe3k','Tmp-Again-8mD2fG6hKp1r','Tmp-Third-5sV9wB3nLq7t','Tmp-Invite-7cW3pK9sQm2x'],TYPED=['Typed-Wrong-pw-77','Typed-Right-pw-88','Old-Password-0001','New-Password-0002','Invitee-Own-pw-03','agentd_sk_KeyOnly04'];
 const secrets=[...TEMP,...TYPED];
 const dashBase={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
@@ -144,7 +144,7 @@ async function usersPanel(){
 
  // Reset: the sheet names the effect; Cancel sends nothing.
  btn(rows()[1],'Reset password').click();await tick();
- assert(/signs bob out of the dash and AgentD Desktop/i.test(dialog(doc).textContent)&&!/out everywhere/i.test(dialog(doc).textContent)&&/Disable, then Enable/.test(dialog(doc).textContent),'reset sheet does not name the effect: '+dialog(doc).textContent);
+ assert(/signs bob out of the dash and LibraOS Next/i.test(dialog(doc).textContent)&&!/out everywhere/i.test(dialog(doc).textContent)&&/Disable, then Enable/.test(dialog(doc).textContent),'reset sheet does not name the effect: '+dialog(doc).textContent);
  const n=posts().length;btn(dialog(doc),'Cancel').click();await tick();assert.equal(posts().length,n,'Cancel sent a reset');
  btn(rows()[1],'Reset password').click();await tick();answer=[200,{user:'bob',temp_password:TEMP[1]}];await submit(w,doc);
  assert.deepEqual(posts().at(-1),{action:'user_reset_password',name:'bob'});assert.equal(box.querySelector('input').value,TEMP[1]);

@@ -23,7 +23,7 @@ const agents={checked_at:now,connect:[],agents:[
 const diag={doctor:[{id:'config',status:'pass',detail:'Config parsed'}],services:[],checked_at:now};
 const posts=[],reads=[];
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#settings',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#settings',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
@@ -90,7 +90,7 @@ const teamDrawn={repositories:1,roles:1,sessions:1},links={triggers:'#triggers',
  assert(rows[1][3].startsWith(evil),'model not shown as text');assert(!doc.querySelector('#set-agents img'),'a model became markup');
  assert.deepEqual([...doc.querySelectorAll('#set-agents [data-connect-preview]')].map(b=>b.dataset.connectPreview),['claude','codex']);
  assert(text('set-agents').includes('Default for new tasks')&&text('set-agents').includes('Codex'),'default tool missing');
- assert(text('set-agents').includes('Settings that widen access')&&text('set-agents').includes('agentd config set triggers.enabled true'),'widening settings missing');
+ assert(text('set-agents').includes('Settings that widen access')&&text('set-agents').includes('libraos-core config set triggers.enabled true'),'widening settings missing');
  // No new setting is writable: outside the Edit and price sheets that existed, the
  // sections that show settings have no control that writes one.
  for(const id of ['agents','connections','terminal','app','history','diagnostics']){

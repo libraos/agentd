@@ -17,7 +17,7 @@ const sched=(o)=>({schedule:'/src/web#nightly',name:'nightly',dir:'/src/web',ena
  runs:[{id:'sr1',scheduled_for:'2026-11-14T03:00:00Z',status:'offered',handoff:'hof-s1',handoff_state:'claimed'},{id:'sr2',scheduled_for:'2026-11-13T03:00:00Z',status:'skipped_precheck',reason:'precheck exited 1'}],...o});
 let trig={status:offStatus,templates:tpls,repo:'acme/web',author:'alice',enable:'agentd config set triggers.enabled true',schedules:{schedules:[]}},trigCode=200,posts=[],postFail='';
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.fetch=async(url,o={})=>{const u=new URL(url,w.location.href);let body={},status=200;
@@ -67,7 +67,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
   schedules:{schedules:[sched(),sched({schedule:'/src/web#weekly',name:'weekly',enabled:false,next_run:null,runs:[]})]}};
  await openTriggers();
  const tx=page().textContent;
- assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/agentd config set triggers\.enabled false/.test(tx),'on: '+tx);
+ assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/libraos-core config set triggers\.enabled false/.test(tx),'on: '+tx);
  assert(btn('[data-appt-action="trigger_edit"]').disabled,'Edit is enabled while triggers are on');assert.equal(btn('[data-appt-action="trigger_edit"]').textContent,'Edit trigger');
  assert(!page().querySelector('img'),'text became markup');assert(tx.includes('Update deps '+evil)&&tx.includes('over the cap '+evil),'evil text not shown as text');
  btn('[data-appt-action="trigger_pause"]').click();await tick();assert(dialog(),'Pause asks first');await submit();
@@ -75,7 +75,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  // Schedules: nightly (enabled) has Run now and Pause, weekly Enable; its runs list, a skip with its reason.
  const night=page().querySelector('[data-schedule="nightly"]');
  assert(/skipped precheck/.test(night.textContent)&&/precheck exited 1/.test(night.textContent),'nightly runs: '+night.textContent);
- assert(/agentd schedule run nightly --repo \/src\/web/.test(night.textContent),'no CLI twin for run now');
+ assert(/libraos-core schedule run nightly --repo \/src\/web/.test(night.textContent),'no CLI twin for run now');
  night.querySelector('[data-appt-action="schedule_run"]').click();await settle();assert.deepEqual(posts.pop(),{action:'schedule_run',dir:'/src/web',name:'nightly'});
  await openTriggers();page().querySelector('[data-schedule="nightly"] [data-appt-action="schedule_disable"]').click();await settle();assert.deepEqual(posts.pop(),{action:'schedule_disable',dir:'/src/web',name:'nightly'});
  await openTriggers();assert(!page().querySelector('[data-schedule="weekly"] [data-appt-action="schedule_run"]'),'Run now on a schedule that is off');
@@ -90,7 +90,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  // Not an owner: the read-only commands and no control.
  trigCode=403;await openTriggers();
  const ro=page().textContent;
- assert(/Read only/.test(ro)&&/Only an owner/.test(ro)&&/agentd trigger status/.test(ro),'read only: '+ro);
+ assert(/Read only/.test(ro)&&/Only an owner/.test(ro)&&/libraos-core trigger status/.test(ro),'read only: '+ro);
  assert(!page().querySelector('input,textarea,select,form,[data-appt-action]'),'a non-owner has a control');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_apptriggers: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');

@@ -21,7 +21,7 @@ const detail=(frac,o)=>({handoff:'hof-w1',state:'claimed',show:'agentd handoff s
 let frac=0.9,hits={},posts=[],reviewOver={};
 const workitem=id=>({tree:[{id,log:[{note:'report: tests pass '+evil,ago:'2m',actor:'w-'+id},{note:'message m1 from user alice to its worker w: please add a test',ago:'1m'},{note:'claimed',ago:'5m',actor:'w-'+id}]}]});
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'))};
@@ -67,7 +67,7 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  // Changes: branch → base, CHANGES 2 with +N and M/U, Push and open a draft PR; a click opens the diff tab.
  const ch=panel('changes');assert(/agentd\/hof-w1/.test(q('.app-branch',ch).textContent)&&/master/.test(q('.app-base',ch).textContent),'no branch → base');
  assert.equal(q('.app-chead [data-n]',ch).textContent,'2');const rows=qa('.app-crow',ch);assert.deepEqual(rows.map(r=>r.dataset.mark),['M','U']);assert.deepEqual(rows.map(r=>q('.app-n.add',r).textContent),['+1','+1']);
- const pr=q('[data-act="open_pr"]',ch);assert(pr&&/Push and open a draft PR/.test(pr.textContent)&&/agentd handoff pr hof-w1/.test(ch.textContent),'no Push and open a draft PR');
+ const pr=q('[data-act="open_pr"]',ch);assert(pr&&/Push and open a draft PR/.test(pr.textContent)&&/libraos-core handoff pr hof-w1/.test(ch.textContent),'no Push and open a draft PR');
  click(pr);await settle();const sh=q('dialog[open]');assert(sh&&/Open a draft pull request/.test(sh.textContent),'no confirm before the push');assert(!posts.some(p=>p.action==='open_pr'),'pushed without a confirm');
  const cancel=qa('button',sh).find(b=>/^Cancel$/.test(b.textContent.trim()));if(cancel)click(cancel);else doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await settle();
  click(rows[0]);await settle();assert.equal(tabText().pop(),'a.txt (diff)');assert.equal(cur().dataset.mark,'M');assert.equal(q('.app-tmark',cur()).textContent,'M');
@@ -89,7 +89,7 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  // Command: actions by state, each with its command.
  click(cmd);await tick();const m=q('.app-menu[data-menu="command"]');assert(m,'no Command menu');
  for(const k of ['stop','takeover','retry','set_check','cancel','open_editor'])assert(q('[data-act="'+k+'"]',m),'Command has no '+k);
- assert.equal(q('[data-act="takeover"]',m).dataset.cli,'agentd handoff claim hof-w1 --takeover');assert(/agentd handoff dispatch hof-w1 --tool claude --cwd \/r\/demo/.test(q('[data-act="retry"]',m).textContent));
+ assert.equal(q('[data-act="takeover"]',m).dataset.cli,'agentd handoff claim hof-w1 --takeover');assert(/libraos-core handoff dispatch hof-w1 --tool claude --cwd \/r\/demo/.test(q('[data-act="retry"]',m).textContent));
  assert(/--run-check/.test(q('[data-act="retry_check"]',m).textContent),'retry check names no command');
  click(q('[data-act="stop"]',m));await settle();const st=q('dialog[open]');assert(st&&/Stop this worker/.test(st.textContent),'Stop asks no confirm');
  const keep=qa('button',st).find(b=>/^Cancel$/.test(b.textContent.trim()));if(keep)click(keep);else doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await settle();

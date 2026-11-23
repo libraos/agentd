@@ -27,7 +27,7 @@ let dash={user:'alice',role:'owner',now,team:true,handoff_list:[],done:[],sessio
 const requests=[],errors=[];
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const json=(body,status=200)=>({ok:status<400,status,json:async()=>body,text:async()=>JSON.stringify(body)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#team/nodes',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#team/nodes',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
@@ -71,7 +71,7 @@ const mineNames=()=>[...mine().querySelectorAll('[data-node]')].map(n=>n.dataset
  // The queue: each waiting handoff with its reason, as text.
  const q=view().querySelector('[data-queue="hof-q1"]');assert(q,'no queue row');assert(q.querySelector('[data-queue-reason]').textContent.includes('label gpu=a100'));
  assert(q.textContent.includes(evil)&&!q.querySelector('img'),'a goal became markup');
- assert(view().querySelector('[data-enroll-note] code').textContent.includes('agentd server enroll'),'enrolling shows no command');
+ assert(view().querySelector('[data-enroll-note] code').textContent.includes('libraos-core server enroll'),'enrolling shows no command');
  // Drain: a confirmation naming the running lease, then the post; Cancel posts nothing.
  const dialog=()=>doc.querySelector('dialog.sheet'),foot=label=>[...dialog().querySelectorAll('button')].find(b=>b.textContent===label);
  nodeBtn('zed-box').click();await settle();assert(dialog(),'Drain has no confirmation');assert(dialog().textContent.includes('1 running lease finishes'),'the sheet does not name the lease: '+dialog().textContent);
@@ -125,8 +125,8 @@ const mineNames=()=>[...mine().querySelectorAll('[data-node]')].map(n=>n.dataset
  devices={scope:'own',devices:devices.devices.filter(v=>v.person==='carol')};w.eval('DEVICES.at=0;refresh()');await settle();
  assert(view().querySelector('[data-devices-note="own"]'),'a person\'s own list does not say so');assert(dev('dev-c1')&&!dev('dev-a1'));
  // Not an owner: the commands show, no button.
- assert(row('alice-laptop').querySelector('code').textContent==='agentd server workers drain alice-laptop');assert(row('c2-03').querySelector('code').textContent==='agentd server workers undrain c2-03');
- assert(dev('dev-c1').querySelector('code').textContent==='agentd server devices revoke dev-c1');
+ assert(row('alice-laptop').querySelector('code').textContent==='libraos-core server workers drain alice-laptop');assert(row('c2-03').querySelector('code').textContent==='libraos-core server workers undrain c2-03');
+ assert(dev('dev-c1').querySelector('code').textContent==='libraos-core server devices revoke dev-c1');
  assert(!view().querySelector('button[data-node-action],button[data-device-action]'),'a developer has a node action');
  // A device mirroring another's handoffs (a copied ledger) is named in a warning, as text.
  assert(!view().querySelector('[data-mirror-copy]'),'a mirror warning with no copies');

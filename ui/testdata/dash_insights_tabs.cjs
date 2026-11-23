@@ -26,7 +26,7 @@ function insights(q){answers++;const since=q.get('since'),scope=q.get('scope')||
 const requests=[];
 const dash={user:'alice',role:'owner',now,team:true,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#insights',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#insights',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.fetch=async(url,opts={})=>{const u=new URL(url,w.location.href);requests.push((opts.method||'GET')+' '+u.pathname+u.search);let body={},status=200;
@@ -76,7 +76,7 @@ const rows=key=>[...shown().querySelectorAll('[data-ix-group="'+key+'"] tbody tr
  assert.equal(reads().at(-1).get('scope'),'hosts');assert(/scope=hosts/.test(w.location.hash));assert(/\(users’ own hosts\)/.test(doc.getElementById('ix-coverage').textContent));
  const n=reads().length;await route('#insights/success?range=7d&scope=hosts');assert.equal(reads().length,n,'the same period and scope read again');
  // A link with a period opens with it; a reload keeps it.
- const re=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#insights/cost?range=90d&scope=server',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(x){x.localStorage.setItem('dash-token','fixture');x.matchMedia=()=>({matches:false,addEventListener(){}});x.ResizeObserver=class{observe(){}disconnect(){}};x.CSS={escape:v=>v};x.scrollTo=()=>{};
+ const re=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#insights/cost?range=90d&scope=server',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(x){x.localStorage.setItem('dash-token','fixture');x.matchMedia=()=>({matches:false,addEventListener(){}});x.ResizeObserver=class{observe(){}disconnect(){}};x.CSS={escape:v=>v};x.scrollTo=()=>{};
   x.fetch=async(url)=>{const u=new URL(url,x.location.href);requests.push('GET '+u.pathname+u.search);const body=u.pathname==='/api/insights'?insights(u.searchParams):u.pathname==='/api/dash'?dash:{};return {ok:true,status:200,json:async()=>body,text:async()=>JSON.stringify(body)}}}});
  await settle();assert.equal(re.window.document.getElementById('ix-range').value,'90d');assert.equal(reads().at(-1).get('since'),'90d');assert.equal(reads().at(-1).get('scope'),'server');re.window.close();
  // A failed read says so with Retry, and Retry reads again; the last answer is kept on a failed refresh.

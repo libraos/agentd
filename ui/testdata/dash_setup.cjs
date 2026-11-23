@@ -7,7 +7,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_setup.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>',html=fs.readFileSync(process.argv[2],'utf8');
+const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>',html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const client=(tool,found,connected)=>({tool,found,connected});
 const state=o=>({show:true,reason:'no_repository',later:null,steps:{host:{command:'agentd doctor'},agents:{done:false,clients:[client('claude',true,false),client('codex',true,false),client('opencode',false,false)],command:'agentd connect'},repository:{done:false,repositories:[],command:'agentd repo add DIR --route on'},task:{done:false,handoff:null,budget:'30m',dispatch:true,default_tool:'claude',command:'agentd run "GOAL" --budget 30m'}},...o});
 const doctor={doctor:[{id:'ledger',status:'pass',detail:'ok'},{id:'claude-mcp',status:'fail',detail:'not registered',fix:'agentd connect claude'}],services:[],connect:[{tool:'claude',found:true}],checked_at:now};
@@ -51,13 +51,13 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  assert.deepEqual(steps().map(b=>b.dataset.step),['host','agents','repository','task']);assert.equal(step(),'host');
  assert.equal(body().querySelector('[data-setup-count]').textContent,'Step 1 of 4');
  {const d=body().ownerDocument;const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'17 14 170 170',what);assert(s.querySelector('path[stroke^="url(#"]')&&s.querySelector('rect[fill^="url(#"]'),what+': not the ring and stem');for(const ref of [...s.querySelectorAll('[stroke^="url(#"],[fill^="url(#"]')].map(n=>(n.getAttribute('stroke')||n.getAttribute('fill')).slice(5,-1)))assert.equal(d.querySelectorAll('[id="'+ref+'"]').length,1,what+': gradient '+ref+' is not one of a kind')};isMark(body().querySelector('.setup-head .rail-mark'),'the setup head')}
- const cmd=()=>body().querySelector('[data-setup-command] code').textContent;assert.equal(cmd(),'agentd doctor');
+ const cmd=()=>body().querySelector('[data-setup-command] code').textContent;assert.equal(cmd(),'libraos-core doctor');
  // Step 1 reflects doctor: one required check fails, with its fix; not marked done.
  assert(t.requests.includes('GET /api/settings?diagnostics=1'),'doctor was not run');
  assert.equal(body().querySelector('[data-setup-state]').dataset.setupState,'fail');assert(body().textContent.includes('agentd connect claude'),'the fix is not shown');
  assert(!steps()[0].classList.contains('done'),'a failing doctor is marked done');
  // Step 2: Preview then Connect (the existing connect); the state is read again and Claude is connected.
- btn(body(),'Skip for now').click();await settle();assert.equal(step(),'agents');assert.equal(cmd(),'agentd connect claude');
+ btn(body(),'Skip for now').click();await settle();assert.equal(step(),'agents');assert.equal(cmd(),'libraos-core connect claude');
  const card=tool=>body().querySelector('[data-setup-agent="'+tool+'"]');
  assert.equal(card('claude').querySelector('[data-setup-state]').textContent,'Installed');assert.equal(card('opencode').querySelector('[data-setup-state]').textContent,'Not installed');assert(!card('opencode').querySelector('button'),'Preview offered for a missing agent');
  card('claude').querySelector('[data-connect-preview]').click();await settle();
@@ -66,7 +66,7 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  assert.deepEqual(t.posts.at(-1),['/api/settings',{action:'connect',tool:'claude',dry_run:false}]);
  assert.equal(card('claude').querySelector('[data-setup-state]').textContent,'Connected','the card does not show the connect');assert(steps()[1].classList.contains('done'),'step 2 not marked done');
  // Step 3: a refusal shows the server's reason; an add lists the checkout with its routing, as text.
- btn(body(),'Continue').click();await settle();assert.equal(step(),'repository');assert.equal(cmd(),'agentd repo add DIR --route on|off');
+ btn(body(),'Continue').click();await settle();assert.equal(step(),'repository');assert.equal(cmd(),'libraos-core repo add DIR --route on|off');
  const repo=()=>body().querySelector('#setup-repo'),submit=async f=>{f.dispatchEvent(new w.Event('submit',{cancelable:true}));await settle()};
  assert.deepEqual([...repo().querySelectorAll('#setup-repo-route option')].map(o=>o.textContent),['On','Off']);
  repo().querySelector('#setup-repo-dir').value='/srv/plain';await submit(repo());
@@ -101,7 +101,7 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
 
  // Dispatch off: step 4 says so and gives the terminal command; nothing is sent.
  srv=server({connected:true,repos:[{path:'/srv/a',route:'on'}],dispatch:false});t=boot('http://127.0.0.1:21620/#setup','alice','owner',srv);({w,doc}=t);await settle();
- assert.equal(step(),'task','it does not open on the first step not done');assert(body().querySelector('[data-setup-off]').textContent.includes('agentd config set dash.dispatch true'));assert(!body().querySelector('#setup-task'));t.dom.window.close();
+ assert.equal(step(),'task','it does not open on the first step not done');assert(body().querySelector('[data-setup-off]').textContent.includes('libraos-core config set dash.dispatch true'));assert(!body().querySelector('#setup-task'));t.dom.window.close();
 
  // An install with a repository and an agent: the wizard does not open on its own.
  srv=server({connected:true,repos:[{path:'/srv/a',route:'on'}]});t=boot('http://127.0.0.1:21620/','alice','owner',srv);({w,doc}=t);await settle();assert.notEqual(w.location.hash,'#setup');t.dom.window.close();

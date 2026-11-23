@@ -9,7 +9,7 @@
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>',SECRET='correct horse '+Math.random().toString(36).slice(2);
-const html=fs.readFileSync(process.argv[2],'utf8');
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 const grants={grants:[{scope:'org:acme',principal:'bob',role:'developer',granted_by:'ann',created:now},{scope:'project:acme/app',principal:'cid '+evil,role:'lead',granted_by:null,created:now}],
  scopes:{orgs:['acme'],teams:['acme/web'],projects:[{name:'acme/app',org:'acme',team:'web'}]},roles:['admin','lead','developer','viewer','worker'],all:true};
 const policies={policies:[{project:'acme/app',action:'merge',approver_role:'admin',approvers:2,self_approval:false,updated:now,updated_by:'ann'}],actions:['tool_permission','draft_pr','merge','budget_raise','default'],approver_roles:['admin','lead','developer','viewer'],projects:[{name:'acme/app',org:'acme',team:'web'}],all:true};

@@ -1,15 +1,15 @@
 <!doctype html>
-<!-- agentd dash. Copyright (c) 2026 Nebula Nova Inc. Source available under the Elastic License 2.0 (LICENSE in this directory): use and change it inside your own organization; do not redistribute it, offer it as a managed service, or circumvent agentd activation. -->
+<!-- LibraOS Core dash. Copyright (c) 2026 Nebula Nova Inc. Source available under the Elastic License 2.0 (LICENSE in this directory): use and change it inside your own organization; do not redistribute it, offer it as a managed service, or circumvent LibraOS Core activation. -->
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AgentD Server</title>
+<title>LibraOS Core Server</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='17 14 170 170'%3E%3Cdefs%3E%3ClinearGradient id='b' gradientUnits='userSpaceOnUse' x1='50' y1='70' x2='150' y2='180'%3E%3Cstop offset='0' stop-color='%23406CC6'/%3E%3Cstop offset='1' stop-color='%2376A5FF'/%3E%3C/linearGradient%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='16' x2='0' y2='178'%3E%3Cstop offset='0' stop-color='%23F1D07F'/%3E%3Cstop offset='1' stop-color='%23D3A036'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57' fill='none' stroke='url(%23b)' stroke-width='17'/%3E%3Crect x='147.5' y='16' width='17' height='166.5' fill='url(%23g)'/%3E%3C/svg%3E">
 <!-- region:install-head: the server as an installable app (#465): its manifest and icons are served by agentd -->
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="application-name" content="agentd">
+<meta name="application-name" content="LibraOS Core">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="agentd">
+<meta name="apple-mobile-web-app-title" content="LibraOS Core">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1e1e20" media="(prefers-color-scheme: dark)">
@@ -1283,7 +1283,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div class="shell">
 <!-- region:rail -->
 <nav class="rail" id="rail" aria-label="Server">
-  <a class="rail-mark" href="#overview" title="AgentD Server" aria-label="AgentD Server, go to Overview"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
+  <a class="rail-mark" href="#overview" title="LibraOS Core Server" aria-label="LibraOS Core Server, go to Overview"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-rail-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-rail-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-rail-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-rail-g)"/></svg></a>
   <a class="rail-item" data-rail="overview" href="#overview"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 14.5a6.5 6.5 0 1 1 13 0"/><path d="m10 14.5 3-4"/><path d="M3.5 16.5h13"/></svg></span><span class="rail-label">Overview</span></a>
   <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg><span class="rail-badge" id="inbox-badge" hidden></span></span><span class="rail-label">Tasks</span></a>
   <a class="rail-item" data-rail="team" href="#team"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="7.5" r="2.7"/><path d="M2.8 16c.4-2.8 2.3-4.3 4.7-4.3s4.3 1.5 4.7 4.3"/><path d="M12.6 5.1a2.7 2.7 0 0 1 0 4.8M14.3 11.9c1.6.5 2.6 1.9 2.9 4.1"/></svg></span><span class="rail-label">Team</span></a>
@@ -1415,7 +1415,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <section id="team-host" hidden>    <div class="tm-host"><div class="tm-host-name"><span>Running</span><span id="acount"></span></div>
     <div id="agents"></div></div>
     <details class="more" id="leftbox"><summary>Recently ended <span id="lcount" class="mute"></span></summary><div id="left"></div></details>
-    <details class="more"><summary>Not connected to agentd <span id="ucount" class="mute"></span></summary><div id="unlinked"></div></details></section>
+    <details class="more"><summary>Not connected to LibraOS Core <span id="ucount" class="mute"></span></summary><div id="unlinked"></div></details></section>
 </div>
 <!-- end:page-team -->
 <!-- region:page-insights -->
@@ -1511,7 +1511,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <!-- region:page-triggers -->
 <div id="page-triggers" class="page textpage" hidden>
   <div class="set-toolbar"><h2>Triggers</h2><span class="mute trig-meta" id="trig-meta"></span><button type="button" id="trig-refresh">Refresh</button></div>
-  <p class="mute">What starts work on its own: <code>[triggers]</code> (what <code>agentd trigger status</code> prints, and templates for it), and beside it <code>[improve]</code> and <code>[signals]</code>. All three are off by default, only an owner sees this page, and nothing here turns any of them on: that is a terminal step.</p>
+  <p class="mute">What starts work on its own: <code>[triggers]</code> (what <code>libraos-core trigger status</code> prints, and templates for it), and beside it <code>[improve]</code> and <code>[signals]</code>. All three are off by default, only an owner sees this page, and nothing here turns any of them on: that is a terminal step.</p>
   <p id="trig-error" role="alert" hidden></p><p id="trig-status" class="mute" role="status"></p>
   <div id="trig-body" class="trig-col"></div>
 </div>
@@ -1534,7 +1534,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     </dl></section>
   <section class="runs" aria-label="Words used here"><div class="colhead"><h2>Words used here</h2></div><dl><dt>Unassigned</dt><dd>A task offered for an agent to take.</dd><dt>Working</dt><dd>The host process reports activity; a session can be connected without doing work.</dd><dt>Not seen</dt><dd>The session has not checked in recently. This is separate from the task’s result.</dd><dt>Reserved resource</dt><dd>A path or port an agent says it is using, recorded as a claim.</dd><dt>Validation</dt><dd>A check of the work. A passing check does not merge or publish it.</dd><dt>Lower bound (≥)</dt><dd>At least this amount is known; some usage or prices are missing.</dd><dt>From / Taken by</dt><dd>The session that offered the task and the session that claimed it.</dd></dl></section>
   <section class="runs" aria-label="From the command line"><div class="colhead"><h2>From the command line</h2></div>
-    <p class="mute">Every command takes <code>-h</code>. Start with <code>agentd doctor</code> to see whether this install works, and <code>agentd status</code> for what is waiting.</p></section>
+    <p class="mute">Every command takes <code>-h</code>. Start with <code>libraos-core doctor</code> to see whether this install works, and <code>libraos-core status</code> for what is waiting.</p></section>
   <section class="runs" aria-label="Send feedback"><div class="colhead"><h2>Send feedback</h2></div>
     <form id="feedback-form"><label>Category <select name="category"><option value="bug">Bug</option><option value="idea">Idea</option><option value="ux">User experience</option><option value="other">Other</option></select></label><label>Rating (optional) <select name="rating"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><label>Feedback <textarea name="text" maxlength="5000" required></textarea></label><button type="submit">Send feedback</button><span id="feedback-status" class="mute" role="status"></span></form></section>
 </div>
@@ -1549,7 +1549,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div class="app-shell" id="app-shell" hidden>
 <div class="app-row">
 <aside class="app-left" id="app-left" aria-label="Tasks and projects">
-  <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">AgentD</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
+  <div class="app-tbleft"><span class="app-logo" aria-hidden="true"><svg viewBox="17 14 170 170" class="brand-mark" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-app-b" gradientUnits="userSpaceOnUse" x1="50" y1="70" x2="150" y2="180"><stop offset="0" stop-color="#406CC6"/><stop offset="1" stop-color="#76A5FF"/></linearGradient><linearGradient id="bm-app-g" gradientUnits="userSpaceOnUse" x1="0" y1="16" x2="0" y2="178"><stop offset="0" stop-color="#F1D07F"/><stop offset="1" stop-color="#D3A036"/></linearGradient></defs><path d="M148.13 94.57A58 58 0 0 1 100.05 177.86M91.95 177.86A58 58 0 0 1 43.87 94.57M47.92 87.57A58 58 0 0 1 144.08 87.57" fill="none" stroke="url(#bm-app-b)" stroke-width="17"/><rect x="147.5" y="16" width="17" height="166.5" fill="url(#bm-app-g)"/></svg></span><span class="app-name">LibraOS Core</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
     <!-- region:app-nav: Home (work by status, region:home), Tasks (every task as a table) and Triggers (an owner's, region:app-triggers) open in the centre; wired by the issues that build them -->
@@ -1561,8 +1561,8 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   </nav>
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
     <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count">0</span></button>
-    <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (agentd repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
-    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (agentd new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (libraos-core repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (libraos-core new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
   </div></div>
   <!-- region:app-projects: repositories as folders, their tasks under them, others' tasks in their own group (#563) -->
   <nav class="app-projects" data-region="projects" id="app-projects" aria-labelledby="app-projects-name"></nav>
@@ -1618,8 +1618,8 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <!-- end:app-shell -->
 <!-- region:app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), one narrow column shown
      instead of the full app there; drawn by region:app-panel in the script -->
-<main class="ap" id="app-panel" hidden aria-label="AgentD tasks">
-  <header class="ap-top"><b class="ap-brand">AgentD</b><select id="ap-project" aria-label="Project" hidden></select><a class="ap-full" href="/" target="_blank" rel="noopener">Full app</a></header>
+<main class="ap" id="app-panel" hidden aria-label="LibraOS Core tasks">
+  <header class="ap-top"><b class="ap-brand">LibraOS Core</b><select id="ap-project" aria-label="Project" hidden></select><a class="ap-full" href="/" target="_blank" rel="noopener">Full app</a></header>
   <p class="ap-wd" id="ap-watchdog" role="status" hidden></p>
   <section class="ap-inbox" id="ap-inbox" aria-label="Needs you" hidden></section>
   <section class="ap-list" id="ap-list" aria-label="Tasks"></section>
@@ -1642,7 +1642,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 // page says so at the top with the command that starts one. The team dash (mode "team") shows nothing.
 function appWatchdog(d){const n=document.getElementById('appwatchdog');if(!n)return;const w=d&&d.mode==='app'?d.watchdog:null;
  if(!w||w.running!==false){n.hidden=true;n.replaceChildren();return}
- n.replaceChildren(el('span',{},(w.note||'No watchdog is running: offered tasks do not start')+'. Start one: '),el('code',{},w.start||'agentd init'));n.hidden=false}
+ n.replaceChildren(el('span',{},(w.note||'No watchdog is running: offered tasks do not start')+'. Start one: '),el('code',{},w.start||'libraos-core init'));n.hidden=false}
 // region:core
 const $=id=>document.getElementById(id);
 // A password sign-in an owner set (or reset) is restricted until its person picks a
@@ -1679,7 +1679,7 @@ function plainText(text){return String(text||'')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\s'"`,;()]+)*\/\.claude\/worktrees\/[^\s'"`,;()]+/g,'the worker’s folder')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\/\s'"`,;()]+)*\/worktrees\/[^\/\s'"`,;()]+-[0-9a-f]{8}\/(?:hof|run|pr|issue|imp|improve|trigger)-[^\/\s'"`,;()][^\s'"`,;()]*/g,'the worker’s folder')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s'"`,;()]+)((?:\/[^\/\s'"`,;()]+)*)\/?/g,(m,rest)=>rest.split('/').filter(Boolean).pop()||'the home folder')
-  .replace(/\s*\((?:[^()]*?:\s*)?(?:git|agentd|gh|claude|codex|npm|npx|go|make|pip)\s[^()]*(?:\)|$)/g,'')
+  .replace(/\s*\((?:[^()]*?:\s*)?(?:git|libraos-core|agentd|gh|claude|codex|npm|npx|go|make|pip)\s[^()]*(?:\)|$)/g,'')
   .replace(new RegExp('\\b(the|a|an|its|this|existing)\\s+branch\\s+'+PLAIN_BRANCH,'gi'),'$1 worker branch')
   .replace(new RegExp('\\b(?:branch\\s+)?'+PLAIN_BRANCH,'gi'),'a worker branch')
   .replace(new RegExp('\\b(?:task|handoff|work item)\\s+hof-'+PLAIN_ID+'\\b','gi'),'an earlier task')
@@ -1751,7 +1751,7 @@ document.addEventListener('click',e=>{const n=e.target.closest('[aria-disabled="
 function auth(){return TOKEN?{'X-Dash-Token':TOKEN}:{}}
 function setToken(t){const changed=TOKEN!==t;TOKEN=t;if(changed)chatAuthChanged();try{t?localStorage.setItem('dash-token',t):localStorage.removeItem('dash-token')}catch(e){}lockState();refresh();{const p=PAGES[ROUTE.item];if(p&&p.unlock)p.unlock(ROUTE)}if(selectedSession&&!selectedSession.item)showHistory(selectedSession.id,selectedSession.host,true)}
 function dropToken(){if(COOKIE&&!TOKEN){COOKIE=false;chatAuthChanged();lockState();toast('Your session has ended. Sign in again.',false);location.assign('/login?ended');return}if(!TOKEN)return;setToken('');toast('The token was rejected. Unlock with a current token.',false)}
-function unlockSheet(){return sheet({title:'Unlock the server',description:'Ask the host owner for a server token, or sign in with your personal key at /login. If you run this host, use agentd dash token.',action:'Unlock',pending:'Checking…',fields:[{name:'token',label:'Server token',type:'password',required:true}],content:el('p',{class:'mute'},'Have a name and password from an owner? ',el('button',{type:'button',class:'quiet',onclick:()=>{if(activeSheet)activeSheet.cancel();passwordSheet()}},'Sign in with a password')),onSubmit:async(v,ui)=>{const r=await fetch('/api/auth',{cache:'no-store',headers:{'X-Dash-Token':v.token}});if(r.status!==204){ui.inputs.token.value='';ui.inputs.token.focus();return 'That token was not accepted. Check it and try again.'}setToken(v.token);toast('Unlocked',true)}})}
+function unlockSheet(){return sheet({title:'Unlock the server',description:'Ask the host owner for a server token, or sign in with your personal key at /login. If you run this host, use libraos-core dash token.',action:'Unlock',pending:'Checking…',fields:[{name:'token',label:'Server token',type:'password',required:true}],content:el('p',{class:'mute'},'Have a name and password from an owner? ',el('button',{type:'button',class:'quiet',onclick:()=>{if(activeSheet)activeSheet.cancel();passwordSheet()}},'Sign in with a password')),onSubmit:async(v,ui)=>{const r=await fetch('/api/auth',{cache:'no-store',headers:{'X-Dash-Token':v.token}});if(r.status!==204){ui.inputs.token.value='';ui.inputs.token.focus();return 'That token was not accepted. Check it and try again.'}setToken(v.token);toast('Unlocked',true)}})}
 // passwordSheet signs a person in with the name and password an owner gave them. The
 // password is sent as typed (never trimmed), cleared from its field after every
 // refusal, and never shown back; an unknown name and a wrong password read the same.
@@ -1833,7 +1833,7 @@ function meter(ctx,win,text){
 // name; a worker agentd started (host name "agentd hof-…") as its tool's worker.
 const WORKER_HOST=/^agentd (?:hof|run)-/;
 function sessLabel(id){const s=sessionRow(id),n=nameOf(id),t=toolName(toolOf(id));
-  if(s&&s.user&&s.tool==='other'&&(s.label==='user'||/via the agentd dash/.test(s.task||'')))return s.user;
+  if(s&&s.user&&s.tool==='other'&&(s.label==='user'||/via the (?:agentd|libraos-core|LibraOS Core) dash/.test(s.task||'')))return s.user;
   if(n&&n!==id&&!WORKER_HOST.test(n))return toolName(n);
   return t?t+(WORKER_HOST.test(n||'')?' worker':' session'):'Agent session'}
 function sessLink(id,label){return id&&id!=='any'?el('button',{class:'linkish',title:'Open session history ('+id+')',onclick:()=>showHistory(id,hostOf(id))},el('span',{title:id},label||sessLabel(id))):el('span',{class:'mute'},id||'–')}
@@ -1890,7 +1890,7 @@ function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.re
   const rail=def.rail||r.item;for(const n of document.querySelectorAll('[data-rail]')){if(n.dataset.rail===rail)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
   if(r.view)for(const n of $('panel-'+r.item).querySelectorAll('a.pitem')){if(n.getAttribute('href')===path)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current')}
   const sub=r.view&&def.viewTitle?def.viewTitle[r.view]:def.sub||'';
-  $('side-title').textContent=({home:'Filters',inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · AgentD Server';
+  $('side-title').textContent=({home:'Filters',inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · LibraOS Core Server';
   if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}
   agentsApply();if(lastDash)agentsDraw(lastDash);
   if(def.enter)def.enter(r);syncDrawerRoute(r)}
@@ -1925,19 +1925,19 @@ function setTheme(v){try{if(v==='light'||v==='dark')localStorage.setItem('dash-t
 // terminal command, never a control.
 const SETTINGS={data:null,section:'agents',request:0,identity:'',diagnostics:null,agents:null,agentsRequest:0,loading:false};
 const SET_SECTIONS=[
-  {id:'agents',group:'Server',title:'Agents',sub:'Claude, Codex, opencode',desc:'Which coding agents this host can start, and whether agentd is connected to each.'},
+  {id:'agents',group:'Server',title:'Agents',sub:'Claude, Codex, opencode',desc:'Which coding agents this host can start, and whether LibraOS Core is connected to each.'},
   {id:'models',group:'Server',title:'Models and prices',sub:'configured, used, price list',desc:'The models each agent and role is set to, the ones runs actually used, and their prices.'},
   {id:'workers',group:'Server',title:'Workers',sub:'limits, budgets, sandbox, rules',desc:'How many workers run at once, their default tool and budget, and what they may reach.'},
   {id:'repositories',group:'Server',title:'Repositories',sub:'checkouts workers run in',team:'repositories',desc:'The checkouts on this host that workers can run in.'},
   {id:'roles',group:'Server',title:'Roles',sub:'agents/NAME.md',team:'roles',desc:'The role files a task can name to start its worker.'},
-  {id:'sessions',group:'Server',title:'Sessions on this host',sub:'connected, ended, not connected',team:'host',desc:'Sessions connected to agentd on this host.'},
+  {id:'sessions',group:'Server',title:'Sessions on this host',sub:'connected, ended, not connected',team:'host',desc:'Sessions connected to LibraOS Core on this host.'},
   {id:'triggers',group:'Server',title:'Triggers',sub:'what starts work on its own',href:'#triggers',owner:true},
-  {id:'connections',group:'Server',title:'Connections',sub:'GitHub, Linear, gateway, Runtime',desc:'What agentd reads from and talks to. Changed from the terminal.'},
+  {id:'connections',group:'Server',title:'Connections',sub:'GitHub, Linear, gateway, Runtime',desc:'What LibraOS Core reads from and talks to. Changed from the terminal.'},
   {id:'terminal',group:'Server',title:'Terminal',sub:'set in config.toml',desc:'An owner’s shell on a task, in the server. Off unless config.toml turns it on.'},
-  {id:'diagnostics',group:'Server',title:'Diagnostics',sub:'agentd doctor',desc:'agentd doctor and the services, read here. Owners only.'},
+  {id:'diagnostics',group:'Server',title:'Diagnostics',sub:'libraos-core doctor',desc:'libraos-core doctor and the services, read here. Owners only.'},
   {id:'users',group:'Access',title:'Users',sub:'invite, reset, disable; on Team',href:'#team/users'},
   {id:'permissions',group:'Access',title:'Permissions',sub:'who has which role where; on Team',href:'#team/permissions'},
-  {id:'history',group:'Access',title:'Change history',sub:'who changed what',desc:'Every change made from Settings or agentd config set. Owners only.'},
+  {id:'history',group:'Access',title:'Change history',sub:'who changed what',desc:'Every change made from Settings or libraos-core config set. Owners only.'},
   {id:'personal',group:'Personal',title:'Personal',sub:'notifications, theme, shortcuts',desc:'Your theme, sign-in and notifications. These are yours and change nothing for others.'},
   {id:'app',group:'Personal',title:'Install as an app',sub:'desktop and phone',desc:'Open the server in its own window, from the dock or the home screen.'}],
   SET_IDS=SET_SECTIONS.filter(x=>!x.href).map(x=>x.id),SET_TEAM=Object.fromEntries(SET_SECTIONS.filter(x=>x.team).map(x=>[x.id,x.team]));
@@ -1953,7 +1953,7 @@ async function settingsLoad(){const seq=++SETTINGS.request,identity=settingsIden
 // settingsShow shows one section, marks it in the panel, and names it in the top bar.
 function settingsShow(id){const sec=SET_SECTIONS.find(x=>x.id===id&&!x.href)||SET_SECTIONS[0];id=sec.id;SETTINGS.section=id;for(const g of SET_IDS){const n=$('set-'+g);if(n)n.hidden=g!==id}
   for(const a of $('settings-sections').querySelectorAll('a[data-section]')){if(a.dataset.section===id)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}
-  $('set-title').textContent=sec.title;$('set-desc').textContent=sec.desc;if(ROUTE.item==='settings'){$('page-title').replaceChildren('Settings',el('span',{},' / '+sec.title));document.title=sec.title+' · AgentD Server'}
+  $('set-title').textContent=sec.title;$('set-desc').textContent=sec.desc;if(ROUTE.item==='settings'){$('page-title').replaceChildren('Settings',el('span',{},' / '+sec.title));document.title=sec.title+' · LibraOS Core Server'}
   if(ROUTE.item!=='settings')return;if(id==='diagnostics'&&SETTINGS.data)settingsDiagnostics();if(id==='agents'&&SETTINGS.data)settingsAgentsLoad()}
 // settingsSections: the panel's three groups; a section that lives elsewhere is a link there, and an owner's (Triggers) is left out for anyone else.
 function settingsSections(){const shown=SET_SECTIONS.filter(x=>!x.owner||settingsOwner()),groups=[...new Set(shown.map(x=>x.group))],key=shown.map(x=>x.id).join();if($('settings-sections').dataset.key===key)return;$('settings-sections').dataset.key=key;
@@ -1966,15 +1966,15 @@ function settingsPrice(model=''){const prices=(SETTINGS.data?.models||{}).prices
 function settingsRender(){const d=SETTINGS.data;if(!d)return;const cfg=d.config||{},m=d.models||{},owner=d.owner===true,button=(text,onclick,primary=false)=>el('button',{type:'button',class:primary?'primary':'',onclick},text);
   $('set-models-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Models')),settingsSection('Configured',settingsTable(['Where','Model'],(m.configured||[]).map(r=>[el('span',{},word(r.kind)+' · '+r.name,r.cwd?el('small',{class:'tm-why'},r.cwd):null),r.model||'Tool default · not configured here']))),settingsSection('Actually used · '+(m.window||'last 30 days'),el('p',{class:'mute'},'Recorded by worker runs and chat replies. Tool profiles can override configured defaults.'),settingsTable(['Where','Recorded model','Count','Last used'],(m.used||[]).map(r=>[r.kind+' · '+(r.role||r.tool),el('span',{},r.model||'unknown',r.differs?el('small',{class:'tm-why'},'Differs from configured '+r.configured_model):null),r.count,r.last_used]))),settingsSection('Available from gateway',el('p',{class:m.gateway_status==='unreachable'?'set-failure':'mute',role:'status'},m.gateway_status==='available'?'Gateway reachable':m.gateway_status==='unreachable'?'Gateway unreachable. Refresh to try again.':'Gateway not configured.'),m.gateway_status==='available'?settingsTable(['Model','Price'],(m.available||[]).map(r=>[r.model,r.priced?'Configured':'Not configured'])):null),settingsSection('Model prices',el('p',{class:'mute'},'USD per million tokens. A dash means no rate is configured.'),settingsTable(['Model','Input','Output','Cache read','Cache write',...(owner?['']:[])],Object.entries(m.prices||{}).map(([name,p])=>[name,...['input','output','cache_read','cache_write'].map(k=>p[k]??'—'),...(owner?[button('Edit',()=>settingsPrice(name))]:[])])),owner?button('Add price',()=>settingsPrice(),true):null),...(m.problems||[]).map(p=>el('p',{class:'set-failure'},p)));
   const pref=d.personal,email=d.email||{};
-  const emailStatus=settingsSection('Gmail',settingsPairs([['Status',email.configured?'Configured':'Not configured'],['Sender',email.sender],['Last send',email.last_send?.created?[(email.last_send.ok?'Sent':'Failed'),email.last_send.created,email.last_send.note].filter(Boolean).join(' · '):'No mail sent yet']]),owner?el('p',{class:'mute'},'Set up Gmail from the terminal: ',el('code',{},'agentd notify email setup'),'. The app password is read at a hidden prompt.'):null,owner&&email.configured?button('Send test',async e=>{const b=e.currentTarget;b.disabled=true;try{await settingsAPI({action:'email_test'});toast('Test email sent',true);await settingsLoad()}catch(e){toast(errorText(e),false);await settingsLoad()}finally{b.disabled=false}}):null);
+  const emailStatus=settingsSection('Gmail',settingsPairs([['Status',email.configured?'Configured':'Not configured'],['Sender',email.sender],['Last send',email.last_send?.created?[(email.last_send.ok?'Sent':'Failed'),email.last_send.created,email.last_send.note].filter(Boolean).join(' · '):'No mail sent yet']]),owner?el('p',{class:'mute'},'Set up Gmail from the terminal: ',el('code',{},'libraos-core notify email setup'),'. The app password is read at a hidden prompt.'):null,owner&&email.configured?button('Send test',async e=>{const b=e.currentTarget;b.disabled=true;try{await settingsAPI({action:'email_test'});toast('Test email sent',true);await settingsLoad()}catch(e){toast(errorText(e),false);await settingsLoad()}finally{b.disabled=false}}):null);
   const prefs=el('form',{class:'set-form'}),inputs={};if(pref&&USER){const address=el('input',{type:'email',value:pref.email||'',id:'set-email',autocomplete:'email'});prefs.append(el('label',{for:'set-email'},'Your email address'),address);for(const [k,title] of [['waiting','Waiting on you'],['blocked','Worker blocked'],['failed','Worker failed'],['finished','Worker finished']]){const input=el('input',{type:'checkbox',checked:!!pref[k],name:k});inputs[k]=input;prefs.append(el('label',{class:'set-check'},input,title))}const save=el('button',{type:'submit',class:'primary'},'Save notifications'),note=el('p',{role:'status',class:'mute'});prefs.append(save,note);prefs.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{await settingsAPI({action:'preferences',preferences:{email:address.value.trim(),...Object.fromEntries(Object.entries(inputs).map(([k,v])=>[k,v.checked]))}});note.textContent='Notifications saved.'}catch(e){note.textContent=errorText(e)}finally{save.disabled=false}}}else prefs.append(el('p',{class:'mute'},'Use your personal sign-in link to choose notifications.'));
   const tg=d.telegram||{},tp=d.telegram_personal,tgForm=el('form',{class:'set-form'}),tgInputs={};if(tp&&USER){for(const [k,title] of [['waiting','Waiting on you'],['blocked','Worker blocked'],['failed','Worker failed'],['finished','Worker finished']]){const input=el('input',{type:'checkbox',checked:!!tp[k],name:k});tgInputs[k]=input;tgForm.append(el('label',{class:'set-check'},input,title))}const save=el('button',{type:'submit',class:'primary'},'Save Telegram choices'),note=el('p',{role:'status',class:'mute'});tgForm.append(save,note);tgForm.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{await settingsAPI({action:'telegram_preferences',preferences:Object.fromEntries(Object.entries(tgInputs).map(([k,v])=>[k,v.checked]))});note.textContent='Telegram choices saved.'}catch(e){note.textContent=errorText(e)}finally{save.disabled=false}}}
-  const tgHow=tg.configured?['Link your chat from the terminal: ',el('code',{},'agentd notify telegram link'),', then tap Start in Telegram. Approvals arrive with Approve and Reject buttons.']:owner?['Set up the bot from the terminal: ',el('code',{},'agentd notify telegram setup'),'. The bot token is read at a hidden prompt and never reaches this page.']:['An owner sets up Telegram from the terminal.'];
+  const tgHow=tg.configured?['Link your chat from the terminal: ',el('code',{},'libraos-core notify telegram link'),', then tap Start in Telegram. Approvals arrive with Approve and Reject buttons.']:owner?['Set up the bot from the terminal: ',el('code',{},'libraos-core notify telegram setup'),'. The bot token is read at a hidden prompt and never reaches this page.']:['An owner sets up Telegram from the terminal.'];
   const tgStatus=settingsSection('Telegram',settingsPairs([['Status',tg.configured?'Configured':'Not configured'],['Bot',tg.bot?'@'+tg.bot:''],['Your chat',USER?(tg.you_linked?'Linked':'Not linked'):'Sign in to link a chat'],...(owner?[['Linked people',(tg.linked_users||[]).join(', ')||'None']]:[]),['Last send',tg.last_send?.created?[(tg.last_send.ok?'Sent':'Failed'),tg.last_send.created,tg.last_send.note].filter(Boolean).join(' · '):'No message sent yet']]),el('p',{class:'mute'},tgHow),tp&&USER?tgForm:null,tg.configured&&tg.you_linked?button('Send Telegram test',async e=>{const b=e.currentTarget;b.disabled=true;try{await settingsAPI({action:'telegram_test'});toast('Telegram test sent',true);await settingsLoad()}catch(e){toast(errorText(e),false);await settingsLoad()}finally{b.disabled=false}}):null);
   $('set-personal-body').replaceChildren(notifySettings(),prefs,emailStatus,tgStatus);
   $('set-workers-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Workers')),settingsTable(['Setting','Value',...(owner?['']:[])],[['Max workers',cfg['dispatch.max_workers'],...(owner?[button('Edit',()=>settingsEdit('dispatch.max_workers','Max workers',cfg['dispatch.max_workers']))]:[])],['Default tool',cfg['dispatch.default_tool'],...(owner?[button('Edit',()=>settingsEdit('dispatch.default_tool','Default tool',cfg['dispatch.default_tool'],['claude','codex']))]:[])],['Default budget',cfg['dispatch.budget']||'No default limit',...(owner?[button('Edit',()=>settingsEdit('dispatch.budget','Default budget',cfg['dispatch.budget']))]:[])],['Codex network',cfg['dispatch.codex_network']?'On':'Off',...(owner?[button('Edit',()=>settingsEdit('dispatch.codex_network','Codex network',cfg['dispatch.codex_network'],['true','false']))]:[])]]),el('p',{class:'mute'},'Task and role budgets take precedence over the default. Use a duration such as 90m, a dollar limit such as $5, or both.'),el('p',{class:'mute'},'Codex network gives every Codex worker on a workspace-write sandbox network access and listeners, with GitHub commands that push, merge or comment forbidden. A role with network: false stays off.'),el('p',{class:'mute'},'Worker rules ([dispatch.rules]: what a worker may run, block and ask rules) and a role’s sandbox and network (agents/NAME.md) are set in files, never from this page: see docs/worker-rules.md.'));
   $('set-history-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Change history')),owner?settingsTable(['When','Who','Setting','Value','Result'],(d.history||[]).map(h=>[h.created,h.actor,h.key,h.new_value,h.state])):el('p',{class:'mute'},'An owner sees who changed which setting and when.'));
-  $('set-dispatch').textContent='Start workers from the server: '+(cfg['dash.dispatch']?'On.':'Off.')+' Change from the terminal with agentd config set dash.dispatch true|false.';
+  $('set-dispatch').textContent='Start workers from the server: '+(cfg['dash.dispatch']?'On.':'Off.')+' Change from the terminal with libraos-core config set dash.dispatch true|false.';
   $('set-connections-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Connections')),...(d.server_store?[el('p',{class:'ap-warn',id:'set-server-store'},d.server_store)]:[]),...(d.server_away?[el('p',{class:'mute'},d.server_away)]:[]),settingsPairs([['Synced repos',(cfg['sync.repos']||[]).join(', ')||'None'],['MCP tools',cfg['mcp.tools']||'core'],['MCP origins',(cfg['mcp.allowed_origins']||[]).join(', ')||'None'],['Gateway',cfg['gateway.url']],['Gateway credential',cfg['gateway.key_file']],['Runtime',cfg['runtime.url']],['Runtime credential',cfg['runtime.password_file']],['Server address',cfg['dash.base_url']],['Strict users',cfg['users.strict']],['Prompt forwarding',cfg['dash.push_prompts']]]),el('p',{class:'mute'},'Connections and settings that widen access are changed from the terminal.'),settingsSection('Chat roles and tools',settingsTable(['Role','Model','Tools'],(d.chat_roles||[]).map(r=>[r.name,r.model,(r.tools||[]).join(', ')]))));
   $('set-diagnostics-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Diagnostics')),el('p',{class:'mute'},owner?'Open this group to run doctor and read service status.':'Diagnostics require an owner.'));
   settingsTerminal(cfg);settingsApp();settingsAgentsRest(cfg,m,owner);
@@ -1998,7 +1998,7 @@ function settingsUserCreate(){let result,invite=false;return sheet({title:'Creat
   fields:[{name:'name',label:'Name',required:true},{name:'role',label:'Role',value:'dev',options:[{value:'dev',label:'Developer'},{value:'viewer',label:'Viewer'},{value:'owner',label:'Owner'}],required:true},{name:'email',label:'Email',type:'email'},{name:'delivery',label:'How they sign in',value:'password',segment:true,options:[{value:'password',label:'Show a temporary password'},{value:'invite',label:'Send an invitation'}],required:true}],
   validate:v=>v.delivery==='invite'&&!v.email?['email','An invitation needs an email address.']:null,
   onSubmit:async v=>{invite=v.delivery==='invite';result=invite?await settingsAPI({action:'invite',name:v.name,email:v.email,role:v.role}):await settingsAPI({action:'user_create',name:v.name,role:v.role,...(v.email?{email:v.email}:{})});await settingsLoad()}}).then(v=>{if(v&&result){if(invite)settingsInviteResult(result);else settingsTempPassword(result.user||v.name,result.temp_password)}})}
-function settingsUserReset(u){let result;return sheet({title:'Reset password for '+u.name,description:'This signs '+u.name+' out of the dash and AgentD Desktop and gives them a new temporary password, which they must change after signing in. Their API tokens and devices keep working; for a compromised account, Disable, then Enable.',action:'Reset password',danger:true,onSubmit:async()=>{result=await settingsAPI({action:'user_reset_password',name:u.name});await settingsLoad()}}).then(v=>{if(v&&result)settingsTempPassword(result.user||u.name,result.temp_password)})}
+function settingsUserReset(u){let result;return sheet({title:'Reset password for '+u.name,description:'This signs '+u.name+' out of the dash and LibraOS Next and gives them a new temporary password, which they must change after signing in. Their API tokens and devices keep working; for a compromised account, Disable, then Enable.',action:'Reset password',danger:true,onSubmit:async()=>{result=await settingsAPI({action:'user_reset_password',name:u.name});await settingsLoad()}}).then(v=>{if(v&&result)settingsTempPassword(result.user||u.name,result.temp_password)})}
 // GitHub login (#882): an owner sets anyone's from Users, a person their own
 // from Members; empty clears it. The server checks the login's form.
 function settingsUserGitHub(u){return sheet({title:'GitHub login for '+u.name,description:'A team server checks GitHub before a worker starts on an issue, and treats the assignee, PRs and branches of this login as '+u.name+'’s own work. Leave it empty to clear it.',action:'Save',
@@ -2010,7 +2010,7 @@ function settingsUserEnable(u){let result;return sheet({title:'Enable '+u.name,d
 function settingsInvite(){let result;return sheet({title:'Invite user',description:'They need VPN access before signing in. A link lasts 24 hours and works once.',action:'Create invitation',fields:[{name:'name',label:'Name',required:true},{name:'email',label:'Email',type:'email',required:true},{name:'role',label:'Role',value:'dev',options:[{value:'dev',label:'Developer'},{value:'viewer',label:'Viewer'},{value:'owner',label:'Owner'}],required:true}],onSubmit:async v=>{result=await settingsAPI({action:'invite',...v});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsResend(i){let result;return sheet({title:'Resend invitation',description:'Replace the previous link for '+i.user+'. The old link will stop working.',action:'Resend',onSubmit:async()=>{result=await settingsAPI({action:'resend',id:i.id});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsRevoke(i){return sheet({title:'Revoke invitation',description:'The sign-in link for '+i.user+' will stop working.',action:'Revoke',danger:true,onSubmit:async()=>{await settingsAPI({action:'revoke',id:i.id});await settingsLoad();toast('Invitation revoked',true)}})}
-async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.section!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),el('p',{class:'mute'},'Connect agents (agentd connect, with Preview) is under ',el('a',{href:'#settings/agents'},'Agents'),'.'),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
+async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.section!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),el('p',{class:'mute'},'Connect agents (libraos-core connect, with Preview) is under ',el('a',{href:'#settings/agents'},'Agents'),'.'),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
 // The three agents: installed and connected from doctor's own checks (GET /api/settings?agents=1,
 // owners only), the model a worker on each starts with, and Preview connect (region:connect).
 async function settingsAgentsLoad(force=false){const box=$('set-agents-table');if(!SETTINGS.data)return;
@@ -2027,16 +2027,16 @@ function settingsAgentsTable(d,pending){const cfg=SETTINGS.data?.config||{},owne
     const conn=!owner?pending||'Owners see this':!a.installed?'—':el('span',{'data-agent-connected':a.tool,'data-state':a.connected},a.connected==='connected'?'Connected':a.connected==='partly connected'?'Partly connected':'Not connected',ok.length?el('small',{class:'tm-why'},ok.join(', ')):null,missing.length?el('small',{class:'tm-why'},'Missing: '+missing.join(', ')):null);
     const model=el('span',{},a.model||'Not named',el('small',{class:'tm-why'},a.model_source||''));
     return [el('strong',{},a.name),inst,conn,model,owner&&a.installed?el('button',{type:'button','data-connect-preview':a.tool,onclick:()=>connectRun(a.tool,true,result)},'Preview connect'):'']});
-  return el('div',{},settingsTable(['Agent','Installed','Connected to agentd','Default model',''],rows),el('p',{class:'mute'},owner?'Preview shows what agentd connect would change and changes nothing. Connect makes the change and keeps a backup of every file it edits. Owners only.':'An owner sees whether each agent is installed and connected, and can connect it. In a terminal: agentd doctor, then agentd connect.'),d&&d.checked_at?el('p',{class:'mute'},'Checked '+d.checked_at):null)}
+  return el('div',{},settingsTable(['Agent','Installed','Connected to LibraOS Core','Default model',''],rows),el('p',{class:'mute'},owner?'Preview shows what libraos-core connect would change and changes nothing. Connect makes the change and keeps a backup of every file it edits. Owners only.':'An owner sees whether each agent is installed and connected, and can connect it. In a terminal: libraos-core doctor, then libraos-core connect.'),d&&d.checked_at?el('p',{class:'mute'},'Checked '+d.checked_at):null)}
 // Settings that widen access, each with its value and the terminal command.
 function settingsWiden(cfg){const onoff=v=>v?'On':'Off';
   return settingsTable(['Setting','Value','Change from a terminal'],[
     [el('a',{href:'#settings/terminal'},'Terminal in the server'),onoff(cfg['dash.terminal']),el('code',{},'[dash] terminal = true in config.toml, then restart the server')],
-    ...(settingsOwner()?[[el('a',{href:'#triggers'},'Triggers'),'On the Triggers page',el('code',{},'agentd config set triggers.enabled true')]]:[]),
-    ['Start workers from the server',onoff(cfg['dash.dispatch']),el('code',{},'agentd config set dash.dispatch true')],
+    ...(settingsOwner()?[[el('a',{href:'#triggers'},'Triggers'),'On the Triggers page',el('code',{},'libraos-core config set triggers.enabled true')]]:[]),
+    ['Start workers from the server',onoff(cfg['dash.dispatch']),el('code',{},'libraos-core config set dash.dispatch true')],
     ['Server address',cfg['dash.base_url']||'Loopback only',el('code',{},'[dash] base_url in config.toml')],
-    ['Prompt forwarding',onoff(cfg['dash.push_prompts']),el('code',{},'agentd config set dash.push_prompts true')],
-    ['Strict users',onoff(cfg['users.strict']),el('code',{},'agentd config set users.strict true')],
+    ['Prompt forwarding',onoff(cfg['dash.push_prompts']),el('code',{},'libraos-core config set dash.push_prompts true')],
+    ['Strict users',onoff(cfg['users.strict']),el('code',{},'libraos-core config set users.strict true')],
     ['Worker rules','In config.toml',el('code',{},'[dispatch.rules] in config.toml (docs/worker-rules.md)')],
     ['Improve and signals','In config.toml',el('code',{},'[improve] and [signals] in config.toml')]])}
 function settingsAgentsRest(cfg,m,owner){const tool=cfg['dispatch.default_tool']||'claude';
@@ -2046,7 +2046,7 @@ function settingsAgentsRest(cfg,m,owner){const tool=cfg['dispatch.default_tool']
 }
 function settingsTerminal(cfg){$('set-terminal-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Terminal')),
   settingsPairs([['Terminal in the server',cfg['dash.terminal']?'On: owners get a shell on a task, on loopback only':'Off (the default)'],['Beyond loopback',cfg['dash.terminal_remote']?'On: a server listening beyond loopback (--public) also offers it':'Off']]),
-  el('p',{class:'mute'},'This widens access, so it is never changed from this page. To change it, set ',el('code',{},'terminal = true'),' (and only if you must, ',el('code',{},'terminal_remote = true'),') under [dash] in config.toml, then restart the server. ',el('code',{},'agentd doctor'),' shows it as dash-terminal.'))}
+  el('p',{class:'mute'},'This widens access, so it is never changed from this page. To change it, set ',el('code',{},'terminal = true'),' (and only if you must, ',el('code',{},'terminal_remote = true'),') under [dash] in config.toml, then restart the server. ',el('code',{},'libraos-core doctor'),' shows it as dash-terminal.'))}
 function settingsApp(){const standalone=!!(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
   $('set-app-body').replaceChildren(el('div',{class:'colhead'},el('h2',{},'Install as an app')),el('p',{role:'status'},standalone?'This server is open as an app.':'This server is open in a browser tab.'),
     settingsPairs([['Desktop (Chrome, Edge)','The install icon at the right of the address bar, or the browser menu, Install'],['iPhone and iPad (Safari)','Share, then Add to Home Screen'],['Android (Chrome)','The browser menu, Install app or Add to Home screen']]),
@@ -2142,13 +2142,13 @@ function stats(d){
 /* Worker nodes and devices under each account (#831, libraos/agentd-core#900), read
    only. GET /api/nodes: each card names its person, null for a dedicated worker an
    owner enrolled (Server), its version (null from an older worker) and the server's
-   own as server_version. GET /api/devices: the devices agentd server devices lists
+   own as server_version. GET /api/devices: the devices libraos-core server devices lists
    (an owner every one, anyone else their own; 404 from a server without it).
    Account > Your nodes: the signed-in person's nodes; Team > Nodes and devices: under
    each person their nodes, then their devices, Server last. Loaded with the dash's
    refresh (Team's render). An owner on the team dash drains or undrains a node and
    revokes a device here (libraos/agentd-core#917: POST /api/action node_drain,
-   node_undrain, device_revoke; owner only, audited, refused by agentd app); anyone
+   node_undrain, device_revoke; owner only, audited, refused by libraos-core app); anyone
    else sees each row's terminal command instead. Waiting for a node: GET /api/queue,
    each remote handoff no node has leased with the lease path's reason. Enrolling stays
    at a person's terminal: the page shows the command. */
@@ -2187,11 +2187,11 @@ function nodeManage(){return ROLE==='owner'&&!!USER&&!(lastDash&&lastDash.mode==
 function nodeAct(o,ref,body,done){NODES.at=0;DEVICES.at=0;QUEUE.at=0;return actionSheet(o,ref,()=>{NODES.at=0;DEVICES.at=0;QUEUE.at=0;return body},done)}
 function nodeDrainButton(n){const drain=!n.drained,leases=n.leases||0;
   return el('button',{type:'button','data-write':true,'data-node-action':drain?'drain':'undrain',onclick:()=>nodeAct({title:(drain?'Drain ':'Undrain ')+n.name+'?',
-      description:drain?'No new server work goes to '+n.name+'. '+(leases?leases+' running lease'+(leases>1?'s finish':' finishes')+' within '+(leases>1?'their':'its')+' budget.':'It has no running lease.')+' The same as agentd server workers drain '+n.name+'; recorded in the audit log.':n.name+' takes server work again. The same as agentd server workers undrain '+n.name+'; recorded in the audit log.',
+      description:drain?'No new server work goes to '+n.name+'. '+(leases?leases+' running lease'+(leases>1?'s finish':' finishes')+' within '+(leases>1?'their':'its')+' budget.':'It has no running lease.')+' The same as libraos-core server workers drain '+n.name+'; recorded in the audit log.':n.name+' takes server work again. The same as libraos-core server workers undrain '+n.name+'; recorded in the audit log.',
       action:drain?'Drain':'Undrain'},'node:'+n.name,{action:drain?'node_drain':'node_undrain',node:n.name},n.name+(drain?' drained':' undrained'))},drain?'Drain':'Undrain')}
 function deviceRevokeButton(v){const name=v.label||v.id;
   return el('button',{type:'button','data-write':true,'data-device-action':'revoke',onclick:()=>nodeAct({title:'Revoke '+name+'?',
-      description:'Device '+v.id+(v.person?' of '+v.person:'')+(v.worker?' (worker '+v.worker+')':'')+' is refused from its next request and its open connections close. It cannot be undone: the device enrolls again with a new ticket. The same as agentd server devices revoke '+v.id+'; recorded in the audit log.',
+      description:'Device '+v.id+(v.person?' of '+v.person:'')+(v.worker?' (worker '+v.worker+')':'')+' is refused from its next request and its open connections close. It cannot be undone: the device enrolls again with a new ticket. The same as libraos-core server devices revoke '+v.id+'; recorded in the audit log.',
       action:'Revoke'},'device:'+v.id,{action:'device_revoke',device:v.id},name+' revoked')},'Revoke')}
 function queueRow(q){return el('div',{class:'tm-row','data-queue':q.id},el('span',{class:'dot stale',title:'waiting for a node'}),
     el('div',{class:'tm-main'},el('b',{},q.goal||q.id),el('span',{class:'tm-why'},[q.id,q.project,q.worker,q.stage].filter(Boolean).join(' · ')),
@@ -2229,16 +2229,16 @@ function nodeRow(n){const s=nodeState(n),about=[n.kind,(n.tools||[]).join(', '),
   const ver=typeof n.version==='string'&&n.version?n.version:'',older=nodeOlder(n,NODES.serverVersion);
   return el('div',{class:'tm-row','data-node':n.name},el('span',{class:'dot '+s.dot,title:s.word}),el('div',{class:'tm-main'},el('b',{},n.name),nodeAddress(n),about?el('span',{class:'tm-why'},about):null,
       n.drained&&n.leases?el('span',{class:'tm-why','data-draining':''},'draining: '+n.leases+' lease'+(n.leases>1?'s':'')+' still running'):null,
-      nodeManage()?null:termCmd(n.drained?'Undrain':'Drain','agentd server workers '+(n.drained?'undrain ':'drain ')+n.name)),
+      nodeManage()?null:termCmd(n.drained?'Undrain':'Drain','libraos-core server workers '+(n.drained?'undrain ':'drain ')+n.name)),
     el('span',{class:'tm-fig'},s.word,s.why?el('span',{class:'tm-why'},s.why):null),nodeLoad(n),
-    el('span',{class:'tm-fig','data-node-version':ver||null,title:ver?'The release this node\'s agentd worker reports'+(NODES.serverVersion?'; the server runs '+NODES.serverVersion:''):'This node\'s worker reports no release (an older agentd)'},ver||'release unknown',
-      older?el('span',{class:'tm-flag','data-older':'',title:'Older than the server\'s '+NODES.serverVersion+': upgrade agentd on this node (agentd upgrade)'},' older release'):null),
+    el('span',{class:'tm-fig','data-node-version':ver||null,title:ver?'The release this node\'s LibraOS Core worker reports'+(NODES.serverVersion?'; the server runs '+NODES.serverVersion:''):'This node\'s worker reports no release (an older LibraOS Core)'},ver||'release unknown',
+      older?el('span',{class:'tm-flag','data-older':'',title:'Older than the server\'s '+NODES.serverVersion+': upgrade LibraOS Core on this node (libraos-core upgrade)'},' older release'):null),
     n.mirrored?el('span',{class:'tm-fig',title:n.mirrored},'mirrored '+whenText(n.mirrored)):null,
     el('span',{class:'tm-fig',title:n.seen||''},n.seen_ago?'seen '+n.seen_ago+' ago':'never seen'),nodeManage()?nodeDrainButton(n):null)}
 function deviceRow(v){const revoked=v.state==='revoked',seen=v.last_seen?whenText(v.last_seen):'',made=v.created?whenText(v.created):'';
   const about=[(v.kind||'unknown kind')+' device',v.label?v.id:'',v.worker?'worker '+v.worker:''].filter(Boolean).join(' · ');
   return el('div',{class:'tm-row tm-device','data-device':v.id,'data-device-kind':v.kind||'','data-device-state':v.state||''},el('span',{class:'dot '+(revoked?'stale':'idle'),title:revoked?'revoked':'active'}),
-    el('div',{class:'tm-main'},el('b',{},v.label||v.id),nodeAddress(v),el('span',{class:'tm-why'},about),revoked||nodeManage()?null:termCmd('Revoke','agentd server devices revoke '+v.id)),
+    el('div',{class:'tm-main'},el('b',{},v.label||v.id),nodeAddress(v),el('span',{class:'tm-why'},about),revoked||nodeManage()?null:termCmd('Revoke','libraos-core server devices revoke '+v.id)),
     el('span',{class:'tm-fig'},revoked?'revoked':'active',revoked&&(v.revoked||v.revoked_by)?el('span',{class:'tm-why',title:v.revoked||''},[v.revoked?whenText(v.revoked):'',v.revoked_by?'by '+v.revoked_by:''].filter(Boolean).join(' ')):null),
     el('span',{class:'tm-fig',title:v.created||''},made?'created '+made:'created at an unknown time'),
     el('span',{class:'tm-fig',title:v.last_seen||''},seen?'seen '+seen:'never seen'),!revoked&&nodeManage()?deviceRevokeButton(v):null)}
@@ -2248,15 +2248,15 @@ function nodesBody(){if(!DEVICES.at)devicesLoad();if(!QUEUE.at)queueLoad();feedF
   const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),active=(a,b)=>(a.state==='revoked')-(b.state==='revoked');
   const sec=(key,label,g)=>el('section',{'data-node-group':key},...teamSec(label,nodeDeviceCount(g.nodes,g.devices),nodeDeviceCards(g.nodes,g.devices)));
   const out=[el('p',{class:'mute tm-intro'},'Machines and enrolled devices, grouped by person. A worker node and its enrolled device share one card; Server is dedicated workers an owner enrolled. '+(nodeManage()?'As an owner you drain a node and revoke a device here; each is recorded in the audit log.':'Draining and revoking are an owner\'s: each row shows the command for the server\'s terminal.')+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':'')),
-    el('p',{class:'mute tm-intro','data-enroll-note':''},'Add a node at a person\'s own terminal, not here: ',el('code',{},'agentd server enroll --worker NAME'),' on the server, then ',el('code',{},'agentd worker --server URL --ticket'),' on the node; a person joins with ',el('code',{},'agentd join LINK'),'.'),...queueSection()];
+    el('p',{class:'mute tm-intro','data-enroll-note':''},'Add a node at a person\'s own terminal, not here: ',el('code',{},'libraos-core server enroll --worker NAME'),' on the server, then ',el('code',{},'libraos-core worker --server URL --ticket'),' on the node; a person joins with ',el('code',{},'libraos-core join LINK'),'.'),...queueSection()];
   for(const c of NODES.copies||[])out.push(el('p',{class:'state error tm-intro',role:'alert','data-mirror-copy':String(c.person)+'/'+String(c.node)},String(c.warning||'')));
   const ns=feedStale(NODES,'nodes',()=>{nodesLoad();devicesLoad()});if(ns)out.push(ns);
   if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'Devices: yours only; an owner sees everyone\'s.'));
   if(feedIsStale(DEVICES)){const n=feedStale(DEVICES,'devices',devicesLoad);n.dataset.devicesNote='error';out.push(n)}
   else if(DEVICES.err)out.push(el('p',{class:'mute tm-intro','data-devices-note':'error',role:'alert'},'Devices could not load: '+DEVICES.err));
-  else if(DEVICES.missing)out.push(el('p',{class:'mute tm-intro','data-devices-note':'missing'},'This server does not list devices (an older agentd); agentd server devices does, at its terminal.'));
+  else if(DEVICES.missing)out.push(el('p',{class:'mute tm-intro','data-devices-note':'missing'},'This server does not list devices (an older LibraOS Core); libraos-core server devices does, at its terminal.'));
   for(const p of [...groups.keys()].filter(Boolean).sort())out.push(sec(p,p,groups.get(p)));if(groups.has(''))out.push(sec('Server','Server',groups.get('')));
-  if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when agentd worker starts against this server.'));return out}
+  if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when libraos-core worker starts against this server.'));return out}
 // end:nodes
 // region:presence
 /* Who is on what (agentd-core#849), read only, from GET /api/presence: every
@@ -2310,7 +2310,7 @@ function agentItem(s,left){
 function agents(d){
   const box=$('agents');box.replaceChildren();
   const live=(d.sessions||[]).filter(s=>!isDash(s));$('acount').textContent=live.length;
-  if(!live.length){box.append(el('div',{class:'empty'},'No sessions on agentd.'));return}
+  if(!live.length){box.append(el('div',{class:'empty'},'No sessions on LibraOS Core.'));return}
   const groups={};for(const s of live){const k=projKey(s.cwd)||'no checkout';(groups[k]=groups[k]||[]).push(s)}
   const rank=s=>s.host_state==='busy'?0:s.status==='active'?1:2;
   for(const k of Object.keys(groups).sort()){
@@ -2340,7 +2340,7 @@ async function teamLoadLists(){const req=++TEAM.listsReq;TEAM.listsAt=Date.now()
 function teamIdentity(){return [TOKEN,COOKIE,USER,ROLE].join('|')}
 async function teamLoadDetail(){const t=teamTarget();if(!t)return;const req=++TEAM.detailReq,identity=teamIdentity();TEAM.detailIdentity=identity;TEAM.detailAt=Date.now();try{const j=await teamFetch('?'+t.key+(t.kind==='member'?'&since='+encodeURIComponent(TEAM.period):''));if(req!==TEAM.detailReq||identity!==teamIdentity())return;TEAM.detail=j;TEAM.detailErr=''}catch(e){if(req!==TEAM.detailReq||identity!==teamIdentity())return;TEAM.detail=null;TEAM.detailErr=e.message}TEAM.periodLoading=false;teamDraw()}
 function teamMoved(r){const t=teamTarget(r),key=t?t.key:'';if(key!==TEAM.detailKey){TEAM.detailKey=key;TEAM.detail=null;TEAM.periodLoading=false;TEAM.detailErr='';teamFormClose(false);TEAM.detailReq++;const m=document.querySelector('main');if(m)m.scrollTop=0}
-  if(t){$('page-title').append(el('span',{},' / '+t.name));document.title=t.name+' · AgentD Server'}
+  if(t){$('page-title').append(el('span',{},' / '+t.name));document.title=t.name+' · LibraOS Core Server'}
   if(!t&&teamTab(r)==='permissions'&&!APP.on&&lastDash&&lastDash.mode!=='app'){PERM.drawn='';permLoad()}
   if(teamUsersShown()){if(!SETTINGS.loading)settingsLoad();if(Date.now()-DEVICES.at>8000)devicesLoad()}else teamOnceClear();
   teamLoadLists();if(t)teamLoadDetail();if(lastDash)teamLoadActivity(lastDash);teamDraw()}
@@ -2417,7 +2417,7 @@ function teamDetailView(d){if(d.kind==='member'&&d.period)return personDetailVie
     props=[['Status',now.length?now.length+' open':'Idle'],...common];
     settings=[['Tool',f?toolName(teamRoleTool(f,d))+(f.tool?'':' (default)'):d.last_run?toolName(d.last_run.tool)+' (last run)':'not recorded'],['Model',teamModel(d)],['Effort',f&&f.effort?el('span',{title:'How much the model thinks before it answers'},f.effort):null],['Host',d.host||'not recorded'],['Budget',f&&f.budget?el('span',{title:'Each worker of this role stops at this time or cost'},f.budget):null],['Copilots',f&&f.copilots?el('span',{},f.copilots,el('span',{class:'tm-why'},'Helper agents its workers can ask for advice')):null],['File',f?el('code',{},f.path):null],['Checkouts',f?el('span',{title:'Known checkouts that have this role file'},f.checkouts.length+(f.versions>1?', with '+f.versions+' different versions of the file':'')):null]];
     if(f)acts=teamAssignAct(d,d.name)}
-  else if(d.kind==='member'){const m=d.member,live=(dash.sessions||[]).filter(s=>!isDash(s)&&s.user===d.name);desc=m.role?'Ledger role: '+m.role:'Named by a session; not added with agentd user add.';
+  else if(d.kind==='member'){const m=d.member,live=(dash.sessions||[]).filter(s=>!isDash(s)&&s.user===d.name);desc=m.role?'Ledger role: '+m.role:'Named by a session; not added with libraos-core user add.';
     props=[['Role',m.role||'not added'],['Sessions',live.length?el('span',{},live.map((s,i)=>[i?', ':'',el('a',{href:teamHref('session',s.id)},s.host_name||s.label||s.id)])):'none live'],...common];emptyNow='Nothing open.'}
   else{const s=d.session,live=(dash.sessions||[]).find(x=>x.id===s.id),gone=(dash.left||[]).find(x=>x.id===s.id),state=live?sessState(live,false).label:gone||s.status==='left'?'left':s.status,hostSession=(live||gone||{}).host_session||'';
     name=(live&&(live.host_name||live.label))||s.label||(toolName(s.tool)||'Agent')+' session'+(s.cwd?' in '+shortPath(s.cwd):'');desc=(live&&live.task)||s.task||s.cwd||'';
@@ -2448,7 +2448,7 @@ function teamUserLine(d,name){const run=(d.handoff_list||[]).filter(h=>h.worker_
 // live session (active now), the last sign-in and a device's last contact. Read again on entering
 // the tab and after each change; nothing secret is kept: a temporary password is only in the copy box.
 function teamOnceClear(){const box=$('set-invite-once');if(box&&(box.children.length||!box.hidden)){box.replaceChildren();box.hidden=true}}
-function teamUserDevices(name){feedFresh(DEVICES);if(DEVICES.missing)return {text:'not listed',title:'This server does not list devices (an older agentd)',list:[]};
+function teamUserDevices(name){feedFresh(DEVICES);if(DEVICES.missing)return {text:'not listed',title:'This server does not list devices (an older LibraOS Core)',list:[]};
   if(!DEVICES.data)return {text:DEVICES.err?'could not load':'…',title:DEVICES.err||'',list:[]};
   if(DEVICES.scope==='own'&&name!==USER)return {text:'—',title:'An owner sees everyone’s devices; you see your own',list:[]};
   const list=DEVICES.data.filter(v=>v.person===name),live=list.filter(v=>v.state!=='revoked');
@@ -2489,7 +2489,7 @@ function teamOverview(d){const l=TEAM.lists,working=teamWorking(d),row=(href,tk,
 function teamDraw(){const d=lastDash||{};teamTabs();const t=teamTarget(),view=$('team-view'),head=$('team-head');repoAddShow(!t&&teamTab()==='repositories');
   if(t&&TEAM.detailIdentity!==teamIdentity()){TEAM.detail=null;TEAM.periodLoading=false;TEAM.detailErr='';teamLoadDetail()}
   const hostView=!t&&teamTab()==='host';$('team-host').hidden=!hostView;let top=[],body;
-  if(hostView)body=[el('h2',{},'Sessions on this host'),el('p',{class:'mute'},'Sessions connected to agentd, grouped by checkout. Recently ended sessions, and Claude sessions on this host that are not connected to agentd, are below.')];
+  if(hostView)body=[el('h2',{},'Sessions on this host'),el('p',{class:'mute'},'Sessions connected to LibraOS Core, grouped by checkout. Recently ended sessions, and Claude sessions on this host that are not connected to LibraOS Core, are below.')];
   else if(!t&&teamTab()==='repositories'){top=[reposHead()];body=reposBody()}
   else if(!t&&teamTab()==='nodes')body=nodesBody();
   else if(!t&&teamTab()==='activity'){presencePoll();body=presenceBody()}
@@ -2550,7 +2550,7 @@ function permField(label,id,input){input.id=id;return el('label',{class:'perm-fi
 function permAsk(p){PERM.pending=p;PERM.drawn='';teamDraw();const f=document.querySelector('[data-perm-form="confirm"] input[type=password]');if(f)f.focus()}
 function permConfirm(){const p=PERM.pending;if(!p)return null;return permForm({key:'confirm',title:p.title,note:'This change is audited.',route:p.route,body:()=>p.body,action:p.action,danger:true,cancel:()=>{PERM.pending=null;PERM.drawn='';teamDraw()}})}
 function permGrantForm(g){const roles=permArr(g.roles).filter(r=>r!=='worker'),scopes=permScopes(g),users=permArr((TEAM.lists||{}).members).map(m=>m.name);
-  if(!scopes.length)return el('p',{class:'mute'},'No organization, team or project to grant in yet: add one with agentd project add at the terminal.');
+  if(!scopes.length)return el('p',{class:'mute'},'No organization, team or project to grant in yet: add one with libraos-core project add at the terminal.');
   const user=el('input',{type:'text',name:'principal',required:true,autocomplete:'off',list:'perm-users',placeholder:'user name'});
   return permForm({key:'grant',title:'Grant a role',note:'A grant gives at most your own role.',route:'grants',action:'Grant',
     fields:[permField('Where','perm-scope',permOpts(el('select',{name:'scope'}),scopes)),permField('User','perm-user',user),el('datalist',{id:'perm-users'},users.map(u=>el('option',{value:u}))),permField('Role','perm-role',permOpts(el('select',{name:'role'}),roles))],
@@ -2586,7 +2586,7 @@ function permBody(){if(!USER&&!PERM.grants)return [el('div',{class:'state','data
    open tasks, working, a link to its tasks), each row with what a worker there
    needs and the terminal command that fixes it. An owner adds a checkout that is
    already on this host with Add a repository (POST /api/repositories, the same as
-   agentd repo add DIR --route on|off, #486); cloning from a URL is done in a
+   libraos-core repo add DIR --route on|off, #486); cloning from a URL is done in a
    terminal first. Every repository-derived string is text, set through el(). */
 const REPOS={data:null,err:'',at:0,req:0};
 const REPO_CHECKS={trust:'Claude trust',sync:'GitHub sync',commit:'First commit',gh:'gh access',origin:'Up to date with GitHub'};
@@ -2610,7 +2610,7 @@ function repoRow(r){const folder=(r.path||'').split('/').filter(Boolean).pop()||
   const meta=[r.github?'GitHub '+r.github:r.remote?'origin is not on GitHub':'no origin',r.default_branch?'default branch '+r.default_branch:null,r.branch?'on '+r.branch:'no branch checked out',r.linked?'a linked worktree':null].filter(Boolean).join(' · ');
   const issues='#issues?'+new URLSearchParams({project:r.project||''}).toString();
   const details=el('details',{class:'tech repo-details'},el('summary',{},'Details'),el('div',{},'Folder ',el('code',{class:'repo-path'},r.path)),r.remote&&!r.github?el('div',{},'Origin ',el('code',{},r.remote)):null,
-    el('div',{},n?n+' worker worktree'+(n>1?'s':'')+' on disk (folders agentd made for workers; finished ones stay until removed)':'No worker worktrees on disk'));
+    el('div',{},n?n+' worker worktree'+(n>1?'s':'')+' on disk (folders LibraOS Core made for workers; finished ones stay until removed)':'No worker worktrees on disk'));
   const cell=(i,...kids)=>el('span',{class:'repo-cell','data-label':REPO_COLS[i]||null},...kids);
   return el('div',{class:'repo-row','data-repo':r.path},el('div',{class:'repo-cells'},
       cell(0,el('span',{class:'repo-name'},name),folder!==name.split('/').pop()?el('span',{class:'mute'},' folder '+folder):null),
@@ -2624,11 +2624,11 @@ function repoRow(r){const folder=(r.path||'').split('/').filter(Boolean).pop()||
     el('div',{class:'repo-work'},last?['Last task ',el('a',{href:itemHash(null,last.id),title:last.goal||''},cardTitle(last.goal)||'Untitled'),' ('+(last.failed?'Failed':word(last.state)==='Taken'?'Started':word(last.state))+(last.updated?', '+whenText(last.updated):'')+')']:'no tasks yet'),details)}
 function repoOwner(){return ROLE==='owner'&&!!USER}
 // reposHead: the tab's heading, with Add a repository for an owner and the terminal command for anyone else.
-function reposHead(){return el('div',{class:'tm-head'},el('div',{class:'tm-title'},el('h2',{},'Repositories'),el('p',{},repoOwner()?'The checkouts on this host that workers can run in.':['The checkouts on this host that workers can run in. An owner adds one here; or, in a terminal on the host, ',el('code',{},'agentd repo add DIR'),'.'])),
+function reposHead(){return el('div',{class:'tm-head'},el('div',{class:'tm-title'},el('h2',{},'Repositories'),el('p',{},repoOwner()?'The checkouts on this host that workers can run in.':['The checkouts on this host that workers can run in. An owner adds one here; or, in a terminal on the host, ',el('code',{},'libraos-core repo add DIR'),'.'])),
   repoOwner()?el('div',{class:'tm-acts'},el('button',{type:'button',class:'ok','data-tk':'repo-add','aria-expanded':String(REPO_ADD.open),'aria-controls':'repo-add',onclick:()=>repoAddOpen(!REPO_ADD.open)},'Add a repository')):null)}
 function reposBody(){if(reposStale())reposLoad();const d=REPOS.data,list=d&&d.repositories||[];
   if(!d)return [REPOS.err?el('div',{class:'state error',role:'alert'},'Could not load repositories: '+REPOS.err):el('div',{class:'state'},'Loading…')];
-  return [REPOS.err?el('div',{class:'state error',role:'alert'},'Could not refresh: '+REPOS.err):null,el('div',{class:'tm-rows repo-list'},list.length?[el('div',{class:'repo-cells repo-colhead','aria-hidden':'true'},REPO_COLS.map(c=>el('span',{},c))),...list.map(repoRow)]:el('div',{class:'empty'},'No repositories yet. '+(repoOwner()?'Add one with Add a repository, or run ':'Run '),el('code',{},'agentd repo add DIR'),' in a terminal on this host.'))].filter(Boolean)}
+  return [REPOS.err?el('div',{class:'state error',role:'alert'},'Could not refresh: '+REPOS.err):null,el('div',{class:'tm-rows repo-list'},list.length?[el('div',{class:'repo-cells repo-colhead','aria-hidden':'true'},REPO_COLS.map(c=>el('span',{},c))),...list.map(repoRow)]:el('div',{class:'empty'},'No repositories yet. '+(repoOwner()?'Add one with Add a repository, or run ':'Run '),el('code',{},'libraos-core repo add DIR'),' in a terminal on this host.'))].filter(Boolean)}
 // The add form stays out of teamDraw (#repo-add beside #team-view), so a refresh
 // does not wipe what is being typed. A checkout on this host is added; Clone from
 // URL only says to clone in a terminal first.
@@ -2638,8 +2638,8 @@ function repoAddOpen(open){REPO_ADD.open=!!open&&repoOwner();if(REPO_ADD.open){R
 function repoAddBuild(){const f=$('repo-add'),local=REPO_ADD.mode==='local',chip=(mode,label)=>el('button',{type:'button',class:'repo-mode','aria-pressed':String(REPO_ADD.mode===mode),onclick:()=>{const dir=$('repo-add-dir'),keep=dir?dir.value:'';REPO_ADD.mode=mode;repoAddBuild();const d=$('repo-add-dir');if(d){d.value=keep;d.focus()}}},label);
   const kids=[el('h3',{},'Add a repository'),el('div',{class:'repo-modes',role:'group','aria-label':'Where the repository comes from'},chip('local','A checkout on this host'),chip('clone','Clone from URL'))];
   if(local){const dir=el('input',{type:'text',id:'repo-add-dir',name:'dir',class:'mono',placeholder:'/path/to/repo',required:true,autocomplete:'off',spellcheck:'false'}),route=el('select',{id:'repo-add-route',name:'route'},el('option',{value:'on'},'On'),el('option',{value:'off'},'Off'));
-    kids.push(el('div',{class:'repo-fields'},el('label',{class:'repo-dir'},el('span',{},'Directory'),dir),el('label',{},el('span',{},'Route work through agentd'),route),el('span',{class:'tm-acts'},el('button',{type:'submit',class:'ok',id:'repo-add-go'},'Add'),el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel'))),
-      el('p',{class:'tm-why'},'Same as ',el('code',{},'agentd repo add DIR --route on|off'),'. It must be a git checkout the server’s user can write. Workers get their own worktree under it; the main checkout is not touched.'))}
+    kids.push(el('div',{class:'repo-fields'},el('label',{class:'repo-dir'},el('span',{},'Directory'),dir),el('label',{},el('span',{},'Route work through LibraOS Core'),route),el('span',{class:'tm-acts'},el('button',{type:'submit',class:'ok',id:'repo-add-go'},'Add'),el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel'))),
+      el('p',{class:'tm-why'},'Same as ',el('code',{},'libraos-core repo add DIR --route on|off'),'. It must be a git checkout the server’s user can write. Workers get their own worktree under it; the main checkout is not touched.'))}
   else kids.push(el('p',{class:'tm-why','data-clone':''},'Cloning from a URL is not done from the server. Clone it in a terminal on this host first, then add the folder as a checkout on this host:'),el('span',{class:'repo-fix'},el('code',{},'git clone URL DIR'),el('button',{type:'button',class:'repo-copy','aria-label':'Copy the clone command',onclick:()=>repoCopy('git clone URL DIR')},'Copy')),el('span',{class:'tm-acts'},el('button',{type:'button',onclick:()=>repoAddOpen(false)},'Cancel')));
   kids.push(el('p',{class:'repo-add-msg',id:'repo-add-msg',role:'alert',hidden:true}));f.replaceChildren(...kids)}
 async function repoAddSubmit(e){e.preventDefault();if(REPO_ADD.busy||REPO_ADD.mode!=='local')return;const dir=$('repo-add-dir').value.trim(),route=$('repo-add-route').value,msg=$('repo-add-msg'),go=$('repo-add-go'),show=t=>{msg.textContent=t;msg.hidden=!t};
@@ -2661,9 +2661,9 @@ function openPRSummaryText(s){if(!s)return '';const n=s.files||0;return [n+(n===
 function openPRSummaryOf(d){return {files:(d.files||[]).length,added:d.added,deleted:d.deleted,check:d.check,minutes:d.minutes,dollars:d.dollars}}
 // What a person opened stays open across the redraws, per handoff.
 function openPRKeep(hid,key,n){const c=OPENPR[hid]||(OPENPR[hid]={}),o=c.open||(c.open=new Set());if(o.has(key))n.open=true;n.addEventListener('toggle',()=>{if(n.open)o.add(key);else o.delete(key)});return n}
-function openPRWhy(d){return !d.enabled?'Opening pull requests from agentd is off ([dash] open_pr = false).':d.may?'':d.may_why||d.why_not||'This change cannot be opened as a pull request.'}
+function openPRWhy(d){return !d.enabled?'Opening pull requests from LibraOS Core is off ([dash] open_pr = false).':d.may?'':d.may_why||d.why_not||'This change cannot be opened as a pull request.'}
 function openPRConfirm(d){const fact=(k,v)=>[el('dt',{},k),el('dd',{},v)];
-  return sheet({title:'Open a draft pull request?',description:'AgentD pushes this branch and opens a draft pull request on GitHub. Nothing is merged.',action:'Push and open draft PR',pending:'Opening…',caution:true,
+  return sheet({title:'Open a draft pull request?',description:'LibraOS Core pushes this branch and opens a draft pull request on GitHub. Nothing is merged.',action:'Push and open draft PR',pending:'Opening…',caution:true,
     content:el('div',{class:'openpr-confirm'},el('dl',{},fact('Branch',el('code',{},d.branch)),fact('Remote and repository',[el('code',{},d.remote||'origin'),' → ',d.repo||'']),fact('Base branch',el('code',{},d.base_branch||'main')),fact('Commit',el('code',{},d.head||'')),fact('Title',d.title||'')),d.warning?el('p',{class:'field-error',role:'note'},'Check before you push: '+d.warning):null,
       (d.out_files||[]).length?el('div',{class:'field-error openpr-out',role:'note'},'Check before you push: these files are deliverables in out/ and would be published to the repository too:',el('ul',{},d.out_files.map(f=>el('li',{},el('code',{},f))))):null,
       el('div',{class:'sheet-field'},el('b',{},'Body'),el('pre',{class:'openpr-body'},d.body||'')),el('p',{},'Nothing is merged: the pull request is a draft for a person to review and merge.')),
@@ -2677,7 +2677,7 @@ function openPRFill(box,d){if(!d||!d.branch||!(d.files||[]).length&&!d.pr){box.h
   const ask=d.proposed&&!d.pr,link=d.pr?el('p',{},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():''):null;
   box.replaceChildren(ask&&!d.dismissed?el('h5',{},'Ready for review: open a pull request?'):null,d.deliverables_only&&!d.pr?el('h5',{},'Report ready'):null,d.deliverables_only&&!d.pr?el('p',{class:'field-hint'},'This task only produced deliverables in out/, so there is nothing to publish to the repository. Read them under Result.'):null,link,
     el('p',{class:'mute'},[openPRSummaryText(openPRSummaryOf(d)),'branch '+d.branch].filter(Boolean).join(' · ')),
-    ask?el('div',{class:'openpr-actions kact'},openPRButtons(d)):null,ask?el('p',{class:'field-hint'},'AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
+    ask?el('div',{class:'openpr-actions kact'},openPRButtons(d)):null,ask?el('p',{class:'field-hint'},'LibraOS Core pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
     openPRKeep(d.handoff,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),changesView(d))));
   if(typeof lockState==='function'&&typeof CAN==='function')try{lockState()}catch(e){}}
 // openPRPanel draws what is cached at once, so a redraw does not flicker, and fills in what loads.
@@ -2732,9 +2732,9 @@ function resultInboxActs(x){return [el('button',{type:'button',class:'primary',o
 // person's word; the server refuses a worker and a viewer and records who clicked.
 function pushWhy(d){return d.may_push?'':d.may_push_why||openPRWhy(d)||'This branch cannot be pushed.'}
 function pushConfirm(d){const fact=(k,v)=>[el('dt',{},k),el('dd',{},v)];
-  return sheet({title:'Push this branch?',description:'AgentD pushes this branch to origin and nothing else. No pull request is opened and nothing is merged.',action:'Push branch',pending:'Pushing…',caution:true,
+  return sheet({title:'Push this branch?',description:'LibraOS Core pushes this branch to origin and nothing else. No pull request is opened and nothing is merged.',action:'Push branch',pending:'Pushing…',caution:true,
     content:el('div',{class:'openpr-confirm'},el('dl',{},fact('Branch',el('code',{},d.branch)),fact('Remote and repository',[el('code',{},d.remote||'origin'),' → ',d.repo||'']),fact('Commit',el('code',{},d.head||''))),
-      d.warning?el('p',{class:'field-error',role:'note'},'Check before you push: '+d.warning):null,el('p',{},'Your name goes into the task’s history. AgentD never force-pushes: if origin already has this branch at another commit, nothing is pushed.')),
+      d.warning?el('p',{class:'field-error',role:'note'},'Check before you push: '+d.warning):null,el('p',{},'Your name goes into the task’s history. LibraOS Core never force-pushes: if origin already has this branch at another commit, nothing is pushed.')),
     onSubmit:async()=>{const j=await act({action:'push_branch',id:d.handoff,head:d.head});delete OPENPR[d.handoff];toast(j.pushed?'Pushed '+j.branch+' to origin':'Already on origin: '+j.branch,true);refresh()}})}
 // Pushed: the history line says by whom; the button goes, Open a draft PR stays.
 function pushButtons(d){if(d.pushed)return [el('span',{class:'mute push-done',role:'status',title:d.pushed.note||null},'Branch pushed to origin')];const why=pushWhy(d);
@@ -2958,7 +2958,7 @@ function isLinearRef(ref){return LINEAR_RE.test(String(ref||''))}
 function noteLinearURLs(items){for(const x of items||[])if(x&&isLinearRef(x.ref)&&/^https:\/\//.test(x.url||''))linearURLs.set(x.ref,x.url)}
 function linearHref(ref){return linearURLs.get(ref)||null}
 function trackerName(ref){return isLinearRef(ref)?'Linear':'GitHub'}
-function linearTextNode(ref){const href=linearHref(ref);return el('div',{class:'itext mute linear-text'},'This issue is in Linear; agentd keeps its title and state, not its text. ',href?el('a',{href,target:'_blank',rel:'noopener'},'Open it in Linear'):null)}
+function linearTextNode(ref){const href=linearHref(ref);return el('div',{class:'itext mute linear-text'},'This issue is in Linear; LibraOS Core keeps its title and state, not its text. ',href?el('a',{href,target:'_blank',rel:'noopener'},'Open it in Linear'):null)}
 // region:shared-work: what Inbox, Issues and Team all draw with
 /* Projects and status: the board's two axes. A card's project is its
    handoff's project, else the checkout its session works in (last path
@@ -3104,7 +3104,7 @@ function inboxRead(x){if(!x.approvalOnly&&!x.read&&CAN()&&CONNECTED)pending(x.id
 // The reason is said in full, in plain words; the next step (often a command for
 // the host) and the exact message, with its paths, wait under Details.
 // shown: the row already says the reason, so only Details is added.
-function failureDetail(x,shown){if(!x.failure&&!x.next_step)return null;const next=x.next_step||'',cmd=/^\s*(agentd|claude|codex|git|gh)\s/.test(next)?next:(/\b(agentd trust \S+)/.exec(next)||[])[1]||'',
+function failureDetail(x,shown){if(!x.failure&&!x.next_step)return null;const next=x.next_step||'',cmd=/^\s*(libraos-core|agentd|claude|codex|git|gh)\s/.test(next)?next:(/\b((?:libraos-core|agentd) trust \S+)/.exec(next)||[])[1]||'',
     why=x.failure?words(x.failure):'',plain=capFirst(plainText(why)),exact=!!why&&plain!==capFirst(why);
   return el('div',{class:'failure-detail'},why&&!shown?el('div',{class:'failure-reason'},el('b',{},'Why: '),plain):null,
     next||exact?el('details',{class:'tech failure-next'},el('summary',{},'Details'),
@@ -3312,7 +3312,7 @@ function newTaskPRs(d){return (d.waiting||[]).filter(x=>x.what==='PR'&&x.ref)}
 // sheet's own fields (base, goal first), then criteria, check and issue.
 function newTaskFields(d,base){const prs=newTaskPRs(d);return [
   {name:'kind',label:'Kind',required:true,segment:true,value:'implement',options:[{value:'implement',label:'Implement'},{value:'review',label:'Review a PR'}]},
-  {name:'pr',label:'Pull request',value:'',options:[{value:'',label:prs.length?'Choose an open pull request':'No open pull requests (agentd pr sync-gh)'},...prs.map(p=>({value:p.ref,label:p.ref+(p.title?' · '+p.title:'')}))],hint:'The review task is linked to this pull request.'},
+  {name:'pr',label:'Pull request',value:'',options:[{value:'',label:prs.length?'Choose an open pull request':'No open pull requests (libraos-core pr sync-gh)'},...prs.map(p=>({value:p.ref,label:p.ref+(p.title?' · '+p.title:'')}))],hint:'The review task is linked to this pull request.'},
   ...base.map(f=>f.name==='goal'?{...f,required:false}:f),
   {name:'accept',label:'Acceptance criteria',multiline:true,hint:'What done means, one per line.'},
   {name:'check',label:'Check command',maxlength:1000,hint:'A command that exits 0 when the work is right.'},
@@ -3409,7 +3409,7 @@ function ntField(f,ui){const id='nt-'+f.name,hint=el('div',{class:'field-hint',i
   return el('div',{class:'sheet-field nt-'+f.name},label,input,group,f.hint?hint:null,err)}
 // The page's fields: the sheet's (newTaskFields), in the design's words and places.
 function ntFields(d,roles,roleName){const words={goal:{placeholder:'What should the worker do? Describe the change.',rows:5},accept:{label:'Done when',hint:'One per line. Each line becomes an acceptance criterion in the worker\'s prompt and the PR.'},check:{mono:true,placeholder:'go test ./...'},issue:{label:'Linked issue',placeholder:'OWNER/REPO#N'}};
-  const all=newTaskFields(d,[{name:'goal',label:'Goal',required:true,multiline:true},{name:'state',label:'Context so far',multiline:true},{name:'role',label:'Role',value:roleName,options:[{value:'',label:'No role'},...roles.map(r=>({value:r.name,label:r.name}))]},...workerFields(d).map(f=>f.name==='tool'?{...f,label:'Agent',required:false}:{...f,label:'Repository',hint:'A checkout known to agentd. The worker runs in it or in a worktree of it.'}),{name:'budget',label:'Budget',required:true,value:d.dispatch_budget||'30m',hint:'Minutes, dollars or both: 90m,$5. The worker stops at it.',maxlength:100},{name:'also',label:'Also in other repositories',multiline:true,rows:2,placeholder:'none',hint:'Further checkouts the task spans, one per line. Each gets its own branch; not for a Codex worker.'}]).map(f=>words[f.name]?{...f,...words[f.name]}:f);
+  const all=newTaskFields(d,[{name:'goal',label:'Goal',required:true,multiline:true},{name:'state',label:'Context so far',multiline:true},{name:'role',label:'Role',value:roleName,options:[{value:'',label:'No role'},...roles.map(r=>({value:r.name,label:r.name}))]},...workerFields(d).map(f=>f.name==='tool'?{...f,label:'Agent',required:false}:{...f,label:'Repository',hint:'A checkout known to LibraOS Core. The worker runs in it or in a worktree of it.'}),{name:'budget',label:'Budget',required:true,value:d.dispatch_budget||'30m',hint:'Minutes, dollars or both: 90m,$5. The worker stops at it.',maxlength:100},{name:'also',label:'Also in other repositories',multiline:true,rows:2,placeholder:'none',hint:'Further checkouts the task spans, one per line. Each gets its own branch; not for a Codex worker.'}]).map(f=>words[f.name]?{...f,...words[f.name]}:f);
   const side=['tool','cwd','also','role','budget'];return {main:all.filter(f=>!side.includes(f.name)),side:side.map(n=>all.find(f=>f.name===n))}}
 function ntWhere(t){const box=$('nt-where');if(!box)return;const ws=t&&t.workspace,from=t&&t.branch_from;
   box.replaceChildren(el('div',{class:'sheet-field'},el('span',{class:'nt-label'},'Workspace'),el('div',{class:'views nt-static',role:'group','aria-label':'Workspace'},el('span',{class:ws==='worktree'?'on':''},'New worktree'),el('span',{class:ws==='checkout'?'on':''},'Main checkout')),
@@ -3450,7 +3450,7 @@ function ntBuild(roleName){const page=$('page-new'),d=lastDash||{},l=TEAM.lists|
   for(const ev of ['input','change'])form.addEventListener(ev,()=>ntDraftSave());
   ui.inputs.kind.addEventListener('input',ntEstimate);ui.inputs.budget.addEventListener('change',ntEstimate);ntEstimate();
   form.onsubmit=e=>{e.preventDefault();ntSend(true)};save.onclick=()=>ntSend(false);cancel.onclick=ntCancel;
-  const note=$('nt-note'),why=!d.dispatch?'New tasks need dispatch on for this server: agentd config set dash.dispatch true.':'';note.textContent=why;note.hidden=!why;if(why)start.dataset.disabledReason=save.dataset.disabledReason=why;
+  const note=$('nt-note'),why=!d.dispatch?'New tasks need dispatch on for this server: libraos-core config set dash.dispatch true.':'';note.textContent=why;note.hidden=!why;if(why)start.dataset.disabledReason=save.dataset.disabledReason=why;
   lockState()}
 async function ntSend(startIt){const ui=NT.ui,nt=NT.nt;if(!ui||NT.busy)return;const v=ui.values();
   if(!v.budget){ui.fieldError('budget','Budget is required.');return}
@@ -3776,7 +3776,7 @@ function dispatchHandoff(h){const d=lastDash||{};return sheet({title:'Start a wo
     catch(e){if(issueRefused(e))e.box=issueRefusalBox(e.body,h.id,v.cwd,()=>{if(activeSheet)activeSheet.cancel()});throw e}
     finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 function prDisabledReason(d,x){const repo=x.ref.split('#')[0];return d.pr_owner===false?'Only an owner can merge or close a pull request.':!(d.merge_repos||[]).includes(repo)?'Merging or closing from the server needs this repo in [sync] repos in config.toml.':x.mergeable==='CONFLICTING'?'Resolve the merge conflicts before merging.':''}
-function prDecision(x,close){const [repo,num]=x.ref.split('#'),draft=!close&&x.draft;return actionSheet({title:close?'Close '+x.ref+'?':draft?'Mark ready for review, then merge '+x.ref+'?':'Merge '+x.ref+'?',description:close?'Your reason is posted as a GitHub comment, then the pull request is closed.':(x.title?'“'+x.title+'”. ':'')+(draft?'This pull request is a draft: it is marked ready for review, then merged on GitHub. Branch protection still applies; agentd never bypasses it.':'The changes will be merged on GitHub.')+(x.pr_state?' State: '+x.pr_state+'.':''),action:close?'Close PR':draft?'Mark ready and merge':'Merge',danger:close,caution:!close,pending:close?'Closing…':'Merging…',fields:close?[{name:'reason',label:'Reason',required:true,multiline:true}]:[]},x.ref,v=>({action:close?'pr_close':'pr_merge',repo,number:+num,...(close?{reason:v.reason}:{})}),close?'Pull request closed':'Pull request merged')}
+function prDecision(x,close){const [repo,num]=x.ref.split('#'),draft=!close&&x.draft;return actionSheet({title:close?'Close '+x.ref+'?':draft?'Mark ready for review, then merge '+x.ref+'?':'Merge '+x.ref+'?',description:close?'Your reason is posted as a GitHub comment, then the pull request is closed.':(x.title?'“'+x.title+'”. ':'')+(draft?'This pull request is a draft: it is marked ready for review, then merged on GitHub. Branch protection still applies; LibraOS Core never bypasses it.':'The changes will be merged on GitHub.')+(x.pr_state?' State: '+x.pr_state+'.':''),action:close?'Close PR':draft?'Mark ready and merge':'Merge',danger:close,caution:!close,pending:close?'Closing…':'Merging…',fields:close?[{name:'reason',label:'Reason',required:true,multiline:true}]:[]},x.ref,v=>({action:close?'pr_close':'pr_merge',repo,number:+num,...(close?{reason:v.reason}:{})}),close?'Pull request closed':'Pull request merged')}
 // prStateText leads with what blocks a pull request; "ready" beside "checks failing" or "blocked" contradicts them.
 function prStateText(t){const parts=String(t||'').split(' · ').filter(Boolean),stop=parts.filter(p=>/failing|blocked|conflict/i.test(p));return stop.length?capFirst([...stop,...parts.filter(p=>!stop.includes(p)&&p!=='ready')].join(' · ')):String(t||'')}
 function prActions(d,x){if(x.state)return [];if(PENDING[x.ref])return [el('span',{role:'status',class:'mute'},PENDING[x.ref])];const why=prDisabledReason(d,x),closeWhy=x.mergeable==='CONFLICTING'?prDisabledReason(d,{...x,mergeable:''}):why;
@@ -3822,7 +3822,7 @@ function issueNote(){communityCount();const box=$('issue-note'),out=[];const cle
   if(!(lastDash||{}).dispatch&&(ROLE==='owner'||TOKEN&&!ROLE))out.push(el('div',{class:'filter-note'},'Starting work from here is off. Set ',el('code',{},'[dash] dispatch = true'),'.'));
   if(VIEW==='needs')out.push(el('div',{class:'state'},el('span',{},'Work that is blocked, failed or waiting for an answer, whoever started it. What waits on you alone is in ',el('a',{href:'#inbox'},'Inbox'),'. Pull requests waiting for review are under the In review stage.'),el('button',{type:'button',onclick:()=>setView('all')},'Show all tasks')));
   {if(ISS.error)out.push(el('div',{class:'state error',role:'alert'},'Could not load the issues: '+ISS.error+'. Handoffs and pull requests show on their own cards until it works again.'));
-    else if(ISS.d&&!(ISS.d.issues||[]).length)out.push(el('div',{class:'state'},'No GitHub issues in this ledger yet; ',el('code',{},'agentd issue sync-gh'),' brings them in.'))}
+    else if(ISS.d&&!(ISS.d.issues||[]).length)out.push(el('div',{class:'state'},'No GitHub issues in this ledger yet; ',el('code',{},'libraos-core issue sync-gh'),' brings them in.'))}
   box.replaceChildren(...out)}
 async function loadIssues(){if(ISS.busy)return;ISS.busy=true;
   let changed=false;
@@ -3925,7 +3925,7 @@ async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening�
 // did not make (foreign) is shown, and only publishing says why it is not pushed; "has not committed"
 // is said only when the review counted no commit since dispatch.
 function changesNone(d){return d.commits===0?'No change yet: the worker has not committed anything on its branch since it started.':d.why_not?'No change to show: '+d.why_not+'.':d.head?'No file changed in the worker’s commits.':'No change to show yet.'}
-function changesPublishNote(d){return el('p',{class:'field-hint','data-k':'publish'},'Not published: '+(d.why_not||'this branch is not agentd’s')+'.')}
+function changesPublishNote(d){return el('p',{class:'field-hint','data-k':'publish'},'Not published: '+(d.why_not||'this branch is not LibraOS Core’s')+'.')}
 // #641: on a branch agentd did not make, the change ends at the worker's recorded last commit; with none
 // recorded it runs to the branch's tip and range_note says the user's own commits may be in it; ending at
 // a checked commit only, range_note says so (the worker may have committed after it).
@@ -3941,7 +3941,7 @@ function twChanges(hid){const box=el('section',{class:'openpr tw-changes','aria-
     box.replaceChildren(ask&&!d.dismissed?el('h5',{},'Ready for review: open a pull request?'):null,d.deliverables_only&&!d.pr?el('p',{class:'field-hint'},'This task only produced deliverables in out/, so there is nothing to publish to the repository. Read them under Result in Session.'):null,link,
       el('p',{class:'mute'},[openPRSummaryText(openPRSummaryOf(d)),'branch '+d.branch,/^(claimed|offered)$/.test(d.state||'')&&!d.proposed?'the worker is still on it':''].filter(Boolean).join(' · ')),
       d.foreign?changesPublishNote(d):null,changesRangeNote(d),
-      ask?el('p',{class:'field-hint'},'Push branch and Open a draft PR are at the top. AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
+      ask?el('p',{class:'field-hint'},'Push branch and Open a draft PR are at the top. LibraOS Core pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.'):null,
       openPRKeep(hid,'changes',el('details',{class:'openpr-changes'},el('summary',{},'Changes'),changesView(d))))};
   fill(OPENPR[hid]);openPRLoad(hid).then(c=>{if(box.isConnected)fill(c)});return box}
 // The message box under Session: GET /api/taskmsg says whether this person may (Stop's rule) and
@@ -4070,7 +4070,7 @@ function communityRow(it,ctx,now){
 function communityDraw(){if(ROUTE.item!=='community')return;const box=$('community-body'),count=$('community-count'),d=ISS.d,now=Date.now();
   if(ISS.error&&!d){count.textContent='';box.replaceChildren(el('div',{class:'state error',role:'alert'},'Could not load the issues: '+ISS.error+'.'));return}
   if(!d){box.replaceChildren(el('div',{class:'empty'},APP.on?'Community issues are on the team server’s dash.':'Loading…'));return}
-  if(!communityKnown(d)){count.textContent='';box.replaceChildren(el('div',{class:'state','data-community-old':''},'This server does not report issue authors yet, so community issues cannot be told apart from the team’s. They show here once agentd on the server is updated.'));return}
+  if(!communityKnown(d)){count.textContent='';box.replaceChildren(el('div',{class:'state','data-community-old':''},'This server does not report issue authors yet, so community issues cannot be told apart from the team’s. They show here once LibraOS Core on the server is updated.'));return}
   const ctx=issueStatusCtx(lastDash||{}),rows=communityRows(d).map((it,i)=>({it,i,open:!isClosed(it),t:Date.parse(it.created||'')||0}));
   rows.sort((a,b)=>(b.open-a.open)||(b.t-a.t)||(a.i-b.i));
   const open=rows.filter(r=>r.open).length,w=typeof d.community_waiting==='number'?d.community_waiting:rows.filter(r=>r.open&&communityWaiting(r.it)).length;
@@ -4252,7 +4252,7 @@ function ovChart(kind,j){const host=kind==='host',money=kind==='cost',points=hos
     key=host?[['ov-cpu','CPU % (solid)'],['ov-memory','Memory % (dashed)']]:money?[['ov-created','Server'],['ov-created ov-member','Member hosts'],['ov-unpriced','! Unpriced']]:OV_EVENTS.map(([,label,c])=>[c,label]),
     box=el('section',{class:'ov-chart','data-ov-chart':kind},el('h4',{},title),el('p',{class:'ov-chart-note'},note),el('div',{class:'mchart-key'},key.map(([c,label])=>el('span',{},el('i',{class:c}),label))));
   if(kind==='tasks')box.append(el('div',{class:'ov-origin'},'Server: solid · Member hosts: lighter, outlined'));
-  if(host&&!points.length){box.append(el('p',{class:'empty','data-ov-no-samples':'',role:'status'},'No host samples. '+(j.host.note||'Only agentd server records samples where /proc is available; the first sample arrives after one minute.')));return box}
+  if(host&&!points.length){box.append(el('p',{class:'empty','data-ov-no-samples':'',role:'status'},'No host samples. '+(j.host.note||'Only LibraOS Core Server records samples where /proc is available; the first sample arrives after one minute.')));return box}
   if(!points.length){box.append(el('p',{class:'empty'},'No history buckets in this range.'));return box}
   const plot=el('div',{class:'ov-plot'}),svg=svgEl('svg',{role:'img',tabindex:0,'aria-label':title+' · '+j.range+'. '+note+' Use Left and Right arrows for values, or open the data table.'}),tip=el('div',{class:'mtip',hidden:true,role:'status'});
   plot.append(svg,tip);box.append(plot,ovSeriesTable(kind,points,j));let left=42,W=600,band=1,selected=-1;
@@ -4606,7 +4606,7 @@ function renderConsole(d){
   DR.whyNot=s.status==='active'&&row.may_prompt===false?row.prompt_why_not||'You cannot type into this session.':'';
   DR.canSend=s.status==='active'&&!DR.whyNot;
   const now=s.status==='active'?'':successorOf(s.id);
-  DR.via.textContent=DR.whyNot?DR.whyNot:!DR.canSend?'this agentd session has ended, read only':!CAN()?'Unlock to message this session.':'Shift+Enter for a new line.';
+  DR.via.textContent=DR.whyNot?DR.whyNot:!DR.canSend?'this LibraOS Core session has ended, read only':!CAN()?'Unlock to message this session.':'Shift+Enter for a new line.';
   // What the user sent that went to its inbox, not its terminal, and is
   // still unread: say so, or a "sent" looks like it worked.
   const waiting=(c.outbox||[]).filter(m=>m.state==='unread'||m.state==='delivered');
@@ -4866,13 +4866,13 @@ function metricsGroups(m){const ts=m.tasks,o=m.outcomes,wf=m.workflow,ref=m.refe
     ...metricsGroup('Reference','',[
       rateTile(ratePct(au),'AI-only Commit Rate',[au.n+' of '+au.of+' with no human commit author',rateCoverageNote(au,'merged PRs'),au.cannot_tell_workers_from_people?'cannot tell workers from people: every known PR has a person\'s commit author':'',au.unknown?au.unknown+' with no commit data left out'+(au.details_failed?' ('+au.details_failed+' gh pr view failed)':''):'',hum?'human: '+hum:''],au.rule),
       rateTile(ratePct(inf),'Infra Failure Rate',[inf.n+' of '+inf.of+' worker results',rateCoverageNote(inf,'worker results'),reasons],inf.rule)])]}
-function metricsBody(m){const co=m.cost,box=metricsGroups(m);if(!m.tasks.all&&!m.merged)box.unshift(el('div',{class:'empty'},'No runs or merged PRs in this range. ',ROLE==='owner'||TOKEN&&!ROLE?'Add repositories under [sync] repos in config.toml and run agentd pr sync-gh.':'Ask the host owner to sync repositories, or choose a longer range.'));
+function metricsBody(m){const co=m.cost,box=metricsGroups(m);if(!m.tasks.all&&!m.merged)box.unshift(el('div',{class:'empty'},'No runs or merged PRs in this range. ',ROLE==='owner'||TOKEN&&!ROLE?'Add repositories under [sync] repos in config.toml and run libraos-core pr sync-gh.':'Ask the host owner to sync repositories, or choose a longer range.'));
   const left=[co.no_handoff?co.no_handoff+' no linked handoff':'',co.no_worker?co.no_worker+' no worker':'',co.unpriced?co.unpriced+' dollars unknown':''].filter(Boolean).join(', ');
   box.push(el('div',{class:'msub'},'Cost per PR (detail, estimate): '+[co.usd_per_pr===undefined?'no PR with a known cost':'~$'+Number(co.usd_per_pr).toFixed(2)+' per PR, ~$'+Number(co.usd).toFixed(2)+' over '+co.prs+' PRs',co.partial?co.partial+' a floor: some dollars unknown':'',left?'left out: '+left:''].filter(Boolean).join('; ')));
   const cov=m.coverage||{};
-  if(cov.covered===false)box.push(el('details',{class:'coverage-note'},el('summary',{},'Some repository history is missing. How to fill it.'),el('div',{class:'field-hint'},(cov.repos||[]).filter(r=>!r.covered).map(r=>el('p',{},r.repo+(r.reaches_back_to?' has history from '+dayLabel(r.reaches_back_to):' has not been synced'))),ROLE==='owner'||TOKEN&&!ROLE?el('p',{},'Add repositories under ',el('code',{},'[sync] repos'),', then run ',el('code',{},cov.fill||'agentd pr sync-gh'),'.'):el('p',{},'Ask the host owner to sync the missing repository history.'))));
+  if(cov.covered===false)box.push(el('details',{class:'coverage-note'},el('summary',{},'Some repository history is missing. How to fill it.'),el('div',{class:'field-hint'},(cov.repos||[]).filter(r=>!r.covered).map(r=>el('p',{},r.repo+(r.reaches_back_to?' has history from '+dayLabel(r.reaches_back_to):' has not been synced'))),ROLE==='owner'||TOKEN&&!ROLE?el('p',{},'Add repositories under ',el('code',{},'[sync] repos'),', then run ',el('code',{},cov.fill||'libraos-core pr sync-gh'),'.'):el('p',{},'Ask the host owner to sync the missing repository history.'))));
   if(m.not_synced)box.push(el('div',{class:'state'},m.not_synced+' more merged but not synced, left out: run pr sync-gh --all --limit N.'));
-  if(metricsNoPRs(m))box.push(el('div',{class:'empty','data-no-prs':''},'No PRs recorded for this period. The PR ledger holds what agentd pr sync-gh brought in; ',el('a',{href:'#settings/connections'},'repository sync settings'),' say which repositories it reads.'));
+  if(metricsNoPRs(m))box.push(el('div',{class:'empty','data-no-prs':''},'No PRs recorded for this period. The PR ledger holds what libraos-core pr sync-gh brought in; ',el('a',{href:'#settings/connections'},'repository sync settings'),' say which repositories it reads.'));
   else if(!m.merged&&!m.not_synced)box.push(el('div',{class:'empty'},'No merged PRs in this range.'));
   const ch=m.chart;
   if(ch&&(ch.opened||m.merged)){const pts=ch.points,missing=m.merged-co.prs,day=p=>(ch.unit==='week'?'Week of ':'')+p.start;
@@ -4891,7 +4891,7 @@ function metricsBody(m){const co=m.cost,box=metricsGroups(m);if(!m.tasks.all&&!m
   return box}
 const SVGNS='http://www.w3.org/2000/svg';
 function svgEl(tag,attrs){const n=document.createElementNS(SVGNS,tag);for(const[k,v]of Object.entries(attrs||{}))n.setAttribute(k,v);return n}
-// brandMark: the AgentD mark (an open blue ring and a gold stem: a 'd') as an inline SVG.
+// brandMark: the LibraOS Core mark (an open blue ring and a gold stem: a 'd') as an inline SVG.
 // Each copy gets its own gradient ids, so one hidden copy never blanks another.
 let BRAND_N=0;
 function brandMark(){const n=++BRAND_N,b='bm-'+n+'-b',g='bm-'+n+'-g',s=svgEl('svg',{viewBox:'17 14 170 170',class:'brand-mark','aria-hidden':'true',focusable:'false'}),defs=svgEl('defs');
@@ -5399,7 +5399,7 @@ function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st
     el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task','Error'],st.offers.map(o=>[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),o.error||'']))):
     el('div',{class:'trig-card'},el('p',{class:'mute','data-trig':'empty'},'Nothing recorded yet. Each run links to the task it started.')));
   const state=el('div',{class:'trig-card trig-state','data-trig':'state'},el('i',{class:'trig-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),
-    el('div',{},el('strong',{class:on&&st.problem?'trig-problem':''},head),el('div',{class:'trig-small'},on?['Turned off from a terminal: ',el('code',{},'agentd config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire'))),
+    el('div',{},el('strong',{class:on&&st.problem?'trig-problem':''},head),el('div',{class:'trig-small'},on?['Turned off from a terminal: ',el('code',{},'libraos-core config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire'))),
     el('button',{type:'button',onclick:()=>{runs.scrollIntoView({block:'start'});runs.focus()}},'Runs'));
   const settings=el('section',{class:'trig-col','data-trig':'settings','aria-label':'Settings now'},el('h3',{},'Settings now'),el('div',{class:'trig-card'},settingsPairs([['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most a day',st.max_per_day],
     ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])])));
@@ -5444,9 +5444,9 @@ async function connectRun(tool,dry,box){if(CONNECT.busy)return;CONNECT.busy=true
 // {action:'later'}, kept by the install). Help opens it at any time.
 const SETUP={data:null,doctor:null,step:0,asked:'',request:0,error:'',busy:false,picked:false};
 const SETUP_STEPS=[
-  {id:'host',name:'Check this host',title:'Check this host',lead:'agentd doctor reads this install and says what works. It changes nothing; a failing check names its fix.'},
-  {id:'agents',name:'Connect agents',title:'Connect your coding agents',lead:'agentd starts the agents already on this host. Pick the ones it may use; nothing is changed until you press Connect.'},
-  {id:'repository',name:'Add a repository',title:'Add a repository and choose routing',lead:'A checkout on this host that workers may run in. With routing on, implementation, fixes and PR reviews in it go through agentd.'},
+  {id:'host',name:'Check this host',title:'Check this host',lead:'libraos-core doctor reads this install and says what works. It changes nothing; a failing check names its fix.'},
+  {id:'agents',name:'Connect agents',title:'Connect your coding agents',lead:'LibraOS Core starts the agents already on this host. Pick the ones it may use; nothing is changed until you press Connect.'},
+  {id:'repository',name:'Add a repository',title:'Add a repository and choose routing',lead:'A checkout on this host that workers may run in. With routing on, implementation, fixes and PR reviews in it go through LibraOS Core.'},
   {id:'task',name:'Run a first task',title:'Run a first task',lead:'Start one worker with a 30-minute budget and watch it in the task’s workspace. It stops at the budget.'}];
 const SETUP_AGENT={claude:'MCP server, hooks and Skills',codex:'MCP server and approval mode',opencode:'Its MCP entry'};
 function setupOwner(){return ROLE==='owner'&&!!USER}
@@ -5462,7 +5462,7 @@ async function setupDoctor(){if(!setupOwner())return;SETUP.doctor={loading:true}
 // setupCommand is a step's terminal command with Copy, so the page and the CLI never disagree.
 function setupCommand(text){return el('p',{class:'setup-cmd','data-setup-command':''},el('span',{class:'mute'},'In a terminal: '),el('code',{},text),el('button',{type:'button',class:'quiet',onclick:()=>chatCopy(text)},'Copy'))}
 function setupHost(){const d=SETUP.doctor||{},checks=d.doctor||[],fails=checks.filter(c=>c.status==='fail');
-  return [setupCommand('agentd doctor'),d.loading?el('p',{role:'status'},'Running doctor…'):d.error?el('p',{role:'alert'},d.error):
+  return [setupCommand('libraos-core doctor'),d.loading?el('p',{role:'status'},'Running doctor…'):d.error?el('p',{role:'alert'},d.error):
     el('div',{},el('p',{'data-setup-state':fails.length?'fail':'pass'},fails.length?fails.length+' required '+(fails.length===1?'check fails':'checks fail')+'. Each names its fix.':'Every required check passes.'),
       settingsTable(['Check','Status','Detail'],checks.map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)]))),
     el('div',{class:'set-actions'},el('button',{type:'button',onclick:setupDoctor,disabled:!!d.loading},'Check again'))]}
@@ -5473,18 +5473,18 @@ function setupAgents(){const a=(SETUP.data&&SETUP.data.steps||{}).agents||{},box
     el('span',{class:'setup-small','data-setup-state':c.connected?'connected':c.found?'installed':'missing'},c.connected?'Connected':c.found?'Installed':'Not installed'),
     el('span',{class:'setup-small mute'},c.found?SETUP_AGENT[c.tool]||'':'Skipped; add it later in Settings'),
     c.found?el('button',{type:'button','data-connect-preview':c.tool,onclick:()=>connectRun(c.tool,true,box)},c.connected?'Preview again':'Preview'):null));
-  return [setupCommand('agentd connect '+((a.clients||[]).find(c=>c.found)||{tool:'claude'}).tool),el('div',{class:'setup-agents'},cards),box]}
+  return [setupCommand('libraos-core connect '+((a.clients||[]).find(c=>c.found)||{tool:'claude'}).tool),el('div',{class:'setup-agents'},cards),box]}
 function setupRepository(){const r=(SETUP.data&&SETUP.data.steps||{}).repository||{},list=r.repositories||[],msg=el('p',{id:'setup-repo-msg',role:'alert',hidden:true});
   const dir=el('input',{id:'setup-repo-dir',type:'text',autocomplete:'off',placeholder:'/home/you/src/project'}),route=el('select',{id:'setup-repo-route'},el('option',{value:'on'},'On'),el('option',{value:'off'},'Off'));
-  const form=el('form',{class:'setup-form',id:'setup-repo'},el('label',{for:'setup-repo-dir'},'Checkout on this host'),dir,el('label',{for:'setup-repo-route'},'Route work through agentd'),route,msg,el('div',{class:'set-actions'},el('button',{type:'submit',class:'primary'},'Add repository')));
+  const form=el('form',{class:'setup-form',id:'setup-repo'},el('label',{for:'setup-repo-dir'},'Checkout on this host'),dir,el('label',{for:'setup-repo-route'},'Route work through LibraOS Core'),route,msg,el('div',{class:'set-actions'},el('button',{type:'submit',class:'primary'},'Add repository')));
   form.onsubmit=async e=>{e.preventDefault();if(SETUP.busy)return;SETUP.busy=true;msg.hidden=true;try{const res=await fetch('/api/repositories',{method:'POST',headers:{...auth(),'Content-Type':'application/json'},body:JSON.stringify({action:'add',dir:dir.value.trim(),route:route.value})});let j={};try{j=await res.json()}catch(x){}
       if(!res.ok)throw new Error(j.error||'The repository was not added (HTTP '+res.status+').');toast('Added '+(j.path||dir.value.trim()),true);refresh();await setupLoad()}
     catch(x){msg.textContent=errorText(x);msg.hidden=false}finally{SETUP.busy=false}};
-  return [setupCommand('agentd repo add DIR --route on|off'),list.length?el('ul',{class:'setup-list','data-setup-repos':''},list.map(x=>el('li',{},el('code',{},x.path),' · routing ',x.route==='on'?'on':x.route==='off'?'off':'not set'))):el('p',{class:'mute'},'No repository yet.'),form]}
+  return [setupCommand('libraos-core repo add DIR --route on|off'),list.length?el('ul',{class:'setup-list','data-setup-repos':''},list.map(x=>el('li',{},el('code',{},x.path),' · routing ',x.route==='on'?'on':x.route==='off'?'off':'not set'))):el('p',{class:'mute'},'No repository yet.'),form]}
 function setupTask(){const t=(SETUP.data&&SETUP.data.steps||{}).task||{},s=SETUP.data&&SETUP.data.steps||{},repos=((s.repository||{}).repositories||[]).map(x=>x.path),tools=((s.agents||{}).clients||[]).filter(c=>c.connected).map(c=>c.tool),msg=el('p',{id:'setup-task-msg',role:'alert',hidden:true});
-  const out=[setupCommand(t.command||'agentd run "GOAL" --budget 30m')];
+  const out=[setupCommand(t.command||'libraos-core run "GOAL" --budget 30m')];
   if(t.done&&t.handoff)out.push(el('p',{'data-setup-first':''},'A first task has started: ',el('a',{href:'#issues/'+t.handoff},'open its workspace'),'.'));
-  if(!t.dispatch){out.push(el('p',{'data-setup-off':''},'Starting workers from the server is off. Turn it on in a terminal: ',el('code',{},'agentd config set dash.dispatch true'),', or run the command above there.'));return out}
+  if(!t.dispatch){out.push(el('p',{'data-setup-off':''},'Starting workers from the server is off. Turn it on in a terminal: ',el('code',{},'libraos-core config set dash.dispatch true'),', or run the command above there.'));return out}
   if(!repos.length){out.push(el('p',{class:'mute'},'Add a repository first (step 3).'));return out}
   const cwd=el('select',{id:'setup-task-cwd'},repos.map(p=>el('option',{value:p},p))),tool=el('select',{id:'setup-task-tool'},(tools.length?tools:[t.default_tool||'claude']).map(x=>el('option',{value:x},toolName(x))));
   const goal=el('textarea',{id:'setup-task-goal',rows:3,maxlength:2000}),accept=el('textarea',{id:'setup-task-accept',rows:2,maxlength:2000});
@@ -5497,16 +5497,16 @@ function setupTask(){const t=(SETUP.data&&SETUP.data.steps||{}).task||{},s=SETUP
     catch(x){msg.textContent=errorText(x);msg.hidden=false}finally{SETUP.busy=false}};
   out.push(form);return out}
 function setupRender(){const page=$('setup-body');if(!page)return;
-  if(!setupOwner()){page.replaceChildren(el('h2',{},'Set up this host'),el('p',{'data-setup-owner':''},'An owner sets up this host. In a terminal on it: ',el('code',{},'agentd init'),'.'));return}
+  if(!setupOwner()){page.replaceChildren(el('h2',{},'Set up this host'),el('p',{'data-setup-owner':''},'An owner sets up this host. In a terminal on it: ',el('code',{},'libraos-core init'),'.'));return}
   if(!SETUP.data){page.replaceChildren(el('h2',{},'Set up this host'),SETUP.error?el('p',{role:'alert'},SETUP.error):el('p',{role:'status'},'Loading…'));return}
   const i=SETUP.step,st=SETUP_STEPS[i],body={host:setupHost,agents:setupAgents,repository:setupRepository,task:setupTask}[st.id]();
   const nav=el('ol',{class:'setup-steps',id:'setup-steps'},SETUP_STEPS.map((s,n)=>el('li',{},el('button',{type:'button','data-step':s.id,'aria-current':n===i?'step':null,class:setupDone(s.id)?'done':'',onclick:()=>{SETUP.step=n;setupRender()}},el('span',{class:'setup-bar','aria-hidden':'true'}),(n+1)+' '+s.name,el('span',{class:'setup-mark'},setupDone(s.id)?' · Done':'')))));
   const back=el('button',{type:'button',disabled:i===0,onclick:()=>{SETUP.step=Math.max(0,i-1);setupRender()}},'Back'),
     later=el('button',{type:'button',id:'setup-later',onclick:setupLater},'Set up later'),
     next=i<3?el('button',{type:'button',class:'primary',id:'setup-next',onclick:()=>{SETUP.step=i+1;setupRender()}},setupDone(st.id)?'Continue':'Skip for now'):el('button',{type:'button',class:'primary',id:'setup-finish',onclick:()=>{location.hash='#issues'}},'Go to Tasks');
-  page.replaceChildren(el('div',{class:'setup-head'},el('span',{class:'rail-mark','aria-hidden':'true'},brandMark()),el('strong',{},'agentd'),el('span',{class:'mute setup-small','data-setup-count':''},'Step '+(i+1)+' of 4')),nav,
+  page.replaceChildren(el('div',{class:'setup-head'},el('span',{class:'rail-mark','aria-hidden':'true'},brandMark()),el('strong',{},'LibraOS Core'),el('span',{class:'mute setup-small','data-setup-count':''},'Step '+(i+1)+' of 4')),nav,
     el('div',{},el('h2',{id:'setup-title'},st.title),el('p',{class:'mute'},st.lead)),el('section',{class:'setup-step','data-setup-step':st.id,'aria-labelledby':'setup-title'},body),
-    el('div',{class:'setup-four'},el('strong',{class:'setup-small'},'The four steps'),el('span',{class:'setup-small'},'1 Check this host (doctor) · 2 Connect agents · 3 Add a repository and choose routing · 4 Run a first task with a 30-minute budget and watch it in the workspace'),el('span',{class:'setup-small mute'},'Each step runs the same command the terminal does (agentd doctor, connect, repo add, run) and shows it, so the page and the CLI never disagree.')),
+    el('div',{class:'setup-four'},el('strong',{class:'setup-small'},'The four steps'),el('span',{class:'setup-small'},'1 Check this host (doctor) · 2 Connect agents · 3 Add a repository and choose routing · 4 Run a first task with a 30-minute budget and watch it in the workspace'),el('span',{class:'setup-small mute'},'Each step runs the same command the terminal does (libraos-core doctor, connect, repo add, run) and shows it, so the page and the CLI never disagree.')),
     el('div',{class:'setup-foot'},back,later,el('span',{class:'setup-grow'}),next));lockState()}
 async function setupLater(){try{SETUP.data=await setupAPI({action:'later'});toast('Set up later: open it again from Help.',true);location.hash='#issues'}catch(e){toast(errorText(e),false)}}
 // Help keeps a way back to it.
@@ -5559,7 +5559,7 @@ function appStatus(d,all){const m=agentsModel(d),n=d.attention_version?inboxNeed
   $('app-spend-item').title=sp?'What workers spent today'+(sp.user?', yours':'')+': '+sp.workers+' worker'+(sp.workers===1?'':'s')+(floor?'; '+(sp.unpriced+sp.pending)+' with no dollars yet, so this is at least':'')+'. Estimated from usage logs at configured prices.':'This server does not report today’s spend.'}
 // appPop: the watchdog item's popover, the server's note and start command, as text.
 function appPopDraw(){const wd=APP.watchdog,pop=$('app-watchdog-pop');
-  pop.replaceChildren(...(wd&&wd.running?[el('p',{},'A watchdog is running. It starts offered tasks, notices stuck workers and enforces budgets.')]:[el('p',{},(wd&&wd.note?wd.note:'No watchdog is running')+'. Start one from a terminal:'),el('code',{},wd&&wd.start||'agentd install'),el('p',{style:'margin:8px 0 0'},'The page does not start it for you.')]))}
+  pop.replaceChildren(...(wd&&wd.running?[el('p',{},'A watchdog is running. It starts offered tasks, notices stuck workers and enforces budgets.')]:[el('p',{},(wd&&wd.note?wd.note:'No watchdog is running')+'. Start one from a terminal:'),el('code',{},wd&&wd.start||'libraos-core install'),el('p',{style:'margin:8px 0 0'},'The page does not start it for you.')]))}
 function appPop(open){const pop=$('app-watchdog-pop'),item=document.querySelector('[data-app-status="watchdog"]');open=!!open;if(open)appPopDraw();pop.hidden=!open;item.setAttribute('aria-expanded',String(open))}
 $('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action],[data-app-panel][role=tab],[data-app-status="watchdog"]');
   if(!e.target.closest('#app-watchdog-pop,[data-app-status="watchdog"]'))appPop(false);if(!t)return;
@@ -5636,7 +5636,7 @@ function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects
     const remaining=m.others.filter(r=>!d.attention_version||!r.h.other_mirror);
     if(remaining.length)kids.push(...appGroup('others','Other people’s',APP_ICONS.users,remaining,'Read only'));
     for(const [owner,rows] of mirrors)kids.push(...appGroup('mirror:'+owner,owner,APP_ICONS.users,rows,'Read only'));
-    if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: agentd new "GOAL".'))}
+    if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: libraos-core new "GOAL".'))}
   box.replaceChildren(...kids);
   if(keep){const n=box.querySelector('[data-task-id="'+CSS.escape(keep)+'"],[data-repo="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
   if(APPS.page==='tasks')appTasksPage();if(APPS.page==='home')appHomePage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
@@ -5662,12 +5662,12 @@ function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;
     el('td',{class:'app-pcol-opt'},r.mine?'You':appOwner(r)+' · read only'),el('td',{},el('span',{class:'app-pstatus'},el('span',{class:'app-dot','data-dot':dot,'aria-hidden':'true'},dot==='needs_you'?'?':null),APP_DOTS[dot])),
     el('td',{class:'app-pcol-opt'},usd===null?'—':'$'+usd.toFixed(2)),el('td',{class:'app-pcol-opt'},r.h.updated_ago||r.h.age||''))};
   p.replaceChildren(appPageHead('Tasks',f),el('div',{class:'app-pcard'},rows.length?el('table',{class:'app-ptable'},el('thead',{},el('tr',{},['ID','Title / context','From','Status','Spend','Updated'].map((h,i)=>el('th',{class:i===2||i>3?'app-pcol-opt':null,scope:'col'},h)))),el('tbody',{},rows.map(tr)))
-    :matches.length?null:el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or agentd new "GOAL" in a terminal.')),...attentionGroups('app-tasks',stale,mirrors));
+    :matches.length?null:el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or libraos-core new "GOAL" in a terminal.')),...attentionGroups('app-tasks',stale,mirrors));
   f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
 function appTriggersPage(){appTrigRender();appTrigLoad()}
 function appRepoPop(open){let pop=$('app-repo-pop');const b=document.querySelector('#app-shell [data-app-action="add-repo"]');
   if(!open){if(pop)pop.hidden=true;b.setAttribute('aria-expanded','false');return}
-  if(!pop){pop=el('div',{class:'app-repo-pop',id:'app-repo-pop',role:'dialog','aria-label':'Add a repository'},el('p',{},'Repositories are added from a terminal, in the checkout:'),el('code',{},'agentd repo add'),el('p',{style:'margin:8px 0 0'},'Or name it: agentd repo add DIR. It shows here once it has a task.'));$('app-left').append(pop)}
+  if(!pop){pop=el('div',{class:'app-repo-pop',id:'app-repo-pop',role:'dialog','aria-label':'Add a repository'},el('p',{},'Repositories are added from a terminal, in the checkout:'),el('code',{},'libraos-core repo add'),el('p',{style:'margin:8px 0 0'},'Or name it: libraos-core repo add DIR. It shows here once it has a task.'));$('app-left').append(pop)}
   pop.hidden=false;b.setAttribute('aria-expanded','true')}
 // Wiring. The frame's buttons were placeholders; the ones this region drives are live now.
 for(const s of ['[data-app-nav="tasks"]','[data-app-nav="triggers"]','[data-app-action="add-repo"]'])document.querySelector('#app-shell '+s).removeAttribute('aria-disabled');
@@ -5714,8 +5714,8 @@ async function appTrigLoad(){const seq=++APPT.seq;
 function appTrigReadOnly(why){const p=$('app-page');if(!p||APPS.page!=='triggers')return;
   p.replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{'data-appt':'readonly'},
     el('p',{},(why?why+'. ':'')+'Only an owner creates, edits, pauses or runs a trigger. See what is set:'),
-    el('code',{},'agentd trigger status'),el('code',{},'agentd schedule list'),
-    el('p',{},'An owner turns triggers on from a terminal, and enables or runs a schedule:'),el('code',{},'agentd config set triggers.enabled true'),el('code',{},'agentd schedule enable NAME'),el('code',{},'agentd schedule run NAME')))}
+    el('code',{},'libraos-core trigger status'),el('code',{},'libraos-core schedule list'),
+    el('p',{},'An owner turns triggers on from a terminal, and enables or runs a schedule:'),el('code',{},'libraos-core config set triggers.enabled true'),el('code',{},'libraos-core schedule enable NAME'),el('code',{},'libraos-core schedule run NAME')))}
 // appTrigAct: one write, with its toast; the page reloads either way.
 async function appTrigAct(body,ok){try{const r=await settingsAPI(body);toast(ok(r||{}),true)}catch(e){toast(e)}appTrigLoad()}
 function appTrigCmd(text){return el('code',{class:'appt-cmd',title:'The same from a terminal'},text)}
@@ -5733,13 +5733,13 @@ function appTrigEdit(){const d=APPT.data||{},st=d.status||{},has=(st.repos||[]).
     {name:'label',label:'Issue label',value:has?st.label||'':first.label||'',hint:'An open issue of theirs with this label starts a worker. Empty: issues start nothing; a PR going red still does.'},
     {name:'budget',label:'Budget per run',required:true,value:has?st.budget||'':first.budget||'30m',hint:'Each worker stops at it, such as 30m or $5.'},
     {name:'max_per_day',label:'Most runs a day',required:true,type:'number',value:String(has?st.max_per_day||'':first.max_per_day||3),hint:'1 to 50. One broken main can turn every PR red at once.'}];
-  return sheet({title:has?'Edit trigger':'New trigger',description:'Writes [triggers] in config.toml, with a backup and a history entry. It stays off: nothing fires until someone runs '+(d.enable||'agentd config set triggers.enabled true')+' in a terminal.',
+  return sheet({title:has?'Edit trigger':'New trigger',description:'Writes [triggers] in config.toml, with a backup and a history entry. It stays off: nothing fires until someone runs '+(d.enable||'libraos-core config set triggers.enabled true')+' in a terminal.',
     action:'Save to config.toml',fields,
     setup(api){if(!tpls.length)return;api.body.prepend(el('div',{class:'appt-tpls','data-appt':'templates'},el('span',{},'Start from'),tpls.map(t=>el('button',{type:'button','data-template':t.name,title:t.about,onclick:()=>{api.inputs.label.value=t.label||'';api.inputs.budget.value=t.budget||'';api.inputs.max_per_day.value=String(t.max_per_day||'')}},t.title))))},
     validate(v){if(!appTrigSplit(v.repos).every(r=>/^[\w.-]+\/[\w.-]+$/.test(r)))return ['repos','Each repository is OWNER/NAME.'];const n=Number(v.max_per_day);if(!Number.isInteger(n)||n<1||n>50)return ['max_per_day','A whole number from 1 to 50.'];return null},
     onSubmit:async v=>{const r=await settingsAPI({action:'trigger_edit',repos:appTrigSplit(v.repos),authors:appTrigSplit(v.authors),label:v.label,budget:v.budget,max_per_day:Number(v.max_per_day)});
       toast((r.changed?'Saved to config.toml.':'Nothing changed.')+' Triggers are still off.'+(r.note?' '+r.note:''),true);appTrigLoad()}})}
-function appTrigPause(){return sheet({title:'Pause triggers?',description:'Writes enabled = false under [triggers] in config.toml. Red PRs and labelled issues start nothing until someone turns them on again from a terminal: agentd config set triggers.enabled true.',action:'Pause',caution:true,
+function appTrigPause(){return sheet({title:'Pause triggers?',description:'Writes enabled = false under [triggers] in config.toml. Red PRs and labelled issues start nothing until someone turns them on again from a terminal: libraos-core config set triggers.enabled true.',action:'Pause',caution:true,
   onSubmit:async()=>{const r=await settingsAPI({action:'trigger_pause'});toast(r.changed?'Triggers paused.':'Triggers were already off.',true);appTrigLoad()}})}
 function appTrigSchedule(s){const def=s.definition||{},on=s.enabled===true,runs=s.runs||[],name=s.name,dir=s.dir;
   const btn=(label,action,ok,extra)=>el('button',{type:'button','data-appt-action':action,...extra,onclick:()=>appTrigAct({action,dir,name},ok)},label);
@@ -5749,7 +5749,7 @@ function appTrigSchedule(s){const def=s.definition||{},on=s.enabled===true,runs=
     el('p',{class:'appt-goal'},def.goal||''),
     el('p',{class:'appt-state'},on?(s.next_run?'Next run '+whenText(s.next_run)+' ('+s.next_run+')':'Enabled')+(s.waiting_on?' · a run is open: '+s.waiting_on:''):'Off. Enabling it pins this definition and commit; a later change waits for an owner.',
       s.problem?el('span',{class:'appt-problem'},' '+s.problem):null),
-    el('div',{class:'appt-cli'},appTrigCmd('agentd schedule '+(on?'run':'enable')+' '+name+' --repo '+dir)),
+    el('div',{class:'appt-cli'},appTrigCmd('libraos-core schedule '+(on?'run':'enable')+' '+name+' --repo '+dir)),
     appTrigRuns(null,['Due','Status','Task','Why'],runs.map(r=>({task:r.handoff||'',cells:[r.scheduled_for?whenText(r.scheduled_for):'',word(r.status),appTrigTask(r.handoff),r.reason||r.handoff_state||'']})),'Each run lists here, with the task it started.'))}
 function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')return;const d=APPT.data;
   if(!d){p.replaceChildren(appPageHead('Triggers'),APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):el('p',{class:'appt-state'},'Loading triggers…'));return}
@@ -5762,7 +5762,7 @@ function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')ret
     el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},'Red CI and labelled issues'),el('small',{},'[triggers] in config.toml'))),
     el('p',{class:'appt-state','data-appt':'state'},state,!on&&st.problem_when_enabled?el('span',{class:'appt-problem'},' Would still not fire: '+st.problem_when_enabled):null),
     has?el('dl',{class:'appt-dl'},[['Repositories',(st.repos||[]).join(', ')],['Authors',(st.authors||[]).join(', ')],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most a day',st.max_per_day]].map(([k,v])=>[el('dt',{},k),el('dd',{},v===''||v==null?'Not set':String(v))])):null,
-    el('div',{class:'appt-cli'},on?[el('span',{},'Pause from a terminal:'),appTrigCmd('agentd config set triggers.enabled false')]:[el('span',{},'Turn on from a terminal:'),appTrigCmd(d.enable||'agentd config set triggers.enabled true')]),
+    el('div',{class:'appt-cli'},on?[el('span',{},'Pause from a terminal:'),appTrigCmd('libraos-core config set triggers.enabled false')]:[el('span',{},'Turn on from a terminal:'),appTrigCmd(d.enable||'libraos-core config set triggers.enabled true')]),
     el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task','Error'],offers.map(o=>({task:o.handoff||'',cells:[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,appTrigTask(o.handoff),o.error||'']})),'Each run lists here, with the task it started.'));
   const sch=((d.schedules||{}).schedules)||[];
   p.replaceChildren(head,APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):null,trig,
@@ -5791,7 +5791,7 @@ const APPNT={dlg:null,ui:null,nt:null,busy:false,key:'',opener:null,touched:{},a
 function appShq(v){v=String(v);return /^[A-Za-z0-9_@%+=:,.\/][A-Za-z0-9_@%+=:,.\/#-]*$/.test(v)?v:"'"+v.replace(/'/g,"'\\''")+"'"}
 // appNewTaskLine is the agentd new command the dialog's request equals.
 // A goal starting with - goes last, after -- (agentd new takes every word after -- as the goal), so it is never read as a flag.
-function appNewTaskLine(v,nt){const defs=nt.defaults||{},sent=!!(nt.touched||nt.defaults),goal=v.goal||'GOAL',dash=goal.startsWith('-'),parts=['agentd','new',...(dash?[]:[appShq(goal)]),'--cwd',appShq(v.cwd||'REPO'),'--worker',appShq(v.tool||'W'),'--budget',appShq(v.budget||'B')];
+function appNewTaskLine(v,nt){const defs=nt.defaults||{},sent=!!(nt.touched||nt.defaults),goal=v.goal||'GOAL',dash=goal.startsWith('-'),parts=['libraos-core','new',...(dash?[]:[appShq(goal)]),'--cwd',appShq(v.cwd||'REPO'),'--worker',appShq(v.tool||'W'),'--budget',appShq(v.budget||'B')];
   for(const line of acceptLinesOf(v.accept))parts.push('--accept',appShq(line));
   if(sent){if(!v.check)parts.push('--no-check');else if(v.check!==String(defs.check||'').trim())parts.push('--verify',appShq(v.check))}
   if(v.issue)parts.push('--issue',appShq(v.issue));if(dash)parts.push('--',appShq(goal));return parts.join(' ')}
@@ -5805,7 +5805,7 @@ function appNewTaskBuild(){const d=lastDash||{},dirs=d.checkouts||[],ui={inputs:
     input.addEventListener('input',()=>{err.hidden=true;input.removeAttribute('aria-invalid')});
     return el('div',{class:'appnt-field appnt-'+name},el('div',{class:'appnt-labelrow'},el('label',{for:id,class:'appnt-label'},label),opt&&opt.extra||null),input,opt&&opt.hint?el('div',{class:'appnt-hint',id:id+'-hint'},opt.hint):null,err)};
   const goal=el('textarea',{rows:3,maxlength:2000,placeholder:'What should the agent do? Describe the change.','aria-required':'true',autocomplete:'off',class:'appnt-input'});
-  const repo=el('select',{class:'appnt-input'},dirs.length?dirs.map(x=>el('option',{value:x,title:x},appRepoName(x,dirs))):[el('option',{value:''},'No repository known yet: agentd repo add')]);repo.value=appNewTaskRepo(d);
+  const repo=el('select',{class:'appnt-input'},dirs.length?dirs.map(x=>el('option',{value:x,title:x},appRepoName(x,dirs))):[el('option',{value:''},'No repository known yet: libraos-core repo add')]);repo.value=appNewTaskRepo(d);
   // The agent is a hidden input behind the reference app's agent chips (role radio).
   const tool=el('input',{type:'hidden',value:d.default_tool||'claude'}),chips=el('div',{class:'appnt-chips',role:'radiogroup','aria-labelledby':'appnt-tool-label'});
   const drawChips=()=>chips.replaceChildren(...APP_AGENTS.map(([v,label])=>el('button',{type:'button',role:'radio',class:'appnt-chip','data-agent':v,'aria-checked':String(tool.value===v),tabindex:tool.value===v?'0':'-1',onclick:()=>{tool.value=v;APPNT.touched.tool=true;drawChips();appNewTaskShow();chips.querySelector('[aria-checked="true"]').focus()}},label)));
@@ -5821,7 +5821,7 @@ function appNewTaskBuild(){const d=lastDash||{},dirs=d.checkouts||[],ui={inputs:
   const close=el('button',{type:'button',class:'appnt-x','aria-label':'Close',title:'Close (Escape)'},appSvg('M18 6 6 18M6 6l12 12'));
   ui.inputs.tool=tool;ui.submit=create;ui.error=error;
   const form=el('form',{class:'appnt-form',novalidate:true},
-    el('div',{class:'appnt-head'},el('h2',{id:'appnt-title',class:'appnt-title'},'New task'),el('p',{id:'appnt-desc',class:'appnt-sr'},'Write the goal; choose the repository, agent and budget. It runs the agentd new command shown below.')),
+    el('div',{class:'appnt-head'},el('h2',{id:'appnt-title',class:'appnt-title'},'New task'),el('p',{id:'appnt-desc',class:'appnt-sr'},'Write the goal; choose the repository, agent and budget. It runs the libraos-core new command shown below.')),
     el('div',{class:'appnt-body'},field('goal','Goal',goal),field('cwd','Repository',repo),
       el('div',{class:'appnt-field appnt-tool'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-tool-label'},'Agent')),chips,tool),
       field('budget','Budget',budget,{hint:'Minutes, dollars or both: 90m,$5. The worker stops at it.'}),advBtn,adv,
@@ -5854,7 +5854,7 @@ function appNewTaskShow(){const ui=APPNT.ui;if(!ui)return;$('appnt-cmd').textCon
 // appNewTaskWhy: why Create cannot work here, if it cannot. The server reads
 // dash.dispatch from config.toml on each request (libraos/agentd-core#661), so
 // the setting needs no restart: the open dialog follows each refresh.
-function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: agentd config set dash.dispatch true in a terminal. No restart needed: this dialog picks it up within 10 seconds.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: agentd repo add DIR.':'')}
+function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: libraos-core config set dash.dispatch true in a terminal. No restart needed: this dialog picks it up within 10 seconds.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: libraos-core repo add DIR.':'')}
 // appNewTaskGate shows why Create is off, or turns it back on, from lastDash
 // as it is now; refresh calls it while the dialog is open.
 function appNewTaskGate(){const ui=APPNT.ui;if(!ui||APPNT.busy)return;const why=appNewTaskWhy();ui.why.textContent=why;ui.why.hidden=!why;ui.submit.disabled=!!why;if(why)ui.submit.title=why;else ui.submit.removeAttribute('title')}
@@ -5867,7 +5867,7 @@ function appNewTaskClose(force){if(APPNT.busy&&!force)return;APPNT.busy=false;co
   const back=APPNT.opener;APPNT.opener=null;if(back&&back.isConnected&&!back.closest('[hidden]'))back.focus({preventScroll:true})}
 async function appNewTaskSend(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui||APPNT.busy||ui.submit.disabled)return;const v={...ui.values(),kind:'implement'};ui.error.hidden=true;
   if(!v.goal){ui.fieldError('goal','Goal is required.');return}
-  if(!v.cwd){ui.fieldError('cwd','Choose a repository. Add one from a terminal: agentd repo add DIR.');return}
+  if(!v.cwd){ui.fieldError('cwd','Choose a repository. Add one from a terminal: libraos-core repo add DIR.');return}
   if(!v.budget){ui.fieldError('budget','Budget is required.');return}
   const invalid=newTaskValidate(v,nt);if(invalid){ui.fieldError(invalid[0],invalid[0]==='accept'?'Write what done means (one per line) under Advanced, or a check command that exits 0 when it is right.':invalid[1]);return}
   APPNT.busy=true;ui.submit.disabled=true;const label=ui.submit.firstChild.textContent;ui.submit.firstChild.textContent='Creating…';
@@ -5914,13 +5914,13 @@ function obClients(){return OB.facts.clients||[]}
 // The reference app's eight checklist items (setup-guide), each with agentd's completion and command.
 const OB_ITEMS=[
   {id:'notifications',sec:'Setup',title:'Turn on notifications',desc:'Know the moment a task finishes, needs you, or gets blocked.',done:()=>!!OB.st.notifications&&notifyOn(),cmd:()=>'Browser notifications for this page',act:['Turn on',()=>{obNotifyOn();obSave({notifications:true})}]},
-  {id:'default-agent',sec:'Setup',title:'Choose your default agent',desc:'Start new work faster with your preferred agent already selected.',done:()=>OB.st.defaultAgent!=null,cmd:()=>'agentd connect '+(OB.st.defaultAgent&&OB.st.defaultAgent!=='blank'?OB.st.defaultAgent:'TOOL'),act:['Choose',()=>{OB.guide=false;obOpen('agent',true)}]},
-  {id:'agent-capabilities',sec:'Setup',title:'Give agents agentd skills',desc:'Install the MCP server, hooks and Skills agents use to report, hand off and coordinate through agentd.',done:()=>obClients().some(c=>c.connected),cmd:()=>'agentd connect'},
+  {id:'default-agent',sec:'Setup',title:'Choose your default agent',desc:'Start new work faster with your preferred agent already selected.',done:()=>OB.st.defaultAgent!=null,cmd:()=>'libraos-core connect '+(OB.st.defaultAgent&&OB.st.defaultAgent!=='blank'?OB.st.defaultAgent:'TOOL'),act:['Choose',()=>{OB.guide=false;obOpen('agent',true)}]},
+  {id:'agent-capabilities',sec:'Setup',title:'Give agents LibraOS Core skills',desc:'Install the MCP server, hooks and Skills agents use to report, hand off and coordinate through LibraOS Core.',done:()=>obClients().some(c=>c.connected),cmd:()=>'libraos-core connect'},
   {id:'task-sources',sec:'Setup',title:'Connect integrations',desc:'Start an agent from an issue in one click and keep PR status in view.',done:()=>OB.facts.gh==='connected'||!!OB.facts.linear,cmd:()=>'gh auth login',act:['Set up',()=>{OB.guide=false;obOpen('integrations',true)}]},
   {id:'setup-script',sec:'Setup',title:'Automate workspace setup',desc:'Commit .agentd/tasks.toml so every new task in a repository starts with its check, agent and budget.',done:()=>(OB.facts.task_files||0)>0,cmd:()=>'.agentd/tasks.toml  (docs/task-file.md)'},
-  {id:'add-two-repos',sec:'Setup',title:'Start work in multiple repos',desc:'Bring your key repos into agentd so you can start agent work without hunting for folders.',done:()=>obRepos()>=2,cmd:()=>'agentd repo add DIR'},
-  {id:'two-worktrees',sec:'Milestones',title:'Work on two tasks at once',desc:'Each task runs in its own worktree on its own branch (even in the same repository). Perfect for working on two features at once.',done:()=>!!(OB.facts.first_task&&OB.facts.first_task.done),cmd:()=>'agentd new "GOAL" --cwd DIR'},
-  {id:'browser',sec:'Milestones',title:'Use a built-in browser',desc:'Desktop coding apps have a browser inside the app; agentd has none, so this milestone keeps its place and is not counted.',na:true}];
+  {id:'add-two-repos',sec:'Setup',title:'Start work in multiple repos',desc:'Bring your key repos into LibraOS Core so you can start agent work without hunting for folders.',done:()=>obRepos()>=2,cmd:()=>'libraos-core repo add DIR'},
+  {id:'two-worktrees',sec:'Milestones',title:'Work on two tasks at once',desc:'Each task runs in its own worktree on its own branch (even in the same repository). Perfect for working on two features at once.',done:()=>!!(OB.facts.first_task&&OB.facts.first_task.done),cmd:()=>'libraos-core new "GOAL" --cwd DIR'},
+  {id:'browser',sec:'Milestones',title:'Use a built-in browser',desc:'Desktop coding apps have a browser inside the app; LibraOS Core has none, so this milestone keeps its place and is not counted.',na:true}];
 function obProgress(){const xs=OB_ITEMS.filter(i=>!i.na);return {done:xs.filter(i=>i.done()).length,total:xs.length}}
 // The reference app's coach-mark tours. A target is a selector; one that is not on screen is left out of "N of M".
 const OB_TOURS=[
@@ -5931,12 +5931,12 @@ const OB_TOURS=[
   {id:'tasks',when:()=>!!document.querySelector('[data-app-nav="tasks"][aria-current="page"]'),steps:[
     {target:'[data-contextual-tour-target="tasks-source"]',place:'below',title:'Choose the work source',body:'Switch between your tasks, issues and pull requests without changing pages.'},
     {target:'[data-contextual-tour-target="tasks-filter"]',place:'below',title:'Filter to the work you need',body:'Use presets and search to narrow tasks, issues or reviews.'},
-    {target:'[data-contextual-tour-target="tasks-start"]',place:'below',title:'Start from work items',body:'Use Start on an issue to bring its context into a new task (agentd new --issue OWNER/REPO#N).'}]},
+    {target:'[data-contextual-tour-target="tasks-start"]',place:'below',title:'Start from work items',body:'Use Start on an issue to bring its context into a new task (libraos-core new --issue OWNER/REPO#N).'}]},
   {id:'automations',when:()=>!!document.querySelector('[data-app-nav="triggers"][aria-current="page"]'),steps:[
-    {target:'[data-contextual-tour-target="triggers-add"]',place:'below',title:'What is a trigger?',body:'Triggers run agent work on a schedule. A repository defines them in .agentd/tasks.toml; agentd schedule enable NAME turns one on.'},
+    {target:'[data-contextual-tour-target="triggers-add"]',place:'below',title:'What is a trigger?',body:'Triggers run agent work on a schedule. A repository defines them in .agentd/tasks.toml; libraos-core schedule enable NAME turns one on.'},
     {target:'[data-contextual-tour-target="triggers-runs"]',place:'below',title:'Find the results',body:'Runs show when a trigger fired, what happened, and the task it started.'}]},
   {id:'workspace-creation',when:()=>!!document.querySelector('[data-contextual-tour-target="new-task-repo"]'),steps:[
-    {target:'[data-contextual-tour-target="new-task-repo"]',place:'below',title:'Pick a project',body:'agentd isolates each task in its own worktree, branched off your base.'},
+    {target:'[data-contextual-tour-target="new-task-repo"]',place:'below',title:'Pick a project',body:'LibraOS Core isolates each task in its own worktree, branched off your base.'},
     {target:'[data-contextual-tour-target="new-task-goal"]',place:'below',title:'Name it, or start from existing work',body:'Write the goal, or start from a linked issue for its title and context.'},
     {target:'[data-contextual-tour-target="new-task-agent"]',place:'below',title:'Choose what agent starts the work',body:'Pick the agent that should start when this task is created.'}]},
   {id:'projects-collapse-all',when:()=>!!document.querySelector('#app-projects [aria-expanded="false"]'),steps:[
@@ -6004,19 +6004,19 @@ function obPageSurface(){const d=OB.draft,card=(v,icon,name,lines,preview)=>el('
   return [el('div',{class:'appob-cards'},card('chat',OB_I.chat,'Chat UI',[el('p',{},'Tasks open on their Session tab: the agent’s messages, its diffs, and a box to send it a message.'),el('p',{class:'appob-faint'},'A worker on a host with no session log still opens in a terminal.')],chat),
       card('terminal',OB_I.term,'Terminal',[el('p',{},'Tasks open on their Terminal tab: each agent’s own CLI, exactly as it ships. Works with every CLI agent.')],term)),
     el('p',{class:'appob-foot-note'},obSvg(OB_I.swap,14),'Not a permanent choice. Switch any time from a task’s tabs.'),
-    obCli(['agentd handoff show ID'],'Saved for this page only: which tab a task opens on. In the terminal, handoff show is a task’s session.')]}
+    obCli(['libraos-core handoff show ID'],'Saved for this page only: which tab a task opens on. In the terminal, handoff show is a task’s session.')]}
 function obPageAgent(){const d=OB.draft,cl=obClients(),found=cl.filter(c=>c.found),list=found.length?found:cl,name=t=>OB_AGENTS[t]||t,pick=cl.find(c=>c.tool===d.agent);
   const tiles=list.map(c=>el('button',{type:'button',class:'appob-tile','aria-pressed':String(d.agent===c.tool),'data-ob':'agent-'+c.tool,onclick:()=>{d.agent=c.tool;obDraw()}},
     el('span',{class:'appob-tileicon','aria-hidden':'true'},name(c.tool).slice(0,1).toUpperCase()),el('span',{class:'appob-tiletext'},el('span',{class:'appob-tilename'},name(c.tool)),el('span',{class:'appob-tilenote'},c.connected?'Connected':c.found?'Found, not connected':'Not on your PATH')),d.agent===c.tool?obCheck():null));
   const tool=d.agent||'TOOL';
   return [el('div',{class:'appob-row'},el('span',{class:'appob-mute'},'Agents open in'),el('span',{class:'appob-pill'},obSvg(d.surface==='chat'?OB_I.chat:OB_I.term,12),d.surface==='chat'?'Chat UI':'Terminal UI')),
     found.length?null:el('div',{class:'appob-notice',role:'note'},'No agents detected on your PATH. Pick one to install later, or continue with a blank terminal.'),
-    pick&&!pick.found?el('div',{class:'appob-notice appob-warn',role:'note'},name(pick.tool)+' isn’t on your PATH yet. agentd will set it as your default and you can install it any time.'):null,
+    pick&&!pick.found?el('div',{class:'appob-notice appob-warn',role:'note'},name(pick.tool)+' isn’t on your PATH yet. LibraOS Core will set it as your default and you can install it any time.'):null,
     el('div',{class:'appob-gridhead'},found.length?'Detected on your system':'Popular agents',el('span',{},String(list.length))),
     el('div',{class:'appob-grid'},tiles),
     d.surface==='chat'?null:el('p',{class:'appob-foot-note'},obSvg(OB_I.chat,14),'Want chat too? Turn it on any time from a task’s tabs. ',el('button',{type:'button',class:'appob-link','data-ob':'chat-now',onclick:()=>{d.surface='chat';obDraw()}},'Turn on now')),
-    el('div',{class:'appob-yolo'},el('div',{},el('div',{class:'appob-yolotitle'},'Worker permissions'),el('p',{},'Dispatched workers run with their tool’s own sandbox and agentd’s worker rules ([dispatch.rules]). Those widen or narrow access, so they change only in config.toml, never from this page.'),el('p',{class:'appob-faint'},'A desktop coding app’s Yolo mode switch has no page equivalent here; docs/worker-rules.md describes the rules.')),el('span',{class:'appob-pill'},'Set in config.toml')),
-    obCli(['agentd connect '+tool,'agentd config set dispatch.default_tool '+tool],'connect registers agentd with the agent; the default is saved for this page and set for workers with config set.')]}
+    el('div',{class:'appob-yolo'},el('div',{},el('div',{class:'appob-yolotitle'},'Worker permissions'),el('p',{},'Dispatched workers run with their tool’s own sandbox and LibraOS Core’s worker rules ([dispatch.rules]). Those widen or narrow access, so they change only in config.toml, never from this page.'),el('p',{class:'appob-faint'},'A desktop coding app’s Yolo mode switch has no page equivalent here; docs/worker-rules.md describes the rules.')),el('span',{class:'appob-pill'},'Set in config.toml')),
+    obCli(['libraos-core connect '+tool,'libraos-core config set dispatch.default_tool '+tool],'connect registers LibraOS Core with the agent; the default is saved for this page and set for workers with config set.')]}
 function obMini(kind){const dk=kind==='dark',sp=kind==='system';return el('div',{class:'appob-mini'+(dk?' dk':'')+(sp?' sp':''),'aria-hidden':'true'},el('span',{class:'appob-minileft'},el('i'),el('i'),el('i')),el('span',{class:'appob-miniright'},el('i'),el('i'),el('i')))}
 function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?'':v);obDraw()},
     tile=(v,icon,name,hint)=>el('button',{type:'button',class:'appob-theme','aria-pressed':String(d.theme===v),'data-ob':'theme-'+v,onclick:()=>set(v)},obMini(v),d.theme===v?el('span',{class:'appob-themecheck'},obCheck()):null,el('span',{class:'appob-themelabel'},obSvg(icon,14),el('span',{},name),el('span',{class:'appob-themehint'},hint)));
@@ -6024,42 +6024,42 @@ function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?
     card=(v,name)=>el('div',{class:'appob-look'+(look===v?' on':'')},obMini(v),look===v?el('span',{class:'appob-themecheck'},obCheck()):null,el('b',{},name),el('span',{},'Built in'));
   return [el('div',{class:'appob-sechead'},el('b',{},'Color mode'),el('span',{},'Light, dark, or follow your OS.')),
     el('div',{class:'appob-themes'},tile('system',OB_I.monitor,'System','Match OS'),tile('dark',OB_I.moon,'Dark','Easy on the eyes'),tile('light',OB_I.sun,'Light','Bright & crisp')),
-    el('div',{class:'appob-sechead'},el('b',{},'Theme'),el('span',{},'Optional. agentd has its light and dark looks.'),d.theme==='system'?el('span',{class:'appob-seg2',role:'group','aria-label':'Look'},...['dark','light'].map(v=>el('button',{type:'button','aria-pressed':String(d.look===v),'data-ob':'look-'+v,onclick:()=>{d.look=v;obDraw()}},v==='dark'?'Dark look':'Light look',(v==='dark')===osDark?el('small',{},'now'):null))):null),
-    el('div',{class:'appob-carousel'},card('light','agentd Light'),card('dark','agentd Dark'),el('div',{class:'appob-look appob-more'},el('b',{},'More themes'),el('span',{},'Not in agentd'))),
-    el('p',{class:'appob-foot-note'},obSvg(OB_I.plug,14),'agentd has no theme plugins, so the theme gallery step keeps its place with the built-in looks.'),
+    el('div',{class:'appob-sechead'},el('b',{},'Theme'),el('span',{},'Optional. LibraOS Core has its light and dark looks.'),d.theme==='system'?el('span',{class:'appob-seg2',role:'group','aria-label':'Look'},...['dark','light'].map(v=>el('button',{type:'button','aria-pressed':String(d.look===v),'data-ob':'look-'+v,onclick:()=>{d.look=v;obDraw()}},v==='dark'?'Dark look':'Light look',(v==='dark')===osDark?el('small',{},'now'):null))):null),
+    el('div',{class:'appob-carousel'},card('light','LibraOS Core Light'),card('dark','LibraOS Core Dark'),el('div',{class:'appob-look appob-more'},el('b',{},'More themes'),el('span',{},'Not in LibraOS Core'))),
+    el('p',{class:'appob-foot-note'},obSvg(OB_I.plug,14),'LibraOS Core has no theme plugins, so the theme gallery step keeps its place with the built-in looks.'),
     obCli([],'Saved in this browser (the same setting as the server’s theme). The terminal has no theme to set.')]}
 function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not installed',sign_in:'Sign in needed',connected:'Connected'}[g]||'Checking…';
-  return [el('ul',{class:'appob-bullets'},el('li',{},'Start a task from any GitHub issue, prefilled with its title and context'),el('li',{},'Browse GitHub issues and pull requests in agentd without leaving it'),el('li',{},'See review status and CI checks on every task’s pull request'),el('li',{},'Push a worker’s branch and open a draft pull request (agentd never merges)')),
+  return [el('ul',{class:'appob-bullets'},el('li',{},'Start a task from any GitHub issue, prefilled with its title and context'),el('li',{},'Browse GitHub issues and pull requests in LibraOS Core without leaving it'),el('li',{},'See review status and CI checks on every task’s pull request'),el('li',{},'Push a worker’s branch and open a draft pull request (LibraOS Core never merges)')),
     el('div',{class:'appob-gh'},el('span',{class:'appob-ghicon','aria-hidden':'true'},obSvg(OB_I.gh,18)),el('div',{class:'appob-ghtext'},el('div',{},el('b',{},'GitHub'),el('span',{class:'appob-status '+(g||'checking')},pill)),el('p',{},'Pull requests, issues, and check status.'),g==='sign_in'?el('code',{},'gh auth login'):null),
       el('div',{class:'appob-ghacts'},g==='not_installed'?el('a',{class:'appob-btn',href:'https://cli.github.com',target:'_blank',rel:'noopener noreferrer'},obSvg(OB_I.ext,14),'Install gh'):null,g==='sign_in'?el('button',{type:'button',class:'appob-btn','data-ob':'gh-signin',onclick:()=>{const c=document.querySelector('.appob-gh code');if(c)c.focus();copyCmd('gh auth login')}},'Sign in'):null,el('button',{type:'button',class:'appob-ghost','data-ob':'gh-recheck',onclick:obRecheck},'Re-check'))),
-    el('div',{class:'appob-more-src'},el('b',{},'More task sources'),el('span',{},'Linear lives in config.toml [linear] (agentd issue sync-linear).')),
-    obCli(['gh auth login','agentd issue sync-gh','agentd pr sync-gh'],'agentd reads GitHub through gh; this page does not sign you in.')]}
+    el('div',{class:'appob-more-src'},el('b',{},'More task sources'),el('span',{},'Linear lives in config.toml [linear] (libraos-core issue sync-linear).')),
+    obCli(['gh auth login','libraos-core issue sync-gh','libraos-core pr sync-gh'],'LibraOS Core reads GitHub through gh; this page does not sign you in.')]}
 async function obRecheck(){OB.facts={...OB.facts,gh:'checking'};obDraw();await obLoad(true);const s=obStep();if(s&&s.id==='integrations'&&OB.facts.gh&&OB.facts.gh!=='not_installed'){if(OB.only||OB.page>=OB.steps.length-1)obFinish({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)},'completed');else{obSave({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)});OB.page++;obDraw()}}}
 function copyCmd(c){try{if(navigator.clipboard)navigator.clipboard.writeText(c).then(()=>toast('Copied: '+c,true),()=>{})}catch(e){}}
-function obPageWindows(){return [el('div',{class:'appob-notice',role:'note'},'agentd’s Terminal tab runs the shell of the account agentd app runs as, so it has no default shell or right-click setting to choose. This step keeps its place for a Windows host and saves nothing.'),obCli([],'')]}
+function obPageWindows(){return [el('div',{class:'appob-notice',role:'note'},'LibraOS Core’s Terminal tab runs the shell of the account libraos-core app runs as, so it has no default shell or right-click setting to choose. This step keeps its place for a Windows host and saves nothing.'),obCli([],'')]}
 function obSound(v){try{const C=window.AudioContext||window.webkitAudioContext;if(!C||v==='system')return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value={'two-tone':660,bong:220,thump:110,blip:880,sonar:520,blop:330,ding:1046,clack:1500,beep:1000}[v]||660;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}}
 function obTestNotify(){if(!notifySupported()){toast('This browser cannot show notifications.');return}
-  const send=()=>{try{new Notification('agentd',{body:'This is a test notification.'})}catch(e){toast('The browser did not show the notification.')}};
+  const send=()=>{try{new Notification('LibraOS Core',{body:'This is a test notification.'})}catch(e){toast('The browser did not show the notification.')}};
   if(Notification.permission==='granted'){send();return}if(Notification.permission==='denied'){toast('Notifications are blocked for this page in this browser’s site settings.');return}
   try{const r=Notification.requestPermission();if(r&&r.then)r.then(p=>{if(p==='granted')send();obDraw()},()=>{})}catch(e){}}
-function obPageNotify(){const d=OB.draft;return [el('div',{class:'appob-sound'},el('b',{},'Choose a sound'),el('p',{},'Pick the alert agentd plays after a desktop notification is delivered.'),
+function obPageNotify(){const d=OB.draft;return [el('div',{class:'appob-sound'},el('b',{},'Choose a sound'),el('p',{},'Pick the alert LibraOS Core plays after a desktop notification is delivered.'),
     el('div',{class:'appob-row'},el('label',{class:'appob-select'},obSvg(OB_I.bell,14),el('select',{'aria-label':'Sound','data-ob':'sound',onchange:e=>{d.sound=e.target.value;obSound(d.sound)}},...OB_SOUNDS.map(([v,t])=>el('option',{value:v,selected:d.sound===v},t))),obSvg(OB_I.down,14)),
       el('button',{type:'button',class:'appob-btn','data-ob':'test-notify',onclick:obTestNotify},obSvg(OB_I.ring,14),'Send test notification'))),
     obCli([],'Browser notifications for this page: a task that finishes, fails or needs you while the tab is in the background. Continue asks the browser once.')]}
 const OB_COPY={
   agent_surface:['How do you want to work with agents?','Pick where a task opens.',obPageSurface],
-  agent:['Pick your default agent','agentd works with Claude, Codex and opencode. Choose the one you’ll reach for most.',obPageAgent],
+  agent:['Pick your default agent','LibraOS Core works with Claude, Codex and opencode. Choose the one you’ll reach for most.',obPageAgent],
   theme:['Make it feel like home','Choose light or dark. Change it any time in Settings.',obPageTheme],
   integrations:['Set up GitHub tasks','Install the GitHub CLI to:',obPageIntegrations],
   windows_terminal:['Set Windows terminal defaults','Choose the default shell for new panes and how right-click behaves in the terminal.',obPageWindows],
-  notifications:['Set up notifications','agentd will notify you when tasks are done or need you.',obPageNotify]};
+  notifications:['Set up notifications','LibraOS Core will notify you when tasks are done or need you.',obPageNotify]};
 function obWizard(){const s=obStep(),[title,sub,body]=OB_COPY[s.id],last=OB.page>=OB.steps.length-1,first=OB.page===0&&!OB.only,
     label=s.id==='notifications'&&!obRepos()&&!OB.only?'Add your first project':'Continue';
   const segs=OB.steps.map((x,i)=>el('button',{type:'button',class:'appob-seg'+(i<OB.page?' done':''),'aria-current':i===OB.page?'step':null,'aria-label':x.tip,title:x.tip,'data-ob':'seg-'+x.id,onclick:()=>obGo(i)}));
   const modal=el('div',{class:'appob-modal',role:'dialog','aria-modal':'true','aria-labelledby':'appob-title','data-step':s.id,onclick:e=>e.stopPropagation()},
-    el('div',{class:'appob-head'},el('span',{class:'appob-logo','aria-hidden':'true'},brandMark()),el('span',{class:'appob-brand'},'agentd')),
+    el('div',{class:'appob-head'},el('span',{class:'appob-logo','aria-hidden':'true'},brandMark()),el('span',{class:'appob-brand'},'LibraOS Core')),
     el('div',{class:'appob-prog'},el('div',{class:'appob-segs'},segs),el('span',{class:'appob-count'},(OB.page+1)+' of '+OB.steps.length)),
-    first?el('div',{class:'appob-eyebrow'},'Welcome to agentd'):null,
+    first?el('div',{class:'appob-eyebrow'},'Welcome to LibraOS Core'):null,
     el('h2',{class:'appob-title',id:'appob-title'},title),el('p',{class:'appob-sub'},sub),
     el('div',{class:'appob-body'},body()),
     el('div',{class:'appob-foot'},s.id==='notifications'?el('span'):el('button',{type:'button',class:'appob-later','data-ob':'later',onclick:obLater},'Set up later'),
@@ -6074,23 +6074,23 @@ function obRing(done,total){const ns='http://www.w3.org/2000/svg',s=document.cre
 function obGuideModal(){const p=obProgress(),row=i=>{const done=!i.na&&i.done();return el('li',{class:'appob-item'+(done?' done':''),'data-ob-item':i.id},
     el('span',{class:'appob-itemmark','aria-hidden':'true'},done?obSvg(OB_I.check,12,{'stroke-width':3}):null),
     el('div',{class:'appob-itemtext'},el('b',{},i.title),el('p',{},i.desc),i.cmd?el('code',{},i.cmd()):null),
-    i.na?el('span',{class:'appob-tag'},'Not in agentd'):done?el('span',{class:'appob-tag ok'},'Done'):i.act?el('button',{type:'button',class:'appob-btn','data-ob':'act-'+i.id,onclick:i.act[1]},i.act[0]):null)};
+    i.na?el('span',{class:'appob-tag'},'Not in LibraOS Core'):done?el('span',{class:'appob-tag ok'},'Done'):i.act?el('button',{type:'button',class:'appob-btn','data-ob':'act-'+i.id,onclick:i.act[1]},i.act[0]):null)};
   return el('div',{class:'appob-back','data-ob-layer':'guide',onclick:()=>obGuide(false)},el('div',{class:'appob-guide',role:'dialog','aria-modal':'true','aria-labelledby':'appob-guide-t',onclick:e=>e.stopPropagation()},
-    el('div',{class:'appob-guidehead'},el('div',{},el('h2',{id:'appob-guide-t'},'Getting started'),el('p',{},'Finish the core workflows that make agentd useful for parallel agent work.'),el('span',{class:'appob-count'},p.done+'/'+p.total)),
+    el('div',{class:'appob-guidehead'},el('div',{},el('h2',{id:'appob-guide-t'},'Getting started'),el('p',{},'Finish the core workflows that make LibraOS Core useful for parallel agent work.'),el('span',{class:'appob-count'},p.done+'/'+p.total)),
       el('div',{class:'appob-row'},OB.st.guideHidden?null:el('button',{type:'button',class:'appob-ghost','data-ob':'guide-hide',onclick:()=>obSave({guideHidden:true})},'Hide checklist from sidebar'),el('button',{type:'button',class:'app-ibtn','aria-label':'Close','data-ob':'guide-close',onclick:()=>obGuide(false)},obSvg(OB_I.x,14)))),
     ...['Setup','Milestones'].map(sec=>el('section',{class:'appob-guidesec'},el('h3',{},sec),el('ul',{},OB_ITEMS.filter(i=>i.sec===sec).map(row))))))}
 function obAddModal(){return el('div',{class:'appob-back','data-ob-layer':'add',onclick:()=>{OB.add=false;obDraw()}},el('div',{class:'appob-small appob-addproj',role:'dialog','aria-modal':'true','aria-labelledby':'appob-add-t',onclick:e=>e.stopPropagation()},
-  el('h3',{id:'appob-add-t'},'Add a project'),el('p',{},'Register a repository so agents can work in it. In a terminal, from the repository:'),el('code',{},OB.facts.commands&&OB.facts.commands.repo_add||'agentd repo add DIR'),
+  el('h3',{id:'appob-add-t'},'Add a project'),el('p',{},'Register a repository so agents can work in it. In a terminal, from the repository:'),el('code',{},OB.facts.commands&&OB.facts.commands.repo_add||'libraos-core repo add DIR'),
   el('p',{class:'appob-faint'},'The page does not add repositories itself; Re-check reads what the command registered.'),
-  el('div',{class:'appob-row appob-end'},el('button',{type:'button',class:'appob-ghost','data-ob':'add-copy',onclick:()=>copyCmd('agentd repo add DIR')},obSvg(OB_I.copy,14),'Copy'),el('button',{type:'button',class:'appob-btn','data-ob':'add-recheck',onclick:async()=>{await obLoad();if(obRepos()){OB.add=false;obDraw()}else toast('No repository yet. Run agentd repo add DIR, then Re-check.')}},'Re-check'),el('button',{type:'button',class:'appob-next','data-ob':'add-close',onclick:()=>{OB.add=false;obDraw()}},'Done'))))}
-function obToast(){const cmd='agentd feedback "what you think"';return el('div',{class:'appob-toast',role:'status','aria-live':'polite'},
+  el('div',{class:'appob-row appob-end'},el('button',{type:'button',class:'appob-ghost','data-ob':'add-copy',onclick:()=>copyCmd('libraos-core repo add DIR')},obSvg(OB_I.copy,14),'Copy'),el('button',{type:'button',class:'appob-btn','data-ob':'add-recheck',onclick:async()=>{await obLoad();if(obRepos()){OB.add=false;obDraw()}else toast('No repository yet. Run libraos-core repo add DIR, then Re-check.')}},'Re-check'),el('button',{type:'button',class:'appob-next','data-ob':'add-close',onclick:()=>{OB.add=false;obDraw()}},'Done'))))}
+function obToast(){const cmd='libraos-core feedback "what you think"';return el('div',{class:'appob-toast',role:'status','aria-live':'polite'},
   el('div',{class:'appob-toasthead'},el('span',{class:'appob-okcircle','aria-hidden':'true'},obSvg(OB_I.check,12,{'stroke-width':3})),el('b',{},'Onboarding completed!'),el('button',{type:'button',class:'app-ibtn','aria-label':'Dismiss','data-ob':'toast-x',onclick:()=>{OB.toast=false;obDraw()}},obSvg(OB_I.x,14))),
-  el('p',{},'If you’re enjoying agentd so far, a line of feedback helps us make it better.'),OB.feedback?el('code',{},cmd):null,
+  el('p',{},'If you’re enjoying LibraOS Core so far, a line of feedback helps us make it better.'),OB.feedback?el('code',{},cmd):null,
   el('div',{class:'appob-row'},el('button',{type:'button',class:'appob-amber','data-ob':'toast-feedback',onclick:()=>{OB.feedback=true;copyCmd(cmd);obDraw()}},obSvg(OB_I.ext,14),'Send feedback'),el('button',{type:'button',class:'appob-btn appob-later84','data-ob':'toast-later',onclick:()=>{OB.toast=false;obDraw()}},'Later')))}
 function obMenu(){const b=document.querySelector('#app-left [data-app-action="help"]'),r=b?b.getBoundingClientRect():{left:8,top:innerHeight-40},
     item=(t,f,key)=>el('button',{type:'button',role:'menuitem','data-ob':'menu-'+key,onclick:()=>{OB.menu=false;obDraw();f()}},t);
   return el('div',{class:'appob-menu',role:'menu','aria-label':'Help',style:'left:'+Math.max(8,r.left)+'px;bottom:'+Math.max(8,innerHeight-r.top+4)+'px'},
-    item('Keyboard shortcuts',()=>keysSheet(),'keys'),item('Send feedback',()=>{copyCmd('agentd feedback "what you think"');toast('In a terminal: agentd feedback "what you think"',true)},'feedback'),item('Milestones',()=>obGuide(true),'milestones'),item('Onboarding',obReopen,'onboarding'))}
+    item('Keyboard shortcuts',()=>keysSheet(),'keys'),item('Send feedback',()=>{copyCmd('libraos-core feedback "what you think"');toast('In a terminal: libraos-core feedback "what you think"',true)},'feedback'),item('Milestones',()=>obGuide(true),'milestones'),item('Onboarding',obReopen,'onboarding'))}
 function obTourPop(){const t=OB.tour,s=t.steps[t.i],n=document.querySelector(s.target),r=n?n.getBoundingClientRect():{left:0,top:0,right:0,bottom:0,width:0,height:0},W=Math.min(320,innerWidth-24);
   let left=s.place==='right'?r.right+12:r.left+r.width/2-W/2,top=s.place==='right'?r.top:r.bottom+12;left=Math.max(12,Math.min(left,innerWidth-W-12));top=Math.max(12,top);
   return el('div',{class:'appob-tour',role:'dialog','aria-labelledby':'appob-tour-t','data-tour':t.id,'data-tour-step':String(t.i),style:'left:'+left+'px;top:'+top+'px'},
@@ -6146,8 +6146,8 @@ function appSettingsPage(){const p=$('app-page');if(!APP.on||APPS.page!=='settin
       row('integrations','Integrations',OB.facts.gh==='connected'?'GitHub connected':OB.facts.gh==='sign_in'?'GitHub sign-in needed':'GitHub CLI not installed'),
       row('notifications','Notifications',(notifyOn()?'On in this browser':'Off in this browser')+' · '+(OB_SOUNDS.find(([v])=>v===st.sound)||OB_SOUNDS[0])[1]),
       el('p',{class:'app-pref-note'},'Worker defaults and connections are set from a terminal:'),
-      el('code',{},'agentd config set dispatch.default_tool '+(OB_AGENTS[st.defaultAgent]?st.defaultAgent:'TOOL')),el('code',{},'agentd connect TOOL'),
-      OB.facts.os==='windows'?row('windows_terminal','Windows terminal','Uses the shell of the account running agentd app'):null
+      el('code',{},'libraos-core config set dispatch.default_tool '+(OB_AGENTS[st.defaultAgent]?st.defaultAgent:'TOOL')),el('code',{},'libraos-core connect TOOL'),
+      OB.facts.os==='windows'?row('windows_terminal','Windows terminal','Uses the shell of the account running libraos-core app'):null
     ]:[el('p',{role:appSettingsError?'alert':'status'},appSettingsError||'Loading personal preferences…'),el('button',{type:'button',class:'app-btn',disabled:appSettingsLoading,onclick:appSettingsLoad},'Try again')]));
   if(keep){const n=p.querySelector('[data-app-pref="'+keep+'"]');if(n)n.focus({preventScroll:true})}}
 async function appSettingsLoad(){if(appSettingsLoading)return;appSettingsLoading=true;appSettingsError='';appSettingsPage();
@@ -6252,7 +6252,7 @@ function awConvLine(t){const x=String(t.text||'');
 const AW_SENT={unread:'sent, not fetched yet',delivered:'fetched, not read yet',read:'read',answered:'answered',parked:'parked: the worker left',expired:'expired unread',unknown:'sent'};
 function awSentLine(m){const st=AW_SENT[m.state]?m.state:'unknown';
   return el('div',{class:'app-fuser app-fsent','data-role':'sent','data-state':st},'> ',(m.user&&m.user!==USER?m.user:'You')+': '+String(m.body||''),
-    el('span',{class:'app-fstate',title:'The same from a terminal: agentd msg status '+(m.message||'')},'  '+AW_SENT[st]+(m.ago?' · '+m.ago+' ago':'')))}
+    el('span',{class:'app-fstate',title:'The same from a terminal: libraos-core msg status '+(m.message||'')},'  '+AW_SENT[st]+(m.ago?' · '+m.ago+' ago':'')))}
 // awConvItems puts the sent messages among the worker's turns by time; a turn with no time keeps its place.
 function awConvItems(turns,sent){const out=[],rest=[...(sent||[])],at=x=>{const t=Date.parse(x||'');return isNaN(t)?null:t};
   for(const t of turns){const ta=at(t.at);while(ta!==null&&rest.length&&(at(rest[0].sent)??Infinity)<=ta)out.push(awSentLine(rest.shift()));out.push(awConvLine(t))}
@@ -6274,7 +6274,7 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
   fill(c);awLogLoad(hid).then(c=>{if(feed.isConnected)fill(c)});
   const accept=Array.isArray(h.accept)?h.accept.join('\n'):h.accept||'';
   const meta=[h.state?word(h.state):'',toolName(h.worker_tool||h.worker),h.worker_branch||h.branch?el('code',{},h.worker_branch||h.branch):null,h.updated_ago?'updated '+h.updated_ago+' ago':''].filter(Boolean).map(x=>el('span',{},x));
-  const sess=el('div',{class:'app-sess'},head,el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},'agentd handoff show '+hid)),
+  const sess=el('div',{class:'app-sess'},head,el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},'libraos-core handoff show '+hid)),
     h.goal?el('div',{class:'app-sblock'},el('b',{},'Goal'),h.goal):null,accept?el('div',{class:'app-sblock'},el('b',{},'Done when'),accept):null,
     h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,awStartFailure(h),h.issue_refusal&&!h.dispatched?el('div',{class:'app-sblock','data-k':'issue-refusal'},issueRefusalBox({...h.issue_refusal,may_anyway:h.issue_refusal.may_anyway&&!AW.ro},h.id,h.worker_cwd||'')):null,
     el('b',{class:'app-shead'},'Conversation'),awConv(hid),el('b',{class:'app-shead'},'History'),feed);
@@ -6360,12 +6360,12 @@ function awQ(w){return typeof taskShellWord==='function'?taskShellWord(w):w}
 function awCommandItems(hid){const d=lastDash||{},h=awTask(hid),items=[],live=h.dispatched&&!h.worker_state&&/^(offered|claimed)$/.test(h.state||'');
   if(d.dispatch&&live)items.push(awItem('stop','Stop the worker','',()=>stopHandoff(h),{key:'stop',danger:true,why:h.may_stop===false?h.why_not||'You cannot stop this worker.':'',note:'The task stays open. No command does this from a terminal: the server stops the worker’s process.'}));
   if(h.takeover)items.push(awItem('hand','Take over',h.takeover.cli,()=>takeoverTask(h),{key:'takeover',why:h.takeover.may===false?h.takeover.why_not||'You cannot take this task over.':''}));
-  if(d.dispatch&&h.dispatched&&h.retry)items.push(awItem('again','Start again','agentd handoff dispatch '+hid+(h.retry.tool?' --tool '+h.retry.tool:'')+(h.retry.cwd?' --cwd '+awQ(h.retry.cwd):''),()=>retryHandoff(h),{key:'retry',why:h.retry.may===false?h.retry.why_not||'You cannot start this task again.':'',note:'A new worker on its branch, with the same goal, check and budget'}));
-  if(h.check&&/^(offered|blocked|claimed)$/.test(h.state||''))items.push(awItem('check','Change check','agentd handoff check '+hid+' --check '+awQ(h.check),()=>changeCheck(h),{key:'set_check',why:ROLE==='owner'?'':'Only an owner changes a check.'}),
-    el('div',{class:'app-mnote','data-act':'retry_check'},'Re-run only the check: not from the page. Its claimer runs it with ',el('code',{},'agentd handoff done '+hid+' --run-check'),'.'));
+  if(d.dispatch&&h.dispatched&&h.retry)items.push(awItem('again','Start again','libraos-core handoff dispatch '+hid+(h.retry.tool?' --tool '+h.retry.tool:'')+(h.retry.cwd?' --cwd '+awQ(h.retry.cwd):''),()=>retryHandoff(h),{key:'retry',why:h.retry.may===false?h.retry.why_not||'You cannot start this task again.':'',note:'A new worker on its branch, with the same goal, check and budget'}));
+  if(h.check&&/^(offered|blocked|claimed)$/.test(h.state||''))items.push(awItem('check','Change check','libraos-core handoff check '+hid+' --check '+awQ(h.check),()=>changeCheck(h),{key:'set_check',why:ROLE==='owner'?'':'Only an owner changes a check.'}),
+    el('div',{class:'app-mnote','data-act':'retry_check'},'Re-run only the check: not from the page. Its claimer runs it with ',el('code',{},'libraos-core handoff done '+hid+' --run-check'),'.'));
   const ed=d.editor||{};if(h.editor&&h.editor.dir&&ed.local){const cli=(ed.argv||['$VISUAL']).map(awQ).join(' ')+' '+awQ(h.editor.dir);items.push(awItem('edit','Open in editor',cli,()=>openTaskInEditor(h),{key:'open_editor',why:h.editor.may===false?h.editor.why_not||'You cannot open this task.':ed.why_not||''}))}
   if(h.cancel)items.push(el('div',{class:'app-msep'}),awItem('ban','Cancel task',h.cancel.cli,()=>cancelTask(h),{key:'cancel',danger:true,why:h.cancel.may===false?h.cancel.why_not||'You cannot cancel this task.':''}));
-  if(!items.length)items.push(el('div',{class:'app-mnote'},/^(done|cancelled|declined)$/.test(h.state||'')?'This task has ended: nothing to act on. ':'Nothing to act on in this state. ','From a terminal: ',el('code',{},'agentd handoff show '+hid)));
+  if(!items.length)items.push(el('div',{class:'app-mnote'},/^(done|cancelled|declined)$/.test(h.state||'')?'This task has ended: nothing to act on. ':'Nothing to act on in this state. ','From a terminal: ',el('code',{},'libraos-core handoff show '+hid)));
   return items}
 $('app-center').addEventListener('click',e=>{const b=e.target.closest('[data-app-action="new-tab"],[data-app-action="command"]');if(!b||!AW.hid)return;if(AW.ro||b.getAttribute('aria-disabled')==='true')return;
   const kind=b.dataset.appAction==='command'?'command':'new';if(AW.menu&&AW.menu.dataset.menu===kind){awMenu(null);return}e.stopPropagation();awMenu(kind,b,kind==='command'?awCommandItems(AW.hid):awNewTabItems(AW.hid))});
@@ -6408,8 +6408,8 @@ function awChanges(hid,load){const box=awSec('changes');
     const files=d.files||[],why=typeof openPRWhy==='function'?openPRWhy(d):'',cur=(()=>{const s=awState(hid),t=s.tabs.find(x=>x.key===s.cur);return t&&t.kind==='diff'?t.path:''})();
     const branch=d.branch?el('div',{class:'app-branch'},el('span',{},awIcon('branch',12),el('code',{},d.branch)),el('span',{class:'app-base'},awIcon('arrow',12),el('code',{},d.base_branch||'main'))):null;
     const pr=d.pr?el('p',{class:'app-why'},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():'',': it is merged on GitHub by a person, never from here.'):null;
-    const push=AW.ro||!files.length||d.pr?null:el('div',{'data-app-write':''},el('button',{type:'button',class:'app-btn','data-act':'open_pr','aria-disabled':why?'true':null,title:why||'Same as: agentd handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},awIcon('push',13),'Push and open a draft PR'),
-      el('p',{class:'app-why'},why||'Asks first. AgentD pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'agentd handoff pr '+hid)),
+    const push=AW.ro||!files.length||d.pr?null:el('div',{'data-app-write':''},el('button',{type:'button',class:'app-btn','data-act':'open_pr','aria-disabled':why?'true':null,title:why||'Same as: libraos-core handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},awIcon('push',13),'Push and open a draft PR'),
+      el('p',{class:'app-why'},why||'Asks first. LibraOS Core pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},'libraos-core handoff pr '+hid)),
       // #660: a refusal that has a fix (agentd init in the checkout, or the branch's own push) offers it to copy.
       why&&d.may_fix&&why===d.may_why?el('p',{class:'app-why app-fix','data-k':'fix'},'Fix: ',el('code',{},d.may_fix),' ',el('button',{type:'button',class:'app-btn-link','data-act':'copy_fix',onclick:()=>copyCmd(d.may_fix)},'Copy')):null);
     const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
@@ -6444,7 +6444,7 @@ function awDetails(hid,load){const box=awSec('details');
         b.running===false?(b.over||b.warn?el('p',{class:'app-note','data-k':'budget-ended'},'The worker is no longer running; its time stopped counting when it ended.'):null):
         b.over?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-over'},'At its cap: the watchdog stops the worker. Raise the '+(b.user_cap?'cap':'budget')+' to go on.'):b.warn?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-warn'},'Past '+Math.round((b.warn_at||0.85)*100)+'% of its budget: the worker has been told to commit its best working state and finish.'):null,
         b.error?el('p',{class:'app-note'},b.error):null,b.raise?el('code',{class:'app-cli',title:'Raise it from a terminal'},b.raise):null);
-    const delivery=el('section',{class:'app-psec','data-sec':'delivery'},el('h4',{},'Delivery'),el('span',{class:'app-verdict','data-outcome':dl.outcome||''},AW_OUTCOME[dl.outcome]||word(dl.outcome)),el('p',{style:'margin:6px 0 0'},dl.reason||''),el('code',{class:'app-cli'},dl.report||'agentd factory report'));
+    const delivery=el('section',{class:'app-psec','data-sec':'delivery'},el('h4',{},'Delivery'),el('span',{class:'app-verdict','data-outcome':dl.outcome||''},AW_OUTCOME[dl.outcome]||word(dl.outcome)),el('p',{style:'margin:6px 0 0'},dl.reason||''),el('code',{class:'app-cli'},dl.report||'libraos-core factory report'));
     // Approvals its worker decided itself or left to lapse (#948): the same lines handoff wait prints.
     const apr=(d.approval_lines||[]).length?el('section',{class:'app-psec','data-sec':'approvals'},el('h4',{},'Approvals closed without an answer'),...d.approval_lines.map(l=>el('p',{class:'app-note','data-k':'approval-record'},l))):null;
     box.replaceChildren(agent,budget,delivery,...(apr?[apr]:[]))};
@@ -6483,7 +6483,7 @@ function apDraw(d){const md=apModel(d);if(AP.hid&&!md.m.byId.has(AP.hid))AP.hid=
   if(AP.hid)apTask(d,md.m.byId.get(AP.hid));else apList(md)}
 function apHead(d,md){const sel=$('ap-project'),keep=document.activeElement===sel;
   sel.replaceChildren(el('option',{value:AP_ALL},'All projects'),...md.projects.map(p=>el('option',{value:p},p?p.split('/').pop():'No repository')));sel.value=md.project;sel.hidden=md.projects.length<2;if(keep)sel.focus();
-  const wd=d.watchdog,n=$('ap-watchdog');n.hidden=!wd||!!wd.running;n.replaceChildren(...(wd&&!wd.running?[el('span',{},'No watchdog: offered tasks do not start. '),el('code',{},wd.start||'agentd install')]:[]))}
+  const wd=d.watchdog,n=$('ap-watchdog');n.hidden=!wd||!!wd.running;n.replaceChildren(...(wd&&!wd.running?[el('span',{},'No watchdog: offered tasks do not start. '),el('code',{},wd.start||'libraos-core install')]:[]))}
 function apKind(x){return x.what==='issue'?'Issue':x.kind==='attention'?'Needs attention':x.approvalOnly?'Approval':x.kind==='blocked'?'Worker blocked':x.kind==='failed'?'Could not finish':x.kind==='spec'?'Spec approval':x.kind==='validator'?'Validator waiting':x.kind==='review'?'Ready for review':x.kind==='result'?'Report ready':x.kind==='stale'?'Expired':word(x.kind||'answered')}
 // apApproval: an approval's Approve and Reject (region:inbox's approvalActs, the same sheet and action),
 // or why this person cannot answer it.
@@ -6506,7 +6506,7 @@ function apRow(r){const dot=appDot(r.mark),usd=apSpend(r.h);
     el('span',{class:'ap-rbody'},el('span',{class:'ap-rtitle'},r.title),el('span',{class:'ap-rmeta'},el('span',{},r.done?APP_DOTS[dot]:agentsState(r)||APP_DOTS[dot]),apCheck(r.h.check_state),usd?el('span',{class:'ap-cost',title:'Spent by its workers'},usd):null)))}
 function apList(md){const box=$('ap-list'),rows=md.rows;
   box.replaceChildren(el('h2',{class:'ap-h'},'Tasks',el('span',{class:'ap-count'},String(rows.length))),
-    rows.length?el('div',{class:'ap-rows'},rows.map(apRow)):el('p',{class:'ap-mute ap-empty'},md.mine.length?'No task of yours in this project.':'No tasks yet. Start one from your agent, or: agentd new "GOAL".'))}
+    rows.length?el('div',{class:'ap-rows'},rows.map(apRow)):el('p',{class:'ap-mute ap-empty'},md.mine.length?'No task of yours in this project.':'No tasks yet. Start one from your agent, or: libraos-core new "GOAL".'))}
 // The task: each section keeps its node across redraws and is filled from what is cached, so the 10 s
 // refresh does not flicker; checks, details and the change reload at most every 15 s.
 function apSec(box,key,title){let s=box.querySelector('[data-ap-sec="'+key+'"]');if(!s){s=el('section',{class:'ap-sec','data-ap-sec':key},el('h3',{class:'ap-h'},title),el('div',{class:'ap-sbody'}));box.append(s)}return s.querySelector('.ap-sbody')}
@@ -6538,7 +6538,7 @@ function apBranch(box,hid,ro,c){const d=c&&c.data;if(c&&c.error&&!d){box.replace
   const files=d.files||[],why=openPRWhy(d);
   box.replaceChildren(d.branch?el('div',{class:'ap-branch'},el('code',{},d.branch),' → ',el('code',{},d.base_branch||'main'),files.length?el('span',{class:'ap-mute'},' · '+files.length+' file'+(files.length===1?'':'s')+' +'+(d.added||0)+' −'+(d.deleted||0)):null):el('p',{class:'ap-mute'},d.why_not?'No change yet: '+d.why_not+'.':'No worker branch yet.'),
     d.pr?el('p',{class:'ap-pr'},'Draft PR ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' · '+String(d.pr.state).toLowerCase():'',' · merged on GitHub by a person, never from here.')
-    :files.length&&!ro?el('div',{class:'ap-acts'},el('button',{type:'button',class:'ap-btn','data-act':'open_pr','data-write':'','data-disabled-reason':why||null,title:why||'Same as: agentd handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},'Push and open a draft PR'),why?el('span',{class:'ap-mute'},why):null)
+    :files.length&&!ro?el('div',{class:'ap-acts'},el('button',{type:'button',class:'ap-btn','data-act':'open_pr','data-write':'','data-disabled-reason':why||null,title:why||'Same as: libraos-core handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},'Push and open a draft PR'),why?el('span',{class:'ap-mute'},why):null)
     :files.length?el('p',{class:'ap-mute'},'No pull request yet.'):null)}
 function apActs(d,h,hid){const out=[],live=h.dispatched&&!h.worker_state&&/^(offered|claimed)$/.test(h.state||'');
   if(PENDING[hid])return [el('span',{class:'ap-mute',role:'status'},PENDING[hid])];
@@ -6594,7 +6594,7 @@ const APP_KEYS=[
   ['General',[[[['?']],'Show these shortcuts'],[[['Esc']],'Close a menu, dialog or drawer']]]];
 const APP_KEYCAP={Mod:APP_MAC?'⌘':'Ctrl',Shift:APP_MAC?'⇧':'Shift',Alt:APP_MAC?'⌥':'Alt',TabMod:APP_MAC?'⌃':'Alt'};
 function appKeysSheet(){if(activeSheet)return null;const kbd=t=>el('kbd',{},APP_KEYCAP[t]||t);
-  const box=el('div',{class:'app-keys',id:'app-keys-list'},el('p',{class:'app-keys-note'},(APP_MAC?'⌘ is Command':'Ctrl is Control')+', as in desktop coding apps. They do nothing while you type in a field. In a browser tab the browser keeps some for itself (such as '+APP_KEYCAP.Mod+'+N, T, W and 1…9); in the installed app they reach agentd.'),
+  const box=el('div',{class:'app-keys',id:'app-keys-list'},el('p',{class:'app-keys-note'},(APP_MAC?'⌘ is Command':'Ctrl is Control')+', as in desktop coding apps. They do nothing while you type in a field. In a browser tab the browser keeps some for itself (such as '+APP_KEYCAP.Mod+'+N, T, W and 1…9); in the installed app they reach LibraOS Core.'),
     ...APP_KEYS.map(([name,rows])=>el('section',{'data-keys':name.toLowerCase()},el('h3',{},name),el('dl',{class:'keys-list'},rows.flatMap(([alts,what])=>[el('dt',{},alts.flatMap((keys,i)=>[i?el('span',{class:'keys-or'},'or'):null,...keys.map(kbd)]).filter(Boolean)),el('dd',{},what)])))));
   const done=sheet({title:'Keyboard shortcuts',description:'For the task list and the workspace tabs.',cancel:'Close',content:box,setup:ui=>{ui.submit.hidden=true}});
   if(activeSheet){activeSheet.dialog.id='app-keys-sheet';const close=activeSheet.dialog.querySelector('.sheet-foot button:not([hidden])');if(close)close.focus()}
@@ -6633,7 +6633,7 @@ let dashRequest=0;
 async function refresh(){
   const request=++dashRequest;
   try{const r=await fetch('/api/dash',{cache:'no-store',headers:auth()});
-    if(r.status===401){const wasCookie=COOKIE;dropToken();if(request!==dashRequest||wasCookie&&!TOKEN)return;if(!TOKEN&&!/[?&]unlock\b/.test(location.search)){if(location.pathname==='/panel')location.replace('/login?next=/panel');else location.replace('/login');return}lockState();$('now').textContent='locked';$('dasherror').replaceChildren('This server is public, so reading it needs a sign-in. ',el('a',{href:'/login'},'Sign in with your personal key'),', open a login link from `agentd dash link --user NAME --base URL`, or paste the token from `agentd dash token` above.');$('dasherror').hidden=false;return}
+    if(r.status===401){const wasCookie=COOKIE;dropToken();if(request!==dashRequest||wasCookie&&!TOKEN)return;if(!TOKEN&&!/[?&]unlock\b/.test(location.search)){if(location.pathname==='/panel')location.replace('/login?next=/panel');else location.replace('/login');return}lockState();$('now').textContent='locked';$('dasherror').replaceChildren('This server is public, so reading it needs a sign-in. ',el('a',{href:'/login'},'Sign in with your personal key'),', open a login link from `libraos-core dash link --user NAME --base URL`, or paste the token from `libraos-core dash token` above.');$('dasherror').hidden=false;return}
     if(r.status===403){const d=await r.json().catch(()=>({}));if(d&&d.error==='password_change_required'){if(request===dashRequest){CONNECTED=true;$('dasherror').hidden=true;pwChangeShow(d)}return}}
     if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(request!==dashRequest)return;if(d.must_change_password)pwChangeShow();
     lastDash=d;CONNECTED=true;lastGoodAt=new Date();$('dasherror').hidden=true;$('dashrestart').textContent=d.config_restart||'';$('dashrestart').hidden=!d.config_restart;appWatchdog(d);$('now').textContent=(d.now||'').slice(11,19)+' UTC';$('now').title='refreshes every 10 s';render(d)}
@@ -6791,7 +6791,7 @@ function chatOpenIn(name){const t=$('chat-input'),last=[...CHAT.msgs].reverse().
 function chatRenderHead(){chatRenderRoleHint();const has=!!CHAT.id&&!!CHAT.chat,head=$('chat-head');head.hidden=!has;if(!has)return;const c=CHAT.chat,role=chatRoleOf(c.role),previous=head.querySelector('.chat-head-details');
   const recorded=[...CHAT.msgs].reverse().find(m=>m.role==='assistant'),actual=recorded?(recorded.model||'unknown'):null;
   const title=el('b',{title:c.title||''},c.title||'New conversation');
-  const details=el('details',{class:'row-more chat-head-details','data-chat':c.id,open:previous&&previous.dataset.chat===c.id&&previous.open||null},el('summary',{'aria-label':'Conversation details',title:'Conversation details'},'⋯'),el('div',{class:'chat-head-info'},el('div',{class:'mute'},roleName(c.role)+' · '+(actual||'Configured: '+(role?.model||'unknown'))),role&&role.description?el('div',{class:'mute'},role.description):null,c.archived?el('div',{class:'mute'},'Archived'):null,el('span',{class:'chat-id'},el('code',{title:'This chat\'s id: `agentd chat show '+c.id+'`, or #chat/'+c.id},c.id),el('button',{type:'button','aria-label':'Copy chat id',onclick:()=>chatCopy(c.id)},'Copy'))));
+  const details=el('details',{class:'row-more chat-head-details','data-chat':c.id,open:previous&&previous.dataset.chat===c.id&&previous.open||null},el('summary',{'aria-label':'Conversation details',title:'Conversation details'},'⋯'),el('div',{class:'chat-head-info'},el('div',{class:'mute'},roleName(c.role)+' · '+(actual||'Configured: '+(role?.model||'unknown'))),role&&role.description?el('div',{class:'mute'},role.description):null,c.archived?el('div',{class:'mute'},'Archived'):null,el('span',{class:'chat-id'},el('code',{title:'This chat\'s id: `libraos-core chat show '+c.id+'`, or #chat/'+c.id},c.id),el('button',{type:'button','aria-label':'Copy chat id',onclick:()=>chatCopy(c.id)},'Copy'))));
   head.replaceChildren(el('div',{class:'chat-head-main'},title,c.role?el('span',{class:'chat-head-role',title:role&&role.description||null},roleName(c.role)):null),...(c.can_take_over?[el('button',{type:'button','data-write':true,onclick:chatTakeOver},'Take ownership')]:[]),details)}
 const CHAT_STARTERS=['What needs my attention right now?','Summarize what changed in the last day','Help me plan a change before we start it','Explain how this works in plain words'];
 function chatStartNode(){const c=CHAT.chat||{},role=CHAT.roles.find(r=>r.name===c.role)||{},can=!(c.archived||!CAN()||!CHAT.gatewayReady),own=role.starters||[],starters=[...own,...CHAT_STARTERS.filter(t=>!own.includes(t))].slice(0,4);return el('div',{class:'chat-start'},el('h2',{},'What should we do?'),role.description?el('p',{},role.description):null,can?el('div',{class:'chat-starters'},starters.map(t=>el('button',{type:'button',class:'chat-starter','data-write':true,onclick:()=>chatFill(t)},t))):null)}
@@ -6863,7 +6863,7 @@ function chatResultStatus(h,d){const prs=d.prs||[],merged=prs.some(p=>/^merged$/
   if(merged)return {ok:true,mark:'✓',text:'Finished and merged.',next:'Nothing to do.'};
   const first=prs[0]||null;
   if(open||first)return {ok:true,mark:'✓',text:'Finished. '+(passed?'Its checks passed. ':'')+'It is waiting for review and merge.',pr:open||first};
-  return {ok:true,mark:'✓',text:passed?'Finished. Its checks passed.':'Finished.',next:d.branch?'Review the change below. AgentD pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.':'Nothing to do.'}}
+  return {ok:true,mark:'✓',text:passed?'Finished. Its checks passed.':'Finished.',next:d.branch?'Review the change below. LibraOS Core pushes a worker’s branch and opens a draft pull request only after you confirm; it never merges.':'Nothing to do.'}}
 function chatResultBody(h,d){const files=CHAT.files.filter(f=>f.path.startsWith(h.id+'/')),fact=(k,v)=>v?[el('dt',{},k),el('dd',{},v)]:[],cost=d.tokens!=null||d.usd!=null?[d.tokens!=null?fmtTok(d.tokens)+' tokens':'',d.usd!=null?'$'+d.usd.toFixed(2):''].filter(Boolean).join(', '):'usage not reported',
     outcome=[chatWorkerStatus(h),d.end_reason&&d.end_reason!=='done'?words(d.end_reason):''].filter(Boolean).join(' · '),
     st=chatResultStatus(h,d),prLink=p=>el('a',{href:ghHref(p.repo+'#'+p.number,'PR'),target:'_blank',rel:'noopener noreferrer'},p.repo+'#'+p.number),
@@ -7035,7 +7035,7 @@ function chatSourceText(snippet){const lines=String(snippet||'').split('\n').map
 function chatSources(t){const out=new Map(),add=(id,extra)=>{const p=chatSourceParse(id);if(!p)return;const was=out.get(p.key);if(was){if(extra.cited)was.cited=true;if(extra.read)was.read=true;if(!was.title&&extra.title){was.title=extra.title;was.note=extra.note||''}return}out.set(p.key,{...p,title:'',note:'',read:false,cited:false,...extra})};
   for(const s of t.steps||[]){if(s.failed||s.result===undefined||s.result===null)continue;let d=null;try{d=JSON.parse(s.result)}catch(e){}
     if(s.name==='kb_search'){if(Array.isArray(d)){for(const x of d)if(x&&x.id)add(x.id,{read:true,...chatSourceText(x.snippet)})}else for(const m of String(s.result).matchAll(/"id"\s*:\s*"([^"]+)"/g))add(m[1],{read:true})}
-    else if(s.name==='ledger_progress'){const rows=Array.isArray(d)?d:null;if(rows&&rows.length){for(const r of rows)if(r&&(r.key||r.project))add('run/'+(r.key||r.project),{read:true,title:[r.project,r.arm].filter(Boolean).join(' · '),note:[r.validated?'validated':r.status,r.checks?'checks '+r.checks:''].filter(Boolean).join(' · ')})}else if(!out.has('run/'))out.set('run/',{kind:'run',ref:'',key:'run/',title:'latest per project',note:'agentd progress',read:true,cited:false})}}
+    else if(s.name==='ledger_progress'){const rows=Array.isArray(d)?d:null;if(rows&&rows.length){for(const r of rows)if(r&&(r.key||r.project))add('run/'+(r.key||r.project),{read:true,title:[r.project,r.arm].filter(Boolean).join(' · '),note:[r.validated?'validated':r.status,r.checks?'checks '+r.checks:''].filter(Boolean).join(' · ')})}else if(!out.has('run/'))out.set('run/',{kind:'run',ref:'',key:'run/',title:'latest per project',note:'libraos-core progress',read:true,cited:false})}}
   for(const text of t.parts||[])for(const m of String(text).matchAll(CHAT_SOURCE_RE))add(m[0],{cited:true});
   return [...out.values()]}
 // chatAnswerTurns numbers the answers (reply turns) and marks the selected one.
