@@ -11,7 +11,7 @@ const now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const dash={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
 const settings={owner:true,config:{},models:{},members:[{name:'alice',role:'owner'}],invites:[],personal:null,email:{},telegram:{},history:[],chat_roles:[]};
 // agents is what GET /api/settings?agents=1 sends (SettingsAgents in settings_connect.go).
-const diag={doctor:[{id:'claude-mcp',status:'fail',detail:'not registered'}],services:[],checked_at:now};
+const diag={doctor:[{id:'claude-mcp',status:'fail',detail:'not registered'},{id:'disk',status:'warn',detail:'low'},{id:'ledger',status:'pass',detail:'ok'}],services:[],checked_at:now};
 const part=(check,label,ok)=>({check,label,ok,status:ok?'pass':'fail',detail:'',fix:''});
 let claudeConnected=false,agentReads=0;
 const agents=()=>({checked_at:now,connect:[{tool:'claude',found:true},{tool:'codex',found:true},{tool:'opencode',found:false}],agents:[
@@ -90,6 +90,11 @@ const box=()=>doc.getElementById('set-connect-result');
  w.location.hash='#settings/diagnostics';await settle();
  assert(doc.getElementById('set-diagnostics').textContent.includes('is under Agents'),'Diagnostics does not point to Agents');
  assert(!doc.querySelector('#set-diagnostics [data-connect-preview]'),'Preview still in Diagnostics');
+ // A check that fails or warns reads in the danger or warning colour; pass stays plain (layout review N).
+ const status=s=>doc.querySelector('#set-diagnostics [data-doctor-status="'+s+'"]');
+ assert.equal(status('fail').className,'doctor-fail');assert.equal(status('fail').textContent,'fail');
+ assert.equal(status('warn').className,'doctor-warn');assert.equal(status('pass').className,'doctor-ok');
+ const cs=n=>w.getComputedStyle(n).color;assert.notEqual(cs(status('fail')),cs(status('pass')),'fail looks like pass');assert.notEqual(cs(status('warn')),cs(status('pass')),'warn looks like pass');
  assert.equal(posts.length,3);
  assert(!errors.length,errors.join('\n'));
  console.log('dash_connect: ok',process.env.DASH_UI_PHONE==='1'?'phone':'desktop',process.env.DASH_UI_THEME||'light');
