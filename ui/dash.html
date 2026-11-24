@@ -834,6 +834,9 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 @container (max-width:560px){.trig-card .phone-rows table,.trig-card .phone-rows tbody,.trig-card .phone-rows tr,.trig-card .phone-rows td{display:block;width:100%}.trig-card .phone-rows thead{display:none}.trig-card .phone-rows tr{border-bottom:1px solid var(--line);padding:8px 0}.trig-card .phone-rows tr:last-child{border-bottom:0}.trig-card .phone-rows td{display:grid;grid-template-columns:84px minmax(0,1fr);gap:8px;padding:2px 0;border:0}.trig-card .phone-rows td:before{content:attr(data-label);font-size:12px;color:var(--mute)}}
 .trig-card{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);min-width:0}.trig-card>*{min-width:0}.trig-card h3,.trig-card p{margin:0}
 .trig-state{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px}.trig-dot{width:10px;height:10px;border-radius:50%;background:var(--mute)}.trig-dot.on{background:var(--green,var(--fg))}.trig-dot.bad{background:var(--red)}
+/* An issue run's triage, a line a part; the outcome labels and the held-back list, wrapping (libraos/core#1078). Shared with the app's Triggers page. */
+.trig-triage,.trig-labels{display:grid;gap:2px;min-width:0;overflow-wrap:anywhere}.trig-triage code,.trig-labels code{overflow-wrap:anywhere}
+.trig-held ul{margin:0;padding-left:18px;display:grid;gap:4px}.trig-held li{overflow-wrap:anywhere}.trig-held p{margin:0}
 .trig-cols{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}.trig-col{display:grid;gap:12px;min-width:0}.trig-col>h3{margin:4px 0 0}
 .trig-kind{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}.trig-small{font-size:var(--fs-s);color:var(--mute)}
 .trig-card dl{display:grid;grid-template-columns:minmax(90px,max-content) minmax(0,1fr);gap:6px 12px;margin:0}.trig-card dd{margin:0;overflow-wrap:anywhere}.trig-card td{overflow-wrap:anywhere}
@@ -1045,6 +1048,7 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
   /* on a phone each run stacks as label and value, as the team page's tables do, in place of five columns a word wide */
   .appt-runs .app-ptable thead{display:none}.appt-runs .app-ptable,.appt-runs .app-ptable tbody,.appt-runs .app-ptable tr{display:block;width:100%}.appt-runs .app-ptable tr{padding:6px 0;border-bottom:1px solid var(--o-border)}.appt-runs .app-ptable tr:last-child{border-bottom:0}
   .appt-runs .app-ptable td{display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;height:auto;padding:3px 12px;border:0}.appt-runs .app-ptable td:before{content:attr(data-label);color:var(--o-mfg);font-size:11px;line-height:20px}}
+.appt-held{padding:12px 16px;font-size:12px;line-height:1.5}.appt-held .trig-small{color:var(--o-mfg)}.app-page .trig-triage .mute{color:var(--o-mfg)}.app-page .trig-triage .trig-problem{color:#fb2c36}.app-page .appt-task.linkish{color:inherit;text-decoration:underline;font:inherit}
 /* end:css-app-triggers */
 /* region:css-app-settings */
 .app-preferences .app-pref{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--o-border)}
@@ -5735,6 +5739,89 @@ function trigState(name,on,problem,later,enable,verb){
   return el('span',{'data-trig':'problem'},'Off. Turned on from a terminal: ',el('code',{},enable),'.',later?[' Would still not '+verb+': ',el('span',{class:'trig-problem','data-trig':'later'},later)]:'')}
 function trigTask(id){return id?el('a',{href:'#issues/'+encodeURIComponent(id)},id):''}
 function trigCard(name,title,about,...body){return el('section',{class:'trig-card','data-trig':name,'aria-label':title},el('h3',{},title),about?el('p',{class:'trig-small'},about):null,...body)}
+// Issue triggers (libraos/core#1078): which issues fire, the cap per author, triage first, trusted labelers,
+// the outcome labels and the comment, each run's triage verdict and fix task, and the issues held back. The
+// team page and the app share these. A server that does not send a field shows nothing for it: no row, no
+// form field, no column, and never "undefined".
+const TRIG_VERDICTS={fix:'Fix',wontfix:'Won’t fix',needs_info:'Needs info',duplicate:'Duplicate'};
+const TRIG_OUTCOMES=[['fix','fix'],['wontfix','won’t fix'],['needs_info','needs info'],['duplicate','duplicate'],['fix_proposed','a proposed fix']];
+const TRIG_EDIT_NAMES={issues:'Which issues',max_per_author:'Most runs a day per author',triage:'Triage first',labelers:'Trusted labelers',outcome_labels:'Outcome labels',comment:'Comment on the issue'};
+function trigKind(o){return o.kind==='pr'?'PR went red':o.mode==='new'?'New issue':'Labelled issue'}
+function trigNum(v){return typeof v==='number'&&Number.isFinite(v)?v:null}
+function trigOn(st){return st.issues==='new'?'On. A red PR or a new issue starts a worker.':'On. A red PR or a labelled issue starts a worker.'}
+// trigOutcomeList: each verdict's label, one line each, or null when the server sent none.
+function trigOutcomeList(st){const m=st.outcome_labels;if(!m||typeof m!=='object')return null;const rows=TRIG_OUTCOMES.filter(([k])=>typeof m[k]==='string'&&m[k]);
+  return rows.length?el('div',{class:'trig-labels','data-trig':'outcome-labels'},rows.map(([k,t])=>el('div',{},t[0].toUpperCase()+t.slice(1)+': ',el('code',{},m[k])))):null}
+// trigIssuePairs: the issue settings as [name, value] pairs, only the ones the server sent.
+function trigIssuePairs(st){const p=[],per=trigNum(st.max_per_author),ol=trigOutcomeList(st);
+  if(st.issues==='new'||st.issues==='label')p.push(['Which issues',st.issues==='new'?'Every new issue, by anyone':'Labelled by a listed person']);
+  if(st.issues==='new'&&per)p.push(['Most a day per author',String(per)]);
+  if(typeof st.triage==='boolean')p.push(['Triage first',st.triage?'On: a triage agent decides before a fix starts':'Off: one worker triages and fixes']);
+  if(Array.isArray(st.labelers))p.push(['Trusted labelers',st.labelers.length?st.labelers.join(', '):'None set: an author’s label counts']);
+  if(ol)p.push(['Outcome labels',ol]);
+  if(typeof st.comment==='boolean')p.push(['Comment on the issue',st.comment?'On: the verdict and its reason':'Off']);
+  return p}
+// trigTriage: an issue run's triage, a line each: the verdict (a duplicate links the issue it repeats), the
+// confidence, the label it puts on the issue, then the fix task, or that a low-confidence fix waits for a
+// person's label. '' for a PR run or a server that sends none of it.
+function trigTriage(o,st,task){if(o.kind==='pr')return '';const v=o.triage||'',out=[];
+  const proposed=o.fix_state==='proposed'||!o.fix_state&&v==='fix'&&o.phase==='triage'&&o.confidence==='low'&&!o.approved_by,outcome=proposed?'fix_proposed':v;
+  if(v)out.push(el('span',{'data-triage':'verdict'},el('b',{},TRIG_VERDICTS[v]||word(v)),v==='duplicate'&&o.dup_of?[' of ',/^[\w.-]+\/[\w.-]+#\d+$/.test(String(o.dup_of))?el('a',{href:ghHref(String(o.dup_of),'issue'),target:'_blank',rel:'noopener'},String(o.dup_of)):String(o.dup_of)]:null));
+  else if(o.phase==='triage')out.push(el('span',{'data-triage':'verdict',class:'mute'},'No verdict yet'));
+  if(o.confidence)out.push(el('span',{'data-triage':'confidence'},String(o.confidence)[0].toUpperCase()+String(o.confidence).slice(1)+' confidence'));
+  const label=typeof o.outcome_label==='string'&&o.outcome_label?o.outcome_label:v&&st.outcome_labels&&typeof st.outcome_labels[outcome]==='string'?st.outcome_labels[outcome]:'';
+  if(label)out.push(el('span',{'data-triage':'label'},'Label ',el('code',{},label)));
+  if(o.fix_handoff)out.push(el('span',{'data-triage':'fix'},'Fix task ',task(o.fix_handoff)));
+  else if(proposed)out.push(el('span',{'data-triage':'waiting'},'Waiting for a person’s label'));
+  if(o.approved_by&&!proposed)out.push(el('span',{'data-triage':'approved',class:'mute'},'Approved by '+o.approved_by));
+  if(o.fix_error)out.push(el('span',{'data-triage':'fix-error',class:'trig-problem'},'Fix not started: '+o.fix_error));
+  return out.length?el('span',{class:'trig-triage'},out):''}
+// trigHasTriage: whether the server sends triage on its runs at all, so an older one gets no Triage column.
+function trigHasTriage(offers){return offers.some(o=>o&&['phase','triage','fix_state','fix_handoff'].some(k=>k in o))}
+// trigHeldList: the issues held back (over a cap, or not for a worker), each with its reason; a short list.
+function trigHeldList(st){const h=(Array.isArray(st.held)?st.held:[]).filter(x=>x&&x.repo&&x.number);if(!h.length)return null;const max=5,more=h.length-max;
+  return el('div',{class:'trig-held','data-trig':'held-list'},el('p',{class:'trig-small'},'Each waits for '+(typeof h[0].waits_for==='string'&&h[0].waits_for?h[0].waits_for:'a listed person adding the label')+'.'),
+    el('ul',{},h.slice(0,max).map(x=>{const ref=x.repo+'#'+x.number;return el('li',{'data-held':ref},el('a',{href:ghHref(ref,'issue'),target:'_blank',rel:'noopener'},ref),x.reason?': '+words(x.reason):'',x.held?[' · ',settingsWhen(x.held)]:null)})),
+    more>0?el('p',{class:'trig-small'},'And '+more+' more: libraos-core trigger status lists them.'):null)}
+// trigIssueFields: the issue settings as form fields, only the ones the server reports.
+function trigIssueFields(st){const f=[],ol=st.outcome_labels&&typeof st.outcome_labels==='object'?st.outcome_labels:null;
+  const onoff=[{value:'on',label:'On'},{value:'off',label:'Off'}];
+  if(st.issues==='new'||st.issues==='label')f.push({name:'issues',label:'Which issues',required:true,segment:true,value:st.issues,options:[{value:'label',label:'Labelled by a listed person'},{value:'new',label:'Every new issue'}],hint:'Every new issue: each issue opened from now on starts one run, whoever opened it; older issues never do. It needs an issue label: a held-back issue waits for a listed person to add it.'});
+  if(trigNum(st.max_per_author)!==null)f.push({name:'max_per_author',label:'Most runs a day per issue author',required:true,type:'number',value:String(st.max_per_author||2),hint:'1 to 50, for every new issue. The rest are held back until a listed person adds the label.'});
+  if(typeof st.triage==='boolean')f.push({name:'triage',label:'Triage first',required:true,segment:true,value:st.triage?'on':'off',options:onoff,hint:'On: a triage agent reads the issue and decides, and a fix worker starts only on a fix verdict. Off: one worker triages and fixes.'});
+  if(Array.isArray(st.labelers))f.push({name:'labelers',label:'Trusted labelers',value:st.labelers.join(', '),hint:'GitHub logins whose adding of the label starts a run, comma separated. Empty: one of the authors.'});
+  if(ol)TRIG_OUTCOMES.forEach(([k,t],i)=>{if(typeof ol[k]==='string')f.push({name:'outcome_'+k,label:'Label for '+t,value:ol[k],maxlength:50,hint:i?'':'The label agentd puts on the issue for each verdict. Empty: its default.'})});
+  if(typeof st.comment==='boolean')f.push({name:'comment',label:'Comment on the issue',required:true,segment:true,value:st.comment?'on':'off',options:onoff,hint:'On: agentd comments the verdict and its reason on the issue.'});
+  return f}
+// trigIssueCheck: the form's issue values checked as the server would, as [field, message] or null.
+function trigIssueCheck(v,label){if('max_per_author' in v){const a=Number(v.max_per_author);if(!Number.isInteger(a)||a<1||a>50)return ['max_per_author','A whole number from 1 to 50.']}
+  if(v.issues==='new'&&!String(label||'').trim())return ['label','Every new issue needs an issue label: a held-back issue waits for a listed person to add it.'];
+  if('labelers' in v&&!appTrigSplit(v.labelers).every(l=>/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(l)))return ['labelers','Each labeler is a GitHub login.'];
+  for(const[k]of TRIG_OUTCOMES){const n='outcome_'+k,l=v[n];if(l===undefined||l==='')continue;if(/["\\\x00-\x1f\x7f]/.test(l)||l.length>50)return [n,'At most 50 characters, with no quote or backslash.'];if(label&&l.toLowerCase()===String(label).trim().toLowerCase())return [n,'Not the issue label itself: that would start the trigger again.']}
+  return null}
+// trigIssueChanges: what the form changed of the issue settings, as trigger_edit fields. Only a changed field is
+// sent, so a server that cannot save one is never sent it unless a person changed it.
+function trigIssueChanges(st,v){const b={};
+  if('issues' in v&&v.issues!==st.issues)b.issues=v.issues;
+  if('max_per_author' in v&&Number(v.max_per_author)!==st.max_per_author)b.max_per_author=Number(v.max_per_author);
+  if('triage' in v&&(v.triage==='on')!==st.triage)b.triage=v.triage==='on';
+  if('labelers' in v){const l=appTrigSplit(v.labelers);if(l.join()!==(st.labelers||[]).join())b.labelers=l}
+  const ol=st.outcome_labels||{},keys=TRIG_OUTCOMES.map(([k])=>k).filter(k=>'outcome_'+k in v);
+  if(keys.some(k=>v['outcome_'+k]!==ol[k]))b.outcome_labels=Object.fromEntries(keys.map(k=>[k,v['outcome_'+k]]));
+  if('comment' in v&&(v.comment==='on')!==st.comment)b.comment=v.comment==='on';
+  return b}
+// trigEditSend: the trigger_edit write. A server from before a field refuses the whole request as invalid; say
+// which settings it cannot take instead of that.
+async function trigEditSend(body){try{return await settingsAPI(body)}catch(e){const late=Object.keys(TRIG_EDIT_NAMES).filter(k=>k in body);
+  if(late.length&&/Invalid Settings request/i.test(e&&e.message||''))throw new Error('This server cannot save '+late.map(k=>TRIG_EDIT_NAMES[k]).join(', ')+' from the page yet. Set '+(late.length>1?'them':'it')+' under [triggers] in config.toml, or put '+(late.length>1?'them':'it')+' back and save again.');throw e}}
+// trigIssueEdit: the team page's Edit issue settings, the same trigger_edit write as the app's Edit trigger. It
+// re-sends the repositories, authors, budget and cap as they are, and never writes enabled.
+function trigIssueEdit(){const d=TRIG.data||{},st=d.status||{};
+  const fields=[{name:'label',label:'Issue label',value:st.label||'',maxlength:50,hint:'Empty: issues start nothing; a PR going red still does.'},...trigIssueFields(st)];
+  return sheet({title:'Edit issue settings',description:'Writes [triggers] in config.toml, with a backup and a history entry. It stays off: nothing fires until someone runs '+(d.enable||'libraos-core config set triggers.enabled true')+' in a terminal.',
+    action:'Save to config.toml',fields,validate:v=>trigIssueCheck(v,v.label),
+    onSubmit:async v=>{const r=await trigEditSend({action:'trigger_edit',repos:st.repos||[],authors:st.authors||[],label:v.label,budget:st.budget||'',max_per_day:st.max_per_day,...trigIssueChanges(st,v)});
+      toast((r.changed?'Saved to config.toml.':'Nothing changed.')+' Triggers are still off.'+(r.note?' '+r.note:''),true);trigLoad()}})}
 // trigImprove and trigSignals are read-only: their settings and latest offers, no
 // control. They are turned on from a terminal (agentd config set ….enabled true).
 function trigImprove(d){const m=d.improve;if(!m)return null;
@@ -5750,23 +5837,29 @@ function trigSignals(d){const m=d.signals;if(!m)return null;
     el('h4',{},'Latest offers'),(m.offers||[]).length?settingsTable(['When','Signal','Task','State','Result'],m.offers.map(o=>[settingsWhen(o.created),o.signal,el('span',{},trigTask(o.id),o.goal?el('small',{class:'tm-why'},o.goal):null),word(o.state),o.signal_result||''])):el('p',{class:'mute','data-trig':'empty'},'Nothing offered yet.'))}
 function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st.enabled===true,dirs=Object.entries(st.dirs||{});
   $('trig-meta').textContent=(on?'On':'Off')+' · owners only';$('trig-meta').dataset.on=String(on);$('trig-intro').hidden=false;trigBadge(on);
-  const head=on?st.problem?'On, but cannot fire: '+st.problem:'On. A red PR or a labelled issue starts a worker.':'Off. Nothing starts a worker on its own.';
+  const head=on?st.problem?'On, but cannot fire: '+st.problem:trigOn(st):'Off. Nothing starts a worker on its own.';
   // Latest runs is full width under the templates and settings (its six columns squeezed into the side column wrapped a letter a line).
-  const runs=el('section',{class:'trig-col trig-runs','data-trig':'offers','aria-label':'Latest runs',tabindex:'-1'},el('h3',{},'Latest runs'),(st.offers||[]).length?
-    el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task','Error'],st.offers.map(o=>[settingsWhen(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),o.error||'']))):
+  // An issue run's triage (verdict, confidence, label, fix task) is its own column, left out for a server that sends none.
+  const offers=Array.isArray(st.offers)?st.offers:[],tri=trigHasTriage(offers);
+  const runs=el('section',{class:'trig-col trig-runs','data-trig':'offers','aria-label':'Latest runs',tabindex:'-1'},el('h3',{},'Latest runs'),offers.length?
+    el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),...(tri?[trigTriage(o,st,trigTask)]:[]),o.error||'']))):
     el('div',{class:'trig-card'},el('p',{class:'mute','data-trig':'empty'},'Nothing recorded yet. Each run links to the task it started.')));
   const state=el('div',{class:'trig-card trig-state','data-trig':'state'},el('i',{class:'trig-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),
     el('div',{},el('strong',{class:on&&st.problem?'trig-problem':''},head),el('div',{class:'trig-small'},on?['Turned off from a terminal: ',el('code',{},'libraos-core config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire'))),
     el('button',{type:'button',onclick:()=>{runs.scrollIntoView({block:'start'});runs.focus()}},'Runs'));
-  const settings=el('section',{class:'trig-col','data-trig':'settings','aria-label':'Settings now'},el('h3',{},'Settings now'),el('div',{class:'trig-card'},settingsPairs([['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most a day',st.max_per_day],
-    ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])])));
+  // Edit issue settings: the trigger_edit write, refused here (as Write is) while triggers are on; shown once there is a trigger and the server reports the issue settings.
+  const editWhy=on?'Triggers are on. Turn them off from a terminal before editing.':'',canEdit=(st.repos||[]).length>0&&trigIssueFields(st).length>0;
+  const edit=canEdit?el('div',{class:'trig-actions'},el('button',{type:'button','data-write':'','data-trig-action':'edit-issues','data-disabled-reason':editWhy||null,onclick:()=>trigIssueEdit()},'Edit issue settings'),editWhy?el('span',{class:'trig-small','data-edit-why':''},editWhy):null):null;
+  const settings=el('section',{class:'trig-col','data-trig':'settings','aria-label':'Settings now'},el('h3',{},'Settings now'),el('div',{class:'trig-card'},settingsPairs([['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],...trigIssuePairs(st),['Budget',st.budget],['Most a day',st.max_per_day],
+    ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])]),edit));
+  const heldList=trigHeldList(st),held=heldList?el('section',{class:'trig-col','data-trig':'held','aria-label':'Held back'},el('h3',{},'Held back'),el('div',{class:'trig-card'},heldList)):null;
   const repo=el('input',{type:'text',id:'trig-repo',value:d.repo||'',placeholder:'OWNER/NAME',autocomplete:'off'}),author=el('input',{type:'text',id:'trig-author',value:d.author||'',placeholder:'GitHub login',autocomplete:'off'});
   const fill=el('form',{class:'trig-fill',onsubmit:e=>{e.preventDefault();TRIG.repo=repo.value.trim();TRIG.author=author.value.trim();trigLoad()}},el('label',{for:'trig-repo'},'Repository',repo),el('label',{for:'trig-author'},'Author whose PRs and issues fire',author),el('button',{type:'submit'},'Fill in'));
   const why=on?'Triggers are on. Turn them off from a terminal before writing a template.':!d.repo||!d.author?'Fill in the repository and author first.':'';
   const tpls=(d.templates||[]).map(t=>el('div',{class:'trig-tpl','data-template':t.name},el('span',{class:'trig-kind'},t.label?'Issues':'Pull requests'),el('h3',{},t.title),el('p',{},t.about),el('pre',{},el('code',{},t.toml)),
     el('div',{class:'trig-actions'},el('button',{type:'button',onclick:()=>chatCopy(t.toml)},'Copy config'),el('button',{type:'button',class:'primary','data-write':'','data-disabled-reason':why||null,onclick:()=>trigWrite(t)},'Write to config.toml'),why?el('span',{class:'trig-small','data-write-why':''},why):null)));
   const left=el('section',{class:'trig-col','data-trig':'templates','aria-label':'Start from a template'},el('h3',{},'Start from a template'),el('p',{class:'mute'},'Copy one into config.toml, or write it there from here. Either way triggers stay off until you turn them on.'),fill,...tpls);
-  $('trig-body').replaceChildren(state,el('div',{class:'trig-cols'},left,el('div',{class:'trig-col'},settings,trigImprove(d),trigSignals(d))),runs);
+  $('trig-body').replaceChildren(state,el('div',{class:'trig-cols'},left,el('div',{class:'trig-col'},settings,held,trigImprove(d),trigSignals(d))),runs);
   lockState()}
 $('trig-refresh').onclick=()=>trigLoad();
 // Triggers is shown to an owner only (#907 step 4): its rail item, the account menu's link, Settings'
@@ -6041,7 +6134,8 @@ for(const s of ['[data-app-nav="tasks"]','[data-app-nav="triggers"]','[data-app-
 document.querySelector('#app-shell [data-app-action="add-repo"]').setAttribute('aria-controls','app-repo-pop');
 document.querySelector('#app-shell [data-app-action="bell"]').setAttribute('aria-controls','app-projects');
 $('app-shell').addEventListener('click',e=>{if(!e.target.closest('#app-repo-pop,[data-app-action="add-repo"]'))appRepoPop(false);
-  const t=e.target.closest('.app-task,.app-repo,[data-app-nav],[data-app-close],#app-page tbody tr,[data-app-action="bell"],[data-app-action="add-repo"]');if(!t)return;
+  const t=e.target.closest('.app-task,.app-repo,[data-app-nav],[data-app-close],#app-page [data-open-task],#app-page tbody tr,[data-app-action="bell"],[data-app-action="add-repo"]');if(!t)return;
+  if(t.matches('[data-open-task]')){const id=t.dataset.openTask;if(APPS.model&&APPS.model.byId.has(id))appTaskOpen(id);else toast(id+' is not in your task list.',false);return}
   if(t.matches('.app-task,#app-page tbody tr')){appTaskOpen(t.dataset.taskId);return}
   if(t.matches('.app-repo')){const k=t.dataset.repo;if(APPS.collapsed.has(k))APPS.collapsed.delete(k);else APPS.collapsed.add(k);try{localStorage.setItem('dash-app-collapsed',JSON.stringify([...APPS.collapsed]))}catch(e){}if(lastDash)appSidebar(lastDash);return}
   if(t.matches('[data-app-nav]')){appPage(APPS.page===t.dataset.appNav?'':t.dataset.appNav);return}
@@ -6087,6 +6181,8 @@ function appTrigReadOnly(why){const p=$('app-page');if(!p||APPS.page!=='triggers
 async function appTrigAct(body,ok){try{const r=await settingsAPI(body);toast(ok(r||{}),true)}catch(e){toast(e)}appTrigLoad()}
 function appTrigCmd(text){return el('code',{class:'appt-cmd',title:'The same from a terminal'},text)}
 function appTrigTask(id){return id?el('span',{class:'appt-task'},id):'—'}
+// appTrigOpen: a task other than the row's own (a triage's fix task), as a link that opens it over the page.
+function appTrigOpen(id){return el('button',{type:'button',class:'linkish appt-task','data-open-task':id,title:'Open '+id},id)}
 // appTrigRuns: a table of runs; a row with a task opens it (the page's own row handler).
 function appTrigRuns(target,head,rows,empty){return el('div',{class:'app-pcard appt-runs','data-contextual-tour-target':target},rows.length?
   el('table',{class:'app-ptable'},el('thead',{},el('tr',{},head.map(h=>el('th',{scope:'col'},h)))),el('tbody',{},rows.map(r=>el('tr',{'data-task-id':r.task||null,tabindex:r.task?'0':null},r.cells.map((v,i)=>el('td',{'data-label':head[i]},v===''||v==null?'—':v))))))
@@ -6099,12 +6195,13 @@ function appTrigEdit(){const d=APPT.data||{},st=d.status||{},has=(st.repos||[]).
     {name:'authors',label:'Authors',required:true,value:(st.authors||[]).join(', ')||author,hint:'GitHub logins whose PRs and issues fire, comma separated.'},
     {name:'label',label:'Issue label',value:has?st.label||'':first.label||'',hint:'An open issue of theirs with this label starts a worker. Empty: issues start nothing; a PR going red still does.'},
     {name:'budget',label:'Budget per run',required:true,value:has?st.budget||'':first.budget||'30m',hint:'Each worker stops at it, such as 30m or $5.'},
-    {name:'max_per_day',label:'Most runs a day',required:true,type:'number',value:String(has?st.max_per_day||'':first.max_per_day||3),hint:'1 to 50. One broken main can turn every PR red at once.'}];
+    {name:'max_per_day',label:'Most runs a day',required:true,type:'number',value:String(has?st.max_per_day||'':first.max_per_day||3),hint:'1 to 50. One broken main can turn every PR red at once.'},
+    ...trigIssueFields(st)];
   return sheet({title:has?'Edit trigger':'New trigger',description:'Writes [triggers] in config.toml, with a backup and a history entry. It stays off: nothing fires until someone runs '+(d.enable||'libraos-core config set triggers.enabled true')+' in a terminal.',
     action:'Save to config.toml',fields,
     setup(api){if(!tpls.length)return;api.body.prepend(el('div',{class:'appt-tpls','data-appt':'templates'},el('span',{},'Start from'),tpls.map(t=>el('button',{type:'button','data-template':t.name,title:t.about,onclick:()=>{api.inputs.label.value=t.label||'';api.inputs.budget.value=t.budget||'';api.inputs.max_per_day.value=String(t.max_per_day||'')}},t.title))))},
-    validate(v){if(!appTrigSplit(v.repos).every(r=>/^[\w.-]+\/[\w.-]+$/.test(r)))return ['repos','Each repository is OWNER/NAME.'];const n=Number(v.max_per_day);if(!Number.isInteger(n)||n<1||n>50)return ['max_per_day','A whole number from 1 to 50.'];return null},
-    onSubmit:async v=>{const r=await settingsAPI({action:'trigger_edit',repos:appTrigSplit(v.repos),authors:appTrigSplit(v.authors),label:v.label,budget:v.budget,max_per_day:Number(v.max_per_day)});
+    validate(v){if(!appTrigSplit(v.repos).every(r=>/^[\w.-]+\/[\w.-]+$/.test(r)))return ['repos','Each repository is OWNER/NAME.'];const n=Number(v.max_per_day);if(!Number.isInteger(n)||n<1||n>50)return ['max_per_day','A whole number from 1 to 50.'];return trigIssueCheck(v,v.label)},
+    onSubmit:async v=>{const r=await trigEditSend({action:'trigger_edit',repos:appTrigSplit(v.repos),authors:appTrigSplit(v.authors),label:v.label,budget:v.budget,max_per_day:Number(v.max_per_day),...trigIssueChanges(st,v)});
       toast((r.changed?'Saved to config.toml.':'Nothing changed.')+' Triggers are still off.'+(r.note?' '+r.note:''),true);appTrigLoad()}})}
 function appTrigPause(){return sheet({title:'Pause triggers?',description:'Writes enabled = false under [triggers] in config.toml. Red PRs and labelled issues start nothing until someone turns them on again from a terminal: libraos-core config set triggers.enabled true.',action:'Pause',caution:true,
   onSubmit:async()=>{const r=await settingsAPI({action:'trigger_pause'});toast(r.changed?'Triggers paused.':'Triggers were already off.',true);appTrigLoad()}})}
@@ -6120,18 +6217,19 @@ function appTrigSchedule(s){const def=s.definition||{},on=s.enabled===true,runs=
     appTrigRuns(null,['Due','Status','Task','Why'],runs.map(r=>({task:r.handoff||'',cells:[r.scheduled_for?settingsWhen(r.scheduled_for):'',word(r.status),appTrigTask(r.handoff),r.reason||r.handoff_state||'']})),'Each run lists here, with the task it started.'))}
 function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')return;const d=APPT.data;
   if(!d){p.replaceChildren(appPageHead('Triggers'),APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):el('p',{class:'appt-state'},'Loading triggers…'));return}
-  const st=d.status||{},on=st.enabled===true,has=(st.repos||[]).length>0,offers=st.offers||[];
+  const st=d.status||{},on=st.enabled===true,has=(st.repos||[]).length>0,offers=Array.isArray(st.offers)?st.offers:[],tri=trigHasTriage(offers),held=trigHeldList(st);
   const head=appPageHead('Triggers',el('span',{class:'app-navnote'},on?'On':'Off'),el('span',{class:'appt-sp'}),
     on?el('button',{type:'button','data-appt-action':'trigger_pause',onclick:()=>appTrigPause()},'Pause'):null,
     el('button',{type:'button',class:'primary','data-appt-action':'trigger_edit','data-contextual-tour-target':'triggers-add',disabled:on||null,title:on?'Triggers are on: pause them to edit':null,onclick:()=>appTrigEdit()},has?'Edit trigger':'New trigger'));
-  const state=on?st.problem?'On, but cannot fire: '+st.problem:'On. A red PR or a labelled issue of the authors starts a worker.':has?'Off. Nothing starts a worker on its own.':'No trigger yet. New trigger sets one up, off until you turn it on.';
+  const state=on?st.problem?'On, but cannot fire: '+st.problem:st.issues==='new'?'On. A red PR of the authors or a new issue starts a worker.':'On. A red PR or a labelled issue of the authors starts a worker.':has?'Off. Nothing starts a worker on its own.':'No trigger yet. New trigger sets one up, off until you turn it on.';
   const trig=el('div',{class:'app-pcard appt-card','data-appt':'trigger'},
     el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},'Red CI and labelled issues'),el('small',{},'[triggers] in config.toml'))),
     el('p',{class:'appt-state','data-appt':'state'},state,!on&&st.problem_when_enabled?el('span',{class:'appt-problem'},' Would still not fire: '+st.problem_when_enabled):null),
-    has?el('dl',{class:'appt-dl'},[['Repositories',(st.repos||[]).join(', ')],['Authors',(st.authors||[]).join(', ')],['Issue label',st.label||'Not set: issues start nothing'],['Budget',st.budget],['Most a day',st.max_per_day]].map(([k,v])=>[el('dt',{},k),el('dd',{},v===''||v==null?'Not set':String(v))])):null,
+    has?el('dl',{class:'appt-dl'},[['Repositories',(st.repos||[]).join(', ')],['Authors',(st.authors||[]).join(', ')],['Issue label',st.label||'Not set: issues start nothing'],...trigIssuePairs(st),['Budget',st.budget],['Most a day',st.max_per_day]].map(([k,v])=>[el('dt',{},k),el('dd',{},v===''||v==null?'Not set':v instanceof Node?v:String(v))])):null,
     el('div',{class:'appt-cli'},on?[el('span',{},'Pause from a terminal:'),appTrigCmd('libraos-core config set triggers.enabled false')]:[el('span',{},'Turn on from a terminal:'),appTrigCmd(d.enable||'libraos-core config set triggers.enabled true')]),
     on?el('p',{class:'appt-state','data-appt':'edit-why'},'Edit trigger is off while triggers are on: pause them to edit.'):null,
-    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task','Error'],offers.map(o=>({task:o.handoff||'',cells:[settingsWhen(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,appTrigTask(o.handoff),o.error||'']})),'Each run lists here, with the task it started.'));
+    held?[el('h3',{},'Held back'),el('div',{class:'app-pcard appt-held','data-appt':'held'},held)]:null,
+    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||'']})),'Each run lists here, with the task it started.'));
   const sch=((d.schedules||{}).schedules)||[];
   p.replaceChildren(head,APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):null,trig,
     el('h3',{class:'appt-h'},'Schedules'),sch.length?sch.map(appTrigSchedule):el('div',{class:'app-pcard app-pempty','data-appt':'no-schedules'},el('b',{},'No schedules'),'A repository defines them as [schedules.NAME] in its committed .agentd/tasks.toml; they show here to enable and run.'))}
