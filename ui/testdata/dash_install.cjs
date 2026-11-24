@@ -38,7 +38,7 @@ const bars=()=>[...head.querySelectorAll('meta[name="theme-color"]')].map(m=>[(m
  {const href=decodeURIComponent(one('link[rel="icon"]').getAttribute('href'));assert(/stroke='url\(#b\)'/.test(href)&&/#D3A036/.test(href)&&/<rect x='147.5'/.test(href),'the tab icon is not the LibraOS Core mark');assert(!/0a66d6|M9 22V13/.test(href),'the tab icon still has the old mark');
   const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'17 14 170 170',what);assert(s.querySelector('path[stroke^="url(#"]')&&s.querySelector('rect[fill^="url(#"]'),what+': not the ring and stem');for(const ref of [...s.querySelectorAll('[stroke^="url(#"],[fill^="url(#"]')].map(n=>(n.getAttribute('stroke')||n.getAttribute('fill')).slice(5,-1)))assert.equal(d.querySelectorAll('[id="'+ref+'"]').length,1,what+': gradient '+ref+' is not one of a kind')};
   isMark(d.querySelector('.rail-mark'),'the rail');isMark(d.querySelector('.app-logo'),'the app header')}
- // The LibraOS rebrand (libraos/agentd-core#1038): the page is LibraOS Core Server and
+ // The LibraOS rebrand (libraos/core#1038): the page is LibraOS Core Server and
  // says AgentD nowhere, in its text, attributes or comments; the rail keeps its class.
  assert(!/AgentD/.test(html),'the page still says AgentD');
  assert(html.includes('<title>LibraOS Core Server</title>'),'the served title');

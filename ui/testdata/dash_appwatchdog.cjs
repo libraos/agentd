@@ -1,4 +1,4 @@
-// libraos/agentd-core#560: agentd app's /api/dash says mode "app" and, in watchdog, whether a
+// libraos/core#560: agentd app's /api/dash says mode "app" and, in watchdog, whether a
 // watchdog runs. While none does the page says so at the top with the command that starts one;
 // with one running, and on the team server (mode "team", no watchdog field), it shows nothing.
 // Runs in every mode:

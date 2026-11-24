@@ -4,12 +4,12 @@
 // nodes yet" when none); Team > Nodes lists every node grouped by person with
 // Server last: name, kind, host, tools, repositories, state with its why,
 // leases/capacity, last seen. Read only: no actions. Polls with the refresh.
-// Nodes and devices (libraos/agentd-core#900): the tab also lists, under each person,
+// Nodes and devices (libraos/core#900): the tab also lists, under each person,
 // their devices from GET /api/devices (kind, created, last seen, state), Server's last;
 // a node whose version is older than server_version is marked older release, one with
 // no version is not; drain and revoke are shown as terminal commands, never buttons;
 // a server without /api/devices (404) says so and still lists its nodes.
-// Node management (libraos/agentd-core#917): the signed-in owner gets Drain / Undrain on
+// Node management (libraos/core#917): the signed-in owner gets Drain / Undrain on
 // each node and Revoke on each active device, each behind a confirmation that posts
 // node_drain, node_undrain or device_revoke to /api/action; anyone else sees the
 // terminal commands and no button. Waiting for a node lists GET /api/queue's handoffs

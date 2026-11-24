@@ -1,4 +1,4 @@
-// libraos/agentd-core#670: a follow-up on a finished task. The Session's message box stays on a done task:
+// libraos/core#670: a follow-up on a finished task. The Session's message box stays on a done task:
 // it says what a send does (a worker starts again on the task's branch, with the conversation), sends the
 // task_msg action, and the follow-up then shows in the same conversation and in the history, as text. A
 // task with nothing to start keeps its note and no box.

@@ -1,4 +1,4 @@
-// Team > Permissions (libraos/agentd-core#907 step 2). Team opens on Users. Permissions lists
+// Team > Permissions (libraos/core#907 step 2). Team opens on Users. Permissions lists
 // the grants (GET /api/grants) and the approval policies (GET /api/policies). An owner or
 // admin changes them: Grant, Revoke, Save policy and Remove POST /api/grants or /api/policies
 // with the password asked again in that form, sent with the sign-in cookie and never the

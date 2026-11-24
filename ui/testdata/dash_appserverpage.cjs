@@ -1,5 +1,5 @@
 // The personal layout (agentd app, mode "app") is unchanged by the server page's rebuild
-// (libraos/agentd-core#907 steps 1 to 4): agentd app answers 404 for /api/load, /api/running,
+// (libraos/core#907 steps 1 to 4): agentd app answers 404 for /api/load, /api/running,
 // /api/grants, /api/policies, /api/insights and /api/devices, so the page never asks for them in app mode, from a bare
 // address, #overview, #team/permissions, #team/users, #insights, #settings/repositories or any refresh; Overview and Team stay hidden and the
 // app's frame shows. Runs in every mode:

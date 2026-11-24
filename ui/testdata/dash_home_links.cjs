@@ -1,4 +1,4 @@
-// Home's counted links open the set they counted (libraos/agentd-core#904 item 3); Home is Overview on
+// Home's counted links open the set they counted (libraos/core#904 item 3); Home is Overview on
 // the team server since #907, so this keeps the Tasks side: a creator and project in the address narrow it.
 // "All N in Tasks" keeps the creator as well as the project, so Tasks shows the same N;
 // a link that opens a wider list carries no count and says Browse Tasks. Group labels
