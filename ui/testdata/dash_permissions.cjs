@@ -29,6 +29,7 @@ function boot(user,role,readStatus){const requests=[],posts=[],errors=[],logs=[]
    if((u.pathname==='/api/grants'||u.pathname==='/api/policies')&&opts.method==='POST'){const b=JSON.parse(opts.body);posts.push({path:u.pathname,body:b,headers:{...(opts.headers||{})},credentials:opts.credentials});const a=answer(u.pathname,b);return json(a.body,a.status)}
    if(u.pathname==='/api/grants')return readStatus===200?json(grants):json({error:'policies are read by an owner or an admin'},readStatus);
    if(u.pathname==='/api/policies')return readStatus===200?json(policies):json({error:'policies are read by an owner or an admin'},readStatus);
+   if(u.pathname==='/api/team'&&u.searchParams.get('member'))return json({kind:'member',name:u.searchParams.get('member'),member:{role:'dev'},grants:u.searchParams.get('member')==='bob'?[{scope:'project:acme/api',role:'developer',granted_by:'alice'}]:[]});
    if(u.pathname==='/api/team')return json({roles:[],members,problems:[],handoff_roles:{}});
    if(u.pathname==='/api/settings')return json({owner:role==='owner',config:{},models:{},users:role==='owner'?members.map(m=>({...m,state:'active'})):[],invites:[]});
    if(u.pathname==='/api/chat')return json({chats:[],roles:[],gateway_ready:false});
@@ -95,6 +96,9 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
   assert(!t.errors.length,t.errors.join('\n'));t.w.close()}
  // Not an owner or admin: the server refuses the read; no form.
  for(const [user,role] of [['bob','dev'],['vera','viewer']]){const t=boot(user,role,403),{w,doc}=t,view=()=>doc.querySelector('#team-view');await settle();w.location.hash='#team/permissions';await settle();
-  const d=view().querySelector('[data-perm-denied]');assert(d&&d.textContent.includes('Only an owner or admin can read this'),role+': '+view().textContent.slice(0,200));
+  const d=view().querySelector('[data-perm-denied]');assert(d&&d.textContent.includes('for owners only'),role+': '+view().textContent.slice(0,200));
+  // They still read their own grants (layout review O), as their member page shows them.
+  const own=view().querySelector('[data-perm="own"]');assert(own,role+': no own grants section');
+  if(user==='bob')assert.deepEqual([...own.querySelectorAll('[data-own-grant] td')].map(c=>c.textContent),['project:acme/api','developer','alice']);else assert(/No scoped grants/.test(own.textContent),role+': no empty note');
   assert(!view().querySelector('form,input[type=password],[data-perm-revoke]'),role+' is offered a form');assert.equal(t.posts.length,0);assert(!t.errors.length,t.errors.join('\n'));t.w.close()}
  console.log('dash_permissions: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light')})().catch(e=>{console.error(e);process.exit(1)});
