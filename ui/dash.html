@@ -844,7 +844,14 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .trig-tpl pre{margin:0;padding:8px;overflow-x:auto;white-space:pre;font:12px/1.5 ui-monospace,monospace;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--fg)}
 .trig-actions,.trig-fill{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trig-fill{align-items:flex-end}.trig-actions>[data-write-why]{flex-basis:100%}.trig-fill label{display:grid;gap:4px;flex:1 1 180px;min-width:0}.trig-fill input{min-width:0}
 .trig-problem{color:var(--red);overflow-wrap:anywhere}.trig-ok{color:var(--green,var(--fg))}
-@media(max-width:860px){.trig-cols{grid-template-columns:minmax(0,1fr)}.trig-state{grid-template-columns:auto minmax(0,1fr)}.trig-state>button{grid-column:1/-1;justify-self:start}}
+/* Where triggers run: each joined host a row, its state a word with a mark (never colour alone); a stale or unreported host's pill is dashed and muted, never green. Shared with the app's page. */
+.trig-hosts{list-style:none;margin:0;padding:0;display:grid;min-width:0}.trig-host{display:grid;gap:4px;padding:8px 0;border-bottom:1px solid var(--line);min-width:0;overflow-wrap:anywhere}.trig-host:first-child{padding-top:0}.trig-host:last-child{border-bottom:0;padding-bottom:0}
+.trig-host-head{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;min-width:0}.trig-host-head b{overflow-wrap:anywhere}.trig-host-person{font-size:var(--fs-s);color:var(--mute)}
+.trig-host-state{display:inline-flex;align-items:center;gap:4px;padding:0 8px;border:1px solid var(--line);border-radius:999px;font-size:var(--fs-s);white-space:nowrap}.trig-host-mark{font-size:10px;line-height:1}
+.trig-host[data-state=on] .trig-host-state{color:var(--green,var(--fg));border-color:currentColor}.trig-host[data-state=cannot_fire] .trig-host-state{color:var(--red);border-color:currentColor}
+.trig-host[data-state=stale] .trig-host-state,.trig-host[data-state=not_reported] .trig-host-state{color:var(--mute);border-style:dashed}
+.trig-host>div:not(.trig-host-head){font-size:var(--fs-s)}.trig-host dl{display:grid;grid-template-columns:minmax(90px,max-content) minmax(0,1fr);gap:4px 12px;margin:0;font-size:var(--fs-s)}.trig-host dt{color:var(--mute)}.trig-host dd{margin:0;overflow-wrap:anywhere}.trig-hosts-note{margin:0}
+@media(max-width:860px){.trig-cols{grid-template-columns:minmax(0,1fr)}.trig-state{grid-template-columns:auto minmax(0,1fr)}.trig-state>button{grid-column:1/-1;justify-self:start}.trig-host dl{grid-template-columns:minmax(0,1fr)}.trig-host dd{margin-bottom:4px}}
 /* end:css-triggers */
 /* region:css-connect: agentd connect from Settings > Agents, owners only (#466) */
 .set-connect-out{display:grid;gap:8px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--sunk);min-width:0}.set-connect-out h4{margin:0}
@@ -1049,6 +1056,10 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
   .appt-runs .app-ptable thead{display:none}.appt-runs .app-ptable,.appt-runs .app-ptable tbody,.appt-runs .app-ptable tr{display:block;width:100%}.appt-runs .app-ptable tr{padding:6px 0;border-bottom:1px solid var(--o-border)}.appt-runs .app-ptable tr:last-child{border-bottom:0}
   .appt-runs .app-ptable td{display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;height:auto;padding:3px 12px;border:0}.appt-runs .app-ptable td:before{content:attr(data-label);color:var(--o-mfg);font-size:11px;line-height:20px}}
 .appt-held{padding:12px 16px;font-size:12px;line-height:1.5}.appt-held .trig-small{color:var(--o-mfg)}.app-page .trig-triage .mute{color:var(--o-mfg)}.app-page .trig-triage .trig-problem{color:#fb2c36}.app-page .appt-task.linkish{color:inherit;text-decoration:underline;font:inherit}
+/* the app's Where triggers run card: the shared host rows in the app's colours */
+.app-page .trig-hosts{margin:4px 0 0}.app-page .trig-host{border-color:var(--o-border);font-size:12px}.app-page .trig-host-person,.app-page .trig-host dt,.app-page .trig-hosts-note{color:var(--o-mfg)}.app-page .trig-host-state{border-color:var(--o-border);color:var(--o-fg);font-size:11px}
+.app-page .trig-host[data-state=on] .trig-host-state{border-color:currentColor}.app-page .trig-host[data-state=cannot_fire] .trig-host-state{color:#fb2c36;border-color:currentColor}.app-page .trig-host[data-state=stale] .trig-host-state,.app-page .trig-host[data-state=not_reported] .trig-host-state{color:var(--o-mfg);border-style:dashed}
+.app-page .trig-host dl,.app-page .trig-host>div:not(.trig-host-head){font-size:12px}.app-page .trig-hosts-note{font-size:11px;line-height:1.5;margin:0 0 8px}.app-page .trig-hosts-note code{display:inline;margin:0}.app-page [data-trig=no-hosts]{color:var(--o-mfg);font-size:12px}
 /* end:css-app-triggers */
 /* region:css-app-settings */
 .app-preferences .app-pref{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--o-border)}
@@ -5739,6 +5750,65 @@ function trigState(name,on,problem,later,enable,verb){
   return el('span',{'data-trig':'problem'},'Off. Turned on from a terminal: ',el('code',{},enable),'.',later?[' Would still not '+verb+': ',el('span',{class:'trig-problem','data-trig':'later'},later)]:'')}
 function trigTask(id){return id?el('a',{href:'#issues/'+encodeURIComponent(id)},id):''}
 function trigCard(name,title,about,...body){return el('section',{class:'trig-card','data-trig':name,'aria-label':title},el('h3',{},title),about?el('p',{class:'trig-small'},about):null,...body)}
+// Where triggers run: [triggers] fire on the host whose config turns them on, often a person's joined machine
+// rather than the server. A team server's GET /api/triggers may add where (kind server|hosts|server_and_hosts|
+// nowhere and counts) and nodes (each joined host's state and the summary it reported). With where the page
+// leads with it, not with this server's own config, and lists the hosts; the team page and the app share these.
+// A stale or unreported host never reads as on: its word leads, and the server sends no summary for it. A server
+// that sends neither field gets the page as it was.
+const TRIG_HOST_STATES={on:['●','On'],cannot_fire:['▲','Cannot fire'],off:['○','Off'],stale:['◌','Stale'],not_reported:['?','Not reported']};
+const TRIG_GH_REASONS={gh_missing:'gh is not installed',gh_timeout:'gh timed out',gh_auth:'gh is not signed in',gh_forbidden:'gh was refused permission',gh_not_found:'the issue or label was not found',gh_rate_limited:'GitHub’s rate limit',gh_failed:'gh failed'};
+function trigWhere(d){const w=d&&d.where;return w&&typeof w==='object'&&typeof w.kind==='string'?w:null}
+function trigHostsShown(d){return !!trigWhere(d)||Array.isArray(d&&d.nodes)}
+function trigCount(n,one,many){return n+' '+(n===1?one:many)}
+// trigWhereHead: the page's lead sentence, or null for nowhere (the server's own line leads, as before).
+function trigWhereHead(w){const h=trigCount(trigNum(w.hosts)||0,'joined host','joined hosts');
+  if(w.kind==='server')return 'Triggers run on this server.';if(w.kind==='hosts')return 'Triggers run on '+h+'.';if(w.kind==='server_and_hosts')return 'Triggers run on this server and '+h+'.';
+  if(w.kind!=='nowhere'&&typeof w.text==='string'&&w.text)return 'Triggers run '+w.text.replace(/\.$/,'')+'.';return null}
+// trigWhereChip: the header chip's word; on is this server's own enabled, which is all nowhere has to go on.
+function trigWhereChip(w,on){const n=trigNum(w.hosts)||0;
+  return w.kind==='server'?'On':w.kind==='hosts'?'On · '+trigCount(n,'host','hosts'):w.kind==='server_and_hosts'?'On · server and '+trigCount(n,'host','hosts'):w.kind==='nowhere'?(on?'On':'Off'):trigWhereHead(w)?'On':(on?'On':'Off')}
+function trigWhereActive(w,on){return w?w.kind!=='nowhere'&&!!trigWhereHead(w)||on:on}
+// trigWhereRest: the joined hosts not counted as running triggers, as one line, or '' when there are none.
+function trigWhereRest(w){const parts=[['hosts_cannot_fire','cannot fire'],['hosts_off','off'],['hosts_stale','stale'],['hosts_not_reported','not reported']].map(([k,t])=>[trigNum(w[k])||0,t]).filter(([n])=>n>0).map(([n,t])=>n+' '+t);
+  return parts.length?(trigNum(w.hosts)?'Other joined hosts: ':'Joined hosts: ')+parts.join(', ')+'.':''}
+// trigHostSync: a host's last GitHub reads, as relative times with the exact one in each tooltip.
+function trigHostSync(t){const one=(name,v)=>[name+' ',v?settingsWhen(v):'never'];if(!t.last_issue_sync&&!t.last_pr_sync)return 'Never';
+  return [one('issues',t.last_issue_sync),', ',one('PRs',t.last_pr_sync)]}
+// trigHost: one joined host: its name, person and state as a word with a mark beside it (never colour alone),
+// why it cannot fire, when a stale host last reported and what it said, and the summary it sent.
+function trigHost(n,problemClass){const st=TRIG_HOST_STATES[n.state]?n.state:'not_reported',[mark,word_]=TRIG_HOST_STATES[st],t=n.triggers&&typeof n.triggers==='object'&&(st==='on'||st==='cannot_fire'||st==='off')?n.triggers:null;
+  const notes=[];
+  if(st==='cannot_fire')notes.push(el('div',{class:problemClass,'data-host-note':'problem'},'Cannot fire: '+(t&&t.problem?t.problem:'the host did not say why.')));
+  else if(st==='on'&&t&&t.issue_problem)notes.push(el('div',{class:problemClass,'data-host-note':'issue-problem'},'Issues cannot fire (red PRs still do): '+t.issue_problem));
+  if(st==='stale')notes.push(el('div',{'data-host-note':'stale'},'No recent report. ',n.reported_at?['Last reported ',settingsWhen(n.reported_at)]:'Last report time unknown',typeof n.last_reported_enabled==='boolean'?', when it said its triggers were '+(n.last_reported_enabled?'on':'off')+'; that may have changed since.':'.'));
+  if(st==='not_reported')notes.push(el('div',{'data-host-note':'not-reported'},'No summary yet: an older release, or no pass yet since it joined.',n.last_seen?[' Last seen ',settingsWhen(n.last_seen),'.']:''));
+  if(st==='off')notes.push(el('div',{'data-host-note':'off'},'Its triggers are off.'));
+  const max=trigNum(t&&t.max_per_day),today=trigNum(t&&t.offers_today);
+  const pairs=t&&t.enabled===true?[
+    ...(t.issues==='new'||t.issues==='label'?[['Issues',t.issues==='new'?'Every new issue':'Labelled by a listed person']]:[]),
+    ...(typeof t.triage==='boolean'?[['Triage first',t.triage?'On':'Off']]:[]),
+    ['Repositories',Array.isArray(t.repos)&&t.repos.length?t.repos.join(', '):'None'],
+    ...(today!==null||max!==null?[['Offers today',(today??0)+(max!==null?' of '+max+' a day':'')]]:[]),
+    ['Last sync',trigHostSync(t)]]:[];
+  return el('li',{class:'trig-host','data-host':String(n.node||''),'data-state':st},
+    el('div',{class:'trig-host-head'},el('b',{},String(n.node||'Unnamed host')),n.person?el('span',{class:'trig-host-person'},String(n.person)):null,
+      el('span',{class:'trig-host-state','data-host-state':st},el('span',{class:'trig-host-mark','aria-hidden':'true'},mark),word_)),
+    notes,pairs.length?el('dl',{},pairs.map(([k,v])=>[el('dt',{},k),el('dd',{},v)])):null)}
+// trigHosts: the Hosts list with what it means, or a line when no host has joined.
+function trigHosts(d,problemClass){const nodes=(Array.isArray(d.nodes)?d.nodes:[]).filter(n=>n&&typeof n==='object');
+  return [el('p',{class:'trig-small trig-hosts-note','data-trig':'hosts-note'},'Each joined host runs the [triggers] in its own config.toml and reports a summary here. A host’s triggers are changed on that host, from a terminal there (',el('code',{},'libraos-core config set triggers.enabled true'),' or false), not from this page.'),
+    nodes.length?el('ul',{class:'trig-hosts'},nodes.map(n=>trigHost(n,problemClass))):el('p',{class:'trig-small','data-trig':'no-hosts'},'No joined host has reported to this server.')]}
+// trigReason: a fixed gh reason code in words, or the code itself when it is a new one.
+function trigReason(r){return r?TRIG_GH_REASONS[r]||words(String(r)):''}
+// trigOutcomeLine: an issue run's label and whether it is on GitHub (applied), waiting for the next sync
+// (pending, or pending_retry after gh failed) or failed, from the run's outcome_state; then the comment's
+// state when gh refused it.
+function trigOutcomeLine(os,label){const s=String(os.state||''),why=trigReason(os.reason),n=trigNum(os.failures);
+  const tail=s==='applied'?' on GitHub':s==='pending'?' pending: set at the next sync':s==='pending_retry'?' pending: '+(why||'gh failed')+'; the next sync tries again':s==='failed'?' failed: '+(why||'gh failed')+(n?', '+trigCount(n,'try','tries'):'')+'; each sync tries again':s?' '+words(s):'';
+  const out=[el('span',{'data-triage':'label','data-outcome':s,class:s==='failed'?'trig-problem':null},'Label ',el('code',{},label),tail)];
+  if(os.comment==='pending_retry'||os.comment==='failed')out.push(el('span',{'data-triage':'comment','data-outcome':os.comment,class:os.comment==='failed'?'trig-problem':null},'Comment '+(os.comment==='failed'?'failed':'not posted yet')+': '+(why||'gh failed')+(os.comment==='failed'?'; each sync tries again':'; the next sync tries again')));
+  return out}
 // Issue triggers (libraos/core#1078): which issues fire, the cap per author, triage first, trusted labelers,
 // the outcome labels and the comment, each run's triage verdict and fix task, and the issues held back. The
 // team page and the app share these. A server that does not send a field shows nothing for it: no row, no
@@ -5770,7 +5840,10 @@ function trigTriage(o,st,task){if(o.kind==='pr')return '';const v=o.triage||'',o
   else if(o.phase==='triage')out.push(el('span',{'data-triage':'verdict',class:'mute'},'No verdict yet'));
   if(o.confidence)out.push(el('span',{'data-triage':'confidence'},String(o.confidence)[0].toUpperCase()+String(o.confidence).slice(1)+' confidence'));
   const label=typeof o.outcome_label==='string'&&o.outcome_label?o.outcome_label:v&&st.outcome_labels&&typeof st.outcome_labels[outcome]==='string'?st.outcome_labels[outcome]:'';
-  if(label)out.push(el('span',{'data-triage':'label'},'Label ',el('code',{},label)));
+  // outcome_state says what is on GitHub; without it (an older server) the label is the one the verdict implies.
+  const os=o.outcome_state&&typeof o.outcome_state==='object'&&typeof o.outcome_state.state==='string'?o.outcome_state:null,osLabel=os&&typeof os.label==='string'&&os.label?os.label:label;
+  if(os&&osLabel)out.push(...trigOutcomeLine(os,osLabel));
+  else if(label)out.push(el('span',{'data-triage':'label'},'Label ',el('code',{},label)));
   if(o.fix_handoff)out.push(el('span',{'data-triage':'fix'},'Fix task ',task(o.fix_handoff)));
   else if(proposed)out.push(el('span',{'data-triage':'waiting'},'Waiting for a person’s label'));
   if(o.approved_by&&!proposed)out.push(el('span',{'data-triage':'approved',class:'mute'},'Approved by '+o.approved_by));
@@ -5836,21 +5909,29 @@ function trigSignals(d){const m=d.signals;if(!m)return null;
     settingsPairs([['Most a day',m.max_per_day],['Offered in 24 hours',String(m.offered_today??0)]]),
     el('h4',{},'Latest offers'),(m.offers||[]).length?settingsTable(['When','Signal','Task','State','Result'],m.offers.map(o=>[settingsWhen(o.created),o.signal,el('span',{},trigTask(o.id),o.goal?el('small',{class:'tm-why'},o.goal):null),word(o.state),o.signal_result||''])):el('p',{class:'mute','data-trig':'empty'},'Nothing offered yet.'))}
 function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st.enabled===true,dirs=Object.entries(st.dirs||{});
-  $('trig-meta').textContent=(on?'On':'Off')+' · owners only';$('trig-meta').dataset.on=String(on);$('trig-intro').hidden=false;trigBadge(on);
-  const head=on?st.problem?'On, but cannot fire: '+st.problem:trigOn(st):'Off. Nothing starts a worker on its own.';
+  // where (a team server's): the chip, badge and lead say where triggers run, this server's own config one line under it.
+  const wh=trigWhere(d),whHead=wh&&trigWhereHead(wh),hostsShown=trigHostsShown(d),active=trigWhereActive(wh,on);
+  $('trig-meta').textContent=(wh?trigWhereChip(wh,on):on?'On':'Off')+' · owners only';$('trig-meta').dataset.on=String(active);$('trig-intro').hidden=false;trigBadge(active);
+  const own=on?st.problem?'On, but cannot fire: '+st.problem:trigOn(st):'Off. Nothing starts a worker on its own.';
+  const head=whHead||(wh&&wh.kind==='nowhere'&&!on?'Off. Nothing starts a worker on its own: not this server, and no joined host.':own);
   // Latest runs is full width under the templates and settings (its six columns squeezed into the side column wrapped a letter a line).
   // An issue run's triage (verdict, confidence, label, fix task) is its own column, left out for a server that sends none.
   const offers=Array.isArray(st.offers)?st.offers:[],tri=trigHasTriage(offers);
-  const runs=el('section',{class:'trig-col trig-runs','data-trig':'offers','aria-label':'Latest runs',tabindex:'-1'},el('h3',{},'Latest runs'),offers.length?
+  const runsTitle=hostsShown?'Latest runs on this server':'Latest runs';
+  const runs=el('section',{class:'trig-col trig-runs','data-trig':'offers','aria-label':runsTitle,tabindex:'-1'},el('h3',{},runsTitle),offers.length?
     el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),...(tri?[trigTriage(o,st,trigTask)]:[]),o.error||'']))):
     el('div',{class:'trig-card'},el('p',{class:'mute','data-trig':'empty'},'Nothing recorded yet. Each run links to the task it started.')));
-  const state=el('div',{class:'trig-card trig-state','data-trig':'state'},el('i',{class:'trig-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),
-    el('div',{},el('strong',{class:on&&st.problem?'trig-problem':''},head),el('div',{class:'trig-small'},on?['Turned off from a terminal: ',el('code',{},'libraos-core config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire'))),
+  const ownCmd=on?['Turned off from a terminal: ',el('code',{},'libraos-core config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire');
+  const rest=wh?trigWhereRest(wh):'',bad=whHead?false:on&&!!st.problem;
+  const state=el('div',{class:'trig-card trig-state','data-trig':'state'},el('i',{class:'trig-dot'+(whHead?' on':on?st.problem?' bad':' on':''),'aria-hidden':'true'}),
+    el('div',{},el('strong',{class:bad?'trig-problem':'','data-trig':'where'},head),rest?el('div',{class:'trig-small','data-trig':'where-rest'},rest):null,
+      whHead?el('div',{class:'trig-small','data-trig':'own'},'This server’s own triggers: ',on?[el('span',{class:st.problem?'trig-problem':''},own),' ']:null,ownCmd):el('div',{class:'trig-small'},ownCmd)),
     el('button',{type:'button',onclick:()=>{runs.scrollIntoView({block:'start'});runs.focus()}},'Runs'));
   // Edit issue settings: the trigger_edit write, refused here (as Write is) while triggers are on; shown once there is a trigger and the server reports the issue settings.
   const editWhy=on?'Triggers are on. Turn them off from a terminal before editing.':'',canEdit=(st.repos||[]).length>0&&trigIssueFields(st).length>0;
   const edit=canEdit?el('div',{class:'trig-actions'},el('button',{type:'button','data-write':'','data-trig-action':'edit-issues','data-disabled-reason':editWhy||null,onclick:()=>trigIssueEdit()},'Edit issue settings'),editWhy?el('span',{class:'trig-small','data-edit-why':''},editWhy):null):null;
-  const settings=el('section',{class:'trig-col','data-trig':'settings','aria-label':'Settings now'},el('h3',{},'Settings now'),el('div',{class:'trig-card'},settingsPairs([['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],...trigIssuePairs(st),['Budget',st.budget],['Most a day',st.max_per_day],
+  const setTitle=hostsShown?'This server’s settings':'Settings now';
+  const settings=el('section',{class:'trig-col','data-trig':'settings','aria-label':setTitle},el('h3',{},setTitle),hostsShown?el('p',{class:'trig-small','data-trig':'own-note'},'[triggers] in this server’s config.toml. Each joined host has its own, under Hosts.'):null,el('div',{class:'trig-card'},settingsPairs([['Repositories',trigList(st.repos)],['Authors',trigList(st.authors)],['Issue label',st.label||'Not set: issues start nothing'],...trigIssuePairs(st),['Budget',st.budget],['Most a day',st.max_per_day],
     ['Checkouts',dirs.length?dirs.map(([r,p])=>el('div',{},r+': ',el('code',{},p))):''],...(trigList(st.not_in_sync_repos)?[['Not in [sync] repos',trigList(st.not_in_sync_repos)]]:[])]),edit));
   const heldList=trigHeldList(st),held=heldList?el('section',{class:'trig-col','data-trig':'held','aria-label':'Held back'},el('h3',{},'Held back'),el('div',{class:'trig-card'},heldList)):null;
   const repo=el('input',{type:'text',id:'trig-repo',value:d.repo||'',placeholder:'OWNER/NAME',autocomplete:'off'}),author=el('input',{type:'text',id:'trig-author',value:d.author||'',placeholder:'GitHub login',autocomplete:'off'});
@@ -5859,7 +5940,8 @@ function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st
   const tpls=(d.templates||[]).map(t=>el('div',{class:'trig-tpl','data-template':t.name},el('span',{class:'trig-kind'},t.label?'Issues':'Pull requests'),el('h3',{},t.title),el('p',{},t.about),el('pre',{},el('code',{},t.toml)),
     el('div',{class:'trig-actions'},el('button',{type:'button',onclick:()=>chatCopy(t.toml)},'Copy config'),el('button',{type:'button',class:'primary','data-write':'','data-disabled-reason':why||null,onclick:()=>trigWrite(t)},'Write to config.toml'),why?el('span',{class:'trig-small','data-write-why':''},why):null)));
   const left=el('section',{class:'trig-col','data-trig':'templates','aria-label':'Start from a template'},el('h3',{},'Start from a template'),el('p',{class:'mute'},'Copy one into config.toml, or write it there from here. Either way triggers stay off until you turn them on.'),fill,...tpls);
-  $('trig-body').replaceChildren(state,el('div',{class:'trig-cols'},left,el('div',{class:'trig-col'},settings,held,trigImprove(d),trigSignals(d))),runs);
+  const hosts=hostsShown?el('section',{class:'trig-col','data-trig':'hosts','aria-label':'Hosts'},el('h3',{},'Hosts'),el('div',{class:'trig-card'},trigHosts(d,'trig-problem'))):null;
+  $('trig-body').replaceChildren(state,hosts,el('div',{class:'trig-cols'},left,el('div',{class:'trig-col'},settings,held,trigImprove(d),trigSignals(d))),runs);
   lockState()}
 $('trig-refresh').onclick=()=>trigLoad();
 // Triggers is shown to an owner only (#907 step 4): its rail item, the account menu's link, Settings'
@@ -6218,12 +6300,14 @@ function appTrigSchedule(s){const def=s.definition||{},on=s.enabled===true,runs=
 function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')return;const d=APPT.data;
   if(!d){p.replaceChildren(appPageHead('Triggers'),APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):el('p',{class:'appt-state'},'Loading triggers…'));return}
   const st=d.status||{},on=st.enabled===true,has=(st.repos||[]).length>0,offers=Array.isArray(st.offers)?st.offers:[],tri=trigHasTriage(offers),held=trigHeldList(st);
-  const head=appPageHead('Triggers',el('span',{class:'app-navnote'},on?'On':'Off'),el('span',{class:'appt-sp'}),
+  // where (a team server's): the chip and the first card say where triggers run and list the joined hosts; the card under it is this server's own.
+  const wh=trigWhere(d),whHead=wh&&trigWhereHead(wh),hostsShown=trigHostsShown(d);
+  const head=appPageHead('Triggers',el('span',{class:'app-navnote','data-appt':'chip'},wh?trigWhereChip(wh,on):on?'On':'Off'),el('span',{class:'appt-sp'}),
     on?el('button',{type:'button','data-appt-action':'trigger_pause',onclick:()=>appTrigPause()},'Pause'):null,
     el('button',{type:'button',class:'primary','data-appt-action':'trigger_edit','data-contextual-tour-target':'triggers-add',disabled:on||null,title:on?'Triggers are on: pause them to edit':null,onclick:()=>appTrigEdit()},has?'Edit trigger':'New trigger'));
-  const state=on?st.problem?'On, but cannot fire: '+st.problem:st.issues==='new'?'On. A red PR of the authors or a new issue starts a worker.':'On. A red PR or a labelled issue of the authors starts a worker.':has?'Off. Nothing starts a worker on its own.':'No trigger yet. New trigger sets one up, off until you turn it on.';
+  const state=on?st.problem?'On, but cannot fire: '+st.problem:st.issues==='new'?'On. A red PR of the authors or a new issue starts a worker.':'On. A red PR or a labelled issue of the authors starts a worker.':has?(whHead?'Off on this server: its own [triggers] start nothing. Joined hosts run their own, above.':'Off. Nothing starts a worker on its own.'):'No trigger yet. New trigger sets one up, off until you turn it on.';
   const trig=el('div',{class:'app-pcard appt-card','data-appt':'trigger'},
-    el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},'Red CI and labelled issues'),el('small',{},'[triggers] in config.toml'))),
+    el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},hostsShown?'This server’s triggers':'Red CI and labelled issues'),el('small',{},hostsShown?'Red CI and labelled issues: [triggers] in this server’s config.toml':'[triggers] in config.toml'))),
     el('p',{class:'appt-state','data-appt':'state'},state,!on&&st.problem_when_enabled?el('span',{class:'appt-problem'},' Would still not fire: '+st.problem_when_enabled):null),
     has?el('dl',{class:'appt-dl'},[['Repositories',(st.repos||[]).join(', ')],['Authors',(st.authors||[]).join(', ')],['Issue label',st.label||'Not set: issues start nothing'],...trigIssuePairs(st),['Budget',st.budget],['Most a day',st.max_per_day]].map(([k,v])=>[el('dt',{},k),el('dd',{},v===''||v==null?'Not set':v instanceof Node?v:String(v))])):null,
     el('div',{class:'appt-cli'},on?[el('span',{},'Pause from a terminal:'),appTrigCmd('libraos-core config set triggers.enabled false')]:[el('span',{},'Turn on from a terminal:'),appTrigCmd(d.enable||'libraos-core config set triggers.enabled true')]),
@@ -6231,7 +6315,13 @@ function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')ret
     held?[el('h3',{},'Held back'),el('div',{class:'app-pcard appt-held','data-appt':'held'},held)]:null,
     el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||'']})),'Each run lists here, with the task it started.'));
   const sch=((d.schedules||{}).schedules)||[];
-  p.replaceChildren(head,APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):null,trig,
+  const rest=wh?trigWhereRest(wh):'';
+  const where=hostsShown?el('div',{class:'app-pcard appt-card','data-appt':'where'},
+    el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(whHead?' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},'Where triggers run'),el('small',{},'This server and the hosts joined to it'))),
+    el('p',{class:'appt-goal','data-appt':'where-head'},whHead||(wh&&wh.kind==='nowhere'?'Off. Nothing starts a worker on its own: not this server, and no joined host.':'This server’s own triggers are below; joined hosts report theirs here.')),
+    rest?el('p',{class:'appt-state','data-appt':'where-rest'},rest):null,
+    el('h3',{},'Hosts'),el('div',{'data-appt':'hosts'},trigHosts(d,'appt-problem'))):null;
+  p.replaceChildren(head,APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):null,where,trig,
     el('h3',{class:'appt-h'},'Schedules'),sch.length?sch.map(appTrigSchedule):el('div',{class:'app-pcard app-pempty','data-appt':'no-schedules'},el('b',{},'No schedules'),'A repository defines them as [schedules.NAME] in its committed .agentd/tasks.toml; they show here to enable and run.'))}
 // end:app-triggers
 // region:app-newtask: New task in the personal app (libraos/core#564), the reference app's
