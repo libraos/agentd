@@ -56,7 +56,7 @@ button.stat{background:none;border:0;padding:0;font:inherit;cursor:pointer}butto
 .stat b{font-weight:500;color:var(--fg);font-variant-numeric:tabular-nums}.stat.hot b{color:var(--amber)}
 .tokenbox{display:flex;gap:6px;align-items:center;margin-left:auto}.tokenbox input{width:150px}
 #now{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
-#tokstate{font-size:12px;color:var(--mute)}
+#tokstate{font-size:12px;color:var(--mute)}#account-name{display:inline-block;max-width:18ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
 /* region:css-overview: Overview's load cards and running tasks (#907) */
 .ov-cards{display:grid;gap:12px;margin-bottom:20px}
 .ov-card{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px;min-width:0}
@@ -396,6 +396,15 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .tw-msgbox{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:end;border-top:1px solid var(--line);padding-top:12px;margin-top:8px}.tw-msgbox[hidden]{display:none}.tw-msgbox .field-hint,.tw-msgbox .tw-gone{grid-column:1/-1;margin:0}
 .tw-field{display:grid;gap:4px;font-size:var(--fs-s)}.tw-input{width:100%;resize:vertical;min-height:44px;font:inherit}
 .tw-kids{list-style:none;margin:4px 0;padding:0;display:grid;gap:4px;font-size:var(--fs-s);overflow-wrap:anywhere}
+/* a mirrored task's page is one column under All tasks (the .idetail grid put the crumb alone on the left and the task in its narrow right column) */
+.idetail.mirror-detail{grid-template-columns:minmax(0,1fr);gap:0}.mirror-detail .mirror-item{display:grid;gap:10px;min-width:0;max-width:90ch}.mirror-detail .ititle{margin-bottom:0}.mirror-detail .mirror-note{margin:0}.mirror-detail .sec{margin-top:6px}
+/* What you can do (region:need-actions): the steps of a task that needs a person with no button here, each a command with Copy */
+.need-acts{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-m);background:var(--panel);padding:10px 12px;display:grid;gap:8px;min-width:0}
+.need-h{margin:0;font-size:var(--fs-s)}.need-h b{color:var(--fg)}
+.need-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}.need-list li{display:grid;grid-template-columns:minmax(120px,max-content) minmax(0,1fr);gap:2px 12px;align-items:center;min-width:0}
+.need-list .field-hint{grid-column:2;margin:0}.need-label{font-weight:600}
+.need-cli{display:flex;gap:6px;align-items:center;min-width:0}.need-cli code{overflow-wrap:anywhere;min-width:0;flex:1 1 auto}.need-copy{flex:none}
+@media(max-width:860px){.need-list li{grid-template-columns:minmax(0,1fr)}.need-list .field-hint{grid-column:1}.need-copy{min-height:44px;min-width:44px}}
 @container (max-width:860px){.tw-body{grid-template-columns:minmax(0,1fr)}.tw-more{display:inline-block}.tw-side>.tw-tabs{display:none}
   .idetail.tw:not([data-phone]) .tw-side{display:none}.idetail.tw[data-phone] .tw-main>.tw-panel{display:none}.idetail.tw[data-phone] .tw-main .tw-tab:not(.tw-more)[aria-selected="true"]{color:var(--mute);border-bottom-color:transparent}
   .idetail.tw[data-phone] .tw-main .tw-tabs{margin-bottom:0}.tw-side.iprops{border-top-left-radius:0;border-top-right-radius:0}}
@@ -1351,7 +1360,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <div class="stats" id="stats"></div>
   <button type="button" class="search-open" id="search-open" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K" title="Search tasks, PRs, issues and runs"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5"/><path d="m12.5 12.5 4 4"/></svg><span class="search-open-label">Search</span><kbd id="search-key">Ctrl K</kbd></button>
   <span id="now">Loading…</span>
-  <details class="row-more account" id="account"><summary aria-label="Account and settings">Account</summary><div class="menu-items acct-card">
+  <details class="row-more account" id="account"><summary aria-label="Account and settings" title="Account"><span id="account-name">Account</span></summary><div class="menu-items acct-card">
     <div class="tokenbox acct-who"><span id="userstate"></span><span id="tokstate">Read-only</span><button id="tokset" class="primary">Unlock</button></div>
     <div class="tokenbox" id="account-nodes" aria-label="Your nodes" hidden></div>
     <div class="stats" id="account-stats"></div>
@@ -1750,7 +1759,10 @@ function sheet(o){if(activeSheet)return Promise.resolve(null);return new Promise
 function moreMenu(actions,label='More'){const items=actions.filter(Boolean);if(!items.length)return null;const summary=el('summary',{'aria-label':label},label==='More'?'More ⋯':label),menu=el('details',{class:'row-more'},summary,el('div',{class:'menu-items'},items));menu.addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();menu.open=false;summary.focus()}});menu.addEventListener('click',e=>{if(e.target.closest('button,a'))menu.open=false});return menu}
 document.addEventListener('click',e=>{for(const n of document.querySelectorAll('.row-more[open]'))if(!n.contains(e.target))n.open=false});
 function writeReason(){return !CONNECTED?'Not connected. Wait for the server to reconnect.':!CAN()?USER&&ROLE==='viewer'?'Your role is read-only. Ask an owner to act.':!USER&&TOKEN&&ON_TEAM?'The shared token is read-only on a team. Sign in with your personal key to act.':'Read-only. Unlock to act.':''}
-function lockState(){const can=CAN(),reason=writeReason();$('userstate').textContent=USER?USER+' · '+(ROLE||'…'):TOKEN?'Signed in with the shared token'+(ON_TEAM?' (read-only on a team)':''):'Not signed in';$('tokstate').textContent=can?'Can make changes':'Read-only';$('tokset').textContent=USER?'Use token':'Unlock';$('tokset').hidden=can;$('tokclear').hidden=!TOKEN&&!COOKIE;$('tokclear').textContent=COOKIE?'Sign out':'Lock';
+// accountName: the top-right Account control's words, the signed-in person's name (the user row's), the shared
+// token's words once a snapshot read with it names nobody, else Account; Account stays its accessible name and title.
+function accountName(){let read=false;try{read=!!lastDash}catch(e){}return USER||(read&&TOKEN?'Shared token':'Account')}
+function lockState(){const can=CAN(),reason=writeReason();{const n=$('account-name');if(n){const t=accountName();n.textContent=t;const s=n.parentElement;if(s&&s.setAttribute){s.setAttribute('aria-label',t==='Account'?'Account and settings':'Account and settings: '+t);s.title='Account'+(t==='Account'?'':': '+t)}}}$('userstate').textContent=USER?USER+' · '+(ROLE||'…'):TOKEN?'Signed in with the shared token'+(ON_TEAM?' (read-only on a team)':''):'Not signed in';$('tokstate').textContent=can?'Can make changes':'Read-only';$('tokset').textContent=USER?'Use token':'Unlock';$('tokset').hidden=can;$('tokclear').hidden=!TOKEN&&!COOKIE;$('tokclear').textContent=COOKIE?'Sign out':'Lock';
   document.querySelectorAll('[data-write]').forEach(b=>{const why=b.dataset.disabledReason||reason;b.disabled=false;b.setAttribute('aria-disabled',String(!!why));if(why){if(!b.dataset.lockTitle)b.dataset.lockTitle=b.title||'';b.title=why}else if(b.dataset.lockTitle!==undefined){b.title=b.dataset.lockTitle;delete b.dataset.lockTitle}if(why&&!b.dataset.disabledReason)b.setAttribute('aria-describedby','access-note');else b.removeAttribute('aria-describedby')});
   const note=$('access-note');note.hidden=!reason;note.textContent=reason;if(reason&&!CAN()&&ROLE!=='viewer')note.append(!USER&&TOKEN&&ON_TEAM?el('a',{href:'/login',class:'primary sm'},'Sign in'):el('button',{class:'primary sm',onclick:unlockSheet},'Unlock'));
   if(DR&&DR.input){DR.input.disabled=!CAN()||!CONNECTED||!DR.canSend;DR.input.title=!DR.canSend?DR.whyNot||'This session has ended.':reason}settingsAccess()}
@@ -3763,15 +3775,23 @@ function mirrorBody(d){const row=(k,v)=>v===undefined||v===null||v===''?null:el(
 // mirrorNote is the one line a mirrored task's page says (#848): where it lives and when the server last heard of it.
 function mirrorNote(d){const t=d.mirrored?new Date(d.mirrored):null,when=t&&!isNaN(t)?t.toLocaleString():'at an unknown time';
   return 'Mirrored from '+(d.node||'a users device')+(d.person?' ('+d.person+')':'')+', last updated '+when+'. Act on it on that device.'}
-// mirrorDetail is a users device's handoff on the task page, read only: what its device sent, and no action,
-// message box, terminal or file panel, since nothing can be done to it on this server.
-function mirrorDetail(d){const x=(d.tree||[])[0]||{},runs=x.attempts||[],issues=(d.issues||[]).map(i=>i.ref||i).filter(Boolean),prs=x.prs||[];
+// mirrorDetail is a users device's handoff on the task page, read only: what its device sent, and no action
+// button, message box, terminal or file panel, since nothing can be done to it on this server. It is one
+// column under All tasks: its title, its status and where it lives, then what the person can do on its device
+// (needBlock: the commands to run there, with Copy, and its pull requests), then its properties and runs.
+// Its status reads the snapshot's row for it (attention_status) over the page's row.
+function mirrorDetail(d){const x=(d.tree||[])[0]||{},id=x.id||d.ref,live=((lastDash||{}).handoff_list||[]).find(y=>y.id===id)||{},h={...x,...live,id,state:x.state||live.state||d.state,attempts:x.attempts||live.attempts||[],prs:x.prs||live.prs||[]};
+  const runs=h.attempts,issues=(d.issues||[]).map(i=>i.ref||i).filter(Boolean),prs=h.prs,ctx=issueStatusCtx(lastDash||{}),title=d.title||x.goal||d.ref,goal=(d.body||{}).goal;
   const props=propRows([['State',(x.state||d.state||'')+(x.worker_state?' ('+x.worker_state+')':'')],['Device',d.node],['Person',d.person],['Project',x.project],['Stage',x.stage?word(x.stage):null],
     ['Worker',x.worker?toolName(x.worker):null],['Branch',x.branch?el('code',{},x.branch):null],['Check',x.check],
-    ['Issue',issues.length?el('span',{},issues.map((r,i)=>[i?', ':'',el('a',{href:itemHash(r)},r)])):null],['Pull requests',prs.length?prs.join(', '):null],
+    ['Issue',issues.length?el('span',{},issues.map((r,i)=>[i?', ':'',el('a',{href:itemHash(r)},r)])):null],['Pull requests',prs.length?el('span',{},prs.map((r,i)=>[i?', ':'',el('a',{href:ghHref(r,'PR'),target:'_blank',rel:'noopener noreferrer'},r)])):null],
     ['Minutes',x.minutes===undefined?null:Number(x.minutes).toFixed(1)],['Cost',x.usd===undefined?null:(x.floor?'≥ ':'')+'$'+Number(x.usd).toFixed(2)],['Updated',x.updated_ago?x.updated_ago+' ago':null]]);
-  return el('div',{class:'mirror-item','data-read-only':'true'},el('h2',{class:'ititle'},d.title||x.goal||d.ref),
+  const last=needLast(h),status=el('div',{class:'kmeta tw-status mirror-status'},taskStatus(h,statusOf(h,[],ctx.openPR)),x.project?el('span',{},x.project):null,x.worker?el('span',{},toolName(x.worker)):null,
+    d.node?el('span',{},'on '+d.node):null,last&&!last.running&&last.end_reason?el('span',{},'last run: '+word(last.end_reason)):null,x.updated_ago?el('span',{class:'age'},'Updated '+x.updated_ago+' ago'):null);
+  return el('div',{class:'mirror-item','data-read-only':'true'},el('h2',{class:'ititle'},title),status,
     el('p',{class:'note mirror-note',role:'note'},mirrorNote(d)),
+    needBlock(h,new Set(),{mirror:true,where:d.node}),
+    goal&&String(goal).trim()!==String(title).trim()?el('dl',{class:'itext ifields'},el('dt',{},'Goal'),el('dd',{},goal)):null,
     el('div',{class:'sec'},'Properties'),el('div',{class:'props'},...props),
     el('div',{class:'sec'},'Runs',el('span',{class:'n'},runs.length)),runs.length?runs.map(a=>runRow(a)):el('p',{class:'mute'},'No worker ran on this, as far as its device sent.'))}
 async function showWorkItem(ref,routed=false){if(!routed)setDrawerRoute('work',ref);
@@ -3955,6 +3975,58 @@ function cancelTask(h){if(!h.cancel||!h.cancel.may||h.read_only||h.origin==='hos
   onSubmit:async v=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Cancelling…';try{const body={action:'cancel',id:h.id,reason:v.reason};if(v.cause)body.cause=v.cause;await act(body);toast('Task cancelled',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening…',{action:'open_editor',id:h.id});if(j)toast('Opened in '+(j.editor||'the editor')+': '+(j.cli||j.dir||''),true)}
 // end:task-actions
+// region:need-actions: a task that reads Needs you always says what the person can do. The steps the
+// server has an /api/action for are the buttons in the top bar (have: their keys: dispatch for Dispatch,
+// Start again and Start anyway, takeover, cancel); this block lists the others: a step with no button for
+// this task (no API, as raising a budget, or not offered on this dash), as its exact command with Copy,
+// and each linked pull request as a link. A mirrored task (read only on this server) gets every step as
+// a command to run on its device. It is never empty on a task that needs a person: with nothing else,
+// handoff show says why. needsPerson reads the server's mark first, then attention_status, then the row.
+const NEED_STOP_ENDS=new Set(['budget_stopped','dash_stopped','failed_to_start','exited_before_claim','exited_holding_claim','lost','hung_stopped','finish_check_died']);
+function needLast(h){const a=(h&&h.attempts)||[];return a[a.length-1]||null}
+function needStopped(h){if(!h||!/^(offered|claimed)$/.test(h.state||''))return false;
+  if(h.takeover||h.retry||/^(stopped|gone)$/.test(h.worker_state||'')||/^(stopped|stop_failed)$/.test(h.budget_state||''))return true;
+  const l=needLast(h);return !!(h.dispatched&&l&&!l.running&&NEED_STOP_ENDS.has(l.end_reason||''))}
+function needBudgetStop(h){const l=needLast(h);return /^(stopped|stop_failed)$/.test(h.budget_state||'')||!!(l&&!l.running&&l.end_reason==='budget_stopped')}
+function needsPerson(h){if(!h||!h.id||/^(done|cancelled|declined)$/.test(h.state||''))return false;
+  if(markOf(h.mark))return h.mark==='needs_you'||h.mark==='failed';
+  if(h.attention_status)return h.attention_status==='needs'||h.attention_status==='failed';
+  return /^(blocked|waiting_answer|stopped|gone)$/.test(h.worker_state||'')||needStopped(h)}
+// needBudget: the budget to raise to, twice the one it had (each of minutes and dollars), else 60m.
+function needBudget(h){const b=String(h.budget||(h.retry&&h.retry.budget)||'').trim(),parts=b?b.split(','):[],out=[];
+  for(const p of parts){const m=/^\s*(\$?)(\d+(?:\.\d+)?)(m|h)?\s*$/.exec(p);if(!m||(!m[1]&&!m[3]))return '60m';const n=Number(m[2])*2;out.push(m[1]+(Number.isInteger(n)?n:n.toFixed(2))+(m[3]||''))}
+  return out.length?out.join(','):'60m'}
+function needWhat(h,have,mirror,rows){const id=h.id,ws=h.worker_state||'',out=[],cmd='libraos-core handoff ';
+  const add=(key,label,cli,hint)=>{if(!have.has(key)&&!out.some(x=>x.key===key))out.push({key,label,cli,hint})};
+  if(ws==='waiting_answer')add('answer','Answer its question',cmd+'answer '+id+' --text "..."','The worker waits for your answer, its budget paused.');
+  if(ws==='blocked')add('show','See what it waits on',cmd+'show '+id,'Its worker is blocked: answer it'+(mirror?' on its device':' with the message box under History')+', or take it over.');
+  if(h.parked)add('resume','Resume it',cmd+'resume '+id,'An owner or the project’s lead, at their own terminal.');
+  const ask=(rows||[]).find(x=>(x.what==='approval'||x.kind==='approval')&&x.can_answer===false);
+  if(ask)add('approval','See who may answer','libraos-core approval list',capFirst(ask.answer_hint||'An approval waits for '+(ask.required_role?'a '+ask.required_role:'an owner')+': your role cannot answer it.'));
+  if(needStopped(h)||ws==='blocked'){
+    // Only an offered handoff is dispatched; a claimed one is taken over or cancelled.
+    if(needStopped(h)&&h.state==='offered')add('dispatch','Dispatch again',cmd+'dispatch '+id,'A new worker on the same task, with its goal, check and budget.');
+    if(needBudgetStop(h))add('budget','Raise budget',cmd+'budget '+id+' --budget '+taskShellWord(needBudget(h)),'Its worker was stopped at its budget: a higher budget starts it again. No button does this yet.');
+    add('takeover','Take over',(!mirror&&h.takeover&&h.takeover.cli)||cmd+'claim '+id+' --takeover','You take the claim and finish the work yourself, with its branch and check.');
+    add('cancel','Cancel',(!mirror&&h.cancel&&h.cancel.cli)||cmd+'done '+id+' --cancel --reason TEXT','Closed as cancelled, with your reason in its history.')}
+  for(const p of [...new Set(h.prs||[])].filter(p=>typeof p==='string'&&p.includes('#')))out.push({key:'pr',label:'Open the pull request',href:ghHref(p,'PR'),text:p});
+  if(!out.length&&!have.size)add('show','See why it needs you',cmd+'show '+id,'Its history and the last worker’s result say what it waits on.');
+  return out}
+function needCli(cli){return el('span',{class:'need-cli'},el('code',{},cli),el('button',{type:'button',class:'need-copy','data-copy':cli,'aria-label':'Copy the command: '+cli,title:'Copy the command',onclick:()=>chatCopy(cli)},'Copy'))}
+function needBlock(h,have,o={}){if(!needsPerson(h))return null;const xs=needWhat(h,have||new Set(),!!o.mirror,o.rows);if(!xs.length)return null;
+  const say=o.mirror?'This task lives on '+(o.where||'its device')+', so this server cannot act on it: run these there.':have&&have.size?'The buttons above act here. These have no button for this task: run them where LibraOS Core runs.':'No button acts on this task here: run these where LibraOS Core runs.';
+  const viewer=ROLE==='viewer'?' You have read-only access, so an owner or the task’s sender runs them.':'';
+  return el('section',{class:'need-acts','data-need-actions':h.id,'aria-label':'What you can do'},
+    el('p',{class:'need-h'},el('b',{},'What you can do'),' ',el('span',{class:'mute'},say+viewer)),
+    el('ul',{class:'need-list'},xs.map(x=>el('li',{'data-need':x.key},el('span',{class:'need-label'},x.label),
+      x.href?el('a',{href:x.href,target:'_blank',rel:'noopener noreferrer','data-need-link':''},x.text):needCli(x.cli),x.hint?el('span',{class:'field-hint'},x.hint):null))))}
+// needHave: which of the steps the page already offers as a button for h (enabled or with its reason): the top
+// bar's, and inbox (an approval to answer, a result to read: its row under Session has the buttons).
+function needHave(dash,h,rows){const have=new Set();if(!h||h.read_only||!(dash.handoff_list||[]).some(y=>y.id===h.id))return have;
+  if((rows||[]).some(x=>x.what!=='issue'&&x.kind!=='stale'&&x.can_answer!==false))have.add('inbox');
+  if(handoffWorkerActions(dash,h).length&&(h.retry||!h.dispatched))have.add('dispatch');
+  if(h.takeover)have.add('takeover');if(h.cancel)have.add('cancel');return have}
+// end:need-actions
 // #603: a worker's commits since dispatch are its change whatever branch it worked on. A branch agentd
 // did not make (foreign) is shown, and only publishing says why it is not pushed; "has not committed"
 // is said only when the review counted no commit since dispatch.
@@ -4005,7 +4077,9 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
     const title=d.title||(d.pr&&d.pr.title)||focus.goal||body.goal||ref;
     const status=d.kind==='issue'?issueStatus({...issue,handoffs:tree,prs:d.prs},ctx):d.kind==='pr'?statusOf({what:'PR',state:d.pr&&d.pr.state!=='OPEN'?d.pr.state:''}):focus.id?statusOf({...(hLive||focus),prs:focus.prs},ctx.rows.get(focus.id)||[],ctx.openPR):null;
     const going=tree.filter(x=>{const h=ctx.live.get(x.id)||x;return /^(claimed|held)$/.test(h.state||'')}),on=going[going.length-1],onWho=on&&((ctx.live.get(on.id)||on).state==='held'?on.from:on.claimer),lastWho=!on&&tree.length?(tree[tree.length-1].claimer||''):'';
-    const text=d.kind==='handoff'?el('dl',{class:'itext ifields'},[['Goal',body.goal],['Acceptance criteria',body.accept],['Where it stands',body.state],['Decided',body.decisions],['Still open',body.open],['Paths',body.paths]].filter(([k,v])=>v&&(k!=='Goal'||String(v).trim()!==String(title).trim())).map(([k,v])=>[el('dt',{},k),el('dd',{},v)])):d.kind==='issue'?DET.text:null;
+    // A handoff's text is its body's fields; the goal is left out when it is the title, and with nothing left no empty box is drawn.
+    const fields=d.kind==='handoff'?[['Goal',body.goal],['Acceptance criteria',body.accept],['Where it stands',body.state],['Decided',body.decisions],['Still open',body.open],['Paths',body.paths]].filter(([k,v])=>v&&(k!=='Goal'||String(v).trim()!==String(title).trim())):[];
+    const text=d.kind==='handoff'?fields.length?el('dl',{class:'itext ifields'},fields.map(([k,v])=>[el('dt',{},k),el('dd',{},v)])):null:d.kind==='issue'?DET.text:null;
     const ghState=issue&&issue.state?issue.state.toLowerCase():'';
     const props=propRows([
       ['Status',status?d.kind==='issue'||d.kind==='pr'?statusEl(status):taskStatus(hLive&&hLive.mark?hLive:focus,status):null],
@@ -4035,8 +4109,10 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
       sp?el('span',{title:'Spend so far'},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,(sel||focus).updated_ago?el('span',{class:'age'},'Updated '+(sel||focus).updated_ago+' ago'):null);
     const pick=worked.length>1?el('label',{class:'tw-pick'},el('span',{class:'mute'},'Tabs show '),el('select',{'aria-label':'Which handoff the tabs show',onchange:e=>{TW.sel[ref]=e.target.value;drawDetail()}},worked.map(x=>el('option',{value:x.id,selected:x.id===hid||null},(x.goal||x.id).slice(0,60)+' · '+x.id)))):null;
     const noWorker=el('p',{class:'mute tw-none'},'No worker has run on this yet.');
+    // The task Needs you is about: the handoff the tabs show (its page row under its live row, as the top bar reads it), else the focus.
+    const nh=sel?{...sel,...sh}:focus.id?{...focus,...(hLive||{})}:null;
     box.replaceChildren(el('div',{class:'idetail tw','data-phone':TW.phone||null},
-      el('div',{class:'tw-top'},crumb,el('h2',{class:'ititle'},title),el('div',{class:'tw-bar'},statusLine,pick,twActions(dash,sh,hid))),
+      el('div',{class:'tw-top'},crumb,el('h2',{class:'ititle'},title),el('div',{class:'tw-bar'},statusLine,pick,twActions(dash,sh,hid)),nh?needBlock(nh,needHave(dash,sh,ctx.rows.get(nh.id)||[]),{rows:ctx.rows.get(nh.id)||[]}):null),
       el('div',{class:'tw-body'},
         el('section',{class:'idoc tw-main','aria-label':'Session'},
           twTabs('Task','main',term?TW_MAIN:TW_MAIN.slice(0,2),main,sideTabs),
