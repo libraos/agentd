@@ -4851,9 +4851,10 @@ function infoTip(text){if(!text)return null;return el('button',{type:'button',cl
 // What each indicator means, following docs/factory-report.md.
 const HELP={
   autonomous:'Tasks a worker finished with its check passed and no person stepping in, out of all tasks given to a worker. A retry with nobody involved still counts. Cancelled and still running tasks stay in the total.',
+  first_pass:'What the worker tool did alone: tasks finished with their check passed on the first worker attempt, with no person stepping in and no takeover, out of all tasks given to a worker. A retry does not count. A fix round started as a new task is not seen, so this can read high.',
+  delivered:'What was finally delivered: tasks accepted with their check passed, plus tasks whose work landed anyway (a merged pull request or a person confirming it), out of all tasks given to a worker. The gap to the first-pass rate is what retries, review and fix rounds added.',
   cost:'The median worker cost of an accepted task, from its last attempt only. Earlier attempts and tasks that were never accepted are not in it; the fully loaded cost has those.',
   loaded:'Everything the tasks given to a worker spent, every attempt counted, divided by the accepted ones. It is higher than the median by the retries and by work that was never accepted.',
-  interventions:'How often a person had to act on a running task: a message to the worker, an approval they answered or a takeover. Messages from the lead agent to its workers are not counted.',
   intervened:'Tasks where a person acted at least once while the worker ran (a message, an answered approval or a takeover), out of all tasks given to a worker.',
   latency:'The median time from a pull request being opened to its merge, over the pull requests merged in this period.',
   retired:'Of the tasks that were cancelled or declined, how many say why. A task closed with no reason cannot be learned from.',
@@ -5041,14 +5042,16 @@ function benchCompareClose(){++benchCompareRequest;const box=$('b-compare');box.
 // loadFactory: agentd factory report for the metrics page's range (/api/factory).
 let factoryRequest=0;
 function factoryFrac(m,n){return !m||m.not_computable?'–':m[n]+'/'+m.of}
-function factoryCell(m,f){return !m||m.not_computable?el('span',{class:'mute',title:m&&m.not_computable||''},'not computable'):f(m)}
+// A figure an older server does not send reads "not measured", never 0.
+function factoryCell(m,f){return !m?el('span',{class:'mute',title:'this server does not report it yet'},INS_NONE):m.not_computable?el('span',{class:'mute',title:m.not_computable},'not computable'):f(m)}
 function factoryRow(name,x){const c=x.cost_per_accepted||{},w=x.wall_time||{};
   return el('tr',{},el('td',{},name),el('td',{class:'num'},x.dispatched),el('td',{class:'num'},factoryFrac(x.autonomous_completion,'n')),el('td',{class:'num'},factoryFrac(x.retired_with_reason,'n')),
     el('td',{class:'num'},c.median_usd===undefined?'–':'$'+Number(c.median_usd).toFixed(2)+(c.unpriced?' (+'+c.unpriced+' unpriced)':'')),el('td',{class:'num'},factoryFrac(x.interventions,'with_any')),el('td',{class:'num'},w.median_min===undefined?'–':Math.round(w.median_min)))}
 function factoryBody(f){const t=f.total||{},wf=f.workflow_changes||{};
   const tiles=el('div',{class:'mtiles'},
     metricsTile(factoryCell(t.autonomous_completion,m=>m.n+'/'+m.of),'Autonomous completion',factoryCell(t.autonomous_completion,m=>Math.round(m.pct)+'% · '+m.accepted+' accepted'),HELP.autonomous),
-    metricsTile(factoryCell(t.retired_with_reason,m=>m.n+'/'+m.of),'Retired with a reason',factoryCell(t.retired_with_reason,m=>m.no_note+' with no note'),HELP.retired),
+    metricsTile(factoryCell(t.first_pass,m=>Math.round(m.pct)+'%'),'First-pass rate',factoryCell(t.first_pass,m=>m.n+'/'+m.of+' · '+m.retried+' on a later attempt'+(m.unknown?' · '+m.unknown+' unknown':'')),HELP.first_pass),
+    metricsTile(factoryCell(t.delivered,m=>Math.round(m.pct)+'%'),'Delivery rate',factoryCell(t.delivered,m=>m.n+'/'+m.of+' · '+m.accepted+' accepted'),HELP.delivered),
     metricsTile(factoryCell(t.cost_per_accepted,m=>m.median_usd===undefined?'?':'$'+Number(m.median_usd).toFixed(2)),'Cost per accepted, median',factoryCell(t.cost_per_accepted,m=>(m.p90_usd===undefined?'':'p90 $'+Number(m.p90_usd).toFixed(2))+(m.unpriced?' · '+m.unpriced+' unpriced':'')),HELP.cost),
     metricsTile(factoryCell(t.fully_loaded,m=>m.per_accepted_usd===undefined?el('span',{class:'mute',title:m.per_accepted_not_computable||''},'none accepted'):factoryGE(m)+'$'+Number(m.per_accepted_usd).toFixed(2)),'Cost per accepted, fully loaded',factoryCell(t.fully_loaded,factoryLoadedNote),HELP.loaded),
     metricsTile(factoryCell(t.interventions,m=>m.with_any+'/'+m.of),'With an intervention',factoryCell(t.interventions,m=>'mean '+m.mean+' · '+m.blocked_unanswered+' blocked, unanswered'),HELP.intervened),
@@ -5152,12 +5155,16 @@ function insOutName(k){const o=INS_OUT.find(x=>x[0]===k);return o?o[1]:k}
 function insCard(key,label,big,note,why,err){const wait=big===undefined,none=big===null;
   return el('div',{class:'ins-card','data-card':key},el('span',{class:'ins-label'},label,infoTip(HELP[key])),el('b',{class:wait||none?'ins-none':null},wait?(err?'–':'…'):none?INS_NONE:big),el('span',{class:'ins-note'},wait?(err||'Loading…'):none?why||'':note))}
 function insCards(){const f=INS.f,t=f?f.total||{}:null,m=INS.m,val=(have,pick)=>have?pick():undefined;
-  const ac=t&&t.autonomous_completion||{},c=t&&t.cost_per_accepted||{},iv=t&&t.interventions||{},lat=m&&((m.workflow||{}).latency||{}).open_to_merge;
+  const fp=t&&t.first_pass,dl=t&&t.delivered,c=t&&t.cost_per_accepted||{},lat=m&&((m.workflow||{}).latency||{}).open_to_merge;
   $('ins-cards').replaceChildren(
-    insCard('autonomous','Autonomous completion',val(t,()=>ac.not_computable||ac.n===undefined?null:ac.n+' of '+ac.of),'accepted with no intervention · '+Math.round(Number(ac.pct)||0)+'%',ac.not_computable,INS.fErr),
+    insCard('first_pass','First-pass rate',val(t,()=>insRate(fp)),fp&&fp.pct!==undefined?fp.n+' of '+fp.of+' tasks · one attempt, nobody stepping in'+(fp.unknown?' · '+fp.unknown+' from older hosts left out':''):'',insWhy(fp),INS.fErr),
+    insCard('delivered','Delivery rate',val(t,()=>insRate(dl)),dl&&dl.pct!==undefined?dl.n+' of '+dl.of+' tasks · accepted, merged or confirmed':'',insWhy(dl),INS.fErr),
     insCard('cost','Cost per accepted task',val(t,()=>c.median_usd===undefined?null:'$'+Number(c.median_usd).toFixed(2)),'median of the accepted tasks\' worker cost'+(c.unpriced?' · '+c.unpriced+' unpriced':''),c.not_computable||'no accepted task has a price',INS.fErr),
-    insCard('interventions','Interventions per task',val(t,()=>iv.not_computable||iv.mean===undefined?null:Number(iv.mean).toFixed(2)),'messages, approvals, takeovers · '+iv.with_any+' of '+iv.of+' tasks had one',iv.not_computable,INS.fErr),
     insCard('latency','PR workflow latency',val(m,()=>!lat||!lat.n?null:Number(lat.median_hours).toFixed(1)+' h'),'open to merge, median · '+(lat&&lat.n)+' merged PRs · '+PR_LEDGER,(metricsNoPRs(m)?'No PRs recorded for this period':'no PR merged in this period')+' · '+PR_LEDGER,INS.mErr))}
+// insRate: a factory rate as a percentage, or null (not measured) when the
+// server did not send it (an older release) or could not compute it.
+function insRate(r){return !r||typeof r!=='object'||r.not_computable||r.pct===undefined?null:Math.round(Number(r.pct))+'%'}
+function insWhy(r){return !r||typeof r!=='object'?'this server does not report it yet':String(r.not_computable||'')}
 // The PR cards read the PR ledger, which is not attributed to hosts: Whose work does not narrow them.
 const PR_LEDGER='PR ledger · not filtered by host';
 // metricsNoPRs: the period has no PR rows at all (none merged, opened or left unsynced), so
@@ -5185,9 +5192,11 @@ function insClasses(fc){const n=$('ins-classes-n');n.textContent='';if(!fc)retur
 function insTokens(r){return r.tokens===undefined?INS_NONE:(r.missing_tokens?'≥ ':'')+fmtTok(Number(r.tokens))}
 function insSpend(r){return r.usd===undefined?INS_NONE:(r.missing_usd?'≥ ':'')+'$'+Number(r.usd).toFixed(2)+(r.missing_usd?' ('+r.missing_usd+' unpriced)':'')}
 function insAgents(rows){if(!rows||!rows.length)return [el('div',{class:'empty'},'No dispatched task in this period.')];
-  const head=['Agent','Model','Tasks','Accepted','Median minutes','Tokens','Spend'];
-  return [el('div',{class:'tablewrap phone-rows'},el('table',{class:'ins-agents'},el('thead',{},el('tr',{},head.map((h,i)=>el('th',{class:i>1?'num':null},h)))),
-    el('tbody',{},rows.map(r=>{const wt=r.wall_time||{},cells=[toolName(r.agent),r.model||'not recorded',String(r.tasks),String(r.accepted),wt.median_min===undefined?INS_NONE:Number(wt.median_min).toFixed(1),insTokens(r),insSpend(r)];
+  const head=['Agent','Model','Tasks','Accepted','First pass','Median minutes','Tokens','Spend'];
+  // first_pass of tasks with its share; a server that does not send it: not measured
+  const first=r=>r.first_pass===undefined||r.first_pass===null?INS_NONE:r.first_pass+' of '+r.tasks+(Number(r.tasks)>0?' ('+Math.round(100*r.first_pass/r.tasks)+'%)':'');
+  return [el('div',{class:'tablewrap phone-rows'},el('table',{class:'ins-agents'},el('thead',{},el('tr',{},head.map((h,i)=>el('th',{class:i>1?'num':null},h,h==='First pass'?infoTip(HELP.first_pass):null)))),
+    el('tbody',{},rows.map(r=>{const wt=r.wall_time||{},cells=[toolName(r.agent),r.model||'not recorded',String(r.tasks),String(r.accepted),first(r),wt.median_min===undefined?INS_NONE:Number(wt.median_min).toFixed(1),insTokens(r),insSpend(r)];
       return el('tr',{},cells.map((c,i)=>el('td',{class:i>1?'num':null,'data-label':head[i]},c)))}))))]}
 function insDraw(){insCards();const f=INS.f;
   if(!f){const msg=INS.fErr?el('div',{class:'state error'},'Could not load the factory report: '+INS.fErr):el('div',{class:'state'},'Loading…');for(const id of ['ins-weeks','ins-classes','ins-agents'])$(id).replaceChildren(msg.cloneNode(true));$('ins-classes-n').textContent='';return}
