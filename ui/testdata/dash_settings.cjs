@@ -95,7 +95,8 @@ const teamDrawn={repositories:1,roles:1,sessions:1},links={triggers:'#triggers',
  // sections that show settings have no control that writes one.
  for(const id of ['agents','connections','terminal','app','history','diagnostics']){
   const sec=doc.getElementById('set-'+id);assert(!sec.querySelector('input,select,textarea'),id+' has an input');
-  for(const b of sec.querySelectorAll('button'))assert(b.dataset.connectPreview,id+' has a button '+b.textContent)}
+  // The one exception is the gateway's dialog (dash_gateway.cjs), an owner's.
+  for(const b of sec.querySelectorAll('button'))assert(b.dataset.connectPreview||id==='connections'&&b.dataset.gatewaySetup!==undefined&&b.textContent==='Change',id+' has a button '+b.textContent)}
  const keys=new Set();
  for(const id of ['agents','models','workers','connections','terminal','personal','app','history']){await go('#settings/'+id);
   const edits=[...doc.querySelectorAll('#set-'+id+' button')].filter(b=>['Edit','Add price'].includes(b.textContent));
