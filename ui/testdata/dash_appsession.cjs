@@ -1,4 +1,4 @@
-// libraos/agentd-core#602: a Codex task's Session. Its heading is the task's own goal (or title), never
+// libraos/core#602: a Codex task's Session. Its heading is the task's own goal (or title), never
 // "another task"; the Codex worker's conversation shows as a Claude worker's does: the prompt, the agent's
 // messages, each command it ran and its outcome, live while it runs (re-read on the Session's tick) and
 // after it is done; Windows paths stay as written; text goes in as text. The history stays below it.

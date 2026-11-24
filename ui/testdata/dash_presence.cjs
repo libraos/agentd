@@ -1,4 +1,4 @@
-// Who is on what (agentd-core#849): Team > Activity (#team/who, #907) reads GET
+// Who is on what (libraos/core#849): Team > Activity (#team/who, #907) reads GET
 // /api/presence and lists every live session, grouped by person: host, tool,
 // activity, issue, age, and its issues, checkouts, claims and edited files; a
 // record another session also holds is marked shared, naming the others.

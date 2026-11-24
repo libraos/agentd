@@ -22,7 +22,7 @@ const full=()=>({factory:1,since:'2026-10-15T09:00:00Z',until:'2026-10-29T09:00:
     week('2026-10-22','2026-10-22T09:00:00Z','2026-10-29T09:00:00Z',{accepted:0,auto_completed:1,not_delivered:0,failed:0,false_accept:1,open:1})],
   by_tool:[],by_stage:[],workflow_changes:{n:0,merged_prs:4,not_labelled:true},
   failure_classes:{attempts:6,running:0,classes:[{class:'none',attempts:3,usd:4,unpriced:0},{class:'unknown',attempts:0,usd:0,unpriced:0},{class:'task',attempts:1,usd:1,unpriced:0},{class:'infrastructure',attempts:2,usd:0.25,unpriced:1},{class:'model',attempts:0,usd:0,unpriced:0}]},
-  by_agent_model:[{agent:'claude',model:'m-'+evil,tasks:4,accepted:2,first_pass:1,attempts:5,tokens:1500,missing_tokens:1,usd:3.5,missing_usd:1,wall_time:{n:3,median_min:20}},
+  by_agent_model:[{agent:'claude',model:'m-'+evil,tasks:4,accepted:2,first_pass:1,first_pass_unknown:2,attempts:5,tokens:1500,missing_tokens:1,usd:3.5,missing_usd:1,wall_time:{n:3,median_min:20}},
     {agent:'codex',model:'gpt-x',tasks:1,accepted:1,first_pass:1,attempts:1,tokens:150,missing_tokens:0,usd:4,missing_usd:0,wall_time:{n:1,median_min:30}},
     {agent:'claude',model:null,tasks:1,accepted:0,attempts:0,missing_tokens:0,missing_usd:0,wall_time:{not_computable:'no handoff went from claimed to done'}}],
   load:{max_workers:2,peak_workers:0,unpriced:0,days:[],averages:{}}});
@@ -53,7 +53,7 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  assert(requests.some(r=>r.startsWith('/api/factory?since=')),'no factory request for the period');assert.equal(doc.getElementById('ins-period').textContent,'2026-10-15 to 2026-10-29');
  // Four cards, in the design's order, with the factory report's figures: what the tool did
  // alone beside what was delivered. Autonomous completion and interventions stay as Factory tiles.
- assert.deepEqual(cards(),[['First-pass rate','25%','1 of 4 tasks · one attempt, nobody stepping in · 1 from older hosts left out'],['Delivery rate','80%','4 of 5 tasks · accepted, merged or confirmed'],
+ assert.deepEqual(cards(),[['First-pass rate','25%','1 of 4 tasks · one attempt, nobody stepping in · 1 more from a host on an older release, left out'],['Delivery rate','80%','4 of 5 tasks · accepted, merged or confirmed'],
   ['Cost per accepted task','$3.00',"median of the accepted tasks' worker cost · 1 unpriced"],['PR workflow latency','5.3 h','open to merge, median · 4 merged PRs · PR ledger · not filtered by host']]);
  // Outcomes per week: one bar per week, a part per outcome that has tasks, stacked in the design's order.
  const weeks=[...doc.querySelectorAll('#ins-weeks .ins-week')];assert.equal(weeks.length,2);
@@ -106,8 +106,9 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  // By agent and model; what was not recorded is "not measured" or a floor.
  assert.deepEqual([...doc.querySelectorAll('#ins-agents thead th')].map(c=>c.textContent),['Agent','Model','Tasks','Accepted','First pass','Median minutes','Tokens','Spend']);
  assert.equal(doc.querySelectorAll('#ins-agents thead .itip').length,1,'First pass has no explanation');
+ // the first row has 2 tasks from a host on an older release: its rate is over the other 2, and says so;
  // the third row comes as from an older server, with no first_pass: not measured, never 0
- assert.deepEqual(cells('#ins-agents .ins-agents'),[['Claude','m-'+evil,'4','2','1 of 4 (25%)','20.0','≥ 1.5k','≥ $3.50 (1 unpriced)'],['Codex','gpt-x','1','1','1 of 1 (100%)','30.0','150','$4.00'],['Claude','not recorded','1','0','not measured','not measured','not measured','not measured']]);
+ assert.deepEqual(cells('#ins-agents .ins-agents'),[['Claude','m-'+evil,'4','2','1 of 2 (50%) · 2 left out','20.0','≥ 1.5k','≥ $3.50 (1 unpriced)'],['Codex','gpt-x','1','1','1 of 1 (100%)','30.0','150','$4.00'],['Claude','not recorded','1','0','not measured','not measured','not measured','not measured']]);
  assert(!doc.querySelector('#page-metrics img'),'server text became markup');
  // The Factory detail stays below, as before.
  assert(!doc.getElementById('factory').hidden,'the Factory detail is gone');assert(doc.querySelector('#f-body .fclasses'),'the full failure class table is gone');

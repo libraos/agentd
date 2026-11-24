@@ -1,4 +1,4 @@
-// libraos/agentd-core#680: the app's Triggers page. For an owner it reads /api/triggers and draws
+// libraos/core#680: the app's Triggers page. For an owner it reads /api/triggers and draws
 // [triggers] (state, settings, runs) and each schedule (state, runs); New trigger / Edit writes the
 // form with POST /api/settings trigger_edit (a template fills it), Pause sends trigger_pause, and a
 // schedule's Enable, Pause and Run now send schedule_enable, schedule_disable and schedule_run. Nothing

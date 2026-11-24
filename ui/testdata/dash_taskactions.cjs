@@ -1,4 +1,4 @@
-// Take over, Cancel task and Open in editor in the task workspace's top bar (libraos/agentd-core#562).
+// Take over, Cancel task and Open in editor in the task workspace's top bar (libraos/core#562).
 // Each appears only in the state the snapshot offers it (h.takeover once the worker has stopped,
 // h.cancel on an open task, h.editor where the worker's directory is on this host and the server may
 // start a program here: dash.editor.local), is disabled with the server's reason for a person who may

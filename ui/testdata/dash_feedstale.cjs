@@ -1,4 +1,4 @@
-// A feed that failed to refresh does not look live (libraos/agentd-core#904 item 1).
+// A feed that failed to refresh does not look live (libraos/core#904 item 1).
 // Team > Nodes and devices (/api/nodes, /api/devices) and Who is on what
 // (/api/presence): when a poll fails after one succeeded, the rows stay under
 // "Couldn't refresh · last updated TIME" with Retry, and their ages read as of that

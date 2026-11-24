@@ -1,4 +1,4 @@
-// libraos/agentd-core#604: the app's status bar and the Agents list count every open task whose
+// libraos/core#604: the app's status bar and the Agents list count every open task whose
 // dispatched worker is alive (the server's worker_running), however it was started: one sent by a
 // session no person is known for reads as someone else's (mine false) and one whose codex worker
 // missed a report has an Inbox item, and before, each dropped out of "running" while it ran.

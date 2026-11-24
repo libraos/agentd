@@ -1,6 +1,6 @@
 # LibraOS End User Agreement
 
-Version 3.6 of November 13, 2026.
+Version 3.6 of November 24, 2026.
 
 ## 1. Acceptance, Parties, and Authority
 

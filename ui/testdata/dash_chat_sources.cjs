@@ -7,16 +7,16 @@
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),yesterday=new Date(Date.now()-86400000).toISOString();
-const dash={user:'alice',role:'owner',now,handoff_list:[{id:'hof-469',goal:'Parent-level acceptance',project:'libraos/agentd-core',state:'claimed',from:'s-a',to:'any',mark:'working',updated_ago:'1m',age:'1m'}],done:[],sessions:[],left:[],waiting:[],claims:[],messages:[],inbox:[],dispatch:true,checkouts:['/srv/alpha']};
+const dash={user:'alice',role:'owner',now,handoff_list:[{id:'hof-469',goal:'Parent-level acceptance',project:'libraos/core',state:'claimed',from:'s-a',to:'any',mark:'working',updated_ago:'1m',age:'1m'}],done:[],sessions:[],left:[],waiting:[],claims:[],messages:[],inbox:[],dispatch:true,checkouts:['/srv/alpha']};
 const roles=[{name:'assistant',description:'Answers from the ledger; can start a task',model:'vendor/model',tools:['kb_search','ledger_progress','handoff_offer']},{name:'writer',description:'Writes draft documents',model:'vendor/model',tools:[]}];
 const chats=[{id:'chat-a',title:'What ran today, and what failed?',role:'assistant',updated:now,pinned:0},{id:'chat-b',title:'Architecture <b>diagram</b>',role:'writer',updated:yesterday,pinned:0}];
-const read=[{id:'handoff/hof-469',snippet:'# Handoff hof-469\n\n- from: s-a, to: any, state: claimed'},{id:'pr/libraos/agentd-core#475-chunk-2',snippet:'# PR libraos/agentd-core#475: dash shell\n\n- state: MERGED'}];
+const read=[{id:'handoff/hof-469',snippet:'# Handoff hof-469\n\n- from: s-a, to: any, state: claimed'},{id:'pr/libraos/core#475-chunk-2',snippet:'# PR libraos/core#475: dash shell\n\n- state: MERGED'}];
 const threadA={chat:chats[0],busy:false,dispatch:true,handoffs:[],messages:[
  {seq:1,role:'user',content:'What ran today, and what failed?',created:now},
  {seq:2,role:'assistant',content:'',tool_calls:[{id:'c1',function:{name:'kb_search',arguments:'{"query":"failed"}'}},{id:'c2',function:{name:'ledger_progress',arguments:'{}'}}],created:now},
  {seq:3,role:'tool',tool_call_id:'c1',content:JSON.stringify(read),created:now},
  {seq:4,role:'tool',tool_call_id:'c2',content:JSON.stringify([{project:'acme',arm:'base',key:'run-1',status:'fail',checks:'3/4'}]),created:now},
- {seq:5,role:'assistant',content:'Parent-level acceptance is working: handoff/hof-469. The shell merged in pr/libraos/agentd-core#475. See also handoff/hof-999.',model:'vendor/model',created:now},
+ {seq:5,role:'assistant',content:'Parent-level acceptance is working: handoff/hof-469. The shell merged in pr/libraos/core#475. See also handoff/hof-999.',model:'vendor/model',created:now},
  {seq:6,role:'user',content:'Anything else?',created:now},
  {seq:7,role:'assistant',content:'No, that is all.',model:'vendor/model',created:now}],
  proposals:[{id:'proposal-a',state:'pending',created:now,task:{goal:'Draw the architecture diagram',accept:'out/arch.svg exists',check:'test -f out/arch.svg',state:'Asked for in Chat',cwd:'/srv/alpha',worker:'claude',budget:'30m'},network:'Web access follows this worker\'s permissions.'}]};
@@ -73,14 +73,14 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  const first=answers[0].querySelector('.chat-sources-open');assert.equal(first.textContent,'Sources (4)');first.click();await settle();
  if(phone){const d=doc.querySelector('dialog');assert(d&&d.querySelector('#chat-sources'),'on a phone Sources does not open in a sheet');}
  const src=[...doc.querySelectorAll('#chat-sources .chat-source')];
- assert.deepEqual(src.map(n=>n.dataset.kind+' '+n.dataset.ref),['handoff hof-469','pr libraos/agentd-core#475','run run-1','handoff hof-999']);
- assert.deepEqual(src.map(n=>n.getAttribute('href')),['#issues/hof-469','#issues/libraos/agentd-core/475','#insights/metrics','#issues/hof-999']);
+ assert.deepEqual(src.map(n=>n.dataset.kind+' '+n.dataset.ref),['handoff hof-469','pr libraos/core#475','run run-1','handoff hof-999']);
+ assert.deepEqual(src.map(n=>n.getAttribute('href')),['#issues/hof-469','#issues/libraos/core/475','#insights/metrics','#issues/hof-999']);
  assert(src[0].textContent.startsWith('task · Handoff hof-469'));assert(src[0].textContent.includes('cited in the answer'));assert(src[1].textContent.includes('dash shell'));assert(src[2].textContent.includes('acme · base'));assert(src[2].textContent.includes('fail'));
  assert(src[3].textContent.includes('not among what it read'),'a cited record it did not read is not told apart');
  assert(doc.getElementById('chat-sources').textContent.includes('The records this answer read'));assert(doc.getElementById('chat-sources').textContent.includes('What ran today, and what failed?'));
  assert.equal(first.getAttribute('aria-pressed'),'true');assert(answers[0].classList.contains('chat-answer-on'));
  // In the answer, a cited task links to its workspace.
- assert.deepEqual([...answers[0].querySelectorAll('.chat-ref-open')].map(a=>a.getAttribute('href')),['#issues/hof-469','#issues/libraos/agentd-core/475','#issues/hof-999']);
+ assert.deepEqual([...answers[0].querySelectorAll('.chat-ref-open')].map(a=>a.getAttribute('href')),['#issues/hof-469','#issues/libraos/core/475','#issues/hof-999']);
  if(phone){button(doc.querySelector('dialog .sheet-foot'),'Close').click();await settle()}
  // A source opens where it lives: the task opens its workspace on Tasks.
  doc.querySelector('#chat-sources .chat-source[data-kind="handoff"]')?.click();await settle();

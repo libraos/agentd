@@ -1,4 +1,4 @@
-// libraos/agentd-core#658: a task whose worker could not start says why in its Session. The snapshot's
+// libraos/core#658: a task whose worker could not start says why in its Session. The snapshot's
 // start_failure (the history's newest "dispatch failed" line) shows as "The worker did not start" with
 // its next step and a Start again button beside it, as text; not on a task that started, not as a
 // button on another person's task, and Start again opens the same sheet as the Command menu's.
