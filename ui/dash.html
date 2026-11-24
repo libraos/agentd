@@ -464,6 +464,8 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .ins-seg{display:block;min-height:3px}.ins-seg:hover,.ins-seg:focus-visible{filter:brightness(1.15);outline:2px solid var(--fg);outline-offset:-2px}
 .ins-o-accepted{background:var(--green)}.ins-o-auto_completed{background:var(--accent)}.ins-o-not_delivered{background:var(--faint)}.ins-o-failed{background:var(--red)}.ins-o-false_accept{background:var(--amber)}
 .ins-xlabels{display:flex;gap:8px;font-size:12px;color:var(--mute);padding-top:4px}.ins-xlabels span{flex:1;min-width:18px;text-align:center;font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
+.itip{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;margin-left:5px;border:1px solid var(--edge);border-radius:50%;color:var(--mute);font:italic 600 10px/1 Georgia,serif;cursor:help;vertical-align:1px;flex:none}.itip::before{content:"i"}.itip:hover,.itip:focus-visible{color:var(--accent);border-color:var(--accent)}.itip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#itip-pop{position:fixed;z-index:1000;max-width:min(300px,calc(100vw - 16px));padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font-size:12px;line-height:1.45;box-shadow:0 6px 24px rgba(0,0,0,.18);pointer-events:none}#itip-pop[hidden]{display:none}
 .ins-key{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--mute);padding:8px 0 4px}.ins-key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .ins-tabletoggle{font-size:12px;margin-top:4px}
 .ins-wtable:not(.open){position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
@@ -4837,7 +4839,33 @@ function runs(d){const rs=d.runs||[],box=document.getElementById('runs');box.hid
     el('td',{},(r.started||'').slice(5,16).replace('T',' ')))))}
 /* task outcomes, workflow and reference numbers: read on load, on a range change and every 5 min, not on each refresh */
 let metricsRequest=0;
-function metricsTile(big,label,note,title){return el('div',{class:'mtile',title:title||''},el('b',{},big),el('div',{},label),el('div',{class:'mute'},note))}
+// infoTip: a small "i" beside an indicator. Hover, focus or a tap shows what the
+// number means in one floating note; Escape or leaving hides it. The button has no
+// text of its own (the glyph is CSS), so a label's text stays the label.
+function itipHide(){const p=$('itip-pop');if(p)p.hidden=true}
+function itipShow(b){let p=$('itip-pop');if(!p){p=el('div',{id:'itip-pop',role:'tooltip',hidden:true});document.body.append(p)}
+  p.textContent=b.dataset.tip;p.hidden=false;const r=b.getBoundingClientRect(),w=p.offsetWidth,h=p.offsetHeight;
+  let y=r.bottom+6;if(y+h>innerHeight-8)y=Math.max(8,r.top-h-6);p.style.left=Math.max(8,Math.min(r.left+r.width/2-w/2,innerWidth-w-8))+'px';p.style.top=y+'px'}
+function infoTip(text){if(!text)return null;return el('button',{type:'button',class:'itip','data-tip':text,'aria-label':'What this means: '+text,onmouseenter:e=>itipShow(e.currentTarget),onmouseleave:itipHide,onfocus:e=>itipShow(e.currentTarget),onblur:itipHide,
+  onclick:e=>{e.preventDefault();e.stopPropagation();itipShow(e.currentTarget)},onkeydown:e=>{if(e.key==='Escape')itipHide()}})}
+// What each indicator means, following docs/factory-report.md.
+const HELP={
+  autonomous:'Tasks a worker finished with its check passed and no person stepping in, out of all tasks given to a worker. A retry with nobody involved still counts. Cancelled and still running tasks stay in the total.',
+  cost:'The median worker cost of an accepted task, from its last attempt only. Earlier attempts and tasks that were never accepted are not in it; the fully loaded cost has those.',
+  loaded:'Everything the tasks given to a worker spent, every attempt counted, divided by the accepted ones. It is higher than the median by the retries and by work that was never accepted.',
+  interventions:'How often a person had to act on a running task: a message to the worker, an approval they answered or a takeover. Messages from the lead agent to its workers are not counted.',
+  intervened:'Tasks where a person acted at least once while the worker ran (a message, an answered approval or a takeover), out of all tasks given to a worker.',
+  latency:'The median time from a pull request being opened to its merge, over the pull requests merged in this period.',
+  retired:'Of the tasks that were cancelled or declined, how many say why. A task closed with no reason cannot be learned from.',
+  wall:'Minutes from a worker first taking a task to the task first being done. Half the tasks took less than the median; one in ten took longer than the p90.',
+  workflow:'Merged pull requests labelled workflow: changes to how the team works, not to the product.',
+  dispatched:'Tasks given to a worker (Claude, Codex or opencode). Work a person tracked in their own session is left out.',
+  accepted:'Finished with its check passed after a person stepped in, or not accepted but delivered anyway (a merged pull request or a person confirming it).',
+  auto_completed:'Finished with its check passed and no person stepping in.',
+  not_delivered:'Finished with no check, cancelled or declined, and nothing of it was merged or confirmed.',
+  failed:'Finished, but its check failed, timed out or never ran, and nothing of it was merged or confirmed.',
+  false_accept:'Accepted, then found wrong afterwards: reverted, its issue reopened, or done again.'};
+function metricsTile(big,label,note,help){return el('div',{class:'mtile'},el('b',{},big),el('div',{},label,infoTip(help)),el('div',{class:'mute'},note))}
 function hours(st){return st&&st.n?Number(st.median_hours).toFixed(1)+' h':'–'}
 // Three groups, each a tile per number: what was accepted, how the work flowed,
 // and numbers kept for reference. A rate without enough data says so, with counts.
@@ -5019,14 +5047,14 @@ function factoryRow(name,x){const c=x.cost_per_accepted||{},w=x.wall_time||{};
     el('td',{class:'num'},c.median_usd===undefined?'–':'$'+Number(c.median_usd).toFixed(2)+(c.unpriced?' (+'+c.unpriced+' unpriced)':'')),el('td',{class:'num'},factoryFrac(x.interventions,'with_any')),el('td',{class:'num'},w.median_min===undefined?'–':Math.round(w.median_min)))}
 function factoryBody(f){const t=f.total||{},wf=f.workflow_changes||{};
   const tiles=el('div',{class:'mtiles'},
-    metricsTile(factoryCell(t.autonomous_completion,m=>m.n+'/'+m.of),'Autonomous completion',factoryCell(t.autonomous_completion,m=>Math.round(m.pct)+'% · '+m.accepted+' accepted')),
-    metricsTile(factoryCell(t.retired_with_reason,m=>m.n+'/'+m.of),'Retired with a reason',factoryCell(t.retired_with_reason,m=>m.no_note+' with no note')),
-    metricsTile(factoryCell(t.cost_per_accepted,m=>m.median_usd===undefined?'?':'$'+Number(m.median_usd).toFixed(2)),'Cost per accepted, median',factoryCell(t.cost_per_accepted,m=>(m.p90_usd===undefined?'':'p90 $'+Number(m.p90_usd).toFixed(2))+(m.unpriced?' · '+m.unpriced+' unpriced':''))),
-    metricsTile(factoryCell(t.fully_loaded,m=>m.per_accepted_usd===undefined?el('span',{class:'mute',title:m.per_accepted_not_computable||''},'none accepted'):factoryGE(m)+'$'+Number(m.per_accepted_usd).toFixed(2)),'Cost per accepted, fully loaded',factoryCell(t.fully_loaded,factoryLoadedNote),'Everything the dispatched handoffs spent, every attempt counted, divided by the accepted ones'),
-    metricsTile(factoryCell(t.interventions,m=>m.with_any+'/'+m.of),'With an intervention',factoryCell(t.interventions,m=>'mean '+m.mean+' · '+m.blocked_unanswered+' blocked, unanswered')),
-    metricsTile(factoryCell(t.wall_time,m=>Math.round(m.median_min)+' min'),'Claim to done, median',factoryCell(t.wall_time,m=>'p90 '+Math.round(m.p90_min)+' min')),
-    metricsTile(wf.not_labelled?'not labelled':String(wf.n),'Workflow changes',wf.merged_prs+' PRs merged'));
-  const head=el('tr',{},el('th',{},'Group'),el('th',{class:'num'},'Dispatched'),el('th',{class:'num'},'Autonomous'),el('th',{class:'num'},'Retired, reason'),el('th',{class:'num'},'$ median'),el('th',{class:'num'},'Intervened'),el('th',{class:'num'},'Min median'));
+    metricsTile(factoryCell(t.autonomous_completion,m=>m.n+'/'+m.of),'Autonomous completion',factoryCell(t.autonomous_completion,m=>Math.round(m.pct)+'% · '+m.accepted+' accepted'),HELP.autonomous),
+    metricsTile(factoryCell(t.retired_with_reason,m=>m.n+'/'+m.of),'Retired with a reason',factoryCell(t.retired_with_reason,m=>m.no_note+' with no note'),HELP.retired),
+    metricsTile(factoryCell(t.cost_per_accepted,m=>m.median_usd===undefined?'?':'$'+Number(m.median_usd).toFixed(2)),'Cost per accepted, median',factoryCell(t.cost_per_accepted,m=>(m.p90_usd===undefined?'':'p90 $'+Number(m.p90_usd).toFixed(2))+(m.unpriced?' · '+m.unpriced+' unpriced':'')),HELP.cost),
+    metricsTile(factoryCell(t.fully_loaded,m=>m.per_accepted_usd===undefined?el('span',{class:'mute',title:m.per_accepted_not_computable||''},'none accepted'):factoryGE(m)+'$'+Number(m.per_accepted_usd).toFixed(2)),'Cost per accepted, fully loaded',factoryCell(t.fully_loaded,factoryLoadedNote),HELP.loaded),
+    metricsTile(factoryCell(t.interventions,m=>m.with_any+'/'+m.of),'With an intervention',factoryCell(t.interventions,m=>'mean '+m.mean+' · '+m.blocked_unanswered+' blocked, unanswered'),HELP.intervened),
+    metricsTile(factoryCell(t.wall_time,m=>Math.round(m.median_min)+' min'),'Claim to done, median',factoryCell(t.wall_time,m=>'p90 '+Math.round(m.p90_min)+' min'),HELP.wall),
+    metricsTile(wf.not_labelled?'not labelled':String(wf.n),'Workflow changes',wf.merged_prs+' PRs merged',HELP.workflow));
+  const head=el('tr',{},el('th',{},'Group'),el('th',{class:'num'},'Dispatched',infoTip(HELP.dispatched)),el('th',{class:'num'},'Autonomous',infoTip(HELP.autonomous)),el('th',{class:'num'},'Retired, reason',infoTip(HELP.retired)),el('th',{class:'num'},'$ median',infoTip(HELP.cost)),el('th',{class:'num'},'Intervened',infoTip(HELP.intervened)),el('th',{class:'num'},'Min median',infoTip(HELP.wall)));
   const rows=[...(f.by_week||[]).map(x=>factoryRow('Week of '+x.week,x)),...(f.by_tool||[]).map(x=>factoryRow(x.tool==='none'?'No worker':toolName(x.tool),x)),...(f.by_stage||[]).map(x=>factoryRow('Stage '+x.stage,x))];
   return [el('div',{class:'mute'},'Metrics 1, 3, 4 and 5 count dispatched handoffs only; '+f.interactive_left_out+' interactive handoffs are left out.'),tiles,el('div',{class:'tablewrap'},el('table',{class:'fgroups'},el('thead',{},head),el('tbody',{},rows))),...factoryClasses(f.failure_classes),...factoryLoad(f.load)]}
 // Metric 3 fully loaded (fully_loaded in each slice): every attempt's dollars,
@@ -5122,7 +5150,7 @@ const INS_OUT=[['accepted','Accepted'],['auto_completed','Auto completed'],['not
 function insOutName(k){const o=INS_OUT.find(x=>x[0]===k);return o?o[1]:k}
 // insCard: a value, or null for not measured with why; undefined while it loads.
 function insCard(key,label,big,note,why,err){const wait=big===undefined,none=big===null;
-  return el('div',{class:'ins-card','data-card':key},el('span',{class:'ins-label'},label),el('b',{class:wait||none?'ins-none':null},wait?(err?'–':'…'):none?INS_NONE:big),el('span',{class:'ins-note'},wait?(err||'Loading…'):none?why||'':note))}
+  return el('div',{class:'ins-card','data-card':key},el('span',{class:'ins-label'},label,infoTip(HELP[key])),el('b',{class:wait||none?'ins-none':null},wait?(err?'–':'…'):none?INS_NONE:big),el('span',{class:'ins-note'},wait?(err||'Loading…'):none?why||'':note))}
 function insCards(){const f=INS.f,t=f?f.total||{}:null,m=INS.m,val=(have,pick)=>have?pick():undefined;
   const ac=t&&t.autonomous_completion||{},c=t&&t.cost_per_accepted||{},iv=t&&t.interventions||{},lat=m&&((m.workflow||{}).latency||{}).open_to_merge;
   $('ins-cards').replaceChildren(
@@ -5143,7 +5171,7 @@ function insWeeks(f){const weeks=f.by_week||[];if(!weeks.length)return [el('div'
       const a=el('a',{class:'ins-seg ins-o-'+k,href:insWeekHref(w,k),'data-outcome':k,'data-week':w.week,title:text,'aria-label':text+'. Open these tasks'});a.style.flex=o[k]+' 1 0';return a}));
     stack.style.height=(most?100*n/most:0)+'%';return el('div',{class:'ins-week','data-week':w.week},stack)}));
   const labels=el('div',{class:'ins-xlabels','aria-hidden':'true'},weeks.map(w=>el('span',{},w.week.slice(5))));
-  const key=el('div',{class:'ins-key'},INS_OUT.map(([k,name])=>el('span',{},el('i',{class:'ins-o-'+k}),name)));
+  const key=el('div',{class:'ins-key'},INS_OUT.map(([k,name])=>el('span',{},el('i',{class:'ins-o-'+k}),name,infoTip(HELP[k]))));
   const table=el('table',{class:'ins-wtable',id:'ins-wtable'},el('caption',{},'Outcomes per week: dispatched tasks by the week they were created'),
     el('thead',{},el('tr',{},el('th',{scope:'col'},'Week of'),INS_OUT.map(([,name])=>el('th',{class:'num',scope:'col'},name)),el('th',{class:'num',scope:'col'},'Still open'))),
     el('tbody',{},weeks.map(w=>{const o=w.outcomes||{};return el('tr',{},el('th',{scope:'row'},w.week),INS_OUT.map(([k])=>el('td',{class:'num'},String(Number(o[k])||0))),el('td',{class:'num'},String(Number(o.open)||0)))})));

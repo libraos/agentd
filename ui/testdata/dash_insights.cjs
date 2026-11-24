@@ -60,6 +60,18 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  assert.equal(weeks[0].querySelector('.ins-o-failed').style.flexGrow,'1');
  assert.deepEqual([...doc.querySelectorAll('#ins-weeks .ins-key span')].map(s=>s.textContent),['Accepted','Auto completed','Not delivered','Failed','False accept']);
  assert(doc.querySelector('#ins-weeks').textContent.includes('1 still offered or running, not drawn.'));
+ // Each indicator has an "i" that explains it: one per card and per outcome in the key, with
+ // no text of its own, readable by name, shown on hover or focus and hidden on leaving or Escape.
+ const tips=[...doc.querySelectorAll('#ins-cards .ins-card .itip')];assert.equal(tips.length,4,'a card has no explanation');
+ assert.equal(doc.querySelectorAll('#ins-weeks .ins-key .itip').length,5,'an outcome in the key has no explanation');
+ for(const t of doc.querySelectorAll('.itip')){assert.equal(t.textContent,'');assert.equal(t.type,'button');assert(t.dataset.tip.length>20);assert.equal(t.getAttribute('aria-label'),'What this means: '+t.dataset.tip)}
+ assert(tips[0].dataset.tip.includes('no person stepping in'));assert(!doc.getElementById('itip-pop'),'the note exists before anyone asked');
+ tips[0].dispatchEvent(new w.MouseEvent('mouseenter'));const pop=doc.getElementById('itip-pop');assert(!pop.hidden);assert.equal(pop.textContent,tips[0].dataset.tip);assert.equal(pop.getAttribute('role'),'tooltip');
+ tips[0].dispatchEvent(new w.MouseEvent('mouseleave'));assert(pop.hidden);
+ tips[2].focus();assert(!pop.hidden);assert.equal(pop.textContent,tips[2].dataset.tip);assert(pop.textContent.includes('lead agent'));
+ tips[2].dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape'}));assert(pop.hidden);tips[2].click();assert(!pop.hidden);tips[2].blur();assert(pop.hidden);assert.equal(doc.querySelectorAll('#itip-pop').length,1);
+ // The Factory tiles and the columns of its table are explained the same way.
+ assert.equal(doc.querySelectorAll('#f-body .mtiles:not(.fload-avg) .mtile .itip').length,7);assert.equal(doc.querySelectorAll('#f-body .fgroups thead .itip').length,6);
  const seg=weeks[0].querySelector('.ins-o-failed');assert.equal(seg.getAttribute('aria-label'),'Week of 2026-10-15: 1 failed. Open these tasks');
  const href=new URL(seg.getAttribute('href').replace('#insights/history','http://x/'));assert.deepEqual(Object.fromEntries(href.searchParams),{outcome:'failed',since:'2026-10-15T09:00:00Z',until:'2026-10-22T09:00:00Z'});
  // The text table: always in the page for a screen reader, shown on request.
