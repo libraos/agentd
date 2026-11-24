@@ -81,20 +81,43 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  assert.equal(row('s-solo').getAttribute('href'),'#team/session/s-solo');assert(row('s-solo').textContent.includes('Exploring the gamma repo'));
  assert.equal(doc.querySelector('#agents-add').getAttribute('href'),'#settings/repositories','Add a repository does not lead to Settings > Repositories');
  assert.equal(doc.querySelector('#agents-new').textContent,'New task');
- // Shown on Inbox, Tasks and Triggers, collapsed on Chat (its conversation list takes the list's place, #483), Insights, Team and Settings (desktop); the toggle says which.
- if(!phone){for(const h of ['#inbox','#issues','#triggers']){await go(h);assert(!collapsed(),'the list is not shown on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'true');assert(!doc.querySelector('#agents-list').inert)}
-  for(const h of ['#chat','#insights/metrics','#team','#settings']){await go(h);assert(collapsed(),'the list is not collapsed on '+h);assert.equal(doc.querySelector('#agents-toggle').getAttribute('aria-expanded'),'false');assert(doc.querySelector('#agents-list').inert)}
-  // Hide it on Inbox and show it on Team: remembered for this browser, page by page.
-  await go('#inbox');doc.querySelector('#agents-toggle').click();await tick();assert(collapsed());await go('#team');doc.querySelector('#agents-toggle').click();await tick();assert(!collapsed());
-  assert.deepEqual(JSON.parse(w.localStorage.getItem('dash-agents')),{inbox:false,team:true});await go('#issues');assert(!collapsed(),'hiding on Inbox hid it on Tasks');
-  const again=load('http://127.0.0.1:21620/#inbox',{'dash-agents':w.localStorage.getItem('dash-agents')});await settle();assert(again.window.document.body.classList.contains('agents-collapsed'),'the choice is not remembered on reload');
-  again.window.location.hash='#team';await settle();assert(!again.window.document.body.classList.contains('agents-collapsed'));again.window.close();
-  await go('#inbox');doc.querySelector('#agents-toggle').click();await tick();assert(!collapsed(),'Show does not bring the list back')}
- else{// On a phone the list is a drawer: the toggle opens it over an inert page; Escape and choosing a row close it.
-  await go('#inbox');assert(!drawer());assert(doc.querySelector('#agents-list').inert);doc.querySelector('#agents-toggle').click();await tick();assert(drawer(),'the toggle does not open the drawer');
-  assert(doc.querySelector('#column').inert,'the page is not inert under the drawer');assert(!doc.querySelector('#agents-scrim').hidden);
+ // Shown on Inbox, Tasks and Triggers, collapsed on Chat (its conversation list takes the list's place, #483), Insights, Team and Settings (desktop).
+ // Hide is on the list's own header; the handle (#agents-show) brings it back and is only on pages with a list:
+ // no toggle in the top bar, and none at all on Overview, Team, Insights, Settings, Help or Page not found (dash-review REQUIRED 2).
+ const hide=()=>doc.querySelector('#agents-toggle'),show=()=>doc.querySelector('#agents-show'),inHeader=n=>!!n.closest('header');
+ assert(doc.querySelector('#agents-list .ag-head #agents-toggle'),'Hide is not on the Agents list header');assert.equal(hide().textContent,'Hide');assert.equal(hide().getAttribute('aria-label'),'Hide the Agents list');
+ assert(!doc.querySelector('header #agents-toggle'),'the toggle is still in the top bar');
+ for(const h of ['#overview','#chat','#insights/metrics','#team','#settings','#help','#community','#nowhere']){await go(h);assert(show().hidden,'the Agents handle shows on '+h+', which has no Agents list');if(!phone)assert(collapsed(),'the list is not collapsed on '+h);assert(doc.querySelector('#agents-list').inert)}
+ if(!phone){for(const h of ['#inbox','#issues','#triggers']){await go(h);assert(!collapsed(),'the list is not shown on '+h);assert.equal(hide().getAttribute('aria-expanded'),'true');assert(show().hidden,'the handle shows while the list does');assert(!doc.querySelector('#agents-list').inert)}
+  // The list's own New task is not repeated beside the Tasks toolbar's; on Inbox it is the only one.
+  await go('#issues');assert(doc.querySelector('#agents-new').hidden,'New task twice on Tasks');await go('#inbox');assert(!doc.querySelector('#agents-new').hidden);
+  // Hide on Inbox: the list goes, the handle at the content's edge takes its place and focus; remembered page by page.
+  hide().focus();hide().click();await tick();assert(collapsed());assert(!show().hidden,'no way back once hidden');assert.equal(show().getAttribute('aria-expanded'),'false');assert.equal(show().getAttribute('aria-label'),'Show the Agents list');
+  assert.equal(doc.activeElement,show(),'focus is lost when the list hides');assert(show().textContent.startsWith('Agents'),'the handle is not labelled');assert.equal(doc.querySelector('#agents-show-n').textContent,'2','the handle does not count what needs you');
+  assert.deepEqual(JSON.parse(w.localStorage.getItem('dash-agents')),{inbox:false});await go('#issues');assert(!collapsed(),'hiding on Inbox hid it on Tasks');
+  const again=load('http://127.0.0.1:21620/#inbox',{'dash-agents':w.localStorage.getItem('dash-agents')});await settle();const ad=again.window.document;assert(ad.body.classList.contains('agents-collapsed'),'the choice is not remembered on reload');assert(!ad.querySelector('#agents-show').hidden);
+  again.window.location.hash='#issues';await settle();assert(!ad.body.classList.contains('agents-collapsed'));assert(ad.querySelector('#agents-show').hidden);again.window.close();
+  await go('#inbox');show().click();await tick();assert(!collapsed(),'Show does not bring the list back');assert(show().hidden);assert.equal(doc.activeElement,hide(),'focus does not move to Hide')}
+ else{// On a phone the list is a drawer: a labelled Agents button with its count opens it over an inert page; Escape, Close and choosing a row close it.
+  await go('#inbox');assert(!drawer());assert(doc.querySelector('#agents-list').inert);assert(!show().hidden,'no way to open the drawer');assert(inHeader(show()));
+  assert(show().textContent.startsWith('Agents'),'the drawer button is not labelled');assert.equal(show().getAttribute('aria-label'),'Open the Agents list');show().click();await tick();assert(drawer(),'the button does not open the drawer');
+  assert(doc.querySelector('#column').inert,'the page is not inert under the drawer');assert(!doc.querySelector('#agents-scrim').hidden);assert.equal(show().getAttribute('aria-expanded'),'true');
   doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await tick();assert(!drawer(),'Escape does not close the drawer');assert(!doc.querySelector('#column').inert);
-  doc.querySelector('#agents-toggle').click();await tick();assert(drawer())}
+  show().click();await tick();assert(drawer());doc.querySelector('#agents-close').click();await tick();assert(!drawer(),'Close does not close the drawer');
+  show().click();await tick();assert(drawer())}
+ // The top bar: the title shrinks with an ellipsis so the counts, Search and Account stay one group at the right; the counts
+ // read as links; Settings, Help and Triggers are on the rail, not again in the account menu (a phone, with no rail foot, keeps them);
+ // Page not found has its title only (dash-review REQUIRED 2, A, M).
+ assert(/header h1\{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis\}/.test(shellCss),'the title does not shrink');
+ assert(/header>\.stats\{[^}]*margin-left:auto/.test(shellCss),'the counts are not in the right group');assert(/header>\.stats \.stat\{color:var\(--accent\)\}/.test(shellCss),'the counts do not read as links');
+ assert(/@media\(min-width:861px\)\{\.acct-card \.acct-links>a\[href="#settings"\],\.acct-card \.acct-links>a\[href="#help"\]/.test(shellCss),'Settings and Help are still in the desktop account menu');
+ {const kids=[...doc.querySelector('header').children].map(n=>n.id||n.className);assert(kids.indexOf('stats')>kids.indexOf('page-title')&&kids.indexOf('stats')<kids.indexOf('search-open'),'the counts are not between the title and Search: '+kids)}
+ await go('#nowhere');assert(doc.querySelector('#stats').hidden,'Page not found shows the header counts');await go('#issues');assert(!doc.querySelector('#stats').hidden);
+ // An Inbox notice with no task is in its own Inbox group, last, its row marked like a task's (dash-review A).
+ {const saved=dash;dash={...dash,attention_version:1,inbox:[{id:'n-1',what:'notice',kind:'notice',title:'Lesson proposed',can_answer:true,actionable:true}]};w.eval('refresh()');await settle();
+  const groups=[...doc.querySelectorAll('#agents-rows .ag-group')];const inbox=doc.querySelector('#agents-rows [data-ag-inbox]');
+  assert(inbox,'an Inbox notice with no task has no group');assert.equal(groups.at(-1),inbox,'the Inbox group is not last');const n=inbox.nextElementSibling;assert(n&&n.classList.contains('ag-notice')&&n.querySelector('.ag-mark'),'an Inbox notice has no mark');assert(n.textContent.includes('Lesson proposed'));
+  dash=saved;w.eval('refresh()');await settle()}
  // A row opens its task in place: the address names it, the rail and the list stay, and the row is marked.
  await go('#inbox');row('hof-work').click();await settle();
  assert.equal(w.location.hash,'#issues/hof-work');assert(!doc.querySelector('#page-work').hidden);assert(doc.querySelector('#issue-detail').textContent.includes('Working in alpha'),'the task did not open');

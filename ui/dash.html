@@ -63,19 +63,24 @@ button.stat{background:none;border:0;padding:0;font:inherit;cursor:pointer}butto
 .ov-chead,.ov-shead{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}.ov-chead h3,.ov-shead h3{margin:0;font-size:var(--fs-l);font-weight:600}
 .ov-fresh{margin-left:auto;font-size:var(--fs-xs);color:var(--mute);white-space:nowrap}.ov-fresh.old{color:var(--red)}
 .ov-figs{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px 16px}.ov-figure{min-width:0}.ov-figs dt{color:var(--mute);font-size:var(--fs-s)}.ov-figs dd{margin:0}.ov-value{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.ov-definition{font-size:var(--fs-xs);line-height:1.45;color:var(--mute)}
-.ov-stats .ov-figs{grid-template-columns:repeat(6,minmax(0,1fr))}.ov-stats .ov-value{display:block;font-size:24px;font-weight:600;line-height:1.3}.ov-stats .tm-why{font-size:var(--fs-xs);font-weight:400;line-height:1.5;margin-top:4px}.ov-quiet{display:flex;flex-wrap:wrap;gap:4px 24px;color:var(--mute);font-size:var(--fs-s)}.ov-quiet .ov-figure{display:flex;gap:6px}.ov-quiet dt,.ov-quiet dd{margin:0}
-.ov-agents .ov-chead{margin-bottom:4px}.ov-agents .ov-figs{grid-template-columns:2fr 1fr 1fr 2fr}.ov-agents .ov-more{margin-top:4px}
-.ov-history{margin:20px 0}.ov-range{display:flex;gap:4px;margin-left:auto}.ov-range button{padding:4px 12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--panel);cursor:pointer}.ov-range button[aria-pressed="true"]{background:var(--sel);border-color:var(--accent);color:var(--accent)}
+.ov-stats .ov-figs{grid-template-columns:repeat(6,minmax(0,1fr))}.ov-stats .ov-value{display:block;font-size:24px;font-weight:600;line-height:1.3}.ov-stats .tm-why{font-size:var(--fs-xs);font-weight:400;line-height:1.5;margin-top:4px}.ov-quiet{display:flex;flex-wrap:wrap;gap:4px 24px;color:var(--mute);font-size:var(--fs-s);margin:10px 0 0;padding-top:8px;border-top:1px solid var(--line)}.ov-quiet .ov-figure{display:flex;gap:6px}.ov-stats .ov-quiet .ov-value{display:inline;font-size:inherit;font-weight:500;line-height:inherit;color:var(--fg)}.ov-quiet dt,.ov-quiet dd{margin:0}
+.ov-agents .ov-chead{margin-bottom:4px}.ov-agents .ov-figs{grid-template-columns:repeat(4,minmax(0,1fr))}.ov-agents .ov-more{margin-top:4px}
+.ov-history{margin:20px 0}.ov-range{display:flex;gap:4px;margin-left:auto}.ov-shead .ov-fresh+.ov-range{margin-left:0}.ov-health{margin:20px 0 0}.ov-range button{padding:4px 12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--panel);cursor:pointer}.ov-range button[aria-pressed="true"]{background:var(--sel);border-color:var(--accent);color:var(--accent)}
 .ov-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ov-chart{min-width:0;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px}.ov-chart:first-child{grid-column:1/-1}.ov-chart h4{margin:0;font-size:var(--fs-m)}.ov-plot{position:relative;min-width:0}.ov-plot svg{display:block;width:100%;height:190px;touch-action:pan-y}.ov-plot .mtip{white-space:normal;max-width:100%;min-width:min(240px,100%);top:24px;left:0}.ov-chart-note{font-size:var(--fs-s);color:var(--mute);margin:4px 0 8px}.ov-chart .mtable{margin-top:6px}.ov-chart table{font-size:var(--fs-s);white-space:nowrap}.ov-chart caption{text-align:left;color:var(--mute)}
 .ov-created,.ov-cpu{fill:var(--accent);background:var(--accent)}.ov-done,.ov-memory{fill:var(--green);background:var(--green)}.ov-failed{fill:var(--red);background:var(--red)}.ov-member{opacity:.45;stroke:var(--fg);stroke-width:.6;stroke-dasharray:2 1}.ov-unpriced{fill:var(--amber);background:var(--amber)}.ov-resource{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}.ov-resource.ov-cpu{stroke:var(--accent)}.ov-resource.ov-memory{stroke:var(--green);stroke-dasharray:5 3}.ov-hit{fill:transparent}.ov-hit:focus{outline:none;stroke:var(--accent);stroke-width:2}.ov-chart .mchart-key{margin:4px 0}.ov-origin{font-size:var(--fs-xs);color:var(--mute)}
 .ov-more{display:inline-block;margin-top:8px;font-size:var(--fs-s)}.ov-running .feed-stale,.ov-running>.state{margin-bottom:8px}#ov-body>.feed-stale{margin-bottom:12px}
-.ov-table tbody tr{cursor:pointer}.ov-table tbody tr:hover{background:var(--hover)}.working-table.ov-table th:nth-child(n){width:auto}.working-table.ov-table th:first-child{width:28%}.ov-warn{color:var(--red)}
+.ov-table tbody tr{cursor:pointer}.ov-table tbody tr:hover{background:var(--hover)}.working-table.ov-table th:nth-child(n){width:auto}.working-table.ov-table th:first-child{width:28%}.ov-warn{color:var(--red)}.working-table.ov-table td>a{color:var(--accent);font-weight:500}
+/* desktop: the short columns stay on one line and Task takes the rest, its title cut with an ellipsis (dash-review B, P) */
+@media(min-width:861px){.working-table.ov-table table{table-layout:auto}.working-table.ov-table th,.working-table.ov-table td:not(:first-child){white-space:nowrap}.working-table.ov-table th:first-child,.working-table.ov-table td:first-child{width:100%;max-width:0}.working-table.ov-table td:last-child{white-space:normal;min-width:9em}}
 @media(max-width:860px){.ov-stats .ov-figs{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-agents .ov-figs{grid-template-columns:repeat(2,minmax(0,1fr))}.ov-charts{grid-template-columns:minmax(0,1fr)}.ov-shead{flex-wrap:wrap}.working-table.ov-table table,.working-table.ov-table tbody,.working-table.ov-table tr,.working-table.ov-table td{display:block;width:auto}.working-table.ov-table thead{display:none}.working-table.ov-table tr{border-bottom:1px solid var(--line);padding:6px 0}.working-table.ov-table tr:last-child{border-bottom:0}
   .working-table.ov-table td{border:0;padding:3px 12px;display:flex;gap:12px;justify-content:space-between}.working-table.ov-table td::before{content:attr(data-label);color:var(--mute);font-size:var(--fs-s);flex:none}.working-table.ov-table td:first-child::before{content:none}.working-table.ov-table td>a{white-space:normal}}
 /* end:css-overview */
 /* Overview's Needs a person (#907) */
 .ov-needs{margin-top:20px}.ov-need-figs{display:flex;flex-wrap:wrap;gap:8px 24px;margin:6px 0 8px}.ov-need-fig b{font-size:var(--fs-l);font-weight:600;font-variant-numeric:tabular-nums}
 .ov-need-rows{list-style:none;margin:0;padding:0;display:grid;gap:4px}.ov-need-rows li{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;padding:6px 0;border-top:1px solid var(--line)}.ov-need-rows a{font-weight:500}.ov-need-more{margin:8px 0 0;font-size:var(--fs-s)}
+/* each row on one line, its title and reason cut with an ellipsis; the Stale group lines up with the list (dash-review B, M, P) */
+.ov-needs>.ov-need-rows li{flex-wrap:nowrap;min-width:0}.ov-needs>.ov-need-rows li>a{flex:0 1 auto;max-width:65%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ov-needs>.ov-need-rows li>.tm-why{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ov-needs>.ov-need-rows li>.host-tag{flex:none}.ov-needs .finished>summary{padding-left:0;padding-right:0}
+@media(max-width:860px){.ov-needs>.ov-need-rows li{flex-wrap:wrap}.ov-needs>.ov-need-rows li>a{max-width:100%}.ov-needs>.ov-need-rows li>.tm-why{flex-basis:100%}}
 /* region:css-permissions: Team > Permissions (#907) */
 .tm-tabs-more{display:inline-flex;align-items:center;gap:2px;margin-left:auto;padding-left:12px;font-size:var(--fs-s)}.tm-tabs-more>.mute{padding:0 4px}
 .perm-form{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px;margin:12px 0 20px}.perm-form h4{margin:0 0 4px;font-size:var(--fs-m)}.perm-form>p{margin:0 0 8px}
@@ -116,6 +121,13 @@ main{flex:1;overflow-y:auto;min-height:0;padding:24px 24px 48px;min-width:0}
 .textpage{max-width:72ch;display:grid;gap:12px}.textpage .runs{margin:0}.textpage p{margin:0 0 8px}.textpage dl{display:grid;grid-template-columns:90px minmax(0,1fr);gap:6px 12px;margin:0}.textpage dt{color:var(--mute)}.textpage dd{margin:0}
 .textpage fieldset{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 16px}.textpage fieldset label{display:inline-flex;gap:6px;align-items:center}.textpage legend{padding:0;margin-bottom:6px;color:var(--mute);font-size:var(--fs-s)}
 #page-settings{max-width:1100px}.set-toolbar{display:flex;align-items:center;justify-content:space-between}.set-toolbar h2{margin:0}.set-group[hidden]{display:none}.set-group{padding:20px;min-width:0}.set-section{margin:16px 0}.set-section h3{margin:8px 0}.set-form{display:grid;gap:10px;max-width:420px}.set-form>button{justify-self:start}.set-check{display:flex;align-items:center;gap:8px}.set-actions{display:flex;flex-wrap:wrap;gap:6px}.set-failure,#set-error{color:var(--red)}#set-invite-once{margin-top:16px;padding:12px;background:var(--sunk);border-radius:var(--r-s)}#set-invite-once input{display:block;width:100%;margin:8px 0}#pwchange{position:fixed;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;background:var(--bg)}#pwchange[hidden]{display:none}#pwchange main{display:block;width:min(420px,100%);padding:24px;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel)}#pwchange form{display:grid;gap:10px;margin:16px 0}#pwchange label{display:grid;gap:4px;font-size:12px}#pwchange input{width:100%;font-size:13px}#pwchange-error{color:var(--red)}#pwchange-error:empty{display:none}.pwchange-foot{display:flex;gap:8px;flex-wrap:wrap}.set-group td{overflow-wrap:anywhere}.set-group dl{grid-template-columns:140px minmax(0,1fr)}
+/* the top bar (dash-review REQUIRED 2, M): the title shrinks with an ellipsis, so the counts, Search and Account
+   stay one group at the right on every page, a phone's too; the counts read as links */
+header h1{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+header>.stats{flex:0 1 auto;margin-left:auto;font-size:var(--fs-s)}header>.stats .stat{color:var(--accent)}header>.stats~.account{margin-left:0}header>.stats[hidden]~.search-open{margin-left:auto}
+@media(max-width:860px){header>.stats~.search-open{margin-left:auto;width:44px;min-width:44px;height:44px;padding:0;background:none;border:0;border-radius:var(--r-s);color:var(--fg)}header>.search-open:hover{background:var(--hover)}}
+/* Settings, Help and Triggers are on the rail on a desktop, so the account menu does not repeat them; the phone's bar has no room for them, so it keeps them */
+@media(min-width:861px){.acct-card .acct-links>a[href="#settings"],.acct-card .acct-links>a[href="#help"],.acct-card .acct-links>a[href="#triggers"]{display:none}}
 /* end:css-shell */
 /* region:css-agents-list: the persistent Agents list (#479): Needs you first, then open
    tasks by repository; one row is a mark, the title, and agent and state under it.
@@ -124,7 +136,7 @@ aside.agents{display:flex;flex-direction:column;min-height:0;min-width:0;overflo
 aside.agents:focus{outline:none}
 body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
 .ag-head{display:flex;align-items:center;gap:8px;padding:12px 12px 6px 16px}.ag-head h2{flex:1}.ag-head button{min-height:30px}
-.ag-close{display:none}
+.ag-close{display:none}.ag-head [hidden]{display:none}
 .ag-counts{display:flex;flex-wrap:wrap;gap:4px 10px;padding:0 16px 8px;font-size:var(--fs-s);color:var(--mute)}.ag-counts b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
 .ag-rows{flex:1;overflow-y:auto;min-height:0;padding:0 6px 8px}
 .ag-group{font-size:var(--fs-xs);letter-spacing:.04em;text-transform:uppercase;color:var(--mute);padding:10px 10px 4px;display:flex;justify-content:space-between;gap:6px}.ag-group span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-size:var(--fs-s)}.ag-group.ag-need span:first-child{color:var(--red)}
@@ -137,15 +149,21 @@ body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
 .ag-sub,.ag-act{font-size:var(--fs-s);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ag-act{color:var(--faint)}
 .ag-rows .empty{padding:10px;color:var(--mute);font-size:var(--fs-s)}
 .ag-add{display:block;padding:10px 16px;border-top:1px solid var(--line);font-size:var(--fs-s)}
-.agents-toggle{display:inline-flex;align-items:center;gap:6px;flex:none;background:none;border:0;padding:3px 6px;border-radius:var(--r-s);color:var(--mute);cursor:pointer}.agents-toggle:hover{background:var(--hover);color:var(--fg)}.agents-toggle[aria-expanded="true"]{color:var(--fg)}
-.agents-toggle-label{font-size:var(--fs-s)}
+/* Hide is on the list's own header (dash-review REQUIRED 2); the handle (#agents-show) brings the list back:
+   a tab at the content's left edge under the top bar on a desktop, a labelled button in the top bar on a phone. */
+.ag-hide{display:inline-flex;align-items:center;gap:4px;flex:none;background:none;border:0;padding:3px 6px;border-radius:var(--r-s);color:var(--mute);font-size:var(--fs-s);font-weight:400;box-shadow:none;cursor:pointer}.ag-hide:hover{background:var(--hover);color:var(--fg)}
+.agents-show{display:inline-flex;align-items:center;gap:6px;flex:none;color:var(--mute);background:var(--panel);border:1px solid var(--line);font-size:var(--fs-s);font-weight:400;box-shadow:none;cursor:pointer}.agents-show:hover{color:var(--fg);background:var(--hover)}.agents-show[hidden]{display:none}
+.agents-show-n{min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent-fill);color:var(--accent-ink);font-size:11px;line-height:16px;font-weight:500;text-align:center;font-variant-numeric:tabular-nums}.agents-show-n:empty{display:none}
+@media(min-width:861px){body.agents-handle #main{padding-left:48px}.agents-show{position:absolute;left:0;top:calc(100% + 16px);z-index:4;writing-mode:vertical-rl;padding:10px 3px;border-left:0;border-radius:0 var(--r-m) var(--r-m) 0}.agents-show-n,.agents-show-go{writing-mode:horizontal-tb}}
+/* the counts on one line; a notice with no task has a mark where a task row has its own */
+.ag-counts{flex-wrap:nowrap;gap:0 10px;white-space:nowrap;overflow:hidden}.ag-row .ag-mark{flex:none;width:12px;margin-top:1px;text-align:center;font-size:12px;color:var(--mute)}
 .agents-scrim[hidden]{display:none}
 @media(max-width:860px){
   aside.agents,body.agents-collapsed aside.agents{position:fixed;top:0;left:0;bottom:calc(var(--bar-h) + env(safe-area-inset-bottom));width:min(320px,88vw);z-index:7;border-right:1px solid var(--line);transform:translateX(-105%);visibility:hidden;transition:transform .2s ease,visibility .2s}
   body.agents-open aside.agents{transform:none;visibility:visible;transition:transform .2s ease,visibility 0s}
   .agents-scrim{position:fixed;inset:0 0 calc(var(--bar-h) + env(safe-area-inset-bottom)) 0;background:var(--scrim);z-index:6}
   .ag-close{display:inline-flex}.ag-row{min-height:44px;align-items:center}.ag-add{min-height:44px}
-  .agents-toggle{min-height:44px}.agents-toggle-label{display:none}}
+  .ag-hide{display:none}.agents-show{min-height:44px;padding:0 8px;border:0;background:none;color:var(--fg);border-radius:var(--r-s)}.agents-show-go{display:none}}
 @media(prefers-reduced-motion:reduce){aside.agents{transition:none}}
 /* end:css-agents-list */
 /* region:css-inbox */
@@ -801,7 +819,7 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 #appwatchdog{margin:12px 24px 0;border-left:3px solid var(--amber)}#appwatchdog[hidden]{display:none}#appwatchdog code{overflow-wrap:anywhere;user-select:all}
 /* region:css-setup: the first-run wizard (#488), one card of four steps */
 #page-setup{max-width:none;justify-items:center}#setup-body{width:100%;max-width:860px;display:grid;gap:20px;padding:28px 32px;border:1px solid var(--line);border-radius:var(--r-m,10px);background:var(--panel);box-sizing:border-box;min-width:0}
-.setup-head{display:flex;align-items:center;gap:12px}.setup-head .rail-mark{margin:0;pointer-events:none}.setup-head [data-setup-count]{margin-left:auto}.setup-small{font-size:var(--fs-s,12px)}
+.setup-banner{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}.setup-head{display:flex;align-items:center;gap:12px}.setup-head .rail-mark{margin:0;pointer-events:none}.setup-head [data-setup-count]{margin-left:auto}.setup-small{font-size:var(--fs-s,12px)}
 .setup-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}.setup-steps button{display:grid;gap:6px;width:100%;text-align:left;background:none;border:0;padding:0 0 4px;color:var(--mute);font:inherit;font-size:var(--fs-s,12px);cursor:pointer;min-height:32px}
 .setup-bar{display:block;height:4px;border-radius:2px;background:var(--line)}.setup-steps button.done .setup-bar,.setup-steps button[aria-current] .setup-bar{background:var(--accent-fill)}.setup-steps button[aria-current]{color:var(--fg);font-weight:600}.setup-steps button.done .setup-mark{color:var(--green)}
 #setup-body h2{margin:0;font-size:22px}#setup-body h2+p{margin:6px 0 0}.setup-step{display:grid;gap:12px;min-width:0}.setup-cmd{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0}.setup-cmd code{overflow-wrap:anywhere}
@@ -1310,7 +1328,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <!-- end:rail -->
 <!-- region:agents-list: the persistent Agents list beside the rail (#479); drawn by region:agents-list in the script -->
 <aside class="agents" id="agents-list" aria-labelledby="agents-title" tabindex="-1">
-  <div class="ag-head"><h2 id="agents-title">Agents</h2><button type="button" class="primary" id="agents-new" data-write title="Start a worker on a new task">New task</button><button type="button" class="ag-close" id="agents-close" aria-label="Close the Agents list">Close</button></div>
+  <div class="ag-head"><h2 id="agents-title">Agents</h2><button type="button" class="primary" id="agents-new" data-write title="Start a worker on a new task">New task</button><button type="button" class="ag-hide" id="agents-toggle" aria-controls="agents-list" aria-expanded="true" aria-label="Hide the Agents list" title="Hide the Agents list"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="2"/><path d="M8 3.5v13"/><path d="m13.5 8-2 2 2 2"/></svg><span>Hide</span></button><button type="button" class="ag-close" id="agents-close" aria-label="Close the Agents list">Close</button></div>
   <div class="ag-counts" id="agents-counts" aria-label="Tasks by state"></div>
   <nav class="ag-rows" id="agents-rows" aria-label="Tasks that need you, then open tasks by repository"><div class="empty">Loading…</div></nav>
   <a class="ag-add" id="agents-add" href="#settings/repositories">+ Add a repository</a>
@@ -1354,7 +1372,9 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 </aside>
 <div class="column" id="column">
 <header>
-  <button type="button" class="agents-toggle" id="agents-toggle" aria-controls="agents-list" aria-expanded="true" aria-label="Hide the Agents list" title="Agents list"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="2"/><path d="M8 3.5v13"/></svg><span class="agents-toggle-label">Agents</span></button>
+  <!-- region:agents-show: the hidden Agents list's handle (dash-review REQUIRED 2): on a desktop a tab at the content's left edge, under the top bar; on a phone the labelled button that opens the drawer. Only on pages with the list (agentsHas). -->
+  <button type="button" class="agents-show" id="agents-show" aria-controls="agents-list" aria-expanded="false" aria-label="Show the Agents list" title="Show the Agents list" hidden><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="2"/><path d="M8 3.5v13"/></svg><span class="agents-show-label">Agents</span><span class="agents-show-n" id="agents-show-n"></span><span class="agents-show-go" aria-hidden="true">›</span></button>
+  <!-- end:agents-show -->
   <button type="button" class="panel-toggle" id="panel-toggle" aria-controls="side" aria-expanded="false" aria-label="Open this page's panel"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13"/></svg></button>
   <h1 id="page-title">Tasks</h1>
   <div class="stats" id="stats"></div>
@@ -1912,7 +1932,7 @@ function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.re
   const sub=r.view&&def.viewTitle?def.viewTitle[r.view]:def.sub||'';
   $('side-title').textContent=({home:'Filters',inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · LibraOS Core Server';
   if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}
-  agentsApply();if(lastDash)agentsDraw(lastDash);
+  $('stats').hidden=r.item==='notfound';agentsApply();if(lastDash)agentsDraw(lastDash);
   if(def.enter)def.enter(r);syncDrawerRoute(r)}
 // On a phone the second panel is a drawer: Escape, the scrim or Close shut it, and
 // the page behind is inert while it is open (the bottom bar stays usable).
@@ -2113,9 +2133,12 @@ dashPage('notfound',{title:'Page not found',panel:false});
 // so the address names it and reload and back keep it; that row is marked
 // aria-current. A session working with no task (Team's Working now listed it) is a
 // row of its repository linking to its session page.
-// Shown by default on Inbox, Tasks and Triggers, collapsed elsewhere; Hide and
-// Show (#agents-toggle) are remembered per page in this browser (localStorage
-// dash-agents). On a phone the list is a drawer, like the second panel.
+// Shown by default on Inbox, Tasks and Triggers, collapsed elsewhere; Hide (#agents-toggle,
+// on the list's own header) and Show (#agents-show, the handle at the content's edge)
+// are remembered per page in this browser (localStorage dash-agents). The handle is only
+// on pages that have the list (agentsHas): Overview, Team, Settings, Help and the rest
+// have no toggle (dash-review REQUIRED 2). On a phone the list is a drawer, like the
+// second panel, opened from the handle (labelled Agents and its count) and shut by its Close.
 // A page hooks in from its dashPage() without touching this region: agents (shown by
 // default or not) and agentsSelected(route) (which row its route shows). A row is
 // <a class="ag-row" data-agent-id=ID href=...>; agentsSet(true|false) shows or hides
@@ -2123,15 +2146,23 @@ dashPage('notfound',{title:'Page not found',panel:false});
 const AGENTS_PAGES=['inbox','issues','triggers'],AGENTS={open:{},drawer:false,opener:null};
 try{const v=JSON.parse(localStorage.getItem('dash-agents')||'{}');if(v&&typeof v==='object')AGENTS.open=v}catch(e){}
 function agentsShown(item){item=item||ROUTE.item;const v=AGENTS.open[item],def=PAGES[item];return typeof v==='boolean'?v:def&&typeof def.agents==='boolean'?def.agents:AGENTS_PAGES.includes(item)}
-function agentsSet(open){if(PHONE.matches){agentsDrawer(open);return}AGENTS.open[ROUTE.item]=!!open;try{localStorage.setItem('dash-agents',JSON.stringify(AGENTS.open))}catch(e){}agentsApply();if(open&&lastDash)agentsDraw(lastDash)}
-function agentsApply(){const phone=PHONE.matches,shown=phone?AGENTS.drawer:agentsShown(),t=$('agents-toggle');
+// agentsHas: the page has the list, so it gets the handle: Inbox, Tasks, Triggers, or a page whose dashPage says agents:true.
+function agentsHas(item){item=item||ROUTE.item;const def=PAGES[item];return AGENTS_PAGES.includes(item)||!!def&&def.agents===true}
+function agentsSet(open){if(PHONE.matches){agentsDrawer(open);return}const a=document.activeElement,from=$('agents-list').contains(a)||a===$('agents-show');
+  AGENTS.open[ROUTE.item]=!!open;try{localStorage.setItem('dash-agents',JSON.stringify(AGENTS.open))}catch(e){}agentsApply();if(open&&lastDash)agentsDraw(lastDash);
+  // Focus follows the control that took the place of the one pressed: Hide on the list, or the handle.
+  if(from)focusBack(open?$('agents-toggle'):$('agents-show').hidden?null:$('agents-show'))}
+function agentsApply(){const phone=PHONE.matches,shown=phone?AGENTS.drawer:agentsShown(),t=$('agents-toggle'),s=$('agents-show');
   document.body.classList.toggle('agents-collapsed',!phone&&!shown);document.body.classList.toggle('agents-open',phone&&AGENTS.drawer);$('agents-scrim').hidden=!(phone&&AGENTS.drawer);$('agents-list').inert=!shown;
-  t.setAttribute('aria-expanded',String(shown));t.setAttribute('aria-label',(phone?shown?'Close':'Open':shown?'Hide':'Show')+' the Agents list')}
+  t.setAttribute('aria-expanded',String(shown));s.setAttribute('aria-expanded',String(shown));s.hidden=!agentsHas()||!phone&&shown;document.body.classList.toggle('agents-handle',!s.hidden&&!phone);
+  s.setAttribute('aria-label',(phone?'Open':'Show')+' the Agents list');s.title=s.getAttribute('aria-label');
+  // Tasks has New task in its own toolbar, so the list's copy is for the other pages and the phone drawer.
+  $('agents-new').hidden=!phone&&ROUTE.item==='issues'}
 // On a phone the list is a drawer over the page, which is inert while it is open.
 function agentsDrawer(open){open=!!(open&&PHONE.matches);if(open===AGENTS.drawer)return;if(open)setPanel(false);AGENTS.drawer=open;$('column').inert=open;agentsApply();
   if(open){AGENTS.opener=document.activeElement;if(lastDash)agentsDraw(lastDash);$('agents-list').focus();return}
-  const a=document.activeElement,back=AGENTS.opener;AGENTS.opener=null;if($('agents-list').contains(a)||a===document.body)focusBack(back&&back.isConnected?back:$('agents-toggle'))}
-$('agents-toggle').onclick=()=>agentsSet(PHONE.matches?!AGENTS.drawer:!agentsShown());
+  const a=document.activeElement,back=AGENTS.opener;AGENTS.opener=null;if($('agents-list').contains(a)||a===document.body)focusBack(back&&back.isConnected&&!back.closest('[hidden]')?back:$('agents-show'))}
+$('agents-toggle').onclick=()=>agentsSet(false);$('agents-show').onclick=()=>agentsSet(true);
 $('agents-close').onclick=()=>agentsDrawer(false);$('agents-scrim').onclick=()=>agentsDrawer(false);
 $('agents-new').onclick=()=>keysNew();
 $('agents-list').addEventListener('click',e=>{if(PHONE.matches&&e.target.closest('a'))agentsDrawer(false)});
@@ -2168,8 +2199,11 @@ function agentsRow(r,sel){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.runnin
 function agentsDraw(d){if(!d)return;const box=$('agents-rows'),m=agentsModel(d),sel=agentsSelected(),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'',isSel=r=>!!sel&&(r.id===sel||r.issue===sel);
   // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
   $('agents-counts').replaceChildren(...[[m.counts.need,d.attention_version?'need attention':m.counts.need===1?'task needs you':'tasks need you',d.attention_version?'Each task counts once, even with several Inbox notices.':'Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
-  const kids=[];if(m.counts.need)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.counts.need)),...m.need.map(r=>agentsRow(r,isSel(r))),...m.standalone.map(attentionInboxLink));
+  // Inbox notices with no task are their own group, last, each row with a mark like a task's (dash-review A, M).
+  const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...m.need.map(r=>agentsRow(r,isSel(r))));
   for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...g.rows.map(r=>agentsRow(r,isSel(r))));
+  if(m.standalone.length)kids.push(el('div',{class:'ag-group ag-need','data-ag-inbox':''},el('span',{},'Inbox'),el('span',{},m.standalone.length)),...m.standalone.map(x=>{const a=attentionInboxLink(x);a.classList.add('ag-notice');a.prepend(el('span',{class:'ag-mark','aria-hidden':'true'},'✉'));return a}));
+  $('agents-show-n').textContent=m.counts.need?String(m.counts.need):'';$('agents-show-n').title=m.counts.need?m.counts.need+(d.attention_version?' need attention':m.counts.need===1?' task needs you':' tasks need you'):'';
   box.replaceChildren(...(kids.length?kids:[el('div',{class:'empty'},'No open tasks. Start one with New task.')]));
   if(keep){const n=box.querySelector('[data-agent-id="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
   // Latest activity (Team's Working now showed it) for the sessions working on these rows, while the list shows.
@@ -4311,8 +4345,10 @@ function ovUsd(v){return '$'+Number(v).toFixed(2)}
 // ovFresh: how fresh a card is: the time the server read it, and the failed refresh if the last one failed.
 function ovFresh(F,at){const stale=feedIsStale(F),t=ovClock(at||F.okAt);return el('span',{class:'ov-fresh'+(stale?' old':''),'data-ov-fresh':''},stale?'as of '+t:'updated '+t)}
 function ovFigures(rows){return rows.filter(Boolean).map(([k,v,title,id])=>el('div',{class:'ov-figure',title:title||null},el('dt',{},k),el('dd',{},el('span',{class:'ov-value','data-ov-fig':id||null},v===null||v===undefined||v===''?'—':v))))}
+// ovCard: at null shows the card's freshness only when stale: the cards that share the Tasks card's
+// /api/load read do not repeat its "updated" line (dash-review B).
 function ovCard(key,title,F,at,rows,foot,cls=''){return el('section',{class:'ov-card '+cls,'data-ov-card':key,'aria-labelledby':'ov-h-'+key},
-  el('div',{class:'ov-chead'},el('h3',{id:'ov-h-'+key},title),ovFresh(F,at)),
+  el('div',{class:'ov-chead'},el('h3',{id:'ov-h-'+key},title),at!==null||feedIsStale(F)?ovFresh(F,at):null),
   el('dl',{class:'ov-figs'},ovFigures(rows)),foot||null)}
 function ovFailed(F,what,key,retry){const denied=F.err&&/HTTP 40[13]/.test(F.err);
   return el('div',{class:'state error',role:'alert','data-feed-error':key},el('span',{},denied?'You cannot read '+what+' here: sign in as a user of this server. ':'Could not load '+what+': '+F.err+'. '),denied?null:el('button',{type:'button',onclick:retry},'Retry'))}
@@ -4329,16 +4365,18 @@ function ovServer(d){const s=d.server||{},lat=s.latency||{},h=s.host||{},cpu=ovN
 function ovTasks(d){const t=d.tasks||{},sp=t.split||{},own=sp.server||{},hs=sp.hosts||{},loc=t.running_locations;
   const n=k=>{if(ovNum(t[k])===null)return null;return el('span',{'data-ov-split':k},String(t[k]),el('span',{class:'tm-why'},(ovNum(own[k])===null?(t[k]||0):own[k])+' server ledger · '+(ovNum(hs[k])||0)+' users’ devices'))};
   // Whose day Finished today counts: the zone the server used (tasks.day_tz); an older server counts from UTC.
-  const zone=t.day_tz||'UTC',today=el('span',{},'Finished today',el('small',{class:'tm-why','data-ov-day-tz':zone},' since midnight ('+zone+')'));
-  const running=loc?el('span',{},n('running'),el('span',{class:'tm-why'},(loc.server||0)+' server workers · '+(loc.leased||0)+' node leases · '+(loc.member_hosts||0)+' workers on users’ devices')):n('running');
-  return [['Running',running,'Confirmed live workers or valid node leases; work on users’ devices does not use this server’s lease slots.','running'],
+  // It is a footnote under the number, so the six numbers stay on one line.
+  const zone=t.day_tz||'UTC',finished=n('finished_today');if(finished)finished.querySelector('.tm-why').prepend(el('span',{'data-ov-day-tz':zone},'since midnight ('+zone+') · '));
+  // Where Running's workers are is in its tooltip: on a laptop the line wrapped to four (dash-review P).
+  const where=loc?' Now: '+(loc.server||0)+' server workers · '+(loc.leased||0)+' node leases · '+(loc.member_hosts||0)+' workers on users’ devices.':'';
+  return [['Running',n('running'),'Confirmed live workers or valid node leases; work on users’ devices does not use this server’s lease slots.'+where,'running'],
     ['Queued',n('queued'),'Non-stale offers on the server ledger and recently heard users’ devices.','queued'],
     ['Unconfirmed / stale workers',String(t.stale_running||0),'Previously dispatched tasks without live evidence, including quiet hosts; excluded from Running.','stale-running'],
     ['Stale offers',String(t.stale_queued||0),'Expired offers or offers on quiet hosts; excluded from Queued.','stale-queued'],
     ['Blocked',n('blocked'),'Tasks waiting for other tasks to finish.','blocked'],
     ['Waiting on a person',n('waiting_person'),'Workers on prompts or questions, and parked tasks, that a person can unblock now; unconfirmed workers and quiet hosts are not counted. May overlap Running.','waiting'],
     ['Approvals pending',ovNum(t.approvals_pending)!==null?el('span',{},String(t.approvals_pending),el('span',{class:'tm-why'},'Server approval requests')):null,'Unanswered approval requests held by this server.','approvals'],
-    [today,n('finished_today'),'Tasks marked done since midnight in '+zone+(t.day_since?' ('+t.day_since+')':'')+'.','finished']]}
+    ['Finished today',finished,'Tasks marked done since midnight in '+zone+(t.day_since?' ('+t.day_since+')':'')+'.','finished']]}
 function ovAgents(d){const a=d.agents||{},nodes=a.nodes||{},c=k=>Math.max(0,ovNum(nodes[k])||0),per=Array.isArray(a.sessions_per_person)?a.sessions_per_person:[];
   const nodeText=ovNum(a.nodes_total)===0?'none connected':[c('idle')+' idle',c('busy')+' busy',c('not_ready')+' not ready',c('offline')+' offline'].join(' · ');
   return [['Nodes',nodeText,(ovNum(a.nodes_total)===null?'':a.nodes_total+' nodes total. ')+'Node availability: busy means the person is working there; leases are counted below. Offline after 5 minutes.','nodes'],
@@ -4421,7 +4459,7 @@ function ovNeeds(load){if(lastDash&&lastDash.attention_version)return ovAttentio
   const list=rows.length?el('ul',{class:'ov-need-rows'},rows.slice(0,OV_NEEDS_CAP).map(r=>el('li',{'data-ov-need-row':r.id},el('a',{href:'#issues/'+encodeURIComponent(r.id),title:r.goal||r.id},cardTitle(r.goal||r.id)),el('span',{class:'tm-why'},[r.why,r.person?'asked by '+r.person:''].filter(Boolean).join(' · '))))):
     el('p',{class:'mute','data-ov-need-empty':''},wait?'The tasks waiting are not in this page’s lists yet; they are under Needs attention in Tasks.':'No task waits on a person.');
   return el('section',{class:'ov-needs','aria-labelledby':'ov-needs-h','data-ov-needs':''},
-    el('div',{class:'ov-shead'},el('h3',{id:'ov-needs-h'},'Needs a person'),load?ovFresh(LOAD,load.at):null),
+    el('div',{class:'ov-shead'},el('h3',{id:'ov-needs-h'},'Needs a person'),load&&feedIsStale(LOAD)?ovFresh(LOAD,load.at):null),
     el('div',{class:'ov-need-figs'},fig('waiting','waiting on a person',wait,null),fig('approvals',appr===1?'approval pending':'approvals pending',appr,'#inbox/approvals','Open the approvals in Needs me')),
     list,
     el('p',{class:'ov-need-more'},rows.length>OV_NEEDS_CAP?el('a',{href:'#issues?view=needs','data-ov-need-all':''},'All that needs attention in Tasks'):null,rows.length>OV_NEEDS_CAP?' · ':null,el('a',{href:'#inbox','data-ov-needs-me':''},'Needs me'+(mine?' ('+mine+')':''))))}
@@ -4432,25 +4470,29 @@ function ovAttention(d){const {needs,stale,others}=attentionModel(d);
       const title=h?h.title||h.goal||id:notice.title||notice.ref||notice.id,href=h?itemHash(null,id):inboxHref('needs',inboxKey(notice));
       return el('li',{'data-ov-need-row':id},el('a',{href,title},cardTitle(title)),el('span',{class:'tm-why'},notice&&h?notice.title:h?STATUS[status]:''),hostTag(h));
     })):el('p',{class:'mute','data-ov-need-empty':''},'Nothing needs attention.'),
-    needs.size>OV_NEEDS_CAP?el('a',{href:'#issues?view=needs','data-ov-need-all':''},'All that needs attention in Tasks'):null,
+    needs.size>OV_NEEDS_CAP?el('a',{class:'ov-more',href:'#issues?view=needs','data-ov-need-all':''},'All that needs attention in Tasks'):null,
     ...attentionGroups('overview',stale,attentionOtherNeeds(others)));
 }
-function ovView(){const out=[],load=feedFresh(LOAD),run=feedFresh(RUNNING);
+// ovView's order (dash-review REQUIRED 1): Tasks, Agents, Running tasks with its unconfirmed
+// workers, Needs attention, then Server health and the history charts, the operator detail last.
+function ovView(){const out=[],load=feedFresh(LOAD),run=feedFresh(RUNNING);let health=null;
   if(LOAD.err&&!load)out.push(ovFailed(LOAD,'the server’s load','load',loadLoad));
   else if(!load)out.push(el('div',{class:'state'},'Loading…'));
   else{const st=feedStale(LOAD,'load',loadLoad);if(st)out.push(st);
     const tasks=ovTasks(load),byId=id=>tasks.find(r=>r[3]===id);
-    out.push(el('div',{class:'ov-cards'},ovCard('tasks','Tasks',LOAD,load.at,['running','queued','waiting','blocked','approvals','finished'].map(byId),null,'ov-stats'),
-      el('dl',{class:'ov-quiet','data-ov-stale-counts':''},ovFigures(['stale-running','stale-queued'].map(byId))),
-      ovCard('server','Server health',LOAD,load.at,ovServer(load)),
-      ovCard('agents','Agents',LOAD,load.at,ovAgents(load),el('a',{class:'ov-more',href:'#team/nodes'},'Nodes and devices'),'ov-agents')))}
-  out.push(ovHistory());
+    // The stale counts are the Tasks card's footnote, apart from its active totals.
+    out.push(el('div',{class:'ov-cards'},ovCard('tasks','Tasks',LOAD,load.at,['running','queued','waiting','blocked','approvals','finished'].map(byId),
+        el('dl',{class:'ov-quiet','data-ov-stale-counts':''},ovFigures(['stale-running','stale-queued'].map(byId))),'ov-stats'),
+      ovCard('agents','Agents',LOAD,null,ovAgents(load),el('a',{class:'ov-more',href:'#team/nodes'},'Nodes and devices'),'ov-agents')));
+    health=el('div',{class:'ov-cards ov-health'},ovCard('server','Server health',LOAD,null,ovServer(load)))}
   const head=el('div',{class:'ov-shead'},el('h3',{id:'ov-running-h'},'Running tasks'),run?el('span',{class:'n','data-ov-count':''},String(run.running.filter(r=>!r.stale).length)):null,run?ovFresh(RUNNING,run.at):null);
   const sec=el('section',{class:'ov-running','aria-labelledby':'ov-running-h'},head);
   if(RUNNING.err&&!run)sec.append(ovFailed(RUNNING,'the running tasks','running',runningLoad));
   else if(!run)sec.append(el('div',{class:'state'},'Loading…'));
   else{const st=feedStale(RUNNING,'running',runningLoad);if(st)sec.append(st);sec.append(ovRunning())}
-  out.push(sec);if(run&&run.running.some(r=>r.stale))out.push(el('section',{class:'ov-running','data-ov-stale-workers':''},el('h3',{},'Unconfirmed / stale workers'),el('p',{class:'mute'},'These tasks are excluded from Running. Check their host or worker before treating them as active.'),ovRunning(true)));if(load||lastDash&&lastDash.attention_version)out.push(ovNeeds(load));return out}
+  out.push(sec);if(run&&run.running.some(r=>r.stale))out.push(el('section',{class:'ov-running','data-ov-stale-workers':''},el('h3',{class:'ov-shead'},'Unconfirmed / stale workers'),el('p',{class:'mute'},'These tasks are excluded from Running. Check their host or worker before treating them as active.'),ovRunning(true)));
+  if(load||lastDash&&lastDash.attention_version)out.push(ovNeeds(load));
+  if(health)out.push(health);out.push(ovHistory());return out}
 function ovDraw(){if(ROUTE.item!=='overview'||APP.on)return;ovRangeSync();const box=$('ov-body'),a=document.activeElement,keep=a&&box.contains(a)?(a.closest('[data-feed-stale],[data-feed-error],[data-ov-range],[data-ov-table],[data-ov-chart]')||{}).dataset:null;
   OV.observers.forEach(ro=>ro.disconnect());OV.observers=[];box.replaceChildren(...ovView());if(keep){const k=keep.feedStale||keep.feedError,n=k?box.querySelector('[data-feed-stale="'+k+'"] button,[data-feed-error="'+k+'"] button'):keep.ovRange?box.querySelector('[data-ov-range="'+keep.ovRange+'"]'):keep.ovTable?box.querySelector('[data-ov-table="'+keep.ovTable+'"] summary'):box.querySelector('[data-ov-chart="'+keep.ovChart+'"] svg');if(n)n.focus({preventScroll:true})}}
 $('ov-body').addEventListener('pointerdown',e=>{for(const tip of $('ov-body').querySelectorAll('.ov-plot .mtip'))if(!tip.parentElement.contains(e.target))tip.hidden=true});
@@ -5703,9 +5745,15 @@ async function setupLater(){try{SETUP.data=await setupAPI({action:'later'});toas
 dashPage('setup',{title:'Set up',panel:false,agents:false,
   enter(){SETUP.picked=false;SETUP.data=null;setupRender();if(setupOwner()){setupLoad();setupDoctor()}},
   unlock(){if(setupOwner()){setupLoad();setupDoctor()}else setupRender()},
-  // On landing, an owner whose install is not set up is taken to it, once a page load.
-  render(){const who=USER+'|'+ROLE;if(!setupOwner()||SETUP.asked===who)return;SETUP.asked=who;
-    setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'||h==='#home'||h==='#overview'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
+  // On landing, an owner whose install is not set up is taken to it, once a page load. On a team
+  // server, where people already work, Overview says so in a banner instead (dash-review B).
+  render(){const who=USER+'|'+ROLE;if(!setupOwner()){setupBanner(null);return}if(SETUP.asked===who)return;SETUP.asked=who;
+    setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;if(ON_TEAM){setupBanner(d);return}const h=location.hash;if(!h||h==='#'||h==='#inbox'||h==='#home'||h==='#overview'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
+// setupBanner: Overview's note that this host is not set up, with Open setup and Not now (Set up later, as the wizard's own).
+function setupBanner(d){const page=$('page-overview');let b=$('setup-banner');if(!d){if(b)b.remove();return}if(!page)return;
+  if(!b){b=el('div',{class:'state setup-banner',id:'setup-banner',role:'status'});page.querySelector('#ov-body').before(b)}
+  b.replaceChildren(el('span',{},'This host is not fully set up'+(d.reason==='no_repository'?': it has no repository yet.':d.reason==='no_agent'?': no agent is connected yet.':'.')+' '),
+    el('a',{class:'primary sm',href:'#setup'},'Open setup'),el('button',{type:'button',class:'sm','data-write':true,onclick:async()=>{try{SETUP.data=await setupAPI({action:'later'});setupBanner(null);toast('Set up later: open it again from Help.',true)}catch(e){toast(errorText(e),false)}}},'Not now'))}
 // end:setup
 // region:app: the personal app's frame (#561). When /api/dash says mode "app" (agentd app,
 // libraos/core#560), render() hands the snapshot here instead of the team pages:
