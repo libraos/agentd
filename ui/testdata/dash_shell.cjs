@@ -1,5 +1,5 @@
 // The shell (#479, libraos/core#907 step 4): the rail's six items (Overview, Tasks, Team,
-// Insights, Chat, Settings) with Help a link at its foot, every old route opening its new place; the
+// Insights, Chat, Settings), and Triggers before Settings for an owner, with Help a link at its foot, every old route opening its new place; the
 // persistent Agents list (Needs you first, then open tasks by repository, counts,
 // New task, Add a repository) shown on Inbox, Tasks and Triggers (Chat has its conversations) and
 // collapsed elsewhere, the choice remembered; a row opens its task in place, the
@@ -44,13 +44,17 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  const rows=()=>[...doc.querySelectorAll('#agents-rows .ag-row')],ids=()=>rows().map(r=>r.dataset.agentId),row=id=>doc.querySelector('#agents-rows [data-agent-id="'+id+'"]');
  const collapsed=()=>doc.body.classList.contains('agents-collapsed'),drawer=()=>doc.body.classList.contains('agents-open');
  // The rail: its items with those names, in that order, the last two at its foot.
- const railItems=[...doc.querySelectorAll('#rail .rail-item')];assert(railItems.length<=6,'more than six rail items');
- assert.deepEqual(railItems.map(a=>a.querySelector('.rail-label').textContent),['Overview','Tasks','Team','Insights','Chat','Settings']);
+ const railItems=[...doc.querySelectorAll('#rail .rail-item')].filter(a=>!a.hidden);assert(railItems.length<=7,'more than seven rail items');
+ assert.deepEqual(railItems.map(a=>a.querySelector('.rail-label').textContent),['Overview','Tasks','Team','Insights','Chat','Triggers','Settings']);
+ // Triggers shows in the rail on a desktop; the phone bar keeps its five, and the account menu has it there.
+ const shellCss=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');assert.equal(w.getComputedStyle(doc.querySelector('#rail [data-rail="triggers"]')).display,'flex','Triggers is not shown in the rail');
+ assert(/@media\(max-width:860px\)\{[^@]*\.rail-mark,\.rail-foot,\.rail-item\[data-rail="triggers"\]\{display:none\}/.test(shellCss),'Triggers takes a place in the phone bar');
+ assert(!doc.querySelector('.acct-links a[href="#triggers"]').hidden,'the account menu has no Triggers for an owner');
  assert.deepEqual([...doc.querySelectorAll('#rail .rail-foot [data-rail]')].map(a=>a.dataset.rail),['settings','help'],'Settings and Help are not at the foot');
  assert(!doc.querySelector('#rail .rail-aux[data-rail="help"]').matches('.rail-item'),'Help counts as a rail item');
- for(const gone of ['home','inbox','triggers'])assert(!doc.querySelector('#rail [data-rail="'+gone+'"]'),gone+' is still in the rail');
+ for(const gone of ['home','inbox'])assert(!doc.querySelector('#rail [data-rail="'+gone+'"]'),gone+' is still in the rail');
  // Every old route opens its new place, under the rail item that now holds it.
- const old={'#home':['page-overview','overview','#home'],'#inbox':['page-inbox','issues','#inbox'],'#inbox/approvals':['page-inbox','issues','#inbox/approvals'],'#triggers':['page-triggers','settings','#triggers'],
+ const old={'#home':['page-overview','overview','#home'],'#inbox':['page-inbox','issues','#inbox'],'#inbox/approvals':['page-inbox','issues','#inbox/approvals'],'#triggers':['page-triggers','triggers','#triggers'],
   '#team/repositories':['page-team','settings','#settings/repositories'],'#team/roles':['page-team','settings','#settings/roles'],'#team/host':['page-team','settings','#settings/sessions'],'#team/members':['page-team','team','#team/members'],'#team/who':['page-team','team','#team/who'],
   '#settings/members':['page-team','team','#team/users'],'#work':['page-work','issues','#issues'],'#metrics':['page-metrics','insights','#insights/metrics'],'#usage':['page-usage','insights','#insights/usage'],'#history':['page-history','insights','#insights/history'],'#insights/workers':['page-workers','insights','#insights/workers']};
  for(const [hash,[id,rail,lands]] of Object.entries(old)){await go(hash);assert(!doc.getElementById(id).hidden,hash+' does not open '+id);assert(doc.getElementById('page-notfound').hidden,hash+' lands on Page not found');

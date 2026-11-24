@@ -3,7 +3,8 @@
 // form with POST /api/settings trigger_edit (a template fills it), Pause sends trigger_pause, and a
 // schedule's Enable, Pause and Run now send schedule_enable, schedule_disable and schedule_run. Nothing
 // sends triggers.enabled; turning them on is shown as the terminal's command. A run's row opens its
-// task. Anyone else (403) gets the read-only commands and no control. Runs in every mode:
+// task. Anyone else (403) gets the read-only commands and no control. The nav's Triggers row is live
+// for an owner and not shown to anyone else (#907 step 4: no link to Triggers for a non-owner). Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_apptriggers.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
@@ -92,6 +93,11 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  const ro=page().textContent;
  assert(/Read only/.test(ro)&&/Only an owner/.test(ro)&&/libraos-core trigger status/.test(ro),'read only: '+ro);
  assert(!page().querySelector('input,textarea,select,form,[data-appt-action]'),'a non-owner has a control');
+ // The nav row: shown and live for an owner, gone for a viewer, back for an owner.
+ const navRow=()=>doc.querySelector('#app-shell [data-app-nav="triggers"]');
+ assert(!navRow().hidden&&!navRow().hasAttribute('aria-disabled'),'an owner\'s Triggers row is hidden or disabled');
+ base.role='viewer';w.eval('refresh()');await settle();assert(navRow().hidden,'a viewer sees the Triggers row');
+ base.role='owner';w.eval('refresh()');await settle();assert(!navRow().hidden,'an owner does not see the Triggers row again');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_apptriggers: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');
  process.exit(0);

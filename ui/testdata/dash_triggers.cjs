@@ -7,7 +7,9 @@
 // to its task, an empty list saying so) and read-only Improve and Signals
 // cards; every request the page makes is a read or a template write, and none
 // turns triggers, improve or signals on. #907 step 4: it sits under Settings > Server and is shown
-// to owners only. Runs in every mode:
+// to owners only. It is also an owner's rail item (the account menu's link on a phone), current while
+// #triggers is open, with an Off badge once the page has read that triggers are off; a non-owner has
+// neither. Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_triggers.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
@@ -49,8 +51,20 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  await settle();assert(!errors.length,errors.join('\n'));
  // Settings links to it.
  assert(doc.querySelector('#set-triggers a[href="#triggers"]'),'Settings has no link to Triggers');
- // On, and cannot fire: the CLI's settings, reason and latest offers.
- await route('#triggers');assert(!doc.getElementById('page-triggers').hidden,'the Triggers page is hidden');
+ // An owner's rail item: a link with an icon and a label, before Settings, not current yet, no badge
+ // before the page has read anything (no request is made for it).
+ const railTrig=()=>doc.querySelector('#rail [data-rail="triggers"]'),badge=()=>doc.getElementById('triggers-badge'),acctTrig=()=>doc.querySelector('#account .acct-links a[href="#triggers"]');
+ assert(railTrig()&&!railTrig().hidden,'an owner has no Triggers rail item');assert.equal(railTrig().tagName,'A');assert.equal(railTrig().getAttribute('href'),'#triggers');
+ assert.equal(railTrig().querySelector('.rail-label').textContent,'Triggers');assert(railTrig().querySelector('.rail-icon svg[aria-hidden="true"]'),'the rail item has no icon');
+ assert.equal(railTrig().nextElementSibling.className,'rail-foot','Triggers is not just before Settings');assert(!railTrig().hasAttribute('aria-current'));
+ assert(badge().hidden,'the Off badge shows before anything was read');assert.equal(triggerGets.length,0,'the rail read /api/triggers');
+ assert(acctTrig()&&!acctTrig().hidden,'an owner has no Triggers in the account menu');
+ // On, and cannot fire: the CLI's settings, reason and latest offers. Opened from the rail.
+ railTrig().focus();assert.equal(doc.activeElement,railTrig(),'the rail item cannot take the focus');
+ railTrig().click();await settle();assert.equal(w.location.hash,'#triggers','the rail item does not open #triggers');
+ assert(!doc.getElementById('page-triggers').hidden,'the Triggers page is hidden');
+ assert.equal(railTrig().getAttribute('aria-current'),'page','the rail item is not current on #triggers');assert(!doc.querySelector('#rail [data-rail="settings"]').hasAttribute('aria-current'),'Settings is current on #triggers');
+ assert(badge().hidden,'the Off badge shows while triggers are on');assert.equal(railTrig().getAttribute('aria-label'),'Triggers');
  let p=pairs();const state=()=>body().querySelector('[data-trig=state]');
  assert(state(),'no state card');assert.equal(body().firstElementChild,state(),'the state card is not first');
  assert.equal(state().querySelector('strong').textContent,'On, but cannot fire: [triggers] authors is empty'+evil);
@@ -93,6 +107,7 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  assert.equal(state().querySelector('.trig-small').textContent,'Off. Turned on from a terminal: agentd config set triggers.enabled true. Would still not fire: [triggers.dirs] has no checkout for o/r');
  assert.equal(state().querySelector('[data-trig=later]').textContent,'[triggers.dirs] has no checkout for o/r');
  assert.equal(doc.getElementById('trig-meta').textContent,'Off · owners only');
+ assert(!badge().hidden&&badge().textContent==='Off','the rail item has no Off badge while triggers are off');assert.equal(railTrig().getAttribute('aria-label'),'Triggers, off');
  // An empty list says so, for runs and for both offer lists.
  assert.equal(body().querySelector('[data-trig=offers] [data-trig=empty]').textContent,'Nothing recorded yet. Each run links to the task it started.');
  assert(!body().querySelector('[data-trig=offers] table'),'an empty run list draws a table');
@@ -119,8 +134,10 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  assert.equal(body().children.length,0,'a non-owner sees triggers');assert.equal(doc.getElementById('trig-meta').textContent,'','a non-owner sees the state');
  // A user who is not an owner (#907 step 4): Triggers is not shown anywhere (no rail item, no Settings
  // section or line, not in Help), and its address says it is for owners without reading /api/triggers.
- assert(!doc.querySelector('#rail [data-rail="triggers"]'),'Triggers is a rail item');
+ assert(badge().hidden,'the Off badge outlives the refusal');
  mode='on';dash.role='dev';dash.user='dave';w.eval('refresh()');await settle();await route('#settings/workers');
+ assert(railTrig().hidden,'a non-owner sees Triggers in the rail');assert(acctTrig().hidden,'a non-owner sees Triggers in the account menu');
+ assert(![...doc.querySelectorAll('a[href="#triggers"]')].some(a=>{for(let x=a;x;x=x.parentElement)if(x.hidden)return false;return true}),'a non-owner has a link to Triggers');
  assert(!doc.querySelector('#settings-sections a[data-section="triggers"]'),'a non-owner sees Triggers in Settings');assert(doc.getElementById('set-triggers').hidden,'a non-owner sees the Triggers line');
  assert([...doc.querySelectorAll('[data-owner-only]')].every(n=>n.hidden),'an owner-only mention shows to a non-owner');
  const ownerGets=triggerGets.length;await route('#triggers');assert.equal(triggerGets.length,ownerGets,'a non-owner read /api/triggers');
@@ -128,6 +145,7 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  // Back to an owner: the section, the line and the page again.
  dash.role='owner';dash.user='alice';w.eval('refresh()');await settle();await route('#settings/workers');
  assert(doc.querySelector('#settings-sections a[data-section="triggers"][href="#triggers"]'),'an owner has no Triggers section');assert(!doc.getElementById('set-triggers').hidden);
+ assert(!railTrig().hidden&&!acctTrig().hidden,'an owner does not see Triggers in the rail and menu again');
  await route('#triggers');assert(body().children.length>0,'an owner does not see triggers again');
  // Phone: the config text scrolls in its box rather than widening the page.
  const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');assert(/@media\(max-width:860px\)\{\.trig-cols\{grid-template-columns:minmax\(0,1fr\)\}/.test(css),'the columns do not stack on a phone');assert(/\.trig-tpl pre\{[^}]*overflow-x:auto/.test(css)&&/\.trig-tpl>\*\{min-width:0\}/.test(css),'template text does not scroll in place');
