@@ -20,7 +20,10 @@
 :root{
   --bg:#f5f5f7;--panel:#ffffff;--raised:#ffffff;--sidebar:#ebebee;--sunk:#ebebee;--line:#dcdce0;--edge:#8e8e93;--fg:#1d1d1f;--mute:#65656b;--faint:#9a9aa3;
   --accent:#0a66d6;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#ededf0;--sel:#d9e6fb;
-  --red:#c9182b;--red-fill:#c9182b;--red-tint:#fdf0f1;--green:#1b7a33;--amber:#b24a00;--violet:#8b5cf6;
+  --red:#c9182b;--red-fill:#c9182b;--red-tint:#fdf0f1;--green:#18742f;--amber:#b24a00;--violet:#8b5cf6;
+  /* contrast (layout review N): --focus is the keyboard ring (3:1 on every surface), --seg-on the chosen
+     segment of a .views control, --member-line the outline of the Overview chart's member-host bars */
+  --focus:var(--accent);--seg-on:#ffffff;--member-line:color-mix(in srgb,var(--fg) 45%,transparent);
   --k-llm:#5fb87c;--k-tool:#d9a441;--k-sub:#a78bfa;--k-err:#e26d6d;--m-opened:#6b6b74;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   /* layout, radii and type sizes for the shell and the pages built on it.
@@ -30,19 +33,21 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#1e1e20;--panel:#2a2a2d;--raised:#343437;--sidebar:#252528;--sunk:#252528;--line:#444449;--edge:#8a8a90;--fg:#f5f5f7;--mute:#a8a8ae;--faint:#6c6c78;
-  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#36363a;--sel:#2b3f5e;
+  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#36363a;--sel:#273854;
   --red:#ff7b72;--red-fill:#c9182b;--red-tint:#3a2a2c;--green:#44d36b;--amber:#ffa733;--violet:#a78bfa;--m-opened:#6c6c78;color-scheme:dark;
+  --focus:color-mix(in srgb,var(--accent) 70%,transparent);--seg-on:#3a3a3f;--member-line:var(--bg);--scrim:rgba(10,10,14,.7);
 }}
 :root[data-theme="dark"]{
   --bg:#1e1e20;--panel:#2a2a2d;--raised:#343437;--sidebar:#252528;--sunk:#252528;--line:#444449;--edge:#8a8a90;--fg:#f5f5f7;--mute:#a8a8ae;--faint:#6c6c78;
-  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#36363a;--sel:#2b3f5e;
+  --accent:#6cb0ff;--accent-fill:#0a66d6;--accent-hover:#0855b3;--accent-ink:#ffffff;--hover:#36363a;--sel:#273854;
   --red:#ff7b72;--red-fill:#c9182b;--red-tint:#3a2a2c;--green:#44d36b;--amber:#ffa733;--violet:#a78bfa;--m-opened:#6c6c78;color-scheme:dark;
+  --focus:color-mix(in srgb,var(--accent) 70%,transparent);--seg-on:#3a3a3f;--member-line:var(--bg);--scrim:rgba(10,10,14,.7);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font:13px/1.5 var(--sans);-webkit-font-smoothing:antialiased;margin:0;display:flex;flex-direction:column}
 button,input,textarea,select{font:inherit;color:inherit}
-:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 50%,transparent);outline-offset:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 code,.mono{font:12px/1.5 ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;color:var(--mute)}
 h1,h2,h3{font-size:15px;font-weight:600;margin:0;line-height:1.4}
 .mute{color:var(--mute)}
@@ -65,9 +70,9 @@ button.stat{background:none;border:0;padding:0;font:inherit;cursor:pointer}butto
 .ov-figs{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px 16px}.ov-figure{min-width:0}.ov-figs dt{color:var(--mute);font-size:var(--fs-s)}.ov-figs dd{margin:0}.ov-value{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.ov-definition{font-size:var(--fs-xs);line-height:1.45;color:var(--mute)}
 .ov-stats .ov-figs{grid-template-columns:repeat(6,minmax(0,1fr))}.ov-stats .ov-value{display:block;font-size:24px;font-weight:600;line-height:1.3}.ov-stats .tm-why{font-size:var(--fs-xs);font-weight:400;line-height:1.5;margin-top:4px}.ov-quiet{display:flex;flex-wrap:wrap;gap:4px 24px;color:var(--mute);font-size:var(--fs-s);margin:10px 0 0;padding-top:8px;border-top:1px solid var(--line)}.ov-quiet .ov-figure{display:flex;gap:6px}.ov-stats .ov-quiet .ov-value{display:inline;font-size:inherit;font-weight:500;line-height:inherit;color:var(--fg)}.ov-quiet dt,.ov-quiet dd{margin:0}
 .ov-agents .ov-chead{margin-bottom:4px}.ov-agents .ov-figs{grid-template-columns:repeat(4,minmax(0,1fr))}.ov-agents .ov-more{margin-top:4px}
-.ov-history{margin:20px 0}.ov-range{display:flex;gap:4px;margin-left:auto}.ov-shead .ov-fresh+.ov-range{margin-left:0}.ov-health{margin:20px 0 0}.ov-range button{padding:4px 12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--panel);cursor:pointer}.ov-range button[aria-pressed="true"]{background:var(--sel);border-color:var(--accent);color:var(--accent)}
+.ov-history{margin:20px 0}.ov-range{display:flex;gap:4px;margin-left:auto}.ov-shead .ov-fresh+.ov-range{margin-left:0}.ov-health{margin:20px 0 0}.ov-range button{padding:4px 12px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--panel);cursor:pointer}.ov-range button[aria-pressed="true"]{background:var(--sel);border-color:var(--accent);color:var(--fg)}
 .ov-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ov-chart{min-width:0;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px}.ov-chart:first-child{grid-column:1/-1}.ov-chart h4{margin:0;font-size:var(--fs-m)}.ov-plot{position:relative;min-width:0}.ov-plot svg{display:block;width:100%;height:190px;touch-action:pan-y}.ov-plot .mtip{white-space:normal;max-width:100%;min-width:min(240px,100%);top:24px;left:0}.ov-chart-note{font-size:var(--fs-s);color:var(--mute);margin:4px 0 8px}.ov-chart .mtable{margin-top:6px}.ov-chart table{font-size:var(--fs-s);white-space:nowrap}.ov-chart caption{text-align:left;color:var(--mute)}
-.ov-created,.ov-cpu{fill:var(--accent);background:var(--accent)}.ov-done,.ov-memory{fill:var(--green);background:var(--green)}.ov-failed{fill:var(--red);background:var(--red)}.ov-member{opacity:.45;stroke:var(--fg);stroke-width:.6;stroke-dasharray:2 1}.ov-unpriced{fill:var(--amber);background:var(--amber)}.ov-resource{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}.ov-resource.ov-cpu{stroke:var(--accent)}.ov-resource.ov-memory{stroke:var(--green);stroke-dasharray:5 3}.ov-hit{fill:transparent}.ov-hit:focus{outline:none;stroke:var(--accent);stroke-width:2}.ov-chart .mchart-key{margin:4px 0}.ov-origin{font-size:var(--fs-xs);color:var(--mute)}
+.ov-created,.ov-cpu{fill:var(--accent);background:var(--accent)}.ov-done,.ov-memory{fill:var(--green);background:var(--green)}.ov-failed{fill:var(--red);background:var(--red)}.ov-member{stroke:var(--member-line);stroke-width:.6;stroke-dasharray:2 1}.ov-created.ov-member{fill:color-mix(in srgb,var(--accent) 45%,#fff);background:color-mix(in srgb,var(--accent) 45%,#fff)}.ov-done.ov-member{fill:color-mix(in srgb,var(--green) 45%,#fff);background:color-mix(in srgb,var(--green) 45%,#fff)}.ov-failed.ov-member{fill:color-mix(in srgb,var(--red) 45%,#fff);background:color-mix(in srgb,var(--red) 45%,#fff)}.ov-unpriced{fill:var(--amber);background:var(--amber)}.ov-resource{fill:none;stroke-width:2;vector-effect:non-scaling-stroke}.ov-resource.ov-cpu{stroke:var(--accent)}.ov-resource.ov-memory{stroke:var(--green);stroke-dasharray:5 3}.ov-hit{fill:transparent}.ov-hit:focus{outline:none;stroke:var(--accent);stroke-width:2}.ov-chart .mchart-key{margin:4px 0}.ov-origin{font-size:var(--fs-xs);color:var(--mute)}
 .ov-more{display:inline-block;margin-top:8px;font-size:var(--fs-s)}.ov-running .feed-stale,.ov-running>.state{margin-bottom:8px}#ov-body>.feed-stale{margin-bottom:12px}
 .ov-table tbody tr{cursor:pointer}.ov-table tbody tr:hover{background:var(--hover)}.working-table.ov-table th:nth-child(n){width:auto}.working-table.ov-table th:first-child{width:28%}.ov-warn{color:var(--red)}.working-table.ov-table td>a{color:var(--accent);font-weight:500}
 /* desktop: the short columns stay on one line and Task takes the rest, its title cut with an ellipsis (dash-review B, P) */
@@ -99,7 +104,7 @@ body.no-panel .shell{grid-template-columns:var(--rail-w) var(--ag-col) minmax(0,
 .rail-item,.rail-aux{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 5px;border-radius:var(--r-m);color:var(--mute);font-size:var(--fs-xs);line-height:1.2;text-decoration:none}
 .rail-item:hover,.rail-aux:hover{background:var(--hover);color:var(--fg);text-decoration:none}.rail-item[aria-current="page"],.rail-aux[aria-current="page"]{background:var(--sel);color:var(--fg);font-weight:500}.rail-item:focus-visible,.rail-aux:focus-visible{outline-offset:-2px}
 /* Help is the foot's small link beside Settings, not a rail item (#907: at most six, seven for an owner with Triggers) */
-.rail-aux{padding:4px 0 3px;opacity:.85}
+.rail-aux{padding:4px 0 3px}
 .rail-icon{position:relative;display:block;height:20px}.rail-icon svg{display:block}
 .rail-badge{position:absolute;top:-6px;left:12px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent-fill);color:var(--accent-ink);font-size:11px;line-height:16px;font-weight:500;text-align:center;font-variant-numeric:tabular-nums}.rail-badge[hidden]{display:none}
 /* Triggers is a rail item for an owner only (data-owner-only); its Off badge is muted, not a count */
@@ -146,7 +151,7 @@ body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
 .ag-row .tmark{margin-top:2px;gap:0;font-size:0}.ag-row .tmark .tm-g{font-size:12px}
 .ag-text{display:flex;flex-direction:column;min-width:0;flex:1}
 .ag-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
-.ag-sub,.ag-act{font-size:var(--fs-s);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ag-act{color:var(--faint)}
+.ag-sub,.ag-act{font-size:var(--fs-s);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ag-act{font-style:italic}
 .ag-rows .empty{padding:10px;color:var(--mute);font-size:var(--fs-s)}
 .ag-add{display:block;padding:10px 16px;border-top:1px solid var(--line);font-size:var(--fs-s)}
 /* Hide is on the list's own header (dash-review REQUIRED 2); the handle (#agents-show) brings the list back:
@@ -339,7 +344,7 @@ details.more{border-top:1px solid var(--line);margin-top:8px}details.more>summar
    Text contrast of every state is at least 4.5:1 in both themes (#823's table). */
 button{font-size:13px;font-weight:400;line-height:20px;border-radius:var(--r-s);border:1px solid var(--line);background:var(--panel);min-height:30px;padding:4px 12px;box-shadow:0 1px 1px #0000000a;cursor:pointer;white-space:nowrap;color:var(--fg);transition:background-color .12s,border-color .12s,color .12s}
 button:hover:not(:disabled){background:var(--hover)}
-button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:2px}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 button:disabled,button[aria-disabled="true"]{color:var(--mute);cursor:not-allowed;box-shadow:none}
 button:where(:disabled,[aria-disabled="true"]){background:var(--sunk)}
 .ok,.primary{min-height:30px;font-weight:500;background:var(--accent-fill);color:var(--accent-ink);border-color:var(--accent-fill)}
@@ -359,7 +364,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .active,.stale,.left,.busy,.idle,.shellp,.bad{color:var(--mute)}.bad{color:var(--red)}
 /* region:css-issues */
 .wfilter{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.views{display:flex;gap:2px;padding:2px;background:var(--sunk);border-radius:8px}.views button{border:0;background:transparent;color:var(--mute);padding:3px 10px;border-radius:6px}.views button.on{background:var(--panel);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
+.views{display:flex;gap:2px;padding:2px;background:var(--sunk);border-radius:8px}.views button{border:0;background:transparent;color:var(--mute);padding:3px 10px;border-radius:6px}.views button.on{background:var(--seg-on);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
 /* the primary button keeps its size and the right edge; filters wrap before it clips */
 .wfilter .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0;font-size:12px;color:var(--mute)}.wfilter .primary{flex:none;margin-left:auto}.wfilter select{font-size:12px;padding:3px 6px;color:var(--mute)}
 .board{display:grid;gap:12px}
@@ -809,7 +814,7 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .nt-main{grid-area:main;display:grid;gap:12px;min-width:0}.nt-main h2{margin:0;font-size:15px}.nt-side{grid-area:side;display:grid;gap:12px;min-width:0;padding:12px 16px 16px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
 .nt-end{grid-area:end;display:grid;gap:8px;min-width:0}.nt-fields{display:grid;gap:14px;min-width:0}.nt-fields .views{width:max-content;max-width:100%;flex-wrap:wrap}.nt-fields .views button{min-width:80px}
 .nt-tabs{display:flex;gap:12px;border-bottom:1px solid var(--line);margin:0 -16px;padding:0 16px}.nt-tabs .on{padding:6px 0;border-bottom:2px solid var(--accent);font-weight:600;font-size:13px}
-.nt-label{color:var(--fg);font-size:12px}.nt-static span{padding:3px 10px;border-radius:6px;color:var(--mute);font-size:12px}.nt-static span.on{background:var(--panel);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
+.nt-label{color:var(--fg);font-size:12px}.nt-static span{padding:3px 10px;border-radius:6px;color:var(--mute);font-size:12px}.nt-static span.on{background:var(--seg-on);color:var(--fg);box-shadow:0 0 0 1px var(--line)}
 .nt-where{display:grid;gap:14px}.nt-where code{overflow-wrap:anywhere}.nt-card{display:grid;gap:4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);font-size:13px;overflow-wrap:anywhere}
 .nt-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.nt-grow{flex:1}.nt-main .sheet-field textarea{min-height:64px;resize:vertical}#nt-goal{min-height:110px}.nt-form .mono{font-family:ui-monospace,monospace}
 .nt-end .sheet-error{margin:0}.nt-main .tpl-status:empty{display:none}.nt-main .tpl-status{margin:0}
@@ -838,6 +843,8 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .set-item{align-items:flex-start}.set-item-t{display:grid;gap:1px;min-width:0}.set-item-sub{color:var(--mute);font-size:var(--fs-s);overflow-wrap:anywhere}.pitem.set-item[aria-current=page] .set-item-sub{color:var(--fg)}
 .set-toolbar{gap:12px;align-items:flex-start}.set-desc{margin:4px 0 0}.set-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px;align-items:start}.set-card{border:1px solid var(--line);border-radius:var(--r-s);padding:12px;min-width:0}.set-card h3{margin:0 0 8px}.set-group code{overflow-wrap:anywhere}
 @media(max-width:860px){.set-cards{grid-template-columns:minmax(0,1fr)}}
+/* Diagnostics: a doctor check that fails or warns reads in the danger or warning colour, not as plain as pass */
+.doctor-fail{color:var(--red);font-weight:600}.doctor-warn{color:var(--amber);font-weight:600}
 /* end:css-settings */
 /* region:css-app-watchdog: agentd app's notice that no watchdog runs (libraos/core#560), under the top bar like the restart note */
 #appwatchdog{margin:12px 24px 0;border-left:3px solid var(--amber)}#appwatchdog[hidden]{display:none}#appwatchdog code{overflow-wrap:anywhere;user-select:all}
@@ -883,7 +890,7 @@ header h1{line-height:20px}header .stats{align-items:center}header .stat{align-i
 /* the frame fills the window on a desktop and a phone (the team phone layout lets body grow) */
 body.app-mode{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
 /* the page's shared button look (border, shadow, 26px, its hover) is reset here; a control's hover colour is its --app-hover */
-.app-shell button{font-family:inherit;letter-spacing:inherit;box-shadow:none;min-height:0;cursor:pointer}.app-shell button:hover:not(:disabled){background:var(--app-hover,transparent)}.app-shell button:focus-visible{outline:2px solid color-mix(in srgb,var(--o-ring) 50%,transparent);outline-offset:-2px}
+.app-shell button{font-family:inherit;letter-spacing:inherit;box-shadow:none;min-height:0;cursor:pointer}.app-shell button:hover:not(:disabled){background:var(--app-hover,transparent)}.app-shell button:focus-visible{outline:2px solid var(--o-mfg);outline-offset:-2px}
 .app-shell svg{display:block;flex:none}
 .app-row{flex:1;min-height:0;display:flex}
 .app-ibtn{--app-hover:var(--o-accent);display:inline-grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:8px;background:none;color:var(--o-mfg)}.app-ibtn:hover{color:var(--o-fg)}
@@ -2101,7 +2108,7 @@ function settingsUserEnable(u){let result;return sheet({title:'Enable '+u.name,d
 function settingsInvite(){let result;return sheet({title:'Invite user',description:'They need VPN access before signing in. A link lasts 24 hours and works once.',action:'Create invitation',fields:[{name:'name',label:'Name',required:true},{name:'email',label:'Email',type:'email',required:true},{name:'role',label:'Role',value:'dev',options:[{value:'dev',label:'Developer'},{value:'viewer',label:'Viewer'},{value:'owner',label:'Owner'}],required:true}],onSubmit:async v=>{result=await settingsAPI({action:'invite',...v});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsResend(i){let result;return sheet({title:'Resend invitation',description:'Replace the previous link for '+i.user+'. The old link will stop working.',action:'Resend',onSubmit:async()=>{result=await settingsAPI({action:'resend',id:i.id});await settingsLoad()}}).then(v=>{if(v&&result)settingsInviteResult(result)})}
 function settingsRevoke(i){return sheet({title:'Revoke invitation',description:'The sign-in link for '+i.user+' will stop working.',action:'Revoke',danger:true,onSubmit:async()=>{await settingsAPI({action:'revoke',id:i.id});await settingsLoad();toast('Invitation revoked',true)}})}
-async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.section!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,c.status,el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),el('p',{class:'mute'},'Connect agents (libraos-core connect, with Preview) is under ',el('a',{href:'#settings/agents'},'Agents'),'.'),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
+async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('h2',{},'Diagnostics'),el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.section!=='diagnostics')return;body.replaceChildren(el('h2',{},'Diagnostics'),settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,el('span',{class:'doctor-'+(['fail','warn'].includes(c.status)?c.status:'ok'),'data-doctor-status':c.status},c.status),el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)])),settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state])),el('p',{class:'mute'},'Connect agents (libraos-core connect, with Preview) is under ',el('a',{href:'#settings/agents'},'Agents'),'.'),el('p',{class:'mute'},'Checked '+(d.checked_at||'')))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
 // The three agents: installed and connected from doctor's own checks (GET /api/settings?agents=1,
 // owners only), the model a worker on each starts with, and Preview connect (region:connect).
 async function settingsAgentsLoad(force=false){const box=$('set-agents-table');if(!SETTINGS.data)return;
