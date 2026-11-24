@@ -1,4 +1,4 @@
-// The task page on a team server, for a task like hof-b1dd05a1ce (its codex worker stopped at its 30m budget,
+// The task page on a team server, for a task like hof-taskpage01 (its codex worker stopped at its 30m budget,
 // its check timed out, verdict act, a linked PR): (1) under All tasks it shows the task, its title, status and
 // text, for a server task and for one mirrored from a device (one column, not the crumb alone on the left);
 // (2) the message box is in the main column under the history, never in the right column; (3) a task that
@@ -13,26 +13,26 @@ const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
-const ID='hof-b1dd05a1ce',PR='libraos/core#1040',GOAL='Fix CI on PR libraos/agentd-core#1040 (branch fix/agentd-70, this worktree, already pushed): TestOnboardEndToEnd fails '+evil;
+const ID='hof-taskpage01',PR='acme/app#1040',GOAL='Fix CI on PR acme/app#1040 (branch fix/agentd-70, this worktree, already pushed): TestOnboardEndToEnd fails '+evil;
 const ACCEPT='The whole internal/agentd package passes, not only the named test\nCloud Workers not set up stays optional and never fails doctor or onboarding';
 const attempt={tool:'codex',model:'gpt-6.2-sol',started:'2026-11-23T19:12:51+00:00',end_reason:'budget_stopped',check:'timed out after 10m0s (limit 10m0s)',minutes:31,usd:1.87,running:false};
 const cli=(rest)=>'agentd handoff '+rest;
 // The snapshot's row for it, as /api/dash sends an offered handoff whose worker the budget sweep stopped.
-const row=(o={})=>({id:ID,state:'offered',from:'claude-310a7bd8fb',from_user:'ccao',to:'any',claimer:null,goal:GOAL,updated_ago:'11h',project:'libraos/core',worker:'codex',worker_tool:'codex',
+const row=(o={})=>({id:ID,state:'offered',from:'claude-sessn00001',from_user:'alice',to:'any',claimer:null,goal:GOAL,updated_ago:'11h',project:'acme/app',worker:'codex',worker_tool:'codex',
  worker_state:null,dispatched:true,attempts:[attempt],prs:[PR],mark:'needs_you',attention_status:'needs',check:'go test ./internal/agentd -count=1 -timeout 40m && go vet ./internal/agentd',
  retry:{cwd:'/srv/core',tool:'codex',budget:'30m',may:true},takeover:{may:true,cli:cli('claim '+ID+' --takeover')},cancel:{may:true,cli:cli('done '+ID+' --cancel --reason TEXT')},...o});
-const log=[{state:'offered',actor:'claude-310a7bd8fb',note:'to any, worker codex, budget 30m',ago:'11h'},{state:'claimed',actor:'codex-6deecf32da',note:'report: Committed the test-only fix at a46cfb57.',ago:'11h'},
- {state:'claimed',actor:'codex-6deecf32da',note:'check timed out after 10m0s (limit 10m0s)',ago:'11h'},{state:'offered',actor:'agentd',note:'budget used up (30m, 31 of 30 min): worker pid 1552351 already gone; no checkpoint',ago:'11h'},
+const log=[{state:'offered',actor:'claude-sessn00001',note:'to any, worker codex, budget 30m',ago:'11h'},{state:'claimed',actor:'codex-workr00001',note:'report: Committed the test-only fix at a46cfb57.',ago:'11h'},
+ {state:'claimed',actor:'codex-workr00001',note:'check timed out after 10m0s (limit 10m0s)',ago:'11h'},{state:'offered',actor:'agentd',note:'budget used up (30m, 31 of 30 min): worker pid 1552351 already gone; no checkpoint',ago:'11h'},
  {state:'offered',actor:'agentd',note:'linked PR '+PR+' by its head commit',ago:'10h'}];
 // /api/issue for a server handoff, shaped as issueDetail answers: kind handoff, its tree row (dispatched, branch, log), its body's fields.
 const detail=h=>({kind:'handoff',ref:ID,root:ID,tree:[{id:ID,goal:GOAL,state:h.state,focus:true,depth:0,from:h.from,claimer:null,worker:'codex',dispatched:true,branch:'fix/agentd-70',prs:[PR],attempts:[attempt],log,updated_ago:'11h',worker_state:h.worker_state}],
  prs:[{ref:PR,state:'MERGED',title:'Fix onboarding test'}],issues:[],body:{goal:GOAL,accept:ACCEPT,paths:'.'}});
 // /api/issue for the same handoff mirrored from a device (mirrorIssueDetail): one tree row, read only, only its goal's first line.
-const mirrorDetail={kind:'handoff',ref:ID,title:'Fix CI on PR libraos/agentd-core#1040 '+evil,mirror:true,read_only:true,node:'ccao-desk',person:'ccao',mirrored:'2026-11-24T06:00:00Z',mirrored_ago:'20m',state:'offered',issues:[],
- body:{goal:'Fix CI on PR libraos/agentd-core#1040 '+evil},tree:[{id:ID,state:'offered',goal:'Fix CI on PR libraos/agentd-core#1040 '+evil,focus:true,worker:'codex',worker_state:null,dispatched:true,project:'libraos/core',prs:[PR],
-  origin:'host',host:'ccao-desk',mirror:{node:'ccao-desk',person:'ccao',read_only:true},read_only:true,branch:'fix/agentd-70',check:'timed out',log:[],minutes:31,usd:1.87,updated_ago:'11h',attempts:[attempt]}]};
-const mirrorRow={id:ID,state:'offered',from_user:'ccao',goal:mirrorDetail.title,updated_ago:'11h',worker:'codex',worker_state:null,dispatched:true,attempts:[attempt],origin:'host',host:'ccao-desk',
- mirror:{node:'ccao-desk',person:'ccao',read_only:true},read_only:true,prs:[PR],project:'libraos/core',attention_status:'needs',other_mirror:false};
+const mirrorDetail={kind:'handoff',ref:ID,title:'Fix CI on PR acme/app#1040 '+evil,mirror:true,read_only:true,node:'alice-desk',person:'alice',mirrored:'2026-11-24T06:00:00Z',mirrored_ago:'20m',state:'offered',issues:[],
+ body:{goal:'Fix CI on PR acme/app#1040 '+evil},tree:[{id:ID,state:'offered',goal:'Fix CI on PR acme/app#1040 '+evil,focus:true,worker:'codex',worker_state:null,dispatched:true,project:'acme/app',prs:[PR],
+  origin:'host',host:'alice-desk',mirror:{node:'alice-desk',person:'alice',read_only:true},read_only:true,branch:'fix/agentd-70',check:'timed out',log:[],minutes:31,usd:1.87,updated_ago:'11h',attempts:[attempt]}]};
+const mirrorRow={id:ID,state:'offered',from_user:'alice',goal:mirrorDetail.title,updated_ago:'11h',worker:'codex',worker_state:null,dispatched:true,attempts:[attempt],origin:'host',host:'alice-desk',
+ mirror:{node:'alice-desk',person:'alice',read_only:true},read_only:true,prs:[PR],project:'acme/app',attention_status:'needs',other_mirror:false};
 function page(dash,issue,o={}){const errors=[],posts=[],copied=[];const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
  const json=(body,status=200)=>({ok:status<300,status,json:async()=>body,text:async()=>JSON.stringify(body)});
  const dom=new JSDOM(html,{url:'https://40.49.10.13:21490/#issues/'+ID,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
@@ -63,7 +63,7 @@ const topActs=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butt
 const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts button')].filter(b=>b.getAttribute('aria-disabled')!=='true');
 (async()=>{
  // A. The owner, on the server's own row: the page under All tasks is the task, the message box is in the main column.
- {const dash={...base,user:'ccao',role:'owner',handoff_list:[row()]};const {w,doc,errors,posts,copied}=page(dash,detail(row()));await settle();
+ {const dash={...base,user:'alice',role:'owner',handoff_list:[row()]};const {w,doc,errors,posts,copied}=page(dash,detail(row()));await settle();
   const box=doc.getElementById('issue-detail'),top=box.querySelector('.tw-top');
   assert(top,'no task top: '+box.textContent.slice(0,200));
   const crumb=top.querySelector('.icrumb');assert(crumb&&/All tasks/.test(crumb.textContent),'no All tasks crumb');
@@ -80,14 +80,14 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   assert.deepEqual(topActs(doc),['Start again','Change check','Take over','Cancel task'],'top bar: '+JSON.stringify(topActs(doc)));assert(usable(doc).length===4,'the owner\'s buttons are disabled');
   assert.deepEqual(needKeys(doc),['budget','pr'],'what you can do');
   assert.equal(needCli(doc,'budget'),'libraos-core handoff budget '+ID+' --budget 60m','the raise command');
-  const link=needs(doc).querySelector('[data-need-link]');assert.equal(link.getAttribute('href'),'https://github.com/libraos/core/pull/1040');assert.equal(link.getAttribute('rel'),'noopener noreferrer');
+  const link=needs(doc).querySelector('[data-need-link]');assert.equal(link.getAttribute('href'),'https://github.com/acme/app/pull/1040');assert.equal(link.getAttribute('rel'),'noopener noreferrer');
   const copy=needs(doc).querySelector('[data-need="budget"] button.need-copy');assert(copy&&/Copy the command/.test(copy.getAttribute('aria-label')),'no labelled Copy');
   copy.click();await settle();assert.deepEqual(copied,['libraos-core handoff budget '+ID+' --budget 60m'],'Copy did not copy the command');
   // The buttons post the server's actions.
   usable(doc).find(b=>b.textContent==='Take over').click();await settle();[...doc.querySelectorAll('dialog.sheet .sheet-foot button')].find(b=>b.textContent==='Take over').click();await settle();
   assert.deepEqual(posts.pop(),{action:'takeover',id:ID});
   // (4) the username on Account; Account stays its name and title.
-  const sum=doc.querySelector('#account>summary');assert.equal(doc.getElementById('account-name').textContent,'ccao','Account does not show the username');
+  const sum=doc.querySelector('#account>summary');assert.equal(doc.getElementById('account-name').textContent,'alice','Account does not show the username');
   assert(/^Account and settings/.test(sum.getAttribute('aria-label')),'Account lost its accessible name');assert(/^Account/.test(sum.title),'Account lost its title');
   assert(!errors.length,errors.join('\n'));w.close()}
  // B. A dev who did not send it: the server's buttons are there with its reasons, and the steps with no button still show.
@@ -98,12 +98,12 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   assert.equal(doc.getElementById('account-name').textContent,'dana');
   assert(!errors.length,errors.join('\n'));w.close()}
  // C. A dash where starting work is off: Dispatch again has no button, so it is a command.
- {const dash={...base,dispatch:false,user:'ccao',role:'owner',handoff_list:[row()]};const {w,doc,errors}=page(dash,detail(row()));await settle();
+ {const dash={...base,dispatch:false,user:'alice',role:'owner',handoff_list:[row()]};const {w,doc,errors}=page(dash,detail(row()));await settle();
   assert.deepEqual(topActs(doc),['Change check','Take over','Cancel task']);assert.deepEqual(needKeys(doc),['dispatch','budget','pr']);
   assert.equal(needCli(doc,'dispatch'),'libraos-core handoff dispatch '+ID);
   assert(!errors.length,errors.join('\n'));w.close()}
  // D. Mirrored from a device: one column under All tasks with the title and status, no button that acts, and every step as a command.
- {const dash={...base,user:'ccao',role:'owner',attention_version:1,handoff_list:[mirrorRow]};const {w,doc,errors,posts,copied}=page(dash,mirrorDetail);await settle();
+ {const dash={...base,user:'alice',role:'owner',attention_version:1,handoff_list:[mirrorRow]};const {w,doc,errors,posts,copied}=page(dash,mirrorDetail);await settle();
   const box=doc.getElementById('issue-detail'),wrap=box.querySelector('.idetail.mirror-detail');assert(wrap,'no mirrored page');
   assert.deepEqual([...wrap.children].map(n=>n.className),['icrumb','mirror-item'],'the mirrored page is not crumb then the task');
   assert(/\.idetail\.mirror-detail\{grid-template-columns:minmax\(0,1fr\)/.test(html),'the mirrored page is not one column');
@@ -113,7 +113,7 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   assert(item.querySelector('.mirror-status').textContent.includes('last run: Stopped at its budget'),'it does not say how the last run ended');
   assert.deepEqual(needKeys(doc),['dispatch','budget','takeover','cancel','pr'],'what you can do on a mirrored task');
   assert.equal(needCli(doc,'takeover'),'libraos-core handoff claim '+ID+' --takeover');assert.equal(needCli(doc,'cancel'),'libraos-core handoff done '+ID+' --cancel --reason TEXT');
-  assert(/on ccao-desk/.test(needs(doc).querySelector('.need-h').textContent),'it does not say where to run them');
+  assert(/on alice-desk/.test(needs(doc).querySelector('.need-h').textContent),'it does not say where to run them');
   assert.deepEqual([...box.querySelectorAll('button,textarea,input,select')].filter(b=>!b.classList.contains('need-copy')).map(b=>b.outerHTML.slice(0,80)),[],'a mirrored page has a control other than Copy');
   assert(!box.querySelector('[data-write],[data-task-act],.tw-msgbox'),'a mirrored page has a write');
   needs(doc).querySelector('[data-need="cancel"] .need-copy').click();await settle();assert.deepEqual(copied,['libraos-core handoff done '+ID+' --cancel --reason TEXT']);assert.equal(posts.length,0,'Copy wrote');
@@ -137,7 +137,7 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   for(const b of needs(doc).querySelectorAll('.need-copy')){assert.equal(b.tagName,'BUTTON');assert.equal(b.getAttribute('type'),'button');assert(b.getAttribute('aria-label').includes(b.dataset.copy))}
   assert(!errors.length,errors.join('\n'));w.close()}
  // F. Every Needs you state has something to do: waiting_answer, blocked, parked, an approval the person cannot answer, stopped, and bare.
- {const dash={...base,user:'ccao',role:'owner',handoff_list:[row()]};const {w,doc,errors}=page(dash,detail(row()));await settle();
+ {const dash={...base,user:'alice',role:'owner',handoff_list:[row()]};const {w,doc,errors}=page(dash,detail(row()));await settle();
   const what=(h,have,o)=>JSON.parse(w.eval('JSON.stringify(needWhat('+JSON.stringify(h)+',new Set('+JSON.stringify(have||[])+'),'+!!(o&&o.mirror)+','+JSON.stringify((o&&o.rows)||[])+'))'));
   const keys=(h,have,o)=>what(h,have,o).map(x=>x.key);
   const b={id:'hof-x',state:'claimed',to:'any',worker:'claude',dispatched:true,attempts:[{end_reason:'',running:true}]};
