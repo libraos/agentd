@@ -79,7 +79,7 @@ const markIn=(node,what)=>{const ms=node.querySelectorAll('.tmark');assert.equal
  for(const dt of dts){const m=markIn(dt,'legend');assert.equal(m[2],seen[m[0]][2],'legend glyph differs for '+m[0]);assert(dt.nextElementSibling.textContent.length>10,'legend lacks text for '+m[0])}
  assert(strip().querySelector('details.mark-legend').open,'the legend closes on a refresh');
  // The Agents list (which replaced Team > Working now, #479): every open task reads as on the board.
- w.location.hash='#team/working';await settle();assert(doc.querySelector('#team-view [data-moved="working"]'),'#team/working does not say where Working now went');
+ w.location.hash='#team/working';await settle();assert.equal(w.location.hash,'#issues?view=agents','#team/working does not open Tasks > Running now');
  for(const id of ['hof-work','hof-work2','hof-ask','hof-wait','hof-new']){const a=doc.querySelector('#agents-rows [data-agent-id="'+id+'"]');assert(a,'the Agents list lacks '+id);const m=markIn(a,'agents '+id);assert.deepEqual(m,seen[want[id]],'the Agents list reads '+id+' differently')}
  // A task's own page and its drawer read as on the board.
  for(const id of ['hof-ask','hof-wait']){w.location.hash='#issues/'+id;await settle();const props=[...doc.querySelectorAll('#issue-detail .k')].find(k=>k.textContent==='Status');assert(props,'no Status on the page of '+id);

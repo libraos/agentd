@@ -98,6 +98,8 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  assert.notEqual(w.location.hash,'#setup','the wizard opened again after Set up later');assert(page().hidden);
  w.location.hash='#help';await settle();const link=doc.querySelector('#help-setup a[href="#setup"]');assert(link,'Help has no way to the wizard');
  w.location.hash='#setup';await settle();assert(!page().hidden,'Help’s link does not open it');assert.equal(step(),'host');t.dom.window.close();
+ // Not an owner: Help offers no setup card (layout review O), as the wizard only says an owner sets the host up.
+ t=boot('http://127.0.0.1:21620/#help','bob','dev',srv);({w,doc}=t);await settle();assert(doc.getElementById('help-setup').hidden,'Help offers a developer the setup card');t.dom.window.close();
 
  // Dispatch off: step 4 says so and gives the terminal command; nothing is sent.
  srv=server({connected:true,repos:[{path:'/srv/a',route:'on'}],dispatch:false});t=boot('http://127.0.0.1:21620/#setup','alice','owner',srv);({w,doc}=t);await settle();

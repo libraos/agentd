@@ -60,7 +60,9 @@ const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySe
  const prob=view().querySelector('[data-problems]');assert(prob&&prob.textContent.includes('1 role files could not be read'),'the role problems are lost');assert(prob.textContent.includes(evil)&&!prob.querySelector('img'),'a problem became markup');
  await go('#team/host');assert.equal(w.location.hash,'#settings/sessions');assert.equal(section(),'sessions');assert(!doc.querySelector('#team-host').hidden,'no sessions on this host');assert(doc.querySelector('#agents [data-session-id="s-1"]'),'the session is not listed');
  await go('#team/role/coder');assert(!doc.getElementById('page-team').hidden&&/coder/.test(view().textContent),'a role page does not open');
- await go('#team/working');assert(view().querySelector('[data-moved="working"]'),'#team/working does not say where it went');assert(!current(),'a tab is marked on #team/working');
+ // Old addresses go to their one home (layout review H): #team/working to Tasks > Running now, #team/members to Users.
+ await go('#team/working');assert.equal(w.location.hash,'#issues?view=agents','#team/working does not open Tasks > Running now');assert(doc.getElementById('page-team').hidden,'#team/working is still a Team page');
+ await go('#team/members');assert.equal(w.location.hash,'#team/users','#team/members is not sent to #team/users');
  // An owner: Add a repository opens the form; Clone from URL says to clone in a terminal and posts nothing.
  await go('#settings/repositories');const form=doc.querySelector('#repo-add');assert(form.hidden,'the form shows before it is asked for');
  btn(doc.querySelector('#team-head'),'Add a repository').click();await settle();assert(!form.hidden,'the form did not open');assert.equal(doc.activeElement&&doc.activeElement.id,'repo-add-dir');

@@ -75,5 +75,12 @@ const view=()=>doc.querySelector('#team-view'),row=s=>view().querySelector('[dat
  assert(!row('s-ann')&&!row('s-bob')&&row('s-cid'),'lapsed sessions still shown');assert(!view().querySelector('[data-overlap-count]'));
  // None live, and an error.
  presence={...presence,sessions:[]};w.eval('PRESENCE.at=0;refresh()');await settle();assert(view().textContent.includes('No live sessions'));
+ // Read before the snapshot named the person (layout review O): the rows are dropped for the new person and read
+ // again at once, never left on an endless Loading until the next 8 s poll.
+ {const before=requests.filter(r=>r==='GET /api/presence').length;w.eval("PRESENCE.user='';PRESENCE.at=Date.now();teamDraw()");await settle();
+  assert(requests.filter(r=>r==='GET /api/presence').length>before,'a dropped list is not read again');assert(!/Loading…/.test(view().textContent),'Activity stays on Loading: '+view().textContent.slice(0,120))}
+ // Refused (a server that keeps Activity to owners): says so, not Loading and not an error.
+ {const keep=presence;presence=null;const f=w.fetch;w.fetch=async(url,o)=>new URL(url,w.location.href).pathname==='/api/presence'?json({error:'owners only'},403):f(url,o);
+  w.eval('PRESENCE.at=0;refresh()');await settle();assert(view().querySelector('[data-presence-denied]'),'a refused Activity does not say who sees it: '+view().textContent.slice(0,120));w.fetch=f;presence=keep}
  assert(!errors.length,errors.join('\n'));
  console.log('dash_presence: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');w.close()})().catch(e=>{console.error(e);process.exit(1)});

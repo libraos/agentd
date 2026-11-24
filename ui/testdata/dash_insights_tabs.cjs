@@ -15,7 +15,7 @@ const group=(key,name,o)=>({[key]:name,handoffs:o.h,dispatched:o.d,success:{auto
 let fail=0,answers=0;
 function insights(q){answers++;const since=q.get('since'),scope=q.get('scope')||'all';
  return {since:since==='7d'?'2026-11-11T00:00:00Z':'2026-10-21T00:00:00Z',until:'2026-11-18T00:00:00Z',scope,handoffs:5,
-  rules:{success:'Fixture success rule',cost:'Fixture cost rule',usage:'Fixture usage rule',coverage:'Fixture coverage rule'},
+  rules:{success:'Fixture success rule.',cost:'Fixture cost rule',usage:'Fixture usage rule',coverage:'Fixture coverage rule'},
   total:{handoffs:5,dispatched:4,success:{autonomous_completion:{n:3,of:4,pct:75},delivered:{n:4,of:5,pct:80},false_accept:{not_computable:'no person verdict recorded'},retired_with_reason:{n:1,of:1,pct:100},unverified:1},
    cost:{usd:12.5,lower_bound:true,unpriced_attempts:1,running_attempts:0,cost_per_accepted:{median_usd:2.25,p90_usd:4,priced:3,unpriced:0},fully_loaded:{per_accepted_usd:4.17,total_usd:12.5,lower_bound:true}},
    usage:{attempts:6,input_tokens:2500000,output_tokens:42000,cache_read_tokens:1800000,cache_write_tokens:9000,worker_minutes:95,tasks_per_day:[{day:'2026-11-16',handoffs:3},{day:'2026-11-17',handoffs:2}]},
@@ -45,7 +45,7 @@ const rows=key=>[...shown().querySelectorAll('[data-ix-group="'+key+'"] tbody tr
  // Bare #insights opens Success, read once for 28 days and all work.
  assert(!doc.getElementById('page-success').hidden,'#insights does not open Success');assert.equal(doc.querySelector('#ins-tabs a[aria-current="page"]').dataset.tab,'success');
  assert.equal(reads().length,1,'read more than once');assert.equal(reads()[0].get('since'),'28d');assert(!reads()[0].has('scope'),'all work sent a scope');
- assert.deepEqual([...doc.querySelectorAll('#ins-tabs > a')].map(a=>a.textContent),['Success','Cost','Usage']);
+ assert.deepEqual([...doc.querySelectorAll('#ins-tabs > a')].map(a=>a.textContent),['Success','Cost','Usage','Metrics','History','Worker usage']);
  // One control row: period and Whose work, above the tab's numbers, and the coverage line.
  const bar=doc.getElementById('ix-bar');assert(doc.getElementById('page-success').contains(bar));assert(bar.contains(doc.getElementById('ins-scope')),'Whose work is not beside the period');
  const coverage=doc.getElementById('ix-coverage').textContent;
@@ -54,7 +54,7 @@ const rows=key=>[...shown().querySelectorAll('[data-ix-group="'+key+'"] tbody tr
  assert.deepEqual(card('autonomous'),['75%','3 of 4 · accepted with no intervention']);assert.deepEqual(card('delivered'),['80%','4 of 5 · accepted, merged or confirmed']);
  assert.equal(card('false_accept')[0],'not measured');assert.equal(card('false_accept')[1],'no person verdict recorded');
  assert.deepEqual(card('unverified'),['1','done with no check']);assert(!doc.querySelector('[data-ix-card="first_pass"]'),'a figure the server did not send is shown');
- assert(/Fixture success rule/.test(doc.querySelector('[data-ix-rule="success"]').textContent),'the rule is not said');
+ assert(/Fixture success rule/.test(doc.querySelector('[data-ix-rule="success"]').textContent),'the rule is not said');assert(!/\.\./.test(doc.querySelector('[data-ix-rule="success"]').textContent),'a rule ends with two full stops');
  const people=rows('person');assert.deepEqual(people.map(r=>r[0]),['alice',evil]);assert.equal(people[0][3],'66.7% (2 of 3)');assert.equal(people[0][5],'not measured');
  assert(!doc.querySelector('#page-success img'),'a name became markup');
  assert.equal(doc.querySelector('[data-ix-known="person"]').textContent,'4 of 5 handoffs name a user','the group does not say its coverage');

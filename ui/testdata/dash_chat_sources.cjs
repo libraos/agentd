@@ -47,7 +47,7 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  if(!phone)assert(doc.body.classList.contains('agents-collapsed'),'the Agents list still shows on Chat');
  // 1. Conversations are listed and switch in place; New starts one.
  const side=doc.getElementById('panel-chat');
- assert.deepEqual([...side.querySelectorAll('h3.chat-group')].map(n=>n.textContent),['Roles','Recent']);
+ assert.deepEqual([...side.querySelectorAll('h3.chat-group,summary.chat-group')].map(n=>n.textContent),['Recent','Roles']);
  assert.deepEqual([...doc.querySelectorAll('#chat-roles .chat-role b')].map(n=>n.textContent),['Assistant','Writer']);
  assert(doc.getElementById('chat-roles').textContent.includes('Writes draft documents'));
  const rowOf=id=>doc.querySelector('#chat-list [data-chat-id="'+id+'"]');
