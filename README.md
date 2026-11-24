@@ -12,13 +12,9 @@
 
 </div>
 
-LibraOS Core runs Claude Code, Codex and opencode as a team on your development machine. Describe the work, and workers build it in parallel, each in its own git worktree with a budget and a test command. You review every change before it reaches GitHub.
+LibraOS Core is the engine that runs Claude Code, Codex and opencode as a team on your development machine. Describe the work, and workers build it in parallel, each in its own git worktree with a budget and a test command. You review every change before it reaches GitHub.
 
 It works with the coding agents you already use and the logins you already have. Everything runs on your machine.
-
-LibraOS Core was called agentd. Its command is now `libraos-core`, and `agentd` still works: existing scripts, services, MCP settings and the data directory keep working unchanged.
-
-This repository was called `libraos/libraos-core` until 2026-11-24, and links to that name redirect here; the product is still named LibraOS Core and its command is still `libraos-core`.
 
 [![Measured on 2026-11-03: 8 screens in 3.8 min with LibraOS Core (4 Claude + 4 Codex workers) vs 9.5 min in one Claude session, 2.5x faster, 8 of 8 checked](docs/before-after.png)](https://libraos.com/docs/agentd/)
 
@@ -39,6 +35,8 @@ This repository was called `libraos/libraos-core` until 2026-11-24, and links to
 | Windows | `irm https://console.libraos.com/agentd/install.ps1 \| iex` (PowerShell) |
 
 The installer needs no login. It checks every file against the release's `SHA256SUMS`, then installs `libraos-core`, with `agentd` kept as a second name for it, and two Skills, `agentd` and `agentd-setup`. It changes no client configuration. To pin a version, set `AGENTD_VERSION` to its tag first. You can also download the binaries and both installers from the [latest release](https://github.com/libraos/engine/releases/latest) and read the script before running it.
+
+**Earlier names.** LibraOS Core was called agentd, and this repository `libraos/libraos-core` until 2026-11-24. The command is `libraos-core`; `agentd` still works, so existing scripts, services, MCP settings and the data directory keep working, and links to the old repository name redirect here.
 
 **Requirements:**
 
