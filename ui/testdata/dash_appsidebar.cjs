@@ -1,4 +1,4 @@
-// libraos/agentd-core#563: the app's left sidebar. In app mode (/api/dash mode "app") my tasks
+// libraos/core#563: the app's left sidebar. In app mode (/api/dash mode "app") my tasks
 // are listed by repository, each as the reference app's worktree card (status dot, title, branch, spend);
 // others' tasks are in their own read-only group (the server's mine on each task); the bell
 // counts my tasks waiting on me and toggles the list to them; Tasks is every task as a table over
@@ -121,7 +121,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert.deepEqual([...$('app-page').querySelectorAll('tbody tr')].map(n=>n.dataset.taskId).sort(),['hof-b2','hof-f1','hof-o1','hof-q1'],'filter');
  $('app-page').querySelector('tr[data-task-id="hof-q1"]').click();await tick();
  assert(!shown($('app-page'))&&!body.classList.contains('app-paged'),'opening a task leaves Tasks open');assert.equal(seen[seen.length-1].id,'hof-q1');
- // Triggers: a page over the centre, read from /api/triggers (libraos/agentd-core#680; dash_apptriggers.cjs
+ // Triggers: a page over the centre, read from /api/triggers (libraos/core#680; dash_apptriggers.cjs
  // tests what it draws and sends).
  await openLeft();doc.querySelector('#app-shell [data-app-nav="triggers"]').click();await tick();
  assert(shown($('app-page'))&&/Triggers/.test($('app-page').querySelector('h2').textContent),'Triggers: '+$('app-page').textContent);

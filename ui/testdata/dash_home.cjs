@@ -1,4 +1,4 @@
-// The landing page (libraos/agentd-core#850; on the team server an alias of Overview since #907 step 4): Home groups the team's tasks into Working, Needs attention (team),
+// The landing page (libraos/core#850; on the team server an alias of Overview since #907 step 4): Home groups the team's tasks into Working, Needs attention (team),
 // Waiting on another task, Review and validation and Closed recently, each a count and a short list, from
 // issueItems, the list Tasks draws, so the counts match Tasks' columns. Each row opens its task.
 // Created by (people, and services or triggers by source) and project narrow every group and

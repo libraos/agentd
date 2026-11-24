@@ -1,4 +1,4 @@
-// Insights' Success, Cost and Usage (libraos/agentd-core#907 step 3): three tabs read from one
+// Insights' Success, Cost and Usage (libraos/core#907 step 3): three tabs read from one
 // GET /api/insights answer, with one period and scope control shared by the three (moved to the
 // top of the one shown), a coverage line (the period's handoffs, priced and with-token attempts),
 // tables by user, model and project that say how many handoffs name their key, a figure the

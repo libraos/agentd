@@ -1,4 +1,4 @@
-// Insights' Whose work filter says what it applies to (libraos/agentd-core#904 item 2).
+// Insights' Whose work filter says what it applies to (libraos/core#904 item 2).
 // The filter sits beside the cards it narrows (the factory overview on Metrics, the
 // Usage numbers, the History rows), is part of every Insights address (a shared or
 // reloaded link keeps it, the tabs and a week's outcome link carry it), and the PR

@@ -1,4 +1,4 @@
-// Users and password sign-in: Team > Users (libraos/agentd-core#907, moved from Settings >
+// Users and password sign-in: Team > Users (libraos/core#907, moved from Settings >
 // Members and roles) lists each user with their devices and last active, and for owners
 // has the actions (create with a temporary password or an invitation, reset, disable,
 // enable, each behind the confirmation sheet; invitations resent or revoked), the unlock sheet leads to a name and password

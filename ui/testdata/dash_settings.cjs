@@ -1,4 +1,4 @@
-// #487, libraos/agentd-core#907 step 4: Settings has a section list in its panel, grouped
+// #487, libraos/core#907 step 4: Settings has a section list in its panel, grouped
 // Server, Access and Personal, in place of tabs; Repositories, Roles and Sessions on this host
 // (once Team's) are Server sections, Triggers one for owners only, and Users and Permissions
 // link to Team. Each section has its own address (#settings/SECTION; #settings

@@ -1,4 +1,4 @@
-// libraos/agentd-core#564: New task in the personal app, the reference app's "Create worktree" dialog.
+// libraos/core#564: New task in the personal app, the reference app's "Create worktree" dialog.
 // One goal box; below it repository (default: the selected one), agent (default: the
 // checkout's task file, else config's default_tool) and budget (default 30m);
 // acceptance criteria, check and issue under Advanced. The dialog shows the
@@ -70,18 +70,18 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  // Advanced: criteria, another check and an issue are --accept, --verify and --issue.
  d.querySelector('.appnt-advbtn').click();await tick();assert(shown(adv),'Advanced does not open');
  assert.equal(d.querySelector('.appnt-advbtn').getAttribute('aria-expanded'),'true');
- type($('appnt-accept'),"it is documented\n- it has a test");type($('appnt-check'),'go vet ./...');type($('appnt-issue'),'libraos/agentd-core#564');type($('appnt-budget'),'45m');
- assert.equal(cmd(),"libraos-core new 'Add a flag' --cwd /w/beta --worker claude --budget 45m --accept 'it is documented' --accept 'it has a test' --verify 'go vet ./...' --issue libraos/agentd-core#564",'command: '+cmd());
+ type($('appnt-accept'),"it is documented\n- it has a test");type($('appnt-check'),'go vet ./...');type($('appnt-issue'),'libraos/core#564');type($('appnt-budget'),'45m');
+ assert.equal(cmd(),"libraos-core new 'Add a flag' --cwd /w/beta --worker claude --budget 45m --accept 'it is documented' --accept 'it has a test' --verify 'go vet ./...' --issue libraos/core#564",'command: '+cmd());
  // The server's and the goal's text stays text.
  type($('appnt-goal'),'Add '+evil);assert(cmd().includes(evil)&&!d.querySelector('img'),'the goal is not shown as text');
- // libraos/agentd-core#643: a word starting with #, - or ~ is quoted, and a goal starting with - goes last after --,
+ // libraos/core#643: a word starting with #, - or ~ is quoted, and a goal starting with - goes last after --,
  // so the line pasted into a shell is still the request (bash reads a bare #42 as a comment).
  type($('appnt-goal'),'#42');assert(cmd().startsWith("libraos-core new '#42' --cwd"),'a # goal is not quoted: '+cmd());
  type($('appnt-goal'),'~/notes');assert(cmd().startsWith("libraos-core new '~/notes' --cwd"),'a ~ goal is not quoted: '+cmd());
  type($('appnt-goal'),'a#b');assert(cmd().startsWith('libraos-core new a#b --cwd'),'a # inside a word is quoted: '+cmd());
  for(const g of ['--no-start','-h']){type($('appnt-goal'),g);
   assert(cmd().startsWith('libraos-core new --cwd ')&&cmd().endsWith(" -- '"+g+"'"),'a goal starting with - is not after --: '+cmd())}
- type($('appnt-issue'),'#564');assert(/ --issue '#564'( |$)/.test(cmd()),'a # issue is not quoted: '+cmd());type($('appnt-issue'),'libraos/agentd-core#564');
+ type($('appnt-issue'),'#564');assert(/ --issue '#564'( |$)/.test(cmd()),'a # issue is not quoted: '+cmd());type($('appnt-issue'),'libraos/core#564');
  type($('appnt-check'),'-x');assert(/ --verify '-x'( |$)/.test(cmd()),'a - check is not quoted: '+cmd());type($('appnt-check'),'go vet ./...');
  type($('appnt-goal'),"Fix the parser's input");
  assert(cmd().startsWith("libraos-core new 'Fix the parser'\\''s input' --cwd"),'a quote in the goal is not shell-quoted: '+cmd());
@@ -89,7 +89,7 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  key('Enter',{ctrlKey:true},$('appnt-goal'));await settle();
  assert.equal(posts.length,1,'no request was sent');const p=posts[0];
  assert(/^[0-9a-f]{24}$/.test(p.key),'no retry key: '+p.key);delete p.key;
- assert.deepEqual(p,{action:'offer',kind:'implement',goal:"Fix the parser's input",cwd:'/w/beta',worker:'claude',budget:'45m',accept:"it is documented\n- it has a test",issue:'libraos/agentd-core#564',check:'go vet ./...'},'request: '+JSON.stringify(p));
+ assert.deepEqual(p,{action:'offer',kind:'implement',goal:"Fix the parser's input",cwd:'/w/beta',worker:'claude',budget:'45m',accept:"it is documented\n- it has a test",issue:'libraos/core#564',check:'go vet ./...'},'request: '+JSON.stringify(p));
  // The new task is the selected one, under its repository; the dialog is gone.
  assert(!dlg(),'the dialog stays after Create');
  assert.equal(w.eval('APP.task'),'hof-new1','the new task is not selected');assert.equal(w.eval('APP.repo'),'/w/beta','its repository is not the selected one');
@@ -113,7 +113,7 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  // Escape closes it and gives focus back to the button that opened it.
  key('Escape',{},$('appnt-goal'));await tick();assert(!dlg(),'Escape does not close the dialog');
  if(!phone)assert.equal(doc.activeElement,newBtn(),'focus does not go back to the + button');
- // libraos/agentd-core#661: dispatch off says so, with no restart needed; the open dialog
+ // libraos/core#661: dispatch off says so, with no restart needed; the open dialog
  // follows the next refresh once the setting is on, without closing it.
  snap=app({dispatch:false});await w.refresh();await settle();newBtn().click();await settle();
  const off=dlg().querySelector('.appnt-create'),why=dlg().querySelector('.appnt-why');

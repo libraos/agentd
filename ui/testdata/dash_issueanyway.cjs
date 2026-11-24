@@ -1,4 +1,4 @@
-// Start anyway after the GitHub issue preflight refuses a start (libraos/agentd-core#882): the New
+// Start anyway after the GitHub issue preflight refuses a start (libraos/core#882): the New
 // task page and a task's Dispatch show the refusal with each sign's link and Start anyway, which posts
 // the dispatch action again with anyway true; a task parked for it shows the same box in its view; a
 // viewer sees the refusal but no Start anyway. Run in every mode:

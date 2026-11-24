@@ -2,13 +2,13 @@
 
 <div align="center">
 
-[Docs](https://libraos.com/docs/agentd/) · [Console](https://console.libraos.com/agentd) · [Releases](https://github.com/libraos/agentd/releases/latest) · [Report a problem](https://github.com/libraos/agentd/issues)
+[Docs](https://libraos.com/docs/agentd/) · [Console](https://console.libraos.com/agentd) · [Releases](https://github.com/libraos/cli/releases/latest) · [Report a problem](https://github.com/libraos/cli/issues)
 
 <br />
 
-[![Latest release](https://img.shields.io/github/v/release/libraos/agentd?labelColor=333333&color=666666)](https://github.com/libraos/agentd/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/libraos/agentd/total?labelColor=333333&color=666666)](https://github.com/libraos/agentd/releases)
-[![Last commit](https://img.shields.io/github/last-commit/libraos/agentd?labelColor=333333&color=666666)](https://github.com/libraos/agentd/commits/main)
+[![Latest release](https://img.shields.io/github/v/release/libraos/cli?labelColor=333333&color=666666)](https://github.com/libraos/cli/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/libraos/cli/total?labelColor=333333&color=666666)](https://github.com/libraos/cli/releases)
+[![Last commit](https://img.shields.io/github/last-commit/libraos/cli?labelColor=333333&color=666666)](https://github.com/libraos/cli/commits/main)
 
 </div>
 
@@ -36,7 +36,7 @@ LibraOS Core was called agentd. Its command is now `libraos-core`, and `agentd` 
 | Linux, macOS | `curl -fsSL https://console.libraos.com/agentd/install.sh \| sh` |
 | Windows | `irm https://console.libraos.com/agentd/install.ps1 \| iex` (PowerShell) |
 
-The installer needs no login. It checks every file against the release's `SHA256SUMS`, then installs `libraos-core`, with `agentd` kept as a second name for it, and two Skills, `agentd` and `agentd-setup`. It changes no client configuration. To pin a version, set `AGENTD_VERSION` to its tag first. You can also download the binaries and both installers from the [latest release](https://github.com/libraos/agentd/releases/latest) and read the script before running it.
+The installer needs no login. It checks every file against the release's `SHA256SUMS`, then installs `libraos-core`, with `agentd` kept as a second name for it, and two Skills, `agentd` and `agentd-setup`. It changes no client configuration. To pin a version, set `AGENTD_VERSION` to its tag first. You can also download the binaries and both installers from the [latest release](https://github.com/libraos/cli/releases/latest) and read the script before running it.
 
 **Requirements:**
 
@@ -186,7 +186,7 @@ It needs beta access, a cloud key from the Console and the LibraOS GitHub App on
 
 ## Report a Problem
 
-[Open an issue](https://github.com/libraos/agentd/issues) with what you ran, what you expected and the output of `libraos-core doctor`. Never paste keys or tokens.
+[Open an issue](https://github.com/libraos/cli/issues) with what you ran, what you expected and the output of `libraos-core doctor`. Never paste keys or tokens.
 
 ## License
 

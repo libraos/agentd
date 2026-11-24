@@ -1,4 +1,4 @@
-// libraos/agentd-core#693: agentd app's embedded panel at /panel, for a browser tab inside another agent app.
+// libraos/core#693: agentd app's embedded panel at /panel, for a browser tab inside another agent app.
 // The same page draws one column there: no sidebar, top bar or tabs; what needs me at the top (approvals
 // with working Approve and Reject); my tasks in the current project (a project switch) with state, check
 // result and cost; a task as a narrow panel with its checks and proof, cost and budget, delivery,

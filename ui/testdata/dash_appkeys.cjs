@@ -1,4 +1,4 @@
-// libraos/agentd-core#566: notifications and keyboard shortcuts in the personal app (/api/dash mode "app").
+// libraos/core#566: notifications and keyboard shortcuts in the personal app (/api/dash mode "app").
 // Notifications reuse #468's permission and memory: with permission and the tab in the background, a task
 // of mine that turns to needs you, done, or failed (its check, or its worker) raises exactly one
 // notification (title and task, as text), never again on a refresh, a reload or in a second tab; the first

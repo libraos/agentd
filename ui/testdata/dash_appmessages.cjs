@@ -1,4 +1,4 @@
-// libraos/agentd-core#677: a running task's Session in agentd app. A message sent to its worker shows in
+// libraos/core#677: a running task's Session in agentd app. A message sent to its worker shows in
 // the conversation, in time among the worker's turns, with msg status's word for it (sent, read,
 // answered), and a new send shows there at once; Enter sends, Shift+Enter adds a line, Ctrl+Enter still
 // sends, and Enter while an input method is composing does not. The history lists the work item's log.

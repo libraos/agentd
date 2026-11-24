@@ -1,5 +1,5 @@
 // #561: the server page's personal mode. When /api/dash says mode "app" (agentd app,
-// libraos/agentd-core#560) the page draws the reference app's frame instead of the team server: a
+// libraos/core#560) the page draws the reference app's frame instead of the team server: a
 // left sidebar, a centre with an editor-style tab strip, a right sidebar with icon
 // tabs, and a status bar (watchdog, running, waiting, today's spend). No rail and
 // no team page shows. The regions are empty mount points the later issues fill.

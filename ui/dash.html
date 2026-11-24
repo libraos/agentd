@@ -406,7 +406,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .ktitle{overflow-wrap:break-word;word-break:normal}.kcol .ktop{flex-wrap:wrap;gap:4px 12px}.kcol .ktop .ktitle{flex:1 1 140px}
 @media(max-width:860px){.issue-views{flex-wrap:wrap}.issue-views button,.issue-views .needs-me{flex:1 1 40%;justify-content:center;min-height:44px}.issue-proj{flex:1 1 100%}.issue-proj select{flex:1;max-width:none}}
 /* end:css-tasks-row */
-/* region:css-home: the landing page's five groups (libraos/agentd-core#850), on the server and as agentd app's Home page */
+/* region:css-home: the landing page's five groups (libraos/core#850), on the server and as agentd app's Home page */
 .home-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;align-items:start}
 .home-group{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:12px 14px;min-width:0}
 .home-ghead{display:flex;align-items:baseline;gap:8px}.home-ghead h3{margin:0;font-size:var(--fs-s,13px);font-weight:600}.home-ghead .n{margin-left:auto;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
@@ -784,7 +784,7 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .set-toolbar{gap:12px;align-items:flex-start}.set-desc{margin:4px 0 0}.set-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px;align-items:start}.set-card{border:1px solid var(--line);border-radius:var(--r-s);padding:12px;min-width:0}.set-card h3{margin:0 0 8px}.set-group code{overflow-wrap:anywhere}
 @media(max-width:860px){.set-cards{grid-template-columns:minmax(0,1fr)}}
 /* end:css-settings */
-/* region:css-app-watchdog: agentd app's notice that no watchdog runs (libraos/agentd-core#560), under the top bar like the restart note */
+/* region:css-app-watchdog: agentd app's notice that no watchdog runs (libraos/core#560), under the top bar like the restart note */
 #appwatchdog{margin:12px 24px 0;border-left:3px solid var(--amber)}#appwatchdog[hidden]{display:none}#appwatchdog code{overflow-wrap:anywhere;user-select:all}
 /* region:css-setup: the first-run wizard (#488), one card of four steps */
 #page-setup{max-width:none;justify-items:center}#setup-body{width:100%;max-width:860px;display:grid;gap:20px;padding:28px 32px;border:1px solid var(--line);border-radius:var(--r-m,10px);background:var(--panel);box-sizing:border-box;min-width:0}
@@ -885,7 +885,7 @@ body:not(.app-right-open) .app-right{display:none}
 /* phone: the sidebars are drawers over the centre, one at a time, closed until asked; the status bar keeps its counts */
 @media(max-width:860px){.app-left{position:fixed;top:0;bottom:24px;left:0;z-index:30;width:min(85vw,var(--app-left-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-right{position:fixed;top:0;bottom:24px;right:0;z-index:30;width:min(90vw,var(--app-right-w));box-shadow:0 10px 24px rgb(0 0 0/.18)}.app-shell .app-ibtn,.app-shell .app-sidetoggle,.app-shell .app-rtab{min-width:44px;min-height:44px}.app-tabstrip{height:44px}.app-status{gap:8px;padding:0 8px}}
 /* end:css-app */
-/* region:css-app-sidebar: the app's left sidebar list (libraos/agentd-core#563): repositories as folder rows, each task
+/* region:css-app-sidebar: the app's left sidebar list (libraos/core#563): repositories as folder rows, each task
    under its repository as the reference app draws a worktree card, others' tasks in their own read-only group, the bell's Needs you
    list, and the Tasks and Triggers views in the centre. The reference app's values (SPEC.md §2.3-§2.5);
    Nothing outside #app-shell is styled here. */
@@ -939,7 +939,7 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
 @media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
 /* end:css-app-sidebar */
-/* region:css-app-triggers: the app's Triggers page (libraos/agentd-core#680), cards in the reference app's page style */
+/* region:css-app-triggers: the app's Triggers page (libraos/core#680), cards in the reference app's page style */
 .app-page .appt-sp{flex:1}.app-page .app-phead button{height:28px;padding:0 12px;border-radius:6px;font-size:12px}
 .appt-card{margin:0 0 16px;padding:12px 16px;overflow:visible}.appt-head{display:flex;align-items:center;gap:10px}.appt-title{flex:1;min-width:0}.appt-title b{display:block;font-size:13px}.appt-title small{color:var(--o-mfg);font-size:11px;overflow-wrap:anywhere}
 .appt-dot{width:8px;height:8px;border-radius:50%;background:var(--o-mfg);flex:none}.appt-dot.on{background:#00bb7f}.appt-dot.bad{background:#fb2c36}
@@ -957,7 +957,7 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-preferences .app-pref-note{margin-top:24px;font-size:12px}
 @media(max-width:860px){.app-pref .app-btn{min-height:44px}.app-preferences .app-pref{gap:12px}}
 /* end:css-app-settings */
-/* region:css-app-newtask: New task in the personal app (libraos/agentd-core#564), the reference app's "Create worktree" dialog
+/* region:css-app-newtask: New task in the personal app (libraos/core#564), the reference app's "Create worktree" dialog
    (NewWorkspaceComposerModal + shadcn Dialog, MIT): sm:max-w-lg 512px, p-6, rounded-lg 10px, border black/14
    (white/14 dark), shadow 0 20px 60px rgba(0,0,0,.28), overlay black/55, dialog surface; title text-base 600; fields
    space-y-4 with text-xs 500 muted labels; inputs rounded-md, border --input, px-3 py-1.5, text-sm; Advanced a ghost
@@ -1119,7 +1119,7 @@ select.appnt-input{height:34px;padding-right:28px}
   .appob-cards,.appob-themes,.appob-grid{grid-template-columns:minmax(0,1fr)}.appob-prev{height:160px}.appob-gh,.appob-more-src,.appob-yolo{flex-wrap:wrap}
   .appob-next,.appob-later,.appob-backbtn,.appob-btn,.appob-ghost,.appob-tile,.appob-hide,.appob-menu button,.appob-amber{min-height:44px}.appob-seg{height:12px;background-clip:content-box;padding:4px 0}.appob-toast{right:8px;left:8px;width:auto;bottom:32px}.appob-kbd{display:none}}
 /* end:css-app-onboard */
-/* region:css-app-workspace: the app's task workspace (libraos/agentd-core#565): the centre's editor tabs (Session,
+/* region:css-app-workspace: the app's task workspace (libraos/core#565): the centre's editor tabs (Session,
    Terminal N, Log, file and diff tabs, + and Command) and the right sidebar's panels (Files, Details, Changes, Checks).
    The reference app's values (SPEC.md §3.1 tab strip, §3.2 terminal, §3.3 diff header, §4.1 Explorer,
    §4.2 Source Control). Nothing outside #app-shell is styled here. */
@@ -1214,7 +1214,7 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-rpanel .checks-cmd{display:block;margin-bottom:6px;font:11px var(--o-mono);overflow-wrap:anywhere}.app-rpanel .check-noev{color:var(--o-question-text);font-weight:600}
 @media(max-width:860px){.app-tabs>.app-tab[data-kind="term"]{width:auto;min-width:120px}.app-tabs>.app-tab{min-width:112px}.app-tclose{width:28px;height:28px;color:var(--o-mfg)}.app-frow,.app-crow{min-height:40px}.app-menu{left:8px!important;right:8px;width:auto!important}}
 /* end:css-app-workspace */
-/* region:css-app-keys: the personal app's keyboard shortcuts overlay (libraos/agentd-core#566): the reference app's groups and
+/* region:css-app-keys: the personal app's keyboard shortcuts overlay (libraos/core#566): the reference app's groups and
    keycaps (SPEC.md §2 shortcut keycap, §8), on the shared sheet; one column on a phone. */
 #app-keys-sheet .app-keys{display:grid;gap:14px}
 #app-keys-sheet .app-keys h3{margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)}
@@ -1224,7 +1224,7 @@ select.appnt-input{height:34px;padding-right:28px}
 #app-keys-sheet kbd{font:11px/1.4 'Geist Mono',ui-monospace,monospace;min-width:20px;text-align:center;padding:1px 5px;border-radius:4px;border:1px solid var(--line);border-bottom-width:1px;background:var(--sunk)}
 @media (max-width:860px){#app-keys-sheet .keys-list{grid-template-columns:minmax(0,1fr);gap:2px}#app-keys-sheet .keys-list dd{margin-bottom:8px}}
 /* end:css-app-keys */
-/* region:css-app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), drawn only there
+/* region:css-app-panel: agentd app's embedded panel at /panel (libraos/core#693), drawn only there
    (body.panel-mode): one column for 400 to 600 px, the page's own tokens (so light and dark follow the theme),
    tighter type and spacing than the full app. Nothing outside .ap and body.panel-mode is touched. */
 body.panel-mode{margin:0;background:var(--bg);color:var(--fg);height:auto;min-height:100dvh;overflow:auto}
@@ -1357,13 +1357,13 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div id="appwatchdog" class="state" role="status" hidden></div>
 <div class="access-note" id="access-note" role="status" hidden></div>
 <main id="main" tabindex="-1">
-<!-- region:page-overview: the team server's landing page (libraos/agentd-core#907 step 1), drawn by region:overview -->
+<!-- region:page-overview: the team server's landing page (libraos/core#907 step 1), drawn by region:overview -->
 <div id="page-overview" class="page" hidden>
   <div class="ib-head"><h2 id="ov-title">Team overview</h2><p class="ib-note">Current work and server health, updated every 10 seconds. Explore task, cost and resource history over 24 hours or 7 days.</p></div>
   <div id="ov-body"><div class="empty">Loading…</div></div>
 </div>
 <!-- end:page-overview -->
-<!-- region:page-home: the landing page (libraos/agentd-core#850), drawn by region:home -->
+<!-- region:page-home: the landing page (libraos/core#850), drawn by region:home -->
 <div id="page-home" class="page" hidden>
   <div class="ib-head"><h2 id="home-title">Work by status</h2><p class="ib-note">The team's tasks from the same list Tasks shows, grouped by where they stand. A row opens its task.</p></div>
   <div id="home-body"><div class="empty">Loading…</div></div>
@@ -1441,7 +1441,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <!-- Metrics, Usage and History as tabs. Their home is Metrics' head, the default view, so the row is inside a page and hidden with it until Insights shows; insightsTabs moves it to the top of the view shown (beside Metrics' period picker). Outside every page it showed on Tasks before the first snapshot. -->
   <div class="colhead ins-head" id="ins-head"><nav class="ins-tabs" id="ins-tabs" aria-label="Insights views"><a href="#insights/success" data-tab="success">Success</a><a href="#insights/cost" data-tab="cost">Cost</a><a href="#insights/usage" data-tab="usage">Usage</a><span class="ins-more" data-tabs-more=""><span class="mute">More:</span><a href="#insights/metrics" data-tab="metrics">Metrics</a><a href="#insights/history" data-tab="history">History</a><a href="#insights/workers" data-tab="workers">Worker usage</a></span></nav><span class="mute" id="ins-period">Period</span><span class="mrange"><select id="m-range" aria-label="Range"><option value="7d">7 days</option><option value="30d">30 days</option><option value="90d">90 days</option><option value="dates">Dates</option></select><input id="m-from" type="date" aria-label="From" hidden><input id="m-to" type="date" aria-label="To" hidden></span></div>
   <section class="ins-overview" id="ins-overview" aria-label="Outcomes of dispatched tasks">
-    <!-- Whose work (#848) sits beside what it narrows (libraos/agentd-core#904): insightsTabs moves it to the top of Usage and History too. -->
+    <!-- Whose work (#848) sits beside what it narrows (libraos/core#904): insightsTabs moves it to the top of Usage and History too. -->
     <div class="ins-scope" id="ins-scope-box" data-scope-box><label for="ins-scope">Whose work</label><select id="ins-scope" title="Work leased through this server, or users' own hosts mirrored here"><option value="">All work</option><option value="server">Leased through this server</option><option value="hosts">Users' own hosts</option></select><span class="mute" id="ins-scope-note"></span></div>
     <div class="ins-cards" id="ins-cards"></div>
     <div class="ins-cols">
@@ -1456,7 +1456,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <section class="runs" id="bench" aria-label="Bench rounds" hidden><div class="colhead"><h2>Bench rounds</h2><span class="mute pr-scope" data-bench-scope>Bench rounds · not filtered by host</span><span class="n" id="n-bench">0</span></div><div id="b-body"></div><div id="b-pick" class="bpickbar" hidden></div><div id="b-compare" class="bround" hidden></div><div id="b-round" class="bround" hidden></div></section>
   <section class="runs" id="runs" aria-label="Latest runs" hidden><div class="colhead"><h2>Latest runs</h2><span class="n" id="n-runs">0</span></div><div class="tablewrap phone-rows"><table><thead><tr><th>Project and arm</th><th>Status</th><th class="num">Checks</th><th class="num">Min</th><th class="num">$</th><th>Failure step</th><th>Started</th></tr></thead><tbody id="t-runs"></tbody></table></div></section>
 </div>
-<!-- Success, Cost and Usage (libraos/agentd-core#907 step 3), from GET /api/insights; region:insights' ix* draws them. One control row (#ix-bar: period, Whose work, coverage) moves to the top of the one shown. -->
+<!-- Success, Cost and Usage (libraos/core#907 step 3), from GET /api/insights; region:insights' ix* draws them. One control row (#ix-bar: period, Whose work, coverage) moves to the top of the one shown. -->
 <div id="page-success" class="page" hidden>
   <div class="ix-bar" id="ix-bar" role="group" aria-label="Period and scope"><label class="ix-period" for="ix-range">Period <select id="ix-range"><option value="7d">7 days</option><option value="28d" selected>28 days</option><option value="90d">90 days</option></select></label><p class="mute ix-coverage" id="ix-coverage" role="status"></p></div>
   <div id="ix-success" class="ix-body"><div class="state">Loading…</div></div>
@@ -1616,7 +1616,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div id="appob-layer" data-region="onboard"></div>
 </div>
 <!-- end:app-shell -->
-<!-- region:app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), one narrow column shown
+<!-- region:app-panel: agentd app's embedded panel at /panel (libraos/core#693), one narrow column shown
      instead of the full app there; drawn by region:app-panel in the script -->
 <main class="ap" id="app-panel" hidden aria-label="LibraOS Core tasks">
   <header class="ap-top"><b class="ap-brand">LibraOS Core</b><select id="ap-project" aria-label="Project" hidden></select><a class="ap-full" href="/" target="_blank" rel="noopener">Full app</a></header>
@@ -1637,7 +1637,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 // region:page-NAME and region:NAME in this script; region:shell, region:core and
 // region:console are shared. A page plugs in from its own script region with
 // dashPage(); see region:shell.
-// region:app-watchdog: agentd app (libraos/agentd-core#560). /api/dash says mode "app" and, in
+// region:app-watchdog: agentd app (libraos/core#560). /api/dash says mode "app" and, in
 // watchdog, whether a watchdog pass ran lately; while none did, offered tasks never start, so the
 // page says so at the top with the command that starts one. The team dash (mode "team") shows nothing.
 function appWatchdog(d){const n=document.getElementById('appwatchdog');if(!n)return;const w=d&&d.mode==='app'?d.watchdog:null;
@@ -1801,7 +1801,7 @@ async function act(body){
   if(r.status===401)dropToken();
   let j={};try{j=await r.json()}catch(e){j={error:r.status===401?'Unlock with a current token.':'The server returned HTTP '+r.status}}
   if(!r.ok||j.ok===false){const err=new Error(j.error||'The request was not accepted (HTTP '+r.status+').');err.body=j;throw err}return j}
-// region:issue-anyway (libraos/agentd-core#882): a start refused because someone else is on the task's
+// region:issue-anyway (libraos/core#882): a start refused because someone else is on the task's
 // GitHub issue (assignee, open PR, branch). The box lists each sign with its link and, for a person
 // who may start it (the answer's may_anyway, or the snapshot's issue_refusal.may_anyway; never a
 // viewer), Start anyway: the dispatch action again with anyway true, kept in the task's history and the
@@ -2056,7 +2056,7 @@ settingsSections();
 dashPage('settings',{title:'Settings',pageOf:r=>SET_TEAM[r.rest[0]]?'team':'',enter(r){const t=document.documentElement.dataset.theme||'system';for(const n of document.querySelectorAll('[name=theme]'))n.checked=n.value===t;settingsAccess();settingsShow(r&&r.rest[0]||'agents');if(SET_TEAM[r.rest[0]])teamMoved(r);if(!SETTINGS.loading)settingsLoad()},unlock(){settingsAccess();if(!SETTINGS.loading)settingsLoad()},render(){settingsAccess()},leave(){SETTINGS.request++;SETTINGS.agentsRequest++;SETTINGS.loading=false}});
 // end:settings
 $('theme-pick').addEventListener('change',e=>setTheme(e.target.value));
-dashPage('help',{title:'Help',panel:false,enter(){if(!$('help-docs'))$('page-help').append(el('p',{id:'help-docs'},el('a',{href:'https://github.com/libraos/agentd#readme',target:'_blank',rel:'noopener noreferrer'},'Documentation ↗'))) }});
+dashPage('help',{title:'Help',panel:false,enter(){if(!$('help-docs'))$('page-help').append(el('p',{id:'help-docs'},el('a',{href:'https://github.com/libraos/cli#readme',target:'_blank',rel:'noopener noreferrer'},'Documentation ↗'))) }});
 dashPage('notfound',{title:'Page not found',panel:false});
 // end:shell
 // region:agents-list: the persistent Agents list beside the rail (#479). It reads the
@@ -2139,7 +2139,7 @@ function stats(d){
   const n=t=>((d.counts||{})[t]||{}).active||0,hs=d.handoffs||{};
   $('now-tiles').replaceChildren(...[[n('claude'),'registered Claude sessions'],[n('codex'),'registered Codex sessions'],[hs.offered||0,'unassigned tasks'],[d.claims_open||0,'reserved resources'],[d.runs_running||0,'runs in progress'],[d.events_1h||0,'events in the last hour']].map(([v,l])=>el('span',{class:'now-stat'},el('b',{},v),' '+l)))}
 // region:nodes
-/* Worker nodes and devices under each account (#831, libraos/agentd-core#900), read
+/* Worker nodes and devices under each account (#831, libraos/core#900), read
    only. GET /api/nodes: each card names its person, null for a dedicated worker an
    owner enrolled (Server), its version (null from an older worker) and the server's
    own as server_version. GET /api/devices: the devices libraos-core server devices lists
@@ -2147,7 +2147,7 @@ function stats(d){
    Account > Your nodes: the signed-in person's nodes; Team > Nodes and devices: under
    each person their nodes, then their devices, Server last. Loaded with the dash's
    refresh (Team's render). An owner on the team dash drains or undrains a node and
-   revokes a device here (libraos/agentd-core#917: POST /api/action node_drain,
+   revokes a device here (libraos/core#917: POST /api/action node_drain,
    node_undrain, device_revoke; owner only, audited, refused by libraos-core app); anyone
    else sees each row's terminal command instead. Waiting for a node: GET /api/queue,
    each remote handoff no node has leased with the lease path's reason. Enrolling stays
@@ -2155,7 +2155,7 @@ function stats(d){
 const NODES={data:null,err:'',at:0,req:0,serverVersion:null,copies:[],okAt:0,user:null};
 const DEVICES={data:null,err:'',scope:'',missing:false,at:0,req:0,okAt:0,user:null};
 const QUEUE={data:null,err:'',missing:false,at:0,req:0,okAt:0,user:null};
-/* A polled feed's freshness (libraos/agentd-core#904): okAt is the last good read and
+/* A polled feed's freshness (libraos/core#904): okAt is the last good read and
    user the signed-in person it was read for. feedOk records a good read; feedFail keeps
    the rows of a failed one (feedStale then says so, with Retry) unless the answer was
    401 or 403, which drops them: what was readable then is not readable now. feedFresh
@@ -2259,7 +2259,7 @@ function nodesBody(){if(!DEVICES.at)devicesLoad();if(!QUEUE.at)queueLoad();feedF
   if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when libraos-core worker starts against this server.'));return out}
 // end:nodes
 // region:presence
-/* Who is on what (agentd-core#849), read only, from GET /api/presence: every
+/* Who is on what (libraos/core#849), read only, from GET /api/presence: every
    live session of every joined host (and this host), from the activity,
    checkouts, claims, edited files and issue-linked offers the server already
    receives. A row per session: person, host, tool, activity, issue, age, then
@@ -2509,7 +2509,7 @@ dashPage('team',{title:'Team',panel:false,enter(r){teamMoved(r)},unlock(){teamLo
   leave(){teamOnceClear()},
   render(d){agents(d);left(d);unlinked(d);nodesPoll();presencePoll();if(!teamOn())return;const now=Date.now();if(now-TEAM.listsAt>8000)teamLoadLists();if(now-TEAM.activityAt>8000)teamLoadActivity(d);if(now-TEAM.detailAt>8000&&teamTarget())teamLoadDetail();teamDraw()}});
 // end:team
-// region:permissions: Team > Permissions (libraos/agentd-core#907 step 2). Who has which role
+// region:permissions: Team > Permissions (libraos/core#907 step 2). Who has which role
 // where, from GET /api/grants (scope, user, role, granted by, since) and the approval policies
 // from GET /api/policies (project, action, approver role, approvers, self approval). Both are
 // an owner's or admin's: anyone else gets 403 and reads "Only an owner or admin can read this",
@@ -3585,7 +3585,7 @@ function drawCards(d){
   board.replaceChildren(...(panels.length?panels:[el('div',{class:'empty'},WF.source||WF.stage||PROJ||BY||BF_TEXT.trim()?'No work matches these filters. Clear filters to see all work.':VIEW==='needs'?'Nothing needs attention.':VIEW==='mine'?'Nothing you started or claimed is open.':VIEW==='agents'?'Nothing is running now.':'Nothing open in the last 24 hours.')]),...extra)}
 /* views and filters */
 // BY: Home's Created by (person:NAME or source:NAME, homeCreator's rule), carried in by Home's
-// counted links (libraos/agentd-core#904) so Tasks shows the set Home counted.
+// counted links (libraos/core#904) so Tasks shows the set Home counted.
 let BY='';
 const WF={source:'',stage:''};let VIEW_FALLBACK=false,VIEW='mine';try{VIEW=localStorage.getItem('dash-view')||'mine'}catch(e){}if(!['all','mine','agents','needs'].includes(VIEW))VIEW='all';
 let ISSUE_FILTERS_OPEN=false;let LAYOUT='board',PROJ='';try{LAYOUT=localStorage.getItem('dash-layout')==='list'?'list':'board'}catch(e){}
@@ -4079,7 +4079,7 @@ function communityDraw(){if(ROUTE.item!=='community')return;const box=$('communi
     rows.length?el('section',{class:'proj cm-list','aria-labelledby':'community-title'},el('div',{class:'cards',style:'border-top:0'},rows.map(r=>communityRow(r.it,ctx,now)))):el('div',{class:'empty'},'No issues from the public repositories or from outside the team.'))}
 dashPage('community',{title:'Tasks',sub:'Community',rail:'issues',panel:false,enter(){communityDraw();if(!APP.on)loadIssues()},unlock(){if(!APP.on)loadIssues()},render(){if(ROUTE.item!=='community')return;communityDraw();if(!APP.on)loadIssues()}});
 // end:community
-// region:home: the landing page (libraos/agentd-core#850). Five groups, each a count and a
+// region:home: the landing page (libraos/core#850). Five groups, each a count and a
 // short list: Working, Needs attention (team), Waiting on another task, Review and validation,
 // Closed recently. They come from
 // issueItems, the list Tasks draws (its handoffs, the day's finished ones, open PRs, issue
@@ -4095,7 +4095,7 @@ dashPage('community',{title:'Tasks',sub:'Community',rail:'issues',panel:false,en
 // Read only: rows are links to the task (#issues/...); nothing here writes, so a viewer
 // sees the same page. In agentd app (region:app) the same view is the Home page over the
 // centre, from the snapshot it already has: no new route, a task row opens the workspace.
-// Labels say whose each group is (libraos/agentd-core#904): Needs attention is the team's,
+// Labels say whose each group is (libraos/core#904): Needs attention is the team's,
 // unlike Inbox, which is the signed-in person's alone.
 const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs attention (team)','A question, an approval, or a blocked, failed or stopped worker, whoever started it.'],['blocked','Waiting on another task','Waiting on other tasks to finish first.'],['review','Review and validation','A pull request open, or an agent at the review or validate stage.'],['done','Closed recently','Done, cancelled or declined in the last 24 hours.']],
   HOME_COLUMN={working:'progress',needs:'needs',blocked:'todo',review:'review',done:'done'},HOME_CAP=5,HOME_PERSON_SOURCES=new Set(['','interactive','cli']),HOME={by:'',project:''};
@@ -4156,7 +4156,7 @@ function homeView(d,app){const m=homeModel(d,HOME),sfx=app?'-app':'',opt=(v,labe
   const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:tasksHref('todo'),title:'To do also holds the tasks waiting on another'},'Browse Tasks')):null;
   return [homeWorkers(d),bar,groups,note].filter(Boolean)}
 // homeWorkers: one line of the team server's worker nodes by state, from /api/dash's nodes
-// (the cards counted by count_as, libraos/agentd-core#900), linked to Team > Nodes and devices
+// (the cards counted by count_as, libraos/core#900), linked to Team > Nodes and devices
 // and marked when a node is offline. Nothing where the snapshot has no nodes (agentd app, an
 // older server, a dash that is not a team server).
 function homeWorkers(d){const c=d&&d.nodes;if(!c||typeof c!=='object')return null;const num=k=>Math.max(0,Number(c[k])||0),off=num('offline');
@@ -4744,7 +4744,7 @@ function saveInsightsRoute(view){if(ROUTE.item!=='insights'||ROUTE.view!==view)r
 function insightsTabs(r){const t=$('ins-tabs'),at=r.view==='metrics'?$('ins-head'):$('page-'+r.view);if(at&&t.parentElement!==at)at.prepend(t);
   insScopePlace(r.view);
   for(const a of t.querySelectorAll('a')){if(a.dataset.tab===r.view)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}}
-// Success, Cost and Usage (libraos/agentd-core#907 step 3): one GET /api/insights answer for one
+// Success, Cost and Usage (libraos/core#907 step 3): one GET /api/insights answer for one
 // period (since: 7d, 28d or 90d) and scope (Whose work: all, server, hosts), read on entering one
 // of the three tabs when the period or scope changed or it is 5 minutes old, and on a change. The
 // answer's total is drawn as cards and its by_person, by_model and by_project groups as tables,
@@ -5519,7 +5519,7 @@ dashPage('setup',{title:'Set up',panel:false,agents:false,
     setupAPI().then(d=>{if(!d.show||ROUTE.item==='setup')return;const h=location.hash;if(!h||h==='#'||h==='#inbox'||h==='#home'||h==='#overview'){SETUP.data=d;location.hash='#setup'}}).catch(()=>{})}});
 // end:setup
 // region:app: the personal app's frame (#561). When /api/dash says mode "app" (agentd app,
-// libraos/agentd-core#560), render() hands the snapshot here instead of the team pages:
+// libraos/core#560), render() hands the snapshot here instead of the team pages:
 // the team shell (rail, Agents list, panel, top bar, pages) is hidden, not removed, and
 // #app-shell (region:app-shell) shows the reference app's frame. Its regions are mount points
 // (data-region) for the issues that fill them; this region draws the frame itself:
@@ -5575,7 +5575,7 @@ document.addEventListener('keydown',e=>{if(!APP.on)return;
 PHONE.addEventListener('change',()=>{APP.drawer='';appSides()});
 appPanel(APP.panel);
 // end:app
-// region:app-sidebar: the app's left sidebar (libraos/agentd-core#563). It fills region:app-projects
+// region:app-sidebar: the app's left sidebar (libraos/core#563). It fills region:app-projects
 // and wires the nav (Tasks, Triggers), the Projects header (bell, add a repository, new task) and
 // the sidebar's keys. The reference app's layout (SPEC.md §2):
 //   Projects  my tasks by repository: a folder row per repository (click folds it; kept in
@@ -5692,7 +5692,7 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKe
   const i=rows.indexOf(t),cur=i<0?rows.findIndex(n=>n.dataset.taskId===APP.task):i,n=cur<0?(e.key==='ArrowDown'?0:rows.length-1):Math.min(rows.length-1,Math.max(0,cur+(e.key==='ArrowDown'?1:-1)));
   e.preventDefault();e.stopPropagation();rows[n].focus();if(rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'})},true);
 // end:app-sidebar
-// region:app-triggers: the app's Triggers page for an owner (libraos/agentd-core#680), the reference
+// region:app-triggers: the app's Triggers page for an owner (libraos/core#680), the reference
 // app's Automations page with agentd's own content. GET /api/triggers is what agentd trigger status and
 // agentd schedule list print. An owner:
 //   creates or edits [triggers] (New trigger / Edit: repos, authors, label, budget, max_per_day; a template
@@ -5768,7 +5768,7 @@ function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')ret
   p.replaceChildren(head,APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):null,trig,
     el('h3',{class:'appt-h'},'Schedules'),sch.length?sch.map(appTrigSchedule):el('div',{class:'app-pcard app-pempty','data-appt':'no-schedules'},el('b',{},'No schedules'),'A repository defines them as [schedules.NAME] in its committed .agentd/tasks.toml; they show here to enable and run.'))}
 // end:app-triggers
-// region:app-newtask: New task in the personal app (libraos/agentd-core#564), the reference app's
+// region:app-newtask: New task in the personal app (libraos/core#564), the reference app's
 // "Create worktree" dialog (NewWorkspaceComposerModal): one goal box; below it the
 // repository (default: the selected one, APP.repo, else the first checkout), the
 // agent (default: the checkout's .agentd/tasks.toml worker, else config's
@@ -5852,7 +5852,7 @@ async function appNewTaskDefaults(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui)return;
   ui.fileNote.textContent=[(t.accept||[]).length?'Added to every task from '+(t.file||'.agentd/tasks.toml')+': '+t.accept.join('; ')+'.':'',t.check&&!nt.touched?'Check from '+(t.check_from||t.file)+'.':'',t.note||''].filter(Boolean).join(' ');ui.fileNote.hidden=!ui.fileNote.textContent;appNewTaskShow()}
 function appNewTaskShow(){const ui=APPNT.ui;if(!ui)return;$('appnt-cmd').textContent=appNewTaskLine(ui.values(),APPNT.nt)}
 // appNewTaskWhy: why Create cannot work here, if it cannot. The server reads
-// dash.dispatch from config.toml on each request (libraos/agentd-core#661), so
+// dash.dispatch from config.toml on each request (libraos/core#661), so
 // the setting needs no restart: the open dialog follows each refresh.
 function appNewTaskWhy(){const d=lastDash||{};return writeReason()||(!d.dispatch?'New tasks need dispatch on: libraos-core config set dash.dispatch true in a terminal. No restart needed: this dialog picks it up within 10 seconds.':'')||(!(d.checkouts||[]).length?'No repository is known yet. Add one from a terminal: libraos-core repo add DIR.':'')}
 // appNewTaskGate shows why Create is off, or turns it back on, from lastDash
@@ -5880,7 +5880,7 @@ async function appNewTaskSend(){const ui=APPNT.ui,nt=APPNT.nt;if(!ui||APPNT.busy
   finally{if(APPNT.ui===ui){APPNT.busy=false;ui.submit.disabled=false;ui.submit.firstChild.textContent=label}}}
 $('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action="new-task"]');if(t){e.preventDefault();appNewTask()}});
 // end:app-newtask
-// region:app-onboard: the personal app's first run (libraos/agentd-core#569), the same as
+// region:app-onboard: the personal app's first run (libraos/core#569), the same as
 // The reference app's (SPEC.md section 7). GET /api/onboarding is this person's
 // state (the reference app's shape: closedAt, outcome, lastCompletedStep, checklist) and the facts each
 // step's agentd command changes; POST saves the state. Drawn into #appob-layer and #appob-entry
@@ -6159,7 +6159,7 @@ appSettingsButton.onclick=()=>{if(!APP.on)return;const open=APPS.page!=='setting
   if(open){OB.menu=false;obTourEnd(false);if(!OB.st)appSettingsLoad();const close=$('app-page').querySelector('[data-app-close]');if(close)close.focus()}};
 // end:app-settings
 // region:app-workspace
-// The app's task workspace (libraos/agentd-core#565): the open task in the centre's editor tabs and the
+// The app's task workspace (libraos/core#565): the open task in the centre's editor tabs and the
 // right sidebar's panels, in the reference app's layout (SPEC.md §3, §4).
 //   tabs      Session first and always there (the task, its reports and history, a message box to its
 //             worker); Terminal N, a shell in the worker directory (GET /api/terminal?id=&n=, up to 3,
@@ -6450,7 +6450,7 @@ function awDetails(hid,load){const box=awSec('details');
     box.replaceChildren(agent,budget,delivery,...(apr?[apr]:[]))};
   draw(AW_DET[hid]);awDetailLoad(hid).then(draw)}
 // end:app-workspace
-// region:app-panel: agentd app's embedded panel at /panel (libraos/agentd-core#693), for a browser
+// region:app-panel: agentd app's embedded panel at /panel (libraos/core#693), for a browser
 // tab inside another agent app. The server serves the same page there; when /api/dash says mode "app"
 // and the address is /panel, appShell hands the snapshot here instead of drawing the full app: no
 // sidebar, top bar or tabs, one column for 400 to 600 px, the page's own light and dark tokens.
@@ -6551,7 +6551,7 @@ $('app-panel').addEventListener('click',e=>{const o=e.target.closest('[data-ap-o
 $('app-panel').addEventListener('keydown',e=>{if(e.key==='Escape'&&AP.hid&&!activeSheet)apOpen('')});
 $('ap-project').addEventListener('change',e=>{AP.project=e.target.value;try{localStorage.setItem('dash-panel-project',AP.project)}catch(x){}if(lastDash)apDraw(lastDash)});
 // end:app-panel
-// region:app-keys: notifications and keyboard shortcuts in the personal app (libraos/agentd-core#566).
+// region:app-keys: notifications and keyboard shortcuts in the personal app (libraos/core#566).
 // Notifications reuse #468's (region:notify): the browser's permission, asked once by Settings or the
 // onboarding's notifications step, dash-notify-off, and the rule that only a tab in the background shows
 // one. In app mode what raises one is a task of mine whose mark (the server's taskMark, the sidebar's
