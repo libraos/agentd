@@ -39,7 +39,7 @@ function page(dash,issue,o={}){const errors=[],posts=[],copied=[];const vc=new V
   if(o.token!==false)w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
   w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};
   w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.HTMLElement.prototype.getClientRects=function(){return this.hidden?[]:[{}]};
-  Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{copied.push(t)}}});
+  Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{if(o.denyCopy)throw new Error('denied');copied.push(t)}}});
   w.fetch=async(url,opt)=>{const u=new URL(url,w.location.href);
    if(u.pathname==='/api/auth')return {ok:true,status:204};
    if(u.pathname==='/api/dash')return json(dash);
@@ -122,6 +122,19 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
  // E. The shared token: Account says so.
  {const dash={...base,user:'',role:'',handoff_list:[row()]};const {w,doc,errors}=page(dash,detail(row()));await settle();
   assert.equal(doc.getElementById('account-name').textContent,'Shared token');assert(/^Account and settings/.test(doc.querySelector('#account>summary').getAttribute('aria-label')));
+  assert(!errors.length,errors.join('\n'));w.close()}
+ // G. Redraws keep one block; a viewer is told who runs the steps; a denied clipboard says so, never Copied; a username is text.
+ {const dash={...base,user:'<b>v</b>',role:'viewer',handoff_list:[row({retry:undefined,takeover:undefined,cancel:undefined})]};const {w,doc,errors,posts}=page(dash,detail(row()),{denyCopy:true});await settle();
+  assert.equal(doc.getElementById('account-name').textContent,'<b>v</b>','the username is not shown as text');assert(!doc.querySelector('#account-name *,#userstate *'),'the username became markup');
+  assert.equal(doc.querySelectorAll('#issue-detail [data-need-actions]').length,1);
+  for(let i=0;i<3;i++){await w.eval('refresh()');await settle()}
+  assert.equal(doc.querySelectorAll('#issue-detail [data-need-actions]').length,1,'a redraw doubled the block');
+  assert.deepEqual(needKeys(doc),['dispatch','budget','takeover','cancel','pr'],'a viewer sees no step');
+  assert(/read-only access/.test(needs(doc).querySelector('.need-h').textContent),'the viewer is not told who runs them');
+  needs(doc).querySelector('[data-need="budget"] .need-copy').click();await settle();
+  assert(!/^Copied/.test(doc.getElementById('toast').textContent),'a denied copy said Copied');assert.equal(posts.length,0,'Copy wrote');
+  // Copy is a button reached from the keyboard, with a name that says what it copies.
+  for(const b of needs(doc).querySelectorAll('.need-copy')){assert.equal(b.tagName,'BUTTON');assert.equal(b.getAttribute('type'),'button');assert(b.getAttribute('aria-label').includes(b.dataset.copy))}
   assert(!errors.length,errors.join('\n'));w.close()}
  // F. Every Needs you state has something to do: waiting_answer, blocked, parked, an approval the person cannot answer, stopped, and bare.
  {const dash={...base,user:'ccao',role:'owner',handoff_list:[row()]};const {w,doc,errors}=page(dash,detail(row()));await settle();
