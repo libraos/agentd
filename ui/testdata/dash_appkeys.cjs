@@ -1,4 +1,4 @@
-// libraos/agentd-core#566: notifications and keyboard shortcuts in the personal app (/api/dash mode "app").
+// libraos/core#566: notifications and keyboard shortcuts in the personal app (/api/dash mode "app").
 // Notifications reuse #468's permission and memory: with permission and the tab in the background, a task
 // of mine that turns to needs you, done, or failed (its check, or its worker) raises exactly one
 // notification (title and task, as text), never again on a refresh, a reload or in a second tab; the first
@@ -10,7 +10,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_appkeys.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const html=fs.readFileSync(process.argv[2],'utf8'),phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),phone=process.env.DASH_UI_PHONE==='1',now=new Date().toISOString(),evil='<img src=x onerror=alert(1)>';
 const task=(id,o)=>({id,title:'Task '+id,goal:'Task '+id,state:'claimed',claimer:'w-'+id,from:'s-alice',from_user:'alice',worker:'claude',worker_tool:'claude',to:'any',project:'acme/web',stage:'implement',source:'interactive',updated_ago:'1m',dispatched:now,mine:true,mark:'working',check:'go test ./...',attempts:[{tool:'claude',running:true,usd:0.5}],...o});
 let list,done;
 function reset(){list=[task('hof-a',{title:'Fix login '+evil}),task('hof-b'),task('hof-c'),task('hof-bob',{from:'s-bob',from_user:'bob',mine:false})];done=[]}

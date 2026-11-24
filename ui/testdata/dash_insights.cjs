@@ -1,5 +1,5 @@
-// #485: Insights > Metrics opens with four cards (autonomous completion, cost per
-// accepted task, interventions per task, PR workflow latency), outcomes per week
+// #485: Insights > Metrics opens with four cards (first-pass rate, delivery rate,
+// cost per accepted task, PR workflow latency), outcomes per week
 // as stacked bars whose parts open History filtered to that week and outcome,
 // a text table of the same numbers, failure classes and a table by agent and
 // model. Every number is the factory report's (/api/factory) for the period, the
@@ -15,19 +15,21 @@ const metrics=()=>({tasks:{all:3,accepted:1,failed:1,undecided:1},outcomes:{auto
 let latency={n:4,median_hours:5.25};
 const week=(w,since,until,o)=>({week:w,since,until,handoffs:5,dispatched:5,outcomes:o});
 const full=()=>({factory:1,since:'2026-10-15T09:00:00Z',until:'2026-10-29T09:00:00Z',handoffs:7,interactive_left_out:2,
-  total:{handoffs:7,dispatched:5,autonomous_completion:{n:2,of:5,pct:40,accepted:3},cost_per_accepted:{accepted:3,priced:2,unpriced:1,median_usd:3},interventions:{with_any:2,of:5,mean:0.6,blocked_unanswered:0},wall_time:{n:3,median_min:20,p90_min:40},outcomes:{accepted:1,auto_completed:2,not_delivered:1,failed:1,false_accept:0,open:1}},
+  total:{handoffs:7,dispatched:5,autonomous_completion:{n:2,of:5,pct:40,accepted:3},first_pass:{n:1,of:4,pct:25,accepted:3,retried:1,unknown:1},delivered:{n:4,of:5,pct:80,accepted:3,merged_not_accepted:1,confirmed_not_accepted:0},cost_per_accepted:{accepted:3,priced:2,unpriced:1,median_usd:3},interventions:{with_any:2,of:5,mean:0.6,blocked_unanswered:0},wall_time:{n:3,median_min:20,p90_min:40},outcomes:{accepted:1,auto_completed:2,not_delivered:1,failed:1,false_accept:0,open:1},
+    not_delivered_causes:{n:2,of:5,by_cause:{wrong_result:1,refused_in_error:0,budget:0,check_timeout:0,waiting_input:0,infrastructure:0,superseded:0,delivered_by_hand:0,not_needed:0,other:0,unclassified:1},set_by:{agentd:1,person:0},unclassified:1,unverified_unclassified:1,unclassified_pct:50},
+    delivered_by_hand:{n:0,of:5,pct:0}},
   by_week:[week('2026-10-15','2026-10-15T09:00:00Z','2026-10-22T09:00:00Z',{accepted:1,auto_completed:1,not_delivered:1,failed:1,false_accept:0,open:0}),
     week('2026-10-22','2026-10-22T09:00:00Z','2026-10-29T09:00:00Z',{accepted:0,auto_completed:1,not_delivered:0,failed:0,false_accept:1,open:1})],
   by_tool:[],by_stage:[],workflow_changes:{n:0,merged_prs:4,not_labelled:true},
   failure_classes:{attempts:6,running:0,classes:[{class:'none',attempts:3,usd:4,unpriced:0},{class:'unknown',attempts:0,usd:0,unpriced:0},{class:'task',attempts:1,usd:1,unpriced:0},{class:'infrastructure',attempts:2,usd:0.25,unpriced:1},{class:'model',attempts:0,usd:0,unpriced:0}]},
-  by_agent_model:[{agent:'claude',model:'m-'+evil,tasks:4,accepted:2,attempts:5,tokens:1500,missing_tokens:1,usd:3.5,missing_usd:1,wall_time:{n:3,median_min:20}},
-    {agent:'codex',model:'gpt-x',tasks:1,accepted:1,attempts:1,tokens:150,missing_tokens:0,usd:4,missing_usd:0,wall_time:{n:1,median_min:30}},
+  by_agent_model:[{agent:'claude',model:'m-'+evil,tasks:4,accepted:2,first_pass:1,first_pass_unknown:2,attempts:5,tokens:1500,missing_tokens:1,usd:3.5,missing_usd:1,wall_time:{n:3,median_min:20}},
+    {agent:'codex',model:'gpt-x',tasks:1,accepted:1,first_pass:1,attempts:1,tokens:150,missing_tokens:0,usd:4,missing_usd:0,wall_time:{n:1,median_min:30}},
     {agent:'claude',model:null,tasks:1,accepted:0,attempts:0,missing_tokens:0,missing_usd:0,wall_time:{not_computable:'no handoff went from claimed to done'}}],
   load:{max_workers:2,peak_workers:0,unpriced:0,days:[],averages:{}}});
 let factory=full(),factoryMode='ok',metricsDelay=0;const requests=[];
 const dash={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#inbox',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#inbox',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:process.env.DASH_UI_PHONE==='1'&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
@@ -49,9 +51,10 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  // The period picker sits above the overview, and the factory report is read for it.
  const head=doc.getElementById('ins-head');assert(head.querySelector('#m-range'),'no period picker at the top');assert(head.compareDocumentPosition(doc.getElementById('ins-overview'))&w.Node.DOCUMENT_POSITION_FOLLOWING);
  assert(requests.some(r=>r.startsWith('/api/factory?since=')),'no factory request for the period');assert.equal(doc.getElementById('ins-period').textContent,'2026-10-15 to 2026-10-29');
- // Four cards, in the design's order, with the factory report's figures.
- assert.deepEqual(cards(),[['Autonomous completion','2 of 5','accepted with no intervention · 40%'],['Cost per accepted task','$3.00',"median of the accepted tasks' worker cost · 1 unpriced"],
-  ['Interventions per task','0.60','messages, approvals, takeovers · 2 of 5 tasks had one'],['PR workflow latency','5.3 h','open to merge, median · 4 merged PRs']]);
+ // Four cards, in the design's order, with the factory report's figures: what the tool did
+ // alone beside what was delivered. Autonomous completion and interventions stay as Factory tiles.
+ assert.deepEqual(cards(),[['First-pass rate','25%','1 of 4 tasks · one attempt, nobody stepping in · 1 more from a host on an older release, left out'],['Delivery rate','80%','4 of 5 tasks · accepted, merged or confirmed'],
+  ['Cost per accepted task','$3.00',"median of the accepted tasks' worker cost · 1 unpriced"],['PR workflow latency','5.3 h','open to merge, median · 4 merged PRs · PR ledger · not filtered by host']]);
  // Outcomes per week: one bar per week, a part per outcome that has tasks, stacked in the design's order.
  const weeks=[...doc.querySelectorAll('#ins-weeks .ins-week')];assert.equal(weeks.length,2);
  assert.deepEqual([...weeks[0].querySelectorAll('.ins-seg')].map(a=>a.dataset.outcome),['accepted','auto_completed','not_delivered','failed']);
@@ -60,6 +63,23 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  assert.equal(weeks[0].querySelector('.ins-o-failed').style.flexGrow,'1');
  assert.deepEqual([...doc.querySelectorAll('#ins-weeks .ins-key span')].map(s=>s.textContent),['Accepted','Auto completed','Not delivered','Failed','False accept']);
  assert(doc.querySelector('#ins-weeks').textContent.includes('1 still offered or running, not drawn.'));
+ // Each indicator has an "i" that explains it: one per card and per outcome in the key, with
+ // no text of its own, readable by name, shown on hover or focus and hidden on leaving or Escape.
+ const tips=[...doc.querySelectorAll('#ins-cards .ins-card .itip')];assert.equal(tips.length,4,'a card has no explanation');
+ assert.equal(doc.querySelectorAll('#ins-weeks .ins-key .itip').length,5,'an outcome in the key has no explanation');
+ for(const t of doc.querySelectorAll('.itip')){assert.equal(t.textContent,'');assert.equal(t.type,'button');assert(t.dataset.tip.length>20);assert.equal(t.getAttribute('aria-label'),'What this means: '+t.dataset.tip)}
+ assert(tips[0].dataset.tip.includes('first worker attempt'));assert(tips[1].dataset.tip.includes('retries, review and fix rounds'));assert(!doc.getElementById('itip-pop'),'the note exists before anyone asked');
+ tips[0].dispatchEvent(new w.MouseEvent('mouseenter'));const pop=doc.getElementById('itip-pop');assert(!pop.hidden);assert.equal(pop.textContent,tips[0].dataset.tip);assert.equal(pop.getAttribute('role'),'tooltip');
+ tips[0].dispatchEvent(new w.MouseEvent('mouseleave'));assert(pop.hidden);
+ tips[2].focus();assert(!pop.hidden);assert.equal(pop.textContent,tips[2].dataset.tip);assert(pop.textContent.includes('fully loaded'));
+ tips[2].dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape'}));assert(pop.hidden);tips[2].click();assert(!pop.hidden);tips[2].blur();assert(pop.hidden);assert.equal(doc.querySelectorAll('#itip-pop').length,1);
+ // The Factory tiles and the columns of its table are explained the same way.
+ // Factory tiles: First-pass and Delivery rate join; Retired with a reason leaves the tiles (its column stays).
+ const ftiles=[...doc.querySelectorAll('#f-body .mtiles:not(.fload-avg) .mtile')];
+ assert.deepEqual(ftiles.map(x=>x.children[1].textContent),['Autonomous completion','First-pass rate','Delivery rate','Cost per accepted, median','Cost per accepted, fully loaded','With an intervention','Claim to done, median','Workflow changes']);
+ assert.deepEqual(ftiles.slice(1,3).map(x=>[x.children[0].textContent,x.children[2].textContent]),[['25%','1/4 · 1 on a later attempt · 1 unknown'],['80%','4/5 · 3 accepted']]);
+ assert.equal(doc.querySelectorAll('#f-body .mtiles:not(.fload-avg) .mtile .itip').length,8);
+ assert([...doc.querySelectorAll('#f-body .fgroups thead th')].some(c=>c.textContent==='Retired, reason'),'the retired column is gone');assert.equal(doc.querySelectorAll('#f-body .fgroups thead .itip').length,6);
  const seg=weeks[0].querySelector('.ins-o-failed');assert.equal(seg.getAttribute('aria-label'),'Week of 2026-10-15: 1 failed. Open these tasks');
  const href=new URL(seg.getAttribute('href').replace('#insights/history','http://x/'));assert.deepEqual(Object.fromEntries(href.searchParams),{outcome:'failed',since:'2026-10-15T09:00:00Z',until:'2026-10-22T09:00:00Z'});
  // The text table: always in the page for a screen reader, shown on request.
@@ -74,20 +94,39 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  // Failure classes: the failing classes, with what ended with none counted above.
  assert.deepEqual(cells('#ins-classes .ins-classes'),[['unknown','0','–'],['task','1','$1.00'],['infrastructure','2','≥ $0.25'],['model','0','–']]);
  assert.equal(doc.getElementById('ins-classes-n').textContent,'6 ended attempts, 3 with no failure');
+ // Not delivered, by cause (#1054): every cause on the list with Unclassified always shown, each explained.
+ const CAUSE_ROWS=['Wrong result','Refused in error','Budget','Check timed out','Waiting for input','Infrastructure','Superseded','Delivered by hand','Not needed','Other','Unclassified'];
+ assert.deepEqual(cells('#ins-causes .ins-causes').map(r=>r[0]),CAUSE_ROWS);
+ assert.deepEqual(cells('#ins-causes .ins-causes')[0].slice(1),['1','50%']);assert.deepEqual(cells('#ins-causes .ins-causes')[10].slice(1),['1','50%']);
+ assert.equal(doc.querySelector('#ins-causes tr.ins-unclassified').dataset.cause,'unclassified');
+ assert.equal(doc.getElementById('ins-causes-n').textContent,'2 of 5 tasks not delivered');
+ assert.equal(doc.querySelectorAll('#ins-causes tbody .itip').length,11,'a cause has no explanation');assert(doc.querySelector('#ins-causes-tip .itip').dataset.tip.includes('fixed list'),'the table has no explanation');
+ assert(doc.querySelector('#ins-causes tr.ins-unclassified .itip').dataset.tip.includes('Nobody named a cause'));
+ const causeNote=doc.querySelector('#ins-causes .mute').textContent;assert(causeNote.includes('Set 1 by agentd.')&&causeNote.includes('1 of the unclassified finished with no check.')&&causeNote.includes('Delivered by hand: 0 of 5, not counted in the delivery rate.'),causeNote);
  // By agent and model; what was not recorded is "not measured" or a floor.
- assert.deepEqual([...doc.querySelectorAll('#ins-agents thead th')].map(c=>c.textContent),['Agent','Model','Tasks','Accepted','Median minutes','Tokens','Spend']);
- assert.deepEqual(cells('#ins-agents .ins-agents'),[['Claude','m-'+evil,'4','2','20.0','≥ 1.5k','≥ $3.50 (1 unpriced)'],['Codex','gpt-x','1','1','30.0','150','$4.00'],['Claude','not recorded','1','0','not measured','not measured','not measured']]);
+ assert.deepEqual([...doc.querySelectorAll('#ins-agents thead th')].map(c=>c.textContent),['Agent','Model','Tasks','Accepted','First pass','Median minutes','Tokens','Spend']);
+ assert.equal(doc.querySelectorAll('#ins-agents thead .itip').length,1,'First pass has no explanation');
+ // the first row has 2 tasks from a host on an older release: its rate is over the other 2, and says so;
+ // the third row comes as from an older server, with no first_pass: not measured, never 0
+ assert.deepEqual(cells('#ins-agents .ins-agents'),[['Claude','m-'+evil,'4','2','1 of 2 (50%) · 2 left out','20.0','≥ 1.5k','≥ $3.50 (1 unpriced)'],['Codex','gpt-x','1','1','1 of 1 (100%)','30.0','150','$4.00'],['Claude','not recorded','1','0','not measured','not measured','not measured','not measured']]);
  assert(!doc.querySelector('#page-metrics img'),'server text became markup');
  // The Factory detail stays below, as before.
  assert(!doc.getElementById('factory').hidden,'the Factory detail is gone');assert(doc.querySelector('#f-body .fclasses'),'the full failure class table is gone');
  // No data: "not measured" with the reason, never 0.
- factory=full();factory.total.autonomous_completion={not_computable:'no dispatched handoff'};factory.total.cost_per_accepted={not_computable:'no dispatched handoff'};factory.total.interventions={not_computable:'no dispatched handoff'};
+ factory=full();for(const k of ['autonomous_completion','first_pass','delivered','cost_per_accepted','interventions','not_delivered_causes','delivered_by_hand'])factory.total[k]={not_computable:'no dispatched handoff'};
  factory.by_week=[week('2026-10-15','2026-10-15T09:00:00Z','2026-10-22T09:00:00Z',{not_computable:'no dispatched handoff'})];factory.failure_classes={attempts:0,running:0,not_computable:'no dispatched handoff in the window has an ended worker attempt'};factory.by_agent_model=[];latency={n:0};
  w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
- assert.deepEqual(cards().map(c=>c[1]),['not measured','not measured','not measured','not measured']);assert.deepEqual(cards().map(c=>c[2]),['no dispatched handoff','no dispatched handoff','no dispatched handoff','no PR merged in this period']);
+ assert.deepEqual(cards().map(c=>c[1]),['not measured','not measured','not measured','not measured']);assert.deepEqual(cards().map(c=>c[2]),['no dispatched handoff','no dispatched handoff','no dispatched handoff','no PR merged in this period · PR ledger · not filtered by host']);
  assert(!/\$0\.00|NaN|undefined/.test(doc.getElementById('ins-overview').textContent),'no data read as a number: '+doc.getElementById('ins-overview').textContent);
  assert.equal(doc.querySelectorAll('#ins-weeks .ins-seg').length,0);assert(doc.querySelector('#ins-weeks .ins-noend'),'an empty chart says why');
- assert.equal(doc.querySelector('#ins-classes').textContent,'not measured: no dispatched handoff in the window has an ended worker attempt.');assert.equal(doc.querySelector('#ins-agents').textContent,'No dispatched task in this period.');
+ assert.equal(doc.querySelector('#ins-classes').textContent,'not measured: no dispatched handoff in the window has an ended worker attempt.');
+ assert.equal(doc.querySelector('#ins-causes').textContent,'not measured: no dispatched handoff.');assert.equal(doc.querySelector('#ins-agents').textContent,'No dispatched task in this period.');
+ // An older server sends no first_pass or delivered: those cards and tiles read "not measured", never 0.
+ factory=full();delete factory.total.first_pass;delete factory.total.delivered;delete factory.total.not_delivered_causes;delete factory.total.delivered_by_hand;w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
+ assert.equal(doc.querySelector('#ins-causes').textContent,'not measured: this server does not report causes yet.');assert.equal(doc.getElementById('ins-causes-n').textContent,'');
+ assert.deepEqual(cards().slice(0,2),[['First-pass rate','not measured','this server does not report it yet'],['Delivery rate','not measured','this server does not report it yet']]);
+ const old=[...doc.querySelectorAll('#f-body .mtiles:not(.fload-avg) .mtile')].slice(1,3);assert.deepEqual(old.map(x=>x.children[0].textContent),['not measured','not measured']);
+ assert(!/\b0%|NaN|undefined/.test(doc.getElementById('ins-cards').textContent+old.map(x=>x.textContent).join('')),'a missing rate read as a number');
  // A factory failure says so; a public dash without the token hides the overview.
  factoryMode='broken';w.eval("loadFactory('30d')");await settle();assert(doc.getElementById('ins-weeks').textContent.includes('Could not load the factory report: ledger is locked'));assert.equal(cards()[0][2],'ledger is locked');
  factoryMode='denied';w.eval("loadFactory('30d')");await settle();assert(doc.getElementById('ins-overview').hidden,'the overview shows without access');
@@ -100,17 +139,18 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  const chip=doc.getElementById('h-outcome');assert(!chip.hidden);assert.equal(chip.textContent,'Failed · week of 2026-10-15 ×');assert(!doc.getElementById('h-clear').hidden,'Clear hidden while filtered');
  assert(doc.getElementById('h-rows').textContent.includes('Fix the flaky test'));
  chip.click();await settle();assert(chip.hidden);const after=requests.filter(r=>r.startsWith('/api/history?')).pop();assert(!new URL('http://x'+after).searchParams.has('outcome'),'the outcome stayed after removing it');assert(!w.location.hash.includes('outcome='));
- // No second panel: Metrics, Usage and History are tabs at the top of the page, Metrics' beside its period picker; addresses unchanged.
+ // No second panel: Success, Cost and Usage are tabs at the top of the page, Metrics, History and Worker usage under More, Metrics' beside its period picker.
+ const TABS=[['success','Success'],['cost','Cost'],['usage','Usage'],['metrics','Metrics'],['history','History'],['workers','Worker usage']];
  assert.equal(w.eval("PAGES.insights.panel"),false,'Insights still has a second panel');assert(!doc.getElementById('panel-insights').children.length,'the Insights panel element is not empty');
  const tabsAt=async v=>{await route('#insights/'+v);const t=doc.getElementById('ins-tabs');assert(!doc.getElementById('side').contains(t),'the tabs are in the panel');
-  assert(doc.body.classList.contains('no-panel'));assert.deepEqual([...t.querySelectorAll('a')].map(a=>[a.getAttribute('href'),a.textContent,a.getAttribute('aria-current')]),['metrics','usage','history'].map(k=>['#insights/'+k,k[0].toUpperCase()+k.slice(1),k===v?'page':null]));return t};
+  assert(doc.body.classList.contains('no-panel'));assert.deepEqual([...t.querySelectorAll('a')].map(a=>[a.getAttribute('href'),a.textContent,a.getAttribute('aria-current')]),TABS.map(([k,l])=>['#insights/'+k,l,k===v?'page':null]));assert(!t.querySelector('[data-tabs-more]')&&!/More:/.test(t.textContent),'a More: label sits among the tabs');assert.deepEqual([...t.children].map(a=>a.tagName),TABS.map(()=>'A'),'the tabs are not one plain row');return t};
  let t=await tabsAt('metrics');assert.equal(t.parentElement.id,'ins-head','Metrics\' tabs are not beside the period picker');assert(t.parentElement.querySelector('#m-range'));
- t=await tabsAt('usage');assert.equal(t.parentElement.id,'page-usage');assert.equal(t.parentElement.firstElementChild,t,'Usage\'s tabs are not at the top');
+ for(const v of ['success','cost','usage','workers']){t=await tabsAt(v);assert.equal(t.parentElement.id,'page-'+v);assert.equal(t.parentElement.firstElementChild,t,v+'\'s tabs are not at the top')}
  t=await tabsAt('history');assert.equal(t.parentElement.id,'page-history');assert.equal(t.parentElement.firstElementChild,t,'History\'s tabs are not at the top');
  // PR workflow latency: a slow /api/metrics shows Loading, then the value; it never stays loading.
  await route('#insights/metrics');metricsDelay=200;latency={n:3,median_hours:0.48};w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
  assert.deepEqual(cards()[3],['PR workflow latency','…','Loading…']);
- await new Promise(r=>setTimeout(r,300));await settle();assert.deepEqual(cards()[3],['PR workflow latency','0.5 h','open to merge, median · 3 merged PRs']);metricsDelay=0;
+ await new Promise(r=>setTimeout(r,300));await settle();assert.deepEqual(cards()[3],['PR workflow latency','0.5 h','open to merge, median · 3 merged PRs · PR ledger · not filtered by host']);metricsDelay=0;
  // Dates with no start date read nothing, and the cards say so instead of Loading.
  w.eval("$('m-range').value='dates';$('m-from').value='';INS_READ.metrics=0;loadMetrics()");await settle();
  assert(cards().every(c=>c[1]!=='…'&&c[2]!=='Loading…'),'a card stays loading with no start date: '+JSON.stringify(cards()));assert.equal(cards()[3][2],'choose a start date');

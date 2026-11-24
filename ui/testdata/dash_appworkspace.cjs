@@ -17,11 +17,11 @@ const review={handoff:'hof-w1',enabled:true,may:true,branch:'agentd/hof-w1',base
 const files={files:[{path:'a.txt',changed:'modified',size:20},{path:'src/new.ts',changed:'added',size:16},{path:'README.md',size:9}],changed:2};
 const checks={check:'go test ./...',runs:[{result:'passed',actor:'worker',at:now,tests:'12 tests',revert_test:'not evidence: the added tests pass without the change'}]};
 const detail=(frac,o)=>({handoff:'hof-w1',state:'claimed',show:'agentd handoff show hof-w1',tool:'claude',model:'claude-opus-5-5',branch:'agentd/hof-w1',cost:{minutes:9,usd:1.5},
-  budget:{cap:'10m',used:Math.round(frac*10)+' of 10 min',fraction:frac,warn:frac>=0.85,over:frac>=1,warn_at:0.85,raise:'agentd handoff budget hof-w1 --budget 10m'},delivery:{outcome:'open',reason:'Still claimed: it is judged once it ends.',report:'agentd factory report'},...o});
+  budget:{cap:'10m',used:Math.round(frac*10)+' of 10 min',fraction:frac,warn:frac>=0.85,over:frac>=1,warn_at:0.85,raise:'agentd handoff budget hof-w1 --budget 10m'},delivery:{outcome:'open',reason:'Still claimed: it is judged once it ends.',report:'agentd factory report'},approval_lines:['hof-w1 done; approval apr-w1 decided by worker: A ("no answer in 25m"). Override: open a follow-up.'],...o});
 let frac=0.9,hits={},posts=[],reviewOver={};
 const workitem=id=>({tree:[{id,log:[{note:'report: tests pass '+evil,ago:'2m',actor:'w-'+id},{note:'message m1 from user alice to its worker w: please add a test',ago:'1m'},{note:'claimed',ago:'5m',actor:'w-'+id}]}]});
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'))};
@@ -67,7 +67,7 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  // Changes: branch → base, CHANGES 2 with +N and M/U, Push and open a draft PR; a click opens the diff tab.
  const ch=panel('changes');assert(/agentd\/hof-w1/.test(q('.app-branch',ch).textContent)&&/master/.test(q('.app-base',ch).textContent),'no branch → base');
  assert.equal(q('.app-chead [data-n]',ch).textContent,'2');const rows=qa('.app-crow',ch);assert.deepEqual(rows.map(r=>r.dataset.mark),['M','U']);assert.deepEqual(rows.map(r=>q('.app-n.add',r).textContent),['+1','+1']);
- const pr=q('[data-act="open_pr"]',ch);assert(pr&&/Push and open a draft PR/.test(pr.textContent)&&/agentd handoff pr hof-w1/.test(ch.textContent),'no Push and open a draft PR');
+ const pr=q('[data-act="open_pr"]',ch);assert(pr&&/Push and open a draft PR/.test(pr.textContent)&&/libraos-core handoff pr hof-w1/.test(ch.textContent),'no Push and open a draft PR');
  click(pr);await settle();const sh=q('dialog[open]');assert(sh&&/Open a draft pull request/.test(sh.textContent),'no confirm before the push');assert(!posts.some(p=>p.action==='open_pr'),'pushed without a confirm');
  const cancel=qa('button',sh).find(b=>/^Cancel$/.test(b.textContent.trim()));if(cancel)click(cancel);else doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await settle();
  click(rows[0]);await settle();assert.equal(tabText().pop(),'a.txt (diff)');assert.equal(cur().dataset.mark,'M');assert.equal(q('.app-tmark',cur()).textContent,'M');
@@ -84,10 +84,12 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  const dt=panel('details');assert(q('[data-sec="budget"][data-warn]',dt)&&q('[data-k="budget-warn"]',dt),'no 85% warning at 90%');assert(/85%/.test(dt.textContent));
  assert.equal(q('.app-meter',dt).getAttribute('aria-valuenow'),'90');assert(/Claude/.test(dt.textContent)&&/Claude Opus 5\.5/.test(dt.textContent)&&/agentd\/hof-w1/.test(dt.textContent),'no agent');
  assert(/judged once it ends/.test(dt.textContent)&&/agentd handoff budget hof-w1 --budget 10m/.test(dt.textContent),'no delivery or raise');assert(q('[data-task-act="editor"]',dt),'no Open in editor');
+ // #948: approvals the worker decided itself or that lapsed, as handoff wait prints them.
+ assert(q('[data-sec="approvals"] [data-k="approval-record"]',dt)&&/decided by worker: A/.test(dt.textContent),'no approval record');
  // Command: actions by state, each with its command.
  click(cmd);await tick();const m=q('.app-menu[data-menu="command"]');assert(m,'no Command menu');
  for(const k of ['stop','takeover','retry','set_check','cancel','open_editor'])assert(q('[data-act="'+k+'"]',m),'Command has no '+k);
- assert.equal(q('[data-act="takeover"]',m).dataset.cli,'agentd handoff claim hof-w1 --takeover');assert(/agentd handoff dispatch hof-w1 --tool claude --cwd \/r\/demo/.test(q('[data-act="retry"]',m).textContent));
+ assert.equal(q('[data-act="takeover"]',m).dataset.cli,'agentd handoff claim hof-w1 --takeover');assert(/libraos-core handoff dispatch hof-w1 --tool claude --cwd \/r\/demo/.test(q('[data-act="retry"]',m).textContent));
  assert(/--run-check/.test(q('[data-act="retry_check"]',m).textContent),'retry check names no command');
  click(q('[data-act="stop"]',m));await settle();const st=q('dialog[open]');assert(st&&/Stop this worker/.test(st.textContent),'Stop asks no confirm');
  const keep=qa('button',st).find(b=>/^Cancel$/.test(b.textContent.trim()));if(keep)click(keep);else doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await settle();

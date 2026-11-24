@@ -10,7 +10,7 @@ const now=new Date().toISOString();
 const dash={user:'alice',role:'owner',now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
 let release=null;const held=new Promise(r=>{release=r});
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#issues',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#issues',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:process.env.DASH_UI_PHONE==='1'&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
@@ -34,7 +34,7 @@ const strays=()=>[...doc.querySelectorAll('#main *')].filter(n=>shown(n)&&!n.clo
  assert(!shown(tabs),'the Insights tabs show on Tasks after the snapshot');
  assert(!doc.getElementById('page-work').hidden,'Tasks is not shown once the snapshot arrived');
  // Insights still has its tabs, at the top of the view shown.
- for(const v of ['metrics','usage','history']){w.location.hash='#insights/'+v;await settle();
+ for(const v of ['success','cost','usage','metrics','history','workers']){w.location.hash='#insights/'+v;await settle();
   assert(shown(tabs),'the tabs are hidden on '+v);assert(doc.getElementById('page-'+v).contains(tabs),'the tabs are not in '+v)}
  w.location.hash='#issues';await settle();assert(!shown(tabs),'the Insights tabs show on Tasks after a visit to Insights');
  assert(!errors.length,errors.join('\n'));

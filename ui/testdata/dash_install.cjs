@@ -5,7 +5,7 @@
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_install.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
-const html=fs.readFileSync(process.argv[2],'utf8'),theme=process.env.DASH_UI_THEME||'light',phone=process.env.DASH_UI_PHONE==='1';
+const html=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),theme=process.env.DASH_UI_THEME||'light',phone=process.env.DASH_UI_PHONE==='1';
 const dash={user:'alice',role:'owner',now:new Date().toISOString(),handoff_list:[],done:[],sessions:[],waiting:[],claims:[],messages:[],inbox:[]};
 const errors=[];
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
@@ -34,12 +34,21 @@ const bars=()=>[...head.querySelectorAll('meta[name="theme-color"]')].map(m=>[(m
  assert.equal(one('link[rel="manifest"]').getAttribute('href'),'/manifest.webmanifest');
  assert.equal(one('link[rel="apple-touch-icon"]').getAttribute('href'),'/icons/apple-touch-icon.png');
  assert(one('link[rel="icon"]').getAttribute('href').startsWith('data:image/svg+xml'),'the tab icon changed');
- // The AgentD mark: a blue ring and a gold stem, on the tab and in the rail; no trace of the old 'a' tile.
- {const href=decodeURIComponent(one('link[rel="icon"]').getAttribute('href'));assert(/stroke='url\(#b\)'/.test(href)&&/#D3A036/.test(href)&&/<rect x='147.5'/.test(href),'the tab icon is not the AgentD mark');assert(!/0a66d6|M9 22V13/.test(href),'the tab icon still has the old mark');
-  const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'17 14 170 170',what);assert(s.querySelector('path[stroke^="url(#"]')&&s.querySelector('rect[fill^="url(#"]'),what+': not the ring and stem');for(const ref of [...s.querySelectorAll('[stroke^="url(#"],[fill^="url(#"]')].map(n=>(n.getAttribute('stroke')||n.getAttribute('fill')).slice(5,-1)))assert.equal(d.querySelectorAll('[id="'+ref+'"]').length,1,what+': gradient '+ref+' is not one of a kind')};
+ // The LibraOS mark: a gold L and a blue ring, on the tab and in the rail; no trace of the old 'a' tile or 'd' mark (dash_brandmark.cjs pins the artwork).
+ {const href=decodeURIComponent(one('link[rel="icon"]').getAttribute('href'));assert(href.includes("d='M15.748 141.995H75.5134")&&/#D3A036/.test(href)&&/conic-gradient/.test(href),'the tab icon is not the LibraOS mark');assert(!/0a66d6|M9 22V13|<rect x='147.5'|M148\.13/.test(href),'the tab icon still has an old mark');
+  const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'0 0 200 200',what);assert(!s.querySelector('rect')&&s.querySelector('path[fill^="url(#"]').getAttribute('d').startsWith('M15.748 141.995H75.5134')&&s.querySelector('mask path').getAttribute('d').startsWith('M86.1052 191.812C104.403'),what+': not the LibraOS L and ring');for(const ref of [...s.querySelectorAll('[fill^="url(#"],[mask^="url(#"],[clip-path^="url(#"]')].map(n=>(n.getAttribute('fill')||n.getAttribute('mask')||n.getAttribute('clip-path')).slice(5,-1)))assert.equal(d.querySelectorAll('[id="'+ref+'"]').length,1,what+': '+ref+' is not one of a kind')};
   isMark(d.querySelector('.rail-mark'),'the rail');isMark(d.querySelector('.app-logo'),'the app header')}
+ // The LibraOS rebrand (libraos/core#1038): the page is LibraOS Core Server and
+ // says AgentD nowhere, in its text, attributes or comments; the rail keeps its class.
+ assert(!/AgentD/.test(html),'the page still says AgentD');
+ assert(html.includes('<title>LibraOS Core Server</title>'),'the served title');
+ assert(/· LibraOS Core Server$/.test(d.title),'the route title: '+d.title);
+ assert.equal(d.querySelector('.rail-mark').getAttribute('title'),'LibraOS Core Server','the rail mark title');
+ assert.equal(d.querySelector('.app-name').textContent,'LibraOS Core','the app header name');
+ assert.equal(d.querySelector('.ap-brand').textContent,'LibraOS Core','the panel header brand');
+ assert(/^<!doctype html>\n<!-- LibraOS Core dash\. Copyright/.test(html),'the copyright header');
  // Its own window, with its own name, on Android, iOS and desktop.
- for(const [name,want] of [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-title','agentd'],['application-name','agentd'],['apple-mobile-web-app-status-bar-style','default']])
+ for(const [name,want] of [['mobile-web-app-capable','yes'],['apple-mobile-web-app-capable','yes'],['apple-mobile-web-app-title','LibraOS Core'],['application-name','LibraOS Core'],['apple-mobile-web-app-status-bar-style','default']])
   assert.equal(one('meta[name="'+name+'"]').content,want,name);
  // The phone layout keeps its viewport; standalone mode needs no zoom lock.
  const vp=one('meta[name="viewport"]').content;assert(/width=device-width/.test(vp)&&/initial-scale=1/.test(vp)&&!/user-scalable=no/.test(vp),'viewport: '+vp);

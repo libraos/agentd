@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const page=fs.readFileSync(process.argv[2],'utf8');
+const page=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 class N {
  constructor(tag='div'){this.tagName=tag.toUpperCase();this.children=[];this.attrs={};this.listeners={};this.style={};this.dataset={};this.hidden=false;this.value='';this.disabled=false;this.isConnected=true;this.classList={toggle(){},add(){},remove(){}};this._text='';}
  setAttribute(k,v){this.attrs[k]=String(v);if(k==='id')this.id=v;if(k==='hidden')this.hidden=true;if(k.startsWith('data-'))this.dataset[k.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=String(v)}

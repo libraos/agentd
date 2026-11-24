@@ -1,4 +1,6 @@
-// Team (#486): four tabs, Repositories, Members, Roles and Sessions on this host,
+// Team (#486, #907 steps 2 and 4): Users (where #team opens), Permissions, Nodes and devices and
+// Activity; Repositories, Roles and Sessions on this host moved to Settings > Server (#settings/
+// repositories, /roles, /sessions, drawn by Team's code; the old #team/ addresses land there),
 // showing what Team showed before minus Working now (moved to the Agents list);
 // Repositories is a table (repository, checkout, routing, open tasks, working, a
 // link to its tasks); an owner adds a checkout already on this host from the page
@@ -18,7 +20,7 @@ const team={roles:[{name:'coder',description:'Writes code',tool:'codex'},{name:'
 let answer=null;const posts=[],requests=[],errors=[];
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const json=(body,status=200)=>({ok:status<400,status,json:async()=>body,text:async()=>JSON.stringify(body)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#team',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#team',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
@@ -32,35 +34,41 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0
   if(u.pathname==='/api/chat')return json({chats:[],roles:[],gateway_ready:false});
   return json({})}}});
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()};
-const go=async h=>{w.location.hash=h;await settle()},tabs=()=>[...doc.querySelectorAll('#team-tabs a')],current=()=>doc.querySelector('#team-tabs a[aria-current="page"]');
-const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textContent===text);
+const go=async h=>{w.location.hash=h;await settle()},tabs=()=>[...doc.querySelectorAll('#team-tabs a[data-tab]')],more=()=>[...doc.querySelectorAll('#team-tabs a[data-tab-more]')],section=()=>{const a=doc.querySelector('#settings-sections a[aria-current="page"]');return a&&a.dataset.section},current=()=>{const a=doc.querySelector('#team-tabs a[aria-current="page"]');return a&&{dataset:{tab:a.dataset.tab||a.dataset.tabMore}}};
+const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textContent===text);
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
- // Five tabs with their counts (Nodes, #831: this fixture has none); #team is Repositories; Team has no second panel and no Working now.
- assert.deepEqual(tabs().map(a=>a.dataset.tab),['repositories','members','roles','host','nodes','who']);
- assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Repositories','Members','Roles','Sessions on this host','Nodes','Who is on what']);
- assert.deepEqual(tabs().map(a=>(a.querySelector('.n')||{}).textContent||''),['1','2','2','','0','']);
- assert.equal(current().dataset.tab,'repositories');assert(doc.body.classList.contains('no-panel'),'Team still has a second panel');
+ // Four tabs with their counts (Nodes, #831: this fixture has none); #team is Users; Team has no second panel and no Working now.
+ assert.deepEqual(tabs().map(a=>a.dataset.tab),['users','permissions','nodes','activity']);
+ assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Users','Permissions','Nodes and devices','Activity']);
+ assert.deepEqual(tabs().map(a=>(a.querySelector('.n')||{}).textContent||''),['2','','0','']);
+ assert.equal(current().dataset.tab,'users');assert(view().querySelector('a[href="#team/member/bob"]'),'#team does not open on Users');assert(doc.querySelector('#repo-add').hidden,'the repository form shows on Users');
+ // Repositories, Roles and Sessions on this host are Settings > Server sections now: no More strip, and the old addresses land there.
+ assert.deepEqual(more(),[],'Team still has a More strip');assert(doc.body.classList.contains('no-panel'),'Team has a second panel');
+ await go('#team/repositories');assert.equal(w.location.hash,'#settings/repositories');assert.equal(section(),'repositories');assert(doc.getElementById('team-tabs').hidden,'Team tabs show on Settings > Repositories');
+ assert(!doc.getElementById('panel-settings').hidden,'Settings\' panel is not beside Repositories');assert.equal(doc.querySelector('.rail-item[aria-current="page"]').dataset.rail,'settings');
  assert(!tabs().some(a=>/Working now/.test(a.textContent)),'Working now is a tab');
  // Repositories: a row per checkout with its routing, open tasks, working and a link to its tasks.
- const view=()=>doc.querySelector('#team-view'),rowOf=p=>view().querySelector('.repo-row[data-repo="'+p+'"]');
+ const rowOf=p=>view().querySelector('.repo-row[data-repo="'+p+'"]');
  let r=rowOf('/srv/alpha');assert(r,'no row for /srv/alpha');
  assert.equal(r.querySelector('[data-route]').textContent,'On');assert.equal(r.querySelector('[data-open]').textContent,'2','open tasks are not counted as Tasks counts them');assert.equal(r.querySelector('[data-working]').textContent,'1');
  assert.equal(r.querySelector('a.repo-tasks').getAttribute('href'),'#issues?project=acme%2Falpha');assert.equal(r.querySelector('.repo-path').textContent,'/srv/alpha');
  assert.deepEqual([...view().querySelectorAll('.repo-colhead span')].map(n=>n.textContent),['Repository','Checkout','Routing','Open tasks','Working','']);
  // The other tabs: Members, Roles (with the role files that could not be read, as text), Sessions on this host.
- await go('#team/members');assert.equal(current().dataset.tab,'members');assert(view().querySelector('a[href="#team/member/bob"]'),'no member row');assert(view().textContent.includes('dev'));assert(doc.querySelector('#repo-add').hidden);
- await go('#team/roles');assert.equal(current().dataset.tab,'roles');assert(view().querySelector('a[href="#team/role/coder"]'),'no role row');
+ await go('#team/members');assert.equal(current().dataset.tab,'users','#team/members is not Users');assert(view().querySelector('a[href="#team/member/bob"]'),'no member row');assert(view().textContent.includes('dev'));assert(doc.querySelector('#repo-add').hidden);
+ await go('#team/roles');assert.equal(w.location.hash,'#settings/roles');assert.equal(section(),'roles');assert(view().querySelector('a[href="#team/role/coder"]'),'no role row');
  const prob=view().querySelector('[data-problems]');assert(prob&&prob.textContent.includes('1 role files could not be read'),'the role problems are lost');assert(prob.textContent.includes(evil)&&!prob.querySelector('img'),'a problem became markup');
- await go('#team/host');assert.equal(current().dataset.tab,'host');assert(!doc.querySelector('#team-host').hidden,'no sessions on this host');assert(doc.querySelector('#agents [data-session-id="s-1"]'),'the session is not listed');
- await go('#team/role/coder');assert.equal(current().dataset.tab,'roles','a role page is not under Roles');
- await go('#team/working');assert(view().querySelector('[data-moved="working"]'),'#team/working does not say where it went');assert(!current(),'a tab is marked on #team/working');
+ await go('#team/host');assert.equal(w.location.hash,'#settings/sessions');assert.equal(section(),'sessions');assert(!doc.querySelector('#team-host').hidden,'no sessions on this host');assert(doc.querySelector('#agents [data-session-id="s-1"]'),'the session is not listed');
+ await go('#team/role/coder');assert(!doc.getElementById('page-team').hidden&&/coder/.test(view().textContent),'a role page does not open');
+ // Old addresses go to their one home (layout review H): #team/working to Tasks > Running now, #team/members to Users.
+ await go('#team/working');assert.equal(w.location.hash,'#issues?view=agents','#team/working does not open Tasks > Running now');assert(doc.getElementById('page-team').hidden,'#team/working is still a Team page');
+ await go('#team/members');assert.equal(w.location.hash,'#team/users','#team/members is not sent to #team/users');
  // An owner: Add a repository opens the form; Clone from URL says to clone in a terminal and posts nothing.
- await go('#team');const form=doc.querySelector('#repo-add');assert(form.hidden,'the form shows before it is asked for');
+ await go('#settings/repositories');const form=doc.querySelector('#repo-add');assert(form.hidden,'the form shows before it is asked for');
  btn(doc.querySelector('#team-head'),'Add a repository').click();await settle();assert(!form.hidden,'the form did not open');assert.equal(doc.activeElement&&doc.activeElement.id,'repo-add-dir');
  btn(form,'Clone from URL').click();await settle();assert(form.querySelector('[data-clone]').textContent.includes('Clone it in a terminal on this host first'));assert(!form.querySelector('#repo-add-dir'),'Clone from URL has a field');assert(form.textContent.includes('git clone URL DIR'));
  btn(form,'A checkout on this host').click();await settle();assert(form.querySelector('#repo-add-dir'),'no directory field');
- assert.deepEqual([...form.querySelectorAll('#repo-add-route option')].map(o=>o.textContent),['On','Off']);assert(form.textContent.includes('agentd repo add DIR --route on|off'));
+ assert.deepEqual([...form.querySelectorAll('#repo-add-route option')].map(o=>o.textContent),['On','Off']);assert(form.textContent.includes('libraos-core repo add DIR --route on|off'));
  const submit=async()=>{form.dispatchEvent(new w.Event('submit',{cancelable:true}));await settle()};
  // A refusal shows the server's reason; the form keeps what was typed; nothing is added.
  answer=()=>({status:400,body:{ok:false,error:'/srv/plain is not a git checkout (git rev-parse --show-toplevel finds none); clone or git init it in a terminal first'}});
@@ -73,14 +81,14 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  answer=b=>{repos=[...repos,repo(b.dir,{route:b.route})];dash={...dash,checkouts:[...dash.checkouts,b.dir]};return {status:200,body:{path:b.dir,added:true,route:b.route}}};
  form.querySelector('#repo-add-route').value='off';const before=requests.filter(x=>x==='GET /api/dash').length;await submit();
  assert.deepEqual(posts[1],{action:'add',dir:'/srv/beta',route:'off'});assert(form.hidden,'the form stays open after the add');
- r=rowOf('/srv/beta');assert(r,'the added checkout is not listed');assert.equal(r.querySelector('[data-route]').textContent,'Off');assert.equal(tabs()[0].querySelector('.n').textContent,'2');
+ r=rowOf('/srv/beta');assert(r,'the added checkout is not listed');assert.equal(r.querySelector('[data-route]').textContent,'Off');
  assert(requests.filter(x=>x==='GET /api/dash').length>before,'the snapshot New task reads was not refreshed');
  // New task is a page (#482): its form is #nt-form, left with Cancel.
  w.eval('newHandoffSheet()');await settle();const ntForm=doc.getElementById('nt-form');assert(ntForm&&w.location.hash==='#new','New task did not open');const cwd=[...ntForm.querySelectorAll('select')].find(n=>n.id.endsWith('-cwd'));assert(cwd,'New task has no repository field');
  assert([...cwd.querySelectorAll('option')].some(o=>o.value==='/srv/beta'),'New task does not offer the added checkout');[...ntForm.querySelectorAll('.nt-foot button')].find(b=>b.textContent==='Cancel').click();await settle();assert(w.location.hash!=='#new','New task did not close');
  // Anyone else: no Add a repository and no form, the terminal command instead.
  dash={...dash,user:'vera',role:'viewer'};w.eval('refresh()');await settle();await go('#team/repositories');
- assert(!btn(doc.querySelector('#team-head'),'Add a repository'),'a viewer is offered Add a repository');assert(doc.querySelector('#repo-add').hidden);assert(doc.querySelector('#team-head').textContent.includes('agentd repo add DIR'));
+ assert(!btn(doc.querySelector('#team-head'),'Add a repository'),'a viewer is offered Add a repository');assert(doc.querySelector('#repo-add').hidden);assert(doc.querySelector('#set-team-head').textContent.includes('libraos-core repo add DIR'),'no terminal note for a viewer in the section head');
  w.eval('repoAddOpen(true)');await settle();assert(doc.querySelector('#repo-add').hidden,'a viewer opened the form');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_team: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');w.close()})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,9 +1,10 @@
-// libraos/agentd-core#680: the app's Triggers page. For an owner it reads /api/triggers and draws
+// libraos/core#680: the app's Triggers page. For an owner it reads /api/triggers and draws
 // [triggers] (state, settings, runs) and each schedule (state, runs); New trigger / Edit writes the
 // form with POST /api/settings trigger_edit (a template fills it), Pause sends trigger_pause, and a
 // schedule's Enable, Pause and Run now send schedule_enable, schedule_disable and schedule_run. Nothing
 // sends triggers.enabled; turning them on is shown as the terminal's command. A run's row opens its
-// task. Anyone else (403) gets the read-only commands and no control. Runs in every mode:
+// task. Anyone else (403) gets the read-only commands and no control. The nav's Triggers row is live
+// for an owner and not shown to anyone else (#907 step 4: no link to Triggers for a non-owner). Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_apptriggers.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
@@ -17,7 +18,7 @@ const sched=(o)=>({schedule:'/src/web#nightly',name:'nightly',dir:'/src/web',ena
  runs:[{id:'sr1',scheduled_for:'2026-11-14T03:00:00Z',status:'offered',handoff:'hof-s1',handoff_state:'claimed'},{id:'sr2',scheduled_for:'2026-11-13T03:00:00Z',status:'skipped_precheck',reason:'precheck exited 1'}],...o});
 let trig={status:offStatus,templates:tpls,repo:'acme/web',author:'alice',enable:'agentd config set triggers.enabled true',schedules:{schedules:[]}},trigCode=200,posts=[],postFail='';
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.fetch=async(url,o={})=>{const u=new URL(url,w.location.href);let body={},status=200;
@@ -43,7 +44,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  assert(shown(page()),'Triggers is not shown');
  const t=page().textContent;
  assert(/No trigger yet/.test(t)&&/agentd config set triggers\.enabled true/.test(t),'empty: '+t);
- const add=btn('[data-appt-action="trigger_edit"]');assert.equal(add.textContent,'New trigger');assert(!add.disabled);
+ const add=btn('[data-appt-action="trigger_edit"]');assert.equal(add.textContent,'New trigger');assert(!add.disabled);assert(!page().querySelector('[data-appt="edit-why"]'),'a reason shows while Edit works');
  assert.equal(add.getAttribute('data-contextual-tour-target'),'triggers-add');assert(page().querySelector('[data-contextual-tour-target="triggers-runs"]'),'no runs target for the tour');
  assert(!btn('[data-appt-action="trigger_pause"]'),'Pause while off');assert(page().querySelector('[data-appt="no-schedules"]'),'no empty schedules note');
  // New trigger: the form, a template fills it, Save sends trigger_edit with lists and a number.
@@ -67,15 +68,17 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
   schedules:{schedules:[sched(),sched({schedule:'/src/web#weekly',name:'weekly',enabled:false,next_run:null,runs:[]})]}};
  await openTriggers();
  const tx=page().textContent;
- assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/agentd config set triggers\.enabled false/.test(tx),'on: '+tx);
+ assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/libraos-core config set triggers\.enabled false/.test(tx),'on: '+tx);
  assert(btn('[data-appt-action="trigger_edit"]').disabled,'Edit is enabled while triggers are on');assert.equal(btn('[data-appt-action="trigger_edit"]').textContent,'Edit trigger');
+ assert(/pause them to edit/.test(page().querySelector('[data-appt="edit-why"]').textContent),'disabled Edit gives no reason on the page');
+ {const t=page().querySelector('[data-contextual-tour-target="triggers-runs"] time');assert(t&&t.title&&t.getAttribute('datetime')===t.title,'a run time has no exact time in its tooltip')}
  assert(!page().querySelector('img'),'text became markup');assert(tx.includes('Update deps '+evil)&&tx.includes('over the cap '+evil),'evil text not shown as text');
  btn('[data-appt-action="trigger_pause"]').click();await tick();assert(dialog(),'Pause asks first');await submit();
  assert.deepEqual(posts.pop(),{action:'trigger_pause'});
  // Schedules: nightly (enabled) has Run now and Pause, weekly Enable; its runs list, a skip with its reason.
  const night=page().querySelector('[data-schedule="nightly"]');
  assert(/skipped precheck/.test(night.textContent)&&/precheck exited 1/.test(night.textContent),'nightly runs: '+night.textContent);
- assert(/agentd schedule run nightly --repo \/src\/web/.test(night.textContent),'no CLI twin for run now');
+ assert(/libraos-core schedule run nightly --repo \/src\/web/.test(night.textContent),'no CLI twin for run now');
  night.querySelector('[data-appt-action="schedule_run"]').click();await settle();assert.deepEqual(posts.pop(),{action:'schedule_run',dir:'/src/web',name:'nightly'});
  await openTriggers();page().querySelector('[data-schedule="nightly"] [data-appt-action="schedule_disable"]').click();await settle();assert.deepEqual(posts.pop(),{action:'schedule_disable',dir:'/src/web',name:'nightly'});
  await openTriggers();assert(!page().querySelector('[data-schedule="weekly"] [data-appt-action="schedule_run"]'),'Run now on a schedule that is off');
@@ -90,8 +93,13 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  // Not an owner: the read-only commands and no control.
  trigCode=403;await openTriggers();
  const ro=page().textContent;
- assert(/Read only/.test(ro)&&/Only an owner/.test(ro)&&/agentd trigger status/.test(ro),'read only: '+ro);
+ assert(/Read only/.test(ro)&&/Only an owner/.test(ro)&&/libraos-core trigger status/.test(ro),'read only: '+ro);
  assert(!page().querySelector('input,textarea,select,form,[data-appt-action]'),'a non-owner has a control');
+ // The nav row: shown and live for an owner, gone for a viewer, back for an owner.
+ const navRow=()=>doc.querySelector('#app-shell [data-app-nav="triggers"]');
+ assert(!navRow().hidden&&!navRow().hasAttribute('aria-disabled'),'an owner\'s Triggers row is hidden or disabled');
+ base.role='viewer';w.eval('refresh()');await settle();assert(navRow().hidden,'a viewer sees the Triggers row');
+ base.role='owner';w.eval('refresh()');await settle();assert(!navRow().hidden,'an owner does not see the Triggers row again');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_apptriggers: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');
  process.exit(0);

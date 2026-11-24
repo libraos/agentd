@@ -13,7 +13,7 @@ const review={handoff:'hof-big',enabled:true,branch:'agentd/hof-big',head:'abc12
  files:[{path:'src/first.go',added:30,deleted:2,diff:'diff --git a/src/first.go b/src/first.go\n+first file '+evil},{path:'src/second.go',added:9,deleted:10,diff:'diff --git a/src/second.go b/src/second.go\n+second file'},{path:'logo.png',added:0,deleted:0,binary:true}]};
 const tasks={'hof-big':big,'hof-none':none,'hof-one':one};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#issues',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#issues',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');w.matchMedia=q=>({matches:process.env.DASH_UI_PHONE==='1'&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLElement.prototype.getClientRects=function(){return this.hidden?[]:[{}]};
  w.fetch=async(url)=>{const u=new URL(url,w.location.href),id=u.searchParams.get('id')||u.searchParams.get('ref');let body={};
   if(u.pathname==='/api/auth')return {ok:true,status:204};

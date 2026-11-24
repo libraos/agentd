@@ -1,5 +1,5 @@
 // #561: the server page's personal mode. When /api/dash says mode "app" (agentd app,
-// libraos/agentd-core#560) the page draws the reference app's frame instead of the team server: a
+// libraos/core#560) the page draws the reference app's frame instead of the team server: a
 // left sidebar, a centre with an editor-style tab strip, a right sidebar with icon
 // tabs, and a status bar (watchdog, running, waiting, today's spend). No rail and
 // no team page shows. The regions are empty mount points the later issues fill.
@@ -15,7 +15,7 @@ const base={user:'alice',role:'owner',now,handoff_list:list,done:[],sessions:[],
 const app=(o)=>({...base,mode:'app',watchdog:{running:true,start:'agentd install'},spend_today:{usd:4.2,workers:3,unpriced:0,pending:0,user:'alice'},...o});
 let snap=app(),hits={};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.fetch=async(url)=>{const u=new URL(url,w.location.href);hits[u.pathname]=(hits[u.pathname]||0)+1;let body={};
@@ -37,7 +37,7 @@ const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
  for(const [n,name] of [[left,'left sidebar'],[center,'centre'],[right,'right sidebar'],[status,'status bar']])assert(n&&shell.contains(n)&&shown(n),'no '+name);
  assert.equal(left.tagName,'ASIDE');assert.equal(right.tagName,'ASIDE');assert.equal(status.getAttribute('role'),'status');
  assert(!shown(doc.querySelector('.shell')),'the team shell shows in app mode');
- for(const id of ['rail','agents-list','side','page-home','page-inbox','page-work','page-team','page-insights','page-metrics','page-usage','page-chat','page-settings','page-triggers','page-setup','page-help'].filter(id=>$(id)))assert(!shown($(id)),id+' shows in app mode');
+ for(const id of ['rail','agents-list','side','page-home','page-inbox','page-work','page-team','page-insights','page-metrics','page-success','page-cost','page-usage','page-workers','page-chat','page-settings','page-triggers','page-setup','page-help'].filter(id=>$(id)))assert(!shown($(id)),id+' shows in app mode');
  assert(!shown(doc.querySelector('.shell header')),'the team top bar shows');
  // Each region has its mount point, empty for the issues that fill it.
  for(const r of ['projects','tabs','tab-body','right-panel'])assert(shell.querySelector('[data-region="'+r+'"]'),'no mount point '+r);

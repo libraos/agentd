@@ -1,4 +1,4 @@
-// libraos/agentd-core#677: a running task's Session in agentd app. A message sent to its worker shows in
+// libraos/core#677: a running task's Session in agentd app. A message sent to its worker shows in
 // the conversation, in time among the worker's turns, with msg status's word for it (sent, read,
 // answered), and a new send shows there at once; Enter sends, Shift+Enter adds a line, Ctrl+Enter still
 // sends, and Enter while an input method is composing does not. The history lists the work item's log.
@@ -13,7 +13,7 @@ const turns=[{role:'user',text:'agentd started you to take handoff '+ID,at:T(10)
 let sent=[{message:'msg-1',user:'alice',to:'w-1',body:'please add a test '+evil,sent:T(5),ago:'5m',state:'answered',reply:'msg-r'},{message:'msg-2',user:'bob',to:'w-1',body:'and the docs',sent:T(1),ago:'1m',state:'read'}];
 const posts=[];
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'))};
@@ -42,7 +42,7 @@ const type=t=>{box().value=t;box().dispatchEvent(new w.Event('input',{bubbles:tr
  const [s1,s2]=qa('[data-role="sent"]',conv());
  assert(/^> You: please add a test/.test(s1.textContent)&&s1.dataset.state==='answered'&&/answered · 5m ago/.test(s1.textContent),'first message: '+s1.textContent);
  assert(/^> bob: and the docs/.test(s2.textContent)&&/read · 1m ago/.test(s2.textContent),'another person’s message: '+s2.textContent);
- assert(/agentd msg status msg-1/.test(q('.app-fstate',s1).title),'no msg status command');
+ assert(/libraos-core msg status msg-1/.test(q('.app-fstate',s1).title),'no msg status command');
  assert(!q('#app-tab-body img')&&s1.textContent.includes('<img'),'text went in as HTML');
  // History lists the work item's log, not "No history yet".
  const feed=q('#app-tab-body .app-feed[aria-label="History"]');assert(feed&&/dispatched/.test(feed.textContent)&&/test added/.test(feed.textContent),'history: '+(feed&&feed.textContent));

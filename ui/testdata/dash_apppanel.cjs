@@ -1,4 +1,4 @@
-// libraos/agentd-core#693: agentd app's embedded panel at /panel, for a browser tab inside another agent app.
+// libraos/core#693: agentd app's embedded panel at /panel, for a browser tab inside another agent app.
 // The same page draws one column there: no sidebar, top bar or tabs; what needs me at the top (approvals
 // with working Approve and Reject); my tasks in the current project (a project switch) with state, check
 // result and cost; a task as a narrow panel with its checks and proof, cost and budget, delivery,
@@ -29,7 +29,7 @@ const detail=id=>({handoff:id,state:'claimed',show:'agentd handoff show '+id,too
 const review=id=>({handoff:id,enabled:true,may:true,branch:'agentd/'+id,base_branch:'main',added:3,deleted:1,files:[{path:'a.go',added:3,deleted:1,diff:'+x'}],...(id==='hof-apr'?{pr:{ref:'acme/demo-repo#7',state:'OPEN'}}:{})});
 const load=async(path,dash,store)=>{
  const errors=[],posts=[],hits={},vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
- const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470'+path,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+ const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470'+path,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
   w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');for(const [k,v] of Object.entries(store||{}))w.localStorage.setItem(k,v);
   w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
   w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};
@@ -121,7 +121,7 @@ const shown=n=>{for(let x=n;x&&x.nodeType===1;x=x.parentElement)if(x.hidden)retu
  w.apOpen('hof-bob');await settle();assert($('ap-task').hasAttribute('data-readonly')&&/Read only: bob/.test($('ap-task').textContent),'bob’s task is not read only');
  assert(!shown(sec('actions'))&&!q('[data-act="open_pr"]',$('ap-task')),'bob’s task has actions');
  // Theme: the panel's own block uses the page's tokens, so light and dark follow it.
- const css=fs.readFileSync(process.argv[2],'utf8'),block=css.slice(css.indexOf('/* region:css-app-panel'),css.indexOf('/* end:css-app-panel */'));
+ const css=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),block=css.slice(css.indexOf('/* region:css-app-panel'),css.indexOf('/* end:css-app-panel */'));
  assert(block.length>200&&/max-width:600px/.test(block)&&/var\(--bg\)/.test(block)&&/var\(--fg\)/.test(block)&&!/#fff\b|#000\b/.test(block.replace(/color:#fff/g,'')),'the panel’s CSS does not follow the theme');
  assert.equal(doc.documentElement.dataset.theme,process.env.DASH_UI_THEME||'light');
  // Signed out, the panel's sign-in comes back to the panel (the server takes next=/panel only).

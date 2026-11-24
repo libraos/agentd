@@ -1,4 +1,4 @@
-// Take over, Cancel task and Open in editor in the task workspace's top bar (libraos/agentd-core#562).
+// Take over, Cancel task and Open in editor in the task workspace's top bar (libraos/core#562).
 // Each appears only in the state the snapshot offers it (h.takeover once the worker has stopped,
 // h.cancel on an open task, h.editor where the worker's directory is on this host and the server may
 // start a program here: dash.editor.local), is disabled with the server's reason for a person who may
@@ -23,7 +23,7 @@ let dash={user:'alice',role:'dev',now,handoff_list:[stopped,running,bobs],done:[
 const errors=[],posts=[];let failNext='';
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const json=(body,status=200)=>({ok:status<300,status,json:async()=>body,text:async()=>JSON.stringify(body)});
-function load(url){return new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+function load(url){return new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.HTMLElement.prototype.getClientRects=function(){return this.hidden?[]:[{}]};
@@ -73,6 +73,11 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  foot('Cancel task').click();await settle();assert(dialog(),'the sheet closed without a reason');assert.equal(posts.length,0,'a cancel without a reason was posted');
  const ta=dialog().querySelector('textarea');ta.value='superseded by #9 '+evil;ta.dispatchEvent(new w.Event('input'));foot('Cancel task').click();await settle();
  assert.deepEqual(posts.pop(),{action:'cancel',id:'hof-stop',reason:'superseded by #9 '+evil});assert(!dialog(),'the cancel sheet stayed open');
+ // A cause from the fixed list is optional (#1054): not chosen, none is posted (above); chosen, it is posted with the reason.
+ btn('cancel').click();await settle();const sel=dialog().querySelector('select');assert(sel,'the cancel sheet has no cause');
+ assert.deepEqual([...sel.options].map(o=>o.value),['','wrong_result','refused_in_error','budget','check_timeout','waiting_input','infrastructure','superseded','delivered_by_hand','not_needed','other']);assert.equal(sel.value,'','a cause is chosen before the person chose one');
+ const ta2=dialog().querySelector('textarea');ta2.value='carried by #9';ta2.dispatchEvent(new w.Event('input'));sel.value='superseded';sel.dispatchEvent(new w.Event('change'));foot('Cancel task').click();await settle();
+ assert.deepEqual(posts.pop(),{action:'cancel',id:'hof-stop',reason:'carried by #9',cause:'superseded'});assert(!dialog(),'the cancel sheet stayed open');
  // Open in editor: posts at once and shows the command it ran.
  await go('#issues/hof-run');
  assert.deepEqual(keys(),['editor','cancel'],'a running worker offers no takeover');

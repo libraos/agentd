@@ -1,4 +1,4 @@
-// libraos/agentd-core#658: a task whose worker could not start says why in its Session. The snapshot's
+// libraos/core#658: a task whose worker could not start says why in its Session. The snapshot's
 // start_failure (the history's newest "dispatch failed" line) shows as "The worker did not start" with
 // its next step and a Start again button beside it, as text; not on a task that started, not as a
 // button on another person's task, and Start again opens the same sheet as the Command menu's.
@@ -15,7 +15,7 @@ const ok={id:OK,goal:'Fix the parser',state:'claimed',from:'s-alice',from_user:'
 const ro={...bad,id:RO,goal:'Their task',from:'s-bob',from_user:'bob',retry:{cwd:'/r/demo',tool:'claude',may:false,why_not:'Only bob can start it again.'}};
 const snap={user:'alice',role:'owner',now,mode:'app',watchdog:{running:true},handoff_list:[bad,ok,ro],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{},checkouts:['/r/demo'],dispatch:true,terminal:true,spend_today:{usd:0,workers:0,unpriced:0,pending:0}};
 const errors=[],vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21470/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
  w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false;this.dispatchEvent(new w.Event('close'))};

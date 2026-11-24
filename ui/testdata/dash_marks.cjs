@@ -25,7 +25,7 @@ const chatCards=[...open.map(h=>({id:h.id,goal:h.goal,state:h.state,worker:h.wor
 const errors=[];
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const json=body=>({ok:true,status:200,json:async()=>body,text:async()=>JSON.stringify(body)});
-const dom=new JSDOM(fs.readFileSync(process.argv[2],'utf8'),{url:'http://127.0.0.1:21620/#issues?view=all&layout=board',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
+const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8'),{url:'http://127.0.0.1:21620/#issues?view=all&layout=board',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
  w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
  w.matchMedia=q=>({matches:process.env.DASH_UI_PHONE==='1'&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};
  w.fetch=async(url)=>{const u=new URL(url,w.location.href);
@@ -79,7 +79,7 @@ const markIn=(node,what)=>{const ms=node.querySelectorAll('.tmark');assert.equal
  for(const dt of dts){const m=markIn(dt,'legend');assert.equal(m[2],seen[m[0]][2],'legend glyph differs for '+m[0]);assert(dt.nextElementSibling.textContent.length>10,'legend lacks text for '+m[0])}
  assert(strip().querySelector('details.mark-legend').open,'the legend closes on a refresh');
  // The Agents list (which replaced Team > Working now, #479): every open task reads as on the board.
- w.location.hash='#team/working';await settle();assert(doc.querySelector('#team-view [data-moved="working"]'),'#team/working does not say where Working now went');
+ w.location.hash='#team/working';await settle();assert.equal(w.location.hash,'#issues?view=agents','#team/working does not open Tasks > Running now');
  for(const id of ['hof-work','hof-work2','hof-ask','hof-wait','hof-new']){const a=doc.querySelector('#agents-rows [data-agent-id="'+id+'"]');assert(a,'the Agents list lacks '+id);const m=markIn(a,'agents '+id);assert.deepEqual(m,seen[want[id]],'the Agents list reads '+id+' differently')}
  // A task's own page and its drawer read as on the board.
  for(const id of ['hof-ask','hof-wait']){w.location.hash='#issues/'+id;await settle();const props=[...doc.querySelectorAll('#issue-detail .k')].find(k=>k.textContent==='Status');assert(props,'no Status on the page of '+id);

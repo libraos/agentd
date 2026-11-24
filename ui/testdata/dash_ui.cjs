@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
-const page=fs.readFileSync(process.argv[2],'utf8');
+const page=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
 // Every inline script parses as a whole: a name declared twice in one script stops the page.
 for(const m of page.matchAll(/<script>([\s\S]*?)<\/script>/g))new Function(m[1]);
 class N {
@@ -64,7 +64,7 @@ const current=()=>run('activeSheet.dialog'),submit=()=>current().children[0].ons
  let copied='';Object.assign(ctx,{URLSearchParams,ROUTE:{item:'team',rest:['repositories']},teamDraw(){},chatCopy(t){copied=t}});
  const evil='<img src=x onerror=alert(1)>';
  run("REPOS.at=Date.now();REPOS.data={repositories:[]}");let body=run('reposBody()');const flat=b=>b.map(n=>n.textContent).join('\n');
- run("ROLE='viewer';USER='vera'");assert(flat(body).includes('No repositories yet. Run agentd repo add DIR in a terminal on this host.'),'empty state');const vhead=run('reposHead()');assert(vhead.textContent.includes('An owner adds one here')&&vhead.textContent.includes('agentd repo add DIR'),'no terminal note for a non-owner');assert(!vhead.querySelectorAll('button').length,'a non-owner is offered Add a repository');
+ run("ROLE='viewer';USER='vera'");assert(flat(body).includes('No repositories yet. Run libraos-core repo add DIR in a terminal on this host.'),'empty state');const vhead=run('reposHead()');assert(!vhead.querySelectorAll('h2').length&&!vhead.textContent.trim(),'Repositories draws a title of its own beside Settings\' head (its terminal note is that head\'s, dash_settings)');assert(!vhead.querySelectorAll('button').length,'a non-owner is offered Add a repository');
  run("ROLE='owner';USER='olga'");const ohead=run('reposHead()');assert.deepEqual(ohead.querySelectorAll('button').map(b=>b.textContent),['Add a repository'],'an owner has no Add a repository');assert(run('reposBody()').map(n=>n.textContent).join('').includes('Add one with Add a repository'),'owner empty state');run("ROLE='viewer';USER='vera'");
  run("REPOS.data={repositories:[{path:'/srv/alpha',route:'on',github:'acme/alpha',default_branch:'main',branch:'main',project:'acme/alpha',worker_worktrees:3,open:2,running:1,last:{id:'hof-1',goal:"+JSON.stringify(evil+' see https://github.com/acme/alpha/issues')+",state:'claimed'},checks:[{name:'trust',ok:false,detail:'not trusted',fix:'agentd trust /srv/alpha'},{name:'sync',ok:true,detail:'listed'},{name:'gh',ok:null,detail:'checking'},{name:'origin',ok:false,detail:'3 commits behind origin/main, fetched 2 min ago',fix:'git -C /srv/alpha pull --ff-only'}]},{path:'/srv/empty',github:null,remote:null,project:'empty',open:0,running:0,last:null,checks:[{name:'commit',ok:false,detail:'no commit',fix:\"cd /srv/empty && git commit -m 'First commit'\"},{name:'origin',ok:null,detail:'does not apply: no origin'}]},{path:'/srv/new',github:'acme/new',project:'acme/new',open:0,running:0,last:null,checks:[{name:'origin',ok:null,detail:'not known yet: agentd fetches origin in the background, at most every 3 minutes'}]}]}");
  body=run('reposBody()');const rtext=flat(body);
