@@ -88,7 +88,7 @@ const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySe
  assert([...cwd.querySelectorAll('option')].some(o=>o.value==='/srv/beta'),'New task does not offer the added checkout');[...ntForm.querySelectorAll('.nt-foot button')].find(b=>b.textContent==='Cancel').click();await settle();assert(w.location.hash!=='#new','New task did not close');
  // Anyone else: no Add a repository and no form, the terminal command instead.
  dash={...dash,user:'vera',role:'viewer'};w.eval('refresh()');await settle();await go('#team/repositories');
- assert(!btn(doc.querySelector('#team-head'),'Add a repository'),'a viewer is offered Add a repository');assert(doc.querySelector('#repo-add').hidden);assert(doc.querySelector('#team-head').textContent.includes('libraos-core repo add DIR'));
+ assert(!btn(doc.querySelector('#team-head'),'Add a repository'),'a viewer is offered Add a repository');assert(doc.querySelector('#repo-add').hidden);assert(doc.querySelector('#set-team-head').textContent.includes('libraos-core repo add DIR'),'no terminal note for a viewer in the section head');
  w.eval('repoAddOpen(true)');await settle();assert(doc.querySelector('#repo-add').hidden,'a viewer opened the form');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_team: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');w.close()})().catch(e=>{console.error(e);process.exit(1)});

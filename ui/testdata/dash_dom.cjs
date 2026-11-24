@@ -338,11 +338,11 @@ assert.equal(resultView.querySelectorAll('.chat-output-files button').length,3,'
  const lastSend=()=>[...w.document.querySelectorAll('#set-personal dt')].find(n=>n.textContent==='Last send').nextElementSibling.textContent;
  const sendCases=[
   [{},'No mail sent yet'],[null,'No mail sent yet'],[undefined,'No mail sent yet'],[{note:''},'No mail sent yet'],
-  [{ok:0,created:now,note:'Send failed'},'Failed · '+now+' · Send failed'],
-  [{ok:1,created:now,note:'Sent'},'Sent · '+now+' · Sent'],
-  [{ok:1,created:now},'Sent · '+now],
-  [{ok:0,created:now,note:null},'Failed · '+now],
-  [{ok:1,created:now,note:''},'Sent · '+now],
+  [{ok:0,created:now,note:'Send failed'},'Failed · just now · Send failed'],
+  [{ok:1,created:now,note:'Sent'},'Sent · just now · Sent'],
+  [{ok:1,created:now},'Sent · just now'],
+  [{ok:0,created:now,note:null},'Failed · just now'],
+  [{ok:1,created:now,note:''},'Sent · just now'],
  ];
  for(const role of ['owner','dev','viewer']){
   settings.owner=role==='owner';evalJS("TOKEN='';COOKIE=true;USER='alice';ROLE="+JSON.stringify(role));
@@ -355,6 +355,8 @@ assert.equal(resultView.querySelectorAll('.chat-output-files button').length,3,'
     assert(!workers.textContent.includes('Change history'),'Change history is its own section');assert.equal(!!w.document.querySelector('#set-history-body table'),role==='owner');
     assert.equal(!!findButton(workers,'Edit'),role==='owner');
     assert.equal(lastSend(),expected,role+' configured='+configured);
+    // A send's time reads relative, the exact time in its tooltip.
+    if(last&&last.created){const t=[...w.document.querySelectorAll('#set-personal dt')].find(n=>n.textContent==='Last send').nextElementSibling.querySelector('time');assert(t&&t.title===now&&t.getAttribute('datetime')===now,'the send time has no exact tooltip')}
     assert(!/null|undefined/.test(w.document.querySelector('#set-personal').textContent));
    }
   }

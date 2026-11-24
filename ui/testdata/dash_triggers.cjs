@@ -71,15 +71,20 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  assert(/libraos-core config set triggers\.enabled false/.test(state().textContent),'the state card has no terminal command to turn triggers off');
  assert(!state().querySelector('[data-trig=later]'),'shows a later reason while on');
  assert.equal(doc.getElementById('trig-meta').textContent,'On · owners only');
- // Templates first, then Settings now and Latest runs beside them.
+ // The state is a chip beside the title, not a line floating between it and Refresh.
+ assert(doc.getElementById('trig-meta').parentElement.querySelector('h2'),'the state is not beside the title');assert.equal(doc.getElementById('trig-meta').dataset.on,'true');
+ // Templates first, then Settings now, Improve and Signals beside them; Latest runs full width under both (#907 review: its six columns squeezed into the side column).
  const cols=body().querySelector('.trig-cols');assert(cols,'no columns');assert.equal(cols.children[0].dataset.trig,'templates','templates are not first');
- assert.deepEqual([...cols.children[1].children].map(n=>n.dataset.trig),['settings','offers','improve','signals']);
+ assert.deepEqual([...cols.children[1].children].map(n=>n.dataset.trig),['settings','improve','signals']);
+ assert.deepEqual([...body().children].map(n=>n.dataset.trig||n.className),['state','trig-cols','offers'],'Latest runs is not under the columns');assert(!cols.querySelector('[data-trig=offers]'),'Latest runs is still in a column');
  assert.equal(p['Repositories'],'o/r, o/other');assert.equal(p['Authors'],'Not configured');assert.equal(p['Issue label'],'Not set: issues start nothing');
  assert.equal(p['Budget'],'30m');assert.equal(p['Most a day'],'4');assert.equal(p['Checkouts'],'o/r: /w/r');assert.equal(p['Not in [sync] repos'],'o/other');
  const rows=[...body().querySelectorAll('[data-trig=offers] tbody tr')];assert.equal(rows.length,2,'want two offers');
  const cells=r=>Object.fromEntries([...r.querySelectorAll('td')].map(td=>[td.dataset.label,td.textContent]));
  assert.deepEqual({...cells(rows[0]),When:''},{When:'',Kind:'PR went red',For:'o/r#12',Commit:'0123456789ab',Task:'hof-12',Error:'—'});
  assert(rows[0].querySelector('a[href="#issues/hof-12"]'),'the offer does not open its task');
+ // Each run's time is relative, with the exact time as its tooltip.
+ const when=rows[0].querySelector('time');assert(when&&when.textContent==='just now'&&when.title===now,'a run time is not relative with its exact time');
  assert.deepEqual({...cells(rows[1]),When:''},{When:'',Kind:'Labelled issue',For:'o/r#7',Commit:'—',Task:'—',Error:'git fetch failed'+evil});
  assert(!doc.querySelector('#page-triggers img'),'server text became markup');
  // Templates: the text to copy, and Write refused while triggers are on.
@@ -87,6 +92,8 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  assert.equal(tpl.querySelector('.trig-kind').textContent,'Pull requests');assert.equal(body().querySelector('[data-template=issue-label] .trig-kind').textContent,'Issues');
  button(tpl,'Copy config').click();await settle();assert.equal(w.copied,toml,'Copy did not copy the template');
  const write=button(tpl,'Write to config.toml');assert.equal(write.getAttribute('aria-disabled'),'true','Write is live while triggers are on');
+ // A refused Write says why, on the page and not only in its tooltip.
+ assert.equal(tpl.querySelector('[data-write-why]').textContent,'Triggers are on. Turn them off from a terminal before writing a template.');assert.equal(write.title,tpl.querySelector('[data-write-why]').textContent);
  write.click();await settle();assert(!doc.querySelector('dialog'),'Write opened a sheet while triggers are on');assert.equal(posts.length,0);
  // Improve and signals, read-only: state, settings, latest offers linking to their tasks, and no control.
  const imp=body().querySelector('[data-trig=improve]'),sig=body().querySelector('[data-trig=signals]');
@@ -117,7 +124,7 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  // Runs moves to the list of runs.
  let scrolled=null;body().querySelector('[data-trig=offers]').scrollIntoView=function(){scrolled=this};button(state(),'Runs').click();
  assert.equal(scrolled,body().querySelector('[data-trig=offers]'),'Runs does not go to the runs');assert.equal(doc.activeElement,scrolled);
- const tpl2=body().querySelector('[data-template=issue-label]'),write2=button(tpl2,'Write to config.toml');assert.equal(write2.getAttribute('aria-disabled'),'false');
+ const tpl2=body().querySelector('[data-template=issue-label]'),write2=button(tpl2,'Write to config.toml');assert.equal(write2.getAttribute('aria-disabled'),'false');assert(!tpl2.querySelector('[data-write-why]'),'a live Write gives a reason');
  const gets=triggerGets.length;write2.click();await settle();const dlg=doc.querySelector('dialog');assert(dlg,'Write opened no sheet');assert(/nothing fires until/i.test(dlg.textContent),'the sheet does not say triggers stay off');
  dlg.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
  assert.deepEqual(posts,[{action:'trigger_template',template:'issue-label',repo:'o/r',author:'alice'}]);
@@ -130,8 +137,10 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  assert.equal(triggerGets.at(-1),'?repo=acme%2Fapp&author=bob');
  // A non-owner: the refusal, and none of the page.
  mode='denied';button(doc.getElementById('page-triggers'),'Refresh').click();await settle();
- assert.equal(doc.getElementById('trig-error').hidden,false);assert.equal(doc.getElementById('trig-error').textContent,'Triggers are for owners');
- assert.equal(body().children.length,0,'a non-owner sees triggers');assert.equal(doc.getElementById('trig-meta').textContent,'','a non-owner sees the state');
+ // The server's refusal is the same owner-only card as below, in place of the intro, never a bare line.
+ const ownerOnly=()=>{assert(doc.getElementById('trig-error').hidden,'the refusal is a bare error line');assert(doc.getElementById('trig-intro').hidden,'the intro shows beside the refusal');
+  assert.equal(body().children.length,1,'a non-owner sees triggers');const card=body().querySelector('[data-trig=owner-only]');assert(card&&card.classList.contains('state'),'no owner-only card');assert(/^Triggers are owner-only\. Ask an owner( \([^)]+\))? to change them\.$/.test(card.textContent),card.textContent)};
+ ownerOnly();assert.equal(doc.getElementById('trig-meta').textContent,'','a non-owner sees the state');
  // A user who is not an owner (#907 step 4): Triggers is not shown anywhere (no rail item, no Settings
  // section or line, not in Help), and its address says it is for owners without reading /api/triggers.
  assert(badge().hidden,'the Off badge outlives the refusal');
@@ -141,12 +150,12 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  assert(!doc.querySelector('#settings-sections a[data-section="triggers"]'),'a non-owner sees Triggers in Settings');assert(doc.getElementById('set-triggers').hidden,'a non-owner sees the Triggers line');
  assert([...doc.querySelectorAll('[data-owner-only]')].every(n=>n.hidden),'an owner-only mention shows to a non-owner');
  const ownerGets=triggerGets.length;await route('#triggers');assert.equal(triggerGets.length,ownerGets,'a non-owner read /api/triggers');
- assert.equal(doc.getElementById('trig-error').textContent,'Triggers are for owners.');assert.equal(body().children.length,0,'a non-owner sees triggers');
+ ownerOnly();
  // Back to an owner: the section, the line and the page again.
  dash.role='owner';dash.user='alice';w.eval('refresh()');await settle();await route('#settings/workers');
  assert(doc.querySelector('#settings-sections a[data-section="triggers"][href="#triggers"]'),'an owner has no Triggers section');assert(!doc.getElementById('set-triggers').hidden);
  assert(!railTrig().hidden&&!acctTrig().hidden,'an owner does not see Triggers in the rail and menu again');
- await route('#triggers');assert(body().children.length>0,'an owner does not see triggers again');
+ await route('#triggers');assert(body().children.length>0,'an owner does not see triggers again');assert(!doc.getElementById('trig-intro').hidden,'the intro stays hidden for an owner');
  // Phone: the config text scrolls in its box rather than widening the page.
  const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');assert(/@media\(max-width:860px\)\{\.trig-cols\{grid-template-columns:minmax\(0,1fr\)\}/.test(css),'the columns do not stack on a phone');assert(/\.trig-tpl pre\{[^}]*overflow-x:auto/.test(css)&&/\.trig-tpl>\*\{min-width:0\}/.test(css),'template text does not scroll in place');
  assert(!errors.length,errors.join('\n'));
