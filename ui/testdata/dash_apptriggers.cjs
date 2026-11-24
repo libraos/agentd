@@ -44,7 +44,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  assert(shown(page()),'Triggers is not shown');
  const t=page().textContent;
  assert(/No trigger yet/.test(t)&&/agentd config set triggers\.enabled true/.test(t),'empty: '+t);
- const add=btn('[data-appt-action="trigger_edit"]');assert.equal(add.textContent,'New trigger');assert(!add.disabled);
+ const add=btn('[data-appt-action="trigger_edit"]');assert.equal(add.textContent,'New trigger');assert(!add.disabled);assert(!page().querySelector('[data-appt="edit-why"]'),'a reason shows while Edit works');
  assert.equal(add.getAttribute('data-contextual-tour-target'),'triggers-add');assert(page().querySelector('[data-contextual-tour-target="triggers-runs"]'),'no runs target for the tour');
  assert(!btn('[data-appt-action="trigger_pause"]'),'Pause while off');assert(page().querySelector('[data-appt="no-schedules"]'),'no empty schedules note');
  // New trigger: the form, a template fills it, Save sends trigger_edit with lists and a number.
@@ -70,6 +70,8 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  const tx=page().textContent;
  assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/libraos-core config set triggers\.enabled false/.test(tx),'on: '+tx);
  assert(btn('[data-appt-action="trigger_edit"]').disabled,'Edit is enabled while triggers are on');assert.equal(btn('[data-appt-action="trigger_edit"]').textContent,'Edit trigger');
+ assert(/pause them to edit/.test(page().querySelector('[data-appt="edit-why"]').textContent),'disabled Edit gives no reason on the page');
+ {const t=page().querySelector('[data-contextual-tour-target="triggers-runs"] time');assert(t&&t.title&&t.getAttribute('datetime')===t.title,'a run time has no exact time in its tooltip')}
  assert(!page().querySelector('img'),'text became markup');assert(tx.includes('Update deps '+evil)&&tx.includes('over the cap '+evil),'evil text not shown as text');
  btn('[data-appt-action="trigger_pause"]').click();await tick();assert(dialog(),'Pause asks first');await submit();
  assert.deepEqual(posts.pop(),{action:'trigger_pause'});

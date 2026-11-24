@@ -75,9 +75,34 @@ const teamDrawn={repositories:1,roles:1,sessions:1},links={triggers:'#triggers',
  const under={workers:['Max workers','Default tool','Default budget','Codex network','Start workers from the server','Triggers','Worker rules'],models:['Configured','Actually used','Model prices','claude-test'],
   connections:['Synced repos','acme/one','MCP tools','MCP origins','Gateway','Runtime','Server address','Strict users','Prompt forwarding','Chat roles and tools'],
   personal:['Theme','Keyboard shortcuts','Sign-in','Notifications','Your email address','Gmail','Telegram'],
-  history:['Change history','dispatch.max_workers'],terminal:['Terminal in the server','Off (the default)','terminal = true','config.toml'],app:['Install as an app','Add to Home Screen']};
+  history:['dispatch.max_workers'],terminal:['Terminal in the server','Off (the default)','terminal = true','config.toml'],app:['Add to Home Screen']};
  for(const [id,labels] of Object.entries(under)){await go('#settings/'+id);for(const l of labels)assert(text('set-'+id).includes(l),id+' lacks '+l)}
  await go('#settings/diagnostics');assert(text('set-diagnostics').includes('Config parsed'),'doctor is not under Diagnostics');
+ assert.deepEqual([...doc.querySelectorAll('#set-diagnostics h3')].map(h=>h.textContent),['Checks','Services'],'Services has no heading of its own');
+ // One head for every section: the title and what it is once, Refresh, and a role note only where it applies.
+ // The body has no second title (Connections' is hidden by CSS: its line is left alone for the gateway work).
+ const note=()=>{const n=doc.querySelector('#set-head [data-set-note]');return n?n.textContent:''};
+ const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
+ for(const [,list] of want)for(const [id,title] of list){if(links[id]||teamDrawn[id])continue;await go('#settings/'+id);
+  assert.equal(doc.querySelectorAll('#set-head h2').length,1,id+' has more than one title');assert.equal(doc.querySelector('#set-head h2').id,'set-title');
+  if(id!=='connections')assert(![...doc.querySelectorAll('#set-'+id+' h2,#set-'+id+' .colhead')].length,id+' repeats its title in the body');
+  assert.equal(note(),['models','workers'].includes(id)?'Changes are saved to history.':'',id+': the saved line shows where nothing is changed, or is missing');
+  assert(!doc.getElementById('set-status').textContent,'a status line is left once Settings loaded')}
+ assert(/#set-connections-body>\.colhead:first-child\{display:none\}/.test(css),'Connections repeats its title');
+ // Times read relative, the exact time in a tooltip.
+ await go('#settings/history');const t=doc.querySelector('#set-history tbody time');assert(t&&t.textContent==='just now'&&t.title===now&&t.getAttribute('datetime')===now,'history time is raw');
+ await go('#settings/diagnostics');assert.equal(doc.querySelector('#set-diagnostics time').title,now,'Checked is raw');
+ // Tables wrap rather than clip (the widen-access commands were cut off), and Agents' two cards stack.
+ assert(/\.set-group td,\.set-group th\{white-space:normal\}/.test(css)&&/\.set-group td code\{overflow-wrap:anywhere\}/.test(css),'settings tables keep cells on one line');
+ assert(/#page-settings \.set-cards\{grid-template-columns:minmax\(0,1fr\)\}/.test(css),'Agents cards are side by side');
+ // The section list scrolls on its own and fits at short heights; each sub-line is one line with all of it in its tooltip.
+ assert(doc.querySelector('#settings-sections .set-item-sub').title,'a sub-line has no tooltip');assert(/max-height:820px\)\{\.set-item-sub\{display:none\}/.test(css),'sub-lines stay at short heights');
+ // Team's three sections get the same head over them, and Team itself none.
+ for(const id of Object.keys(teamDrawn)){await go('#settings/'+id);const th=doc.getElementById('set-team-head');assert(!th.hidden,id+' has no section head');
+  assert.equal(th.querySelector('h2').textContent,want[0][1].find(x=>x[0]===id)[1]);assert(th.querySelector('[data-set-refresh]'),id+' has no Refresh');assert(th.querySelector('.set-desc').textContent,id+' has no description')}
+ assert(!doc.querySelector('#team-view h2'),'Sessions repeats its title');
+ await go('#settings/roles');assert(!doc.querySelector('#team-view .tm-intro'),'Roles repeats its intro');
+ await go('#team/users');assert(doc.getElementById('set-team-head').hidden,'Team shows a Settings head');
  // Agents: the three tools, installed and connected from ?agents=1, the default model, Preview for those installed.
  await go('#settings/agents');assert(reads.includes('?agents=1'),'agents not read');
  const rows=[...doc.querySelectorAll('#set-agents-table tbody tr')].map(r=>[...r.children].map(td=>td.textContent));
@@ -112,11 +137,34 @@ const teamDrawn={repositories:1,roles:1,sessions:1},links={triggers:'#triggers',
  await go('#settings/members');assert.equal(w.location.hash,'#team/users');assert(!doc.getElementById('page-team').hidden);
  // A user who is not an owner: no agents read, no Preview, no history, no Triggers.
  const before=reads.filter(r=>r==='?agents=1').length;
- settings.owner=false;w.eval("TOKEN='';COOKIE=true;USER='viewer';ROLE='viewer';settingsAccess()");await settle();
+ // The server leaves out what an owner only reads (as /api/settings does for a member); the configured model stays.
+ settings.owner=false;settings.config={'dispatch.claude_model':'claude-test','dispatch.default_tool':'codex','sync.repos':['acme/one']};dash.role='viewer';dash.user='viewer';
+ w.eval("TOKEN='';COOKIE=true;USER='viewer';ROLE='viewer';settingsAccess()");await settle();
  await go('#settings/agents');assert.equal(reads.filter(r=>r==='?agents=1').length,before,'a non-owner read the agents');
  assert(!doc.querySelector('#set-agents [data-connect-preview]'),'a non-owner sees Preview');assert(text('set-agents-table').includes('Owners see this'));
  assert(text('set-agents-table').includes('claude-test'),'a non-owner does not see the configured model');
  await go('#settings/history');assert(!doc.querySelector('#set-history table'),'a non-owner sees the history');
+ // Who to ask, by name, once: a host section has the one note, an owner-only section one card and no note, Personal neither.
+ assert.equal(text('set-history').trim(),'Change history is owner-only. Ask an owner (alice) to see who changed which setting and when.');assert.equal(note(),'','an owner-only section repeats who to ask');
+ assert(!/Owners only/.test(text('set-head')),'the description repeats owners only');
+ await go('#settings/diagnostics');assert.equal(text('set-diagnostics').trim(),'Diagnostics are owner-only. Ask an owner (alice) to run libraos-core doctor.');assert.equal(note(),'');
+ for(const id of ['agents','workers','connections','terminal'])  {await go('#settings/'+id);assert.equal(note(),'Ask an owner (alice) to change these.',id)}
+ for(const id of ['personal','app']){await go('#settings/'+id);assert.equal(note(),'',id+' says to ask an owner')}
+ assert(!/Sign in as an owner/.test(doc.body.textContent),'the old read-only banner is left');
+ await go('#settings/repositories');assert(/^Ask an owner \(alice\) to add one\. Or in a terminal on this host: libraos-core repo add DIR\.$/.test(doc.querySelector('#set-team-head [data-set-note]').textContent),'Repositories has no role note');
+ // The section list keeps the owner-only sections, marked, for anyone else.
+ assert.deepEqual([...doc.querySelectorAll('#settings-sections .set-item-tag')].map(n=>n.closest('a').dataset.section),['diagnostics','history'],'owner-only sections are not marked');
+ // A withheld value reads "Owners see this", never a default that looks real; an owner-only link is text.
+ await go('#settings/workers');const wv=Object.fromEntries([...doc.querySelectorAll('#set-workers-body tbody tr')].map(r=>[r.children[0].textContent,r.children[1].textContent]));
+ assert.deepEqual(wv,{'Max workers':'Owners see this','Default tool':'codex','Default budget':'Owners see this','Codex network':'Owners see this'});assert(text('set-dispatch').includes('Owners see this'),'Start workers reads a default');
+ await go('#settings/agents');const widen=Object.fromEntries([...doc.querySelectorAll('#set-agents-body tbody tr')].map(r=>[r.children[0].textContent,r.children[1].textContent]));
+ for(const k of ['Terminal in the server','Start workers from the server','Server address','Prompt forwarding','Strict users'])assert.equal(widen[k],'Owners see this',k);
+ assert(!doc.querySelector('#set-agents-body a[href="#settings/terminal"]'),'a non-owner has a link to the terminal');
+ assert.equal([...doc.querySelectorAll('#set-agents-table tbody tr')][1].children[3].textContent,'Owners see this','a withheld model reads Not named');
+ await go('#settings/connections');const cv=Object.fromEntries([...doc.querySelectorAll('#set-connections dt')].map(n=>[n.textContent,n.nextElementSibling.textContent]));
+ assert.equal(cv['Gateway'],'Owners see this');assert.equal(cv['Server address'],'Owners see this');assert.equal(cv['Synced repos'],'acme/one');
+ await go('#settings/terminal');assert(text('set-terminal').includes('Owners see this')&&!text('set-terminal').includes('Off (the default)'),'Terminal reads a default');
+ await go('#settings/history');
  assert(!doc.querySelector('#settings-sections a[data-section="triggers"]'),'a non-owner sees Triggers in Settings');
  assert(doc.querySelector('#settings-sections a[data-section="repositories"]'),'Repositories is not in Settings');
  await go('#settings/workers');assert(doc.getElementById('set-triggers').hidden,'a non-owner sees the Triggers line');assert(![...doc.querySelectorAll('#set-workers-body tr')].some(r=>/Triggers/.test(r.textContent)),'a non-owner sees the Triggers row');
