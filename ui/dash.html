@@ -1450,6 +1450,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
       <section class="runs" aria-labelledby="ins-weeks-h"><div class="colhead"><h2 id="ins-weeks-h">Outcomes per week</h2><span class="n">A bar opens the finished tasks behind it</span></div><div id="ins-weeks"></div></section>
       <section class="runs" aria-labelledby="ins-classes-h"><div class="colhead"><h2 id="ins-classes-h">Failure classes</h2><span class="n" id="ins-classes-n"></span></div><div id="ins-classes"></div></section>
     </div>
+    <section class="runs" aria-labelledby="ins-causes-h"><div class="colhead"><h2 id="ins-causes-h">Not delivered, by cause<span id="ins-causes-tip"></span></h2><span class="n" id="ins-causes-n"></span></div><div id="ins-causes"></div></section>
     <section class="runs" aria-labelledby="ins-agents-h"><div class="colhead"><h2 id="ins-agents-h">By agent and model</h2></div><div id="ins-agents"></div></section>
   </section>
   <section class="runs" id="metrics" aria-label="PR metrics" hidden><div class="colhead"><h2>PR metrics</h2><span class="mute pr-scope" data-pr-scope>PR ledger · not filtered by host</span><span class="n" id="n-metrics">0</span></div><div id="m-body"></div></section>
@@ -3919,8 +3920,9 @@ function taskActions(d,h){if(!h||h.read_only)return [];if(PENDING[h.id+':task'])
 function takeoverTask(h){return sheet({title:'Take this task over?',description:'Its worker has stopped. You take the task’s claim: the worker’s branch, commits and results stay, and you finish the work yourself, in its directory, with its check.',action:'Take over',pending:'Taking over…',content:taskCliNote(h.takeover.cli),
   onSubmit:async()=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Taking over…';try{const j=await act({action:'takeover',id:h.id});toast(j.next?'Taken over. Next: '+j.next:'Taken over',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 function cancelTask(h){if(!h.cancel||!h.cancel.may||h.read_only||h.origin==='host')return;return sheet({title:'Cancel this task?',description:'“'+(h.title||h.goal||h.id)+'” is closed as cancelled, with your reason in its history. A running worker is stopped. This cannot be undone.',action:'Cancel task',cancel:'Keep task',danger:true,pending:'Cancelling…',
-  fields:[{name:'reason',label:'Reason',value:h.stale_cancel_reason,required:true,multiline:true,maxlength:500,hint:'Why it is retired: shown on the task and in handoff show.'}],content:taskCliNote(h.cancel.cli),
-  onSubmit:async v=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Cancelling…';try{await act({action:'cancel',id:h.id,reason:v.reason});toast('Task cancelled',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
+  fields:[{name:'reason',label:'Reason',value:h.stale_cancel_reason,required:true,multiline:true,maxlength:500,hint:'Why it is retired: shown on the task and in handoff show.'},
+    {name:'cause',label:'Cause (optional)',value:'',options:[{value:'',label:'Not chosen: agentd fills it where the record says it'},...CAUSES.map(([k,name])=>({value:k,label:name}))],hint:'Why the work was not delivered, from a fixed list, so Insights can count it. Recorded as yours.'}],content:taskCliNote(h.cancel.cli),
+  onSubmit:async v=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Cancelling…';try{const body={action:'cancel',id:h.id,reason:v.reason};if(v.cause)body.cause=v.cause;await act(body);toast('Task cancelled',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening…',{action:'open_editor',id:h.id});if(j)toast('Opened in '+(j.editor||'the editor')+': '+(j.cli||j.dir||''),true)}
 // end:task-actions
 // #603: a worker's commits since dispatch are its change whatever branch it worked on. A branch agentd
@@ -4865,7 +4867,19 @@ const HELP={
   auto_completed:'Finished with its check passed and no person stepping in.',
   not_delivered:'Finished with no check, cancelled or declined, and nothing of it was merged or confirmed.',
   failed:'Finished, but its check failed, timed out or never ran, and nothing of it was merged or confirmed.',
-  false_accept:'Accepted, then found wrong afterwards: reverted, its issue reopened, or done again.'};
+  false_accept:'Accepted, then found wrong afterwards: reverted, its issue reopened, or done again.',
+  causes:'Why tasks given to a worker were not delivered, one cause each from a fixed list. A person names it when cancelling or declining; agentd fills it where the record already says it (a budget stop, a timed-out check, an infrastructure failure, a worker waiting, a failed check). Unclassified: nobody named one and the record does not say.',
+  wrong_result:'The work was wrong or its check failed.',
+  refused_in_error:'agentd refused a finish that was right.',
+  budget:'Its time or dollar budget ran out first.',
+  check_timeout:'Its check was stopped by its time limit.',
+  waiting_input:'The worker was blocked on a prompt, a question or an approval.',
+  infrastructure:'The worker could not start, or lost its model, host or network.',
+  superseded:'Another task or pull request carries the work.',
+  delivered_by_hand:'The work landed outside the task, done by hand. Not counted as delivered.',
+  not_needed:'Stale, a duplicate, or withdrawn.',
+  other:'None of the causes on the list.',
+  unclassified:'Nobody named a cause and the record does not say one. Cancel with a cause, or run handoff cause propose, to classify these.'};
 function metricsTile(big,label,note,help){return el('div',{class:'mtile'},el('b',{},big),el('div',{},label,infoTip(help)),el('div',{class:'mute'},note))}
 function hours(st){return st&&st.n?Number(st.median_hours).toFixed(1)+' h':'–'}
 // Three groups, each a tile per number: what was accepted, how the work flowed,
@@ -5151,6 +5165,21 @@ $('ins-scope').addEventListener('change',()=>{insScopeTabs();const tab=(location
 const INS={f:null,m:null,fErr:'',mErr:''},INS_NONE='not measured';
 const INS_OUT=[['accepted','Accepted'],['auto_completed','Auto completed'],['not_delivered','Not delivered'],['failed','Failed'],['false_accept','False accept']];
 function insOutName(k){const o=INS_OUT.find(x=>x[0]===k);return o?o[1]:k}
+// The fixed list of causes for a task not delivered (#1054), in the server's order.
+const CAUSES=[['wrong_result','Wrong result'],['refused_in_error','Refused in error'],['budget','Budget'],['check_timeout','Check timed out'],['waiting_input','Waiting for input'],['infrastructure','Infrastructure'],['superseded','Superseded'],['delivered_by_hand','Delivered by hand'],['not_needed','Not needed'],['other','Other']];
+// insCauses: not_delivered_causes as a table, one row per cause and Unclassified
+// always shown; a server that does not send it: not measured.
+function insCauses(t){const n=$('ins-causes-n');n.textContent='';if(!t)return [];const c=t.not_delivered_causes;
+  if(!c||typeof c!=='object')return [el('div',{class:'empty'},INS_NONE+': this server does not report causes yet.')];
+  if(c.not_computable)return [el('div',{class:'empty'},INS_NONE+': '+c.not_computable+'.')];
+  const by=c.by_cause||{},total=Number(c.n)||0,rows=[...CAUSES,['unclassified','Unclassified']],pct=v=>total?Math.round(100*v/total)+'%':'–';
+  n.textContent=total+' of '+c.of+' tasks not delivered';
+  const hand=t.delivered_by_hand,setBy=Object.entries(c.set_by||{}).filter(([,v])=>Number(v)>0).map(([k,v])=>v+' by '+(k==='agentd'?'agentd':k)).join(', ');
+  return [el('div',{class:'tablewrap'},el('table',{class:'ins-causes',id:'ins-causes-table'},el('caption',{},'Dispatched tasks not delivered, by cause'),
+    el('thead',{},el('tr',{},el('th',{scope:'col'},'Cause'),el('th',{class:'num',scope:'col'},'Tasks'),el('th',{class:'num',scope:'col'},'Share'))),
+    el('tbody',{},rows.map(([k,name])=>{const v=Number(by[k])||0;return el('tr',{'data-cause':k,class:k==='unclassified'?'ins-unclassified':null},el('th',{scope:'row'},name,infoTip(HELP[k])),el('td',{class:'num'},String(v)),el('td',{class:'num'},pct(v)))})))),
+    el('div',{class:'mute'},[setBy?'Set '+setBy+'.':'No cause set yet.',c.unverified_unclassified?' '+c.unverified_unclassified+' of the unclassified finished with no check.':'',
+      hand&&hand.n!==undefined?' Delivered by hand: '+hand.n+' of '+hand.of+', not counted in the delivery rate.':''].join(''))]}
 // insCard: a value, or null for not measured with why; undefined while it loads.
 function insCard(key,label,big,note,why,err){const wait=big===undefined,none=big===null;
   return el('div',{class:'ins-card','data-card':key},el('span',{class:'ins-label'},label,infoTip(HELP[key])),el('b',{class:wait||none?'ins-none':null},wait?(err?'–':'…'):none?INS_NONE:big),el('span',{class:'ins-note'},wait?(err||'Loading…'):none?why||'':note))}
@@ -5201,9 +5230,9 @@ function insAgents(rows){if(!rows||!rows.length)return [el('div',{class:'empty'}
     el('tbody',{},rows.map(r=>{const wt=r.wall_time||{},cells=[toolName(r.agent),r.model||'not recorded',String(r.tasks),String(r.accepted),first(r),wt.median_min===undefined?INS_NONE:Number(wt.median_min).toFixed(1),insTokens(r),insSpend(r)];
       return el('tr',{},cells.map((c,i)=>el('td',{class:i>1?'num':null,'data-label':head[i]},c)))}))))]}
 function insDraw(){insCards();const f=INS.f;
-  if(!f){const msg=INS.fErr?el('div',{class:'state error'},'Could not load the factory report: '+INS.fErr):el('div',{class:'state'},'Loading…');for(const id of ['ins-weeks','ins-classes','ins-agents'])$(id).replaceChildren(msg.cloneNode(true));$('ins-classes-n').textContent='';return}
+  if(!f){const msg=INS.fErr?el('div',{class:'state error'},'Could not load the factory report: '+INS.fErr):el('div',{class:'state'},'Loading…');for(const id of ['ins-weeks','ins-classes','ins-causes','ins-agents'])$(id).replaceChildren(msg.cloneNode(true));$('ins-classes-n').textContent='';$('ins-causes-n').textContent='';return}
   $('ins-period').textContent=(f.since||'').slice(0,10)+' to '+(f.until||'').slice(0,10);
-  $('ins-weeks').replaceChildren(...insWeeks(f));$('ins-classes').replaceChildren(...insClasses(f.failure_classes));$('ins-agents').replaceChildren(...insAgents(f.by_agent_model))}
+  $('ins-weeks').replaceChildren(...insWeeks(f));$('ins-classes').replaceChildren(...insClasses(f.failure_classes));$('ins-causes').replaceChildren(...insCauses(f.total));$('ins-causes-tip').replaceChildren(infoTip(HELP.causes));$('ins-agents').replaceChildren(...insAgents(f.by_agent_model))}
 // History, opened from a bar: the outcome and week it shows, as a chip that removes it.
 function histOutcomeChip(){const b=$('h-outcome'),o=HIST.outcome;b.hidden=!o;b.textContent=o?insOutName(o.outcome)+' · week of '+o.since.slice(0,10)+' ×':''}
 const HIST={cursors:[''],failed:false,outcome:null,request:0,timer:0};

@@ -15,7 +15,9 @@ const metrics=()=>({tasks:{all:3,accepted:1,failed:1,undecided:1},outcomes:{auto
 let latency={n:4,median_hours:5.25};
 const week=(w,since,until,o)=>({week:w,since,until,handoffs:5,dispatched:5,outcomes:o});
 const full=()=>({factory:1,since:'2026-10-15T09:00:00Z',until:'2026-10-29T09:00:00Z',handoffs:7,interactive_left_out:2,
-  total:{handoffs:7,dispatched:5,autonomous_completion:{n:2,of:5,pct:40,accepted:3},first_pass:{n:1,of:4,pct:25,accepted:3,retried:1,unknown:1},delivered:{n:4,of:5,pct:80,accepted:3,merged_not_accepted:1,confirmed_not_accepted:0},cost_per_accepted:{accepted:3,priced:2,unpriced:1,median_usd:3},interventions:{with_any:2,of:5,mean:0.6,blocked_unanswered:0},wall_time:{n:3,median_min:20,p90_min:40},outcomes:{accepted:1,auto_completed:2,not_delivered:1,failed:1,false_accept:0,open:1}},
+  total:{handoffs:7,dispatched:5,autonomous_completion:{n:2,of:5,pct:40,accepted:3},first_pass:{n:1,of:4,pct:25,accepted:3,retried:1,unknown:1},delivered:{n:4,of:5,pct:80,accepted:3,merged_not_accepted:1,confirmed_not_accepted:0},cost_per_accepted:{accepted:3,priced:2,unpriced:1,median_usd:3},interventions:{with_any:2,of:5,mean:0.6,blocked_unanswered:0},wall_time:{n:3,median_min:20,p90_min:40},outcomes:{accepted:1,auto_completed:2,not_delivered:1,failed:1,false_accept:0,open:1},
+    not_delivered_causes:{n:2,of:5,by_cause:{wrong_result:1,refused_in_error:0,budget:0,check_timeout:0,waiting_input:0,infrastructure:0,superseded:0,delivered_by_hand:0,not_needed:0,other:0,unclassified:1},set_by:{agentd:1,person:0},unclassified:1,unverified_unclassified:1,unclassified_pct:50},
+    delivered_by_hand:{n:0,of:5,pct:0}},
   by_week:[week('2026-10-15','2026-10-15T09:00:00Z','2026-10-22T09:00:00Z',{accepted:1,auto_completed:1,not_delivered:1,failed:1,false_accept:0,open:0}),
     week('2026-10-22','2026-10-22T09:00:00Z','2026-10-29T09:00:00Z',{accepted:0,auto_completed:1,not_delivered:0,failed:0,false_accept:1,open:1})],
   by_tool:[],by_stage:[],workflow_changes:{n:0,merged_prs:4,not_labelled:true},
@@ -92,6 +94,15 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  // Failure classes: the failing classes, with what ended with none counted above.
  assert.deepEqual(cells('#ins-classes .ins-classes'),[['unknown','0','–'],['task','1','$1.00'],['infrastructure','2','≥ $0.25'],['model','0','–']]);
  assert.equal(doc.getElementById('ins-classes-n').textContent,'6 ended attempts, 3 with no failure');
+ // Not delivered, by cause (#1054): every cause on the list with Unclassified always shown, each explained.
+ const CAUSE_ROWS=['Wrong result','Refused in error','Budget','Check timed out','Waiting for input','Infrastructure','Superseded','Delivered by hand','Not needed','Other','Unclassified'];
+ assert.deepEqual(cells('#ins-causes .ins-causes').map(r=>r[0]),CAUSE_ROWS);
+ assert.deepEqual(cells('#ins-causes .ins-causes')[0].slice(1),['1','50%']);assert.deepEqual(cells('#ins-causes .ins-causes')[10].slice(1),['1','50%']);
+ assert.equal(doc.querySelector('#ins-causes tr.ins-unclassified').dataset.cause,'unclassified');
+ assert.equal(doc.getElementById('ins-causes-n').textContent,'2 of 5 tasks not delivered');
+ assert.equal(doc.querySelectorAll('#ins-causes tbody .itip').length,11,'a cause has no explanation');assert(doc.querySelector('#ins-causes-tip .itip').dataset.tip.includes('fixed list'),'the table has no explanation');
+ assert(doc.querySelector('#ins-causes tr.ins-unclassified .itip').dataset.tip.includes('Nobody named a cause'));
+ const causeNote=doc.querySelector('#ins-causes .mute').textContent;assert(causeNote.includes('Set 1 by agentd.')&&causeNote.includes('1 of the unclassified finished with no check.')&&causeNote.includes('Delivered by hand: 0 of 5, not counted in the delivery rate.'),causeNote);
  // By agent and model; what was not recorded is "not measured" or a floor.
  assert.deepEqual([...doc.querySelectorAll('#ins-agents thead th')].map(c=>c.textContent),['Agent','Model','Tasks','Accepted','First pass','Median minutes','Tokens','Spend']);
  assert.equal(doc.querySelectorAll('#ins-agents thead .itip').length,1,'First pass has no explanation');
@@ -102,15 +113,17 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  // The Factory detail stays below, as before.
  assert(!doc.getElementById('factory').hidden,'the Factory detail is gone');assert(doc.querySelector('#f-body .fclasses'),'the full failure class table is gone');
  // No data: "not measured" with the reason, never 0.
- factory=full();for(const k of ['autonomous_completion','first_pass','delivered','cost_per_accepted','interventions'])factory.total[k]={not_computable:'no dispatched handoff'};
+ factory=full();for(const k of ['autonomous_completion','first_pass','delivered','cost_per_accepted','interventions','not_delivered_causes','delivered_by_hand'])factory.total[k]={not_computable:'no dispatched handoff'};
  factory.by_week=[week('2026-10-15','2026-10-15T09:00:00Z','2026-10-22T09:00:00Z',{not_computable:'no dispatched handoff'})];factory.failure_classes={attempts:0,running:0,not_computable:'no dispatched handoff in the window has an ended worker attempt'};factory.by_agent_model=[];latency={n:0};
  w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
  assert.deepEqual(cards().map(c=>c[1]),['not measured','not measured','not measured','not measured']);assert.deepEqual(cards().map(c=>c[2]),['no dispatched handoff','no dispatched handoff','no dispatched handoff','no PR merged in this period · PR ledger · not filtered by host']);
  assert(!/\$0\.00|NaN|undefined/.test(doc.getElementById('ins-overview').textContent),'no data read as a number: '+doc.getElementById('ins-overview').textContent);
  assert.equal(doc.querySelectorAll('#ins-weeks .ins-seg').length,0);assert(doc.querySelector('#ins-weeks .ins-noend'),'an empty chart says why');
- assert.equal(doc.querySelector('#ins-classes').textContent,'not measured: no dispatched handoff in the window has an ended worker attempt.');assert.equal(doc.querySelector('#ins-agents').textContent,'No dispatched task in this period.');
+ assert.equal(doc.querySelector('#ins-classes').textContent,'not measured: no dispatched handoff in the window has an ended worker attempt.');
+ assert.equal(doc.querySelector('#ins-causes').textContent,'not measured: no dispatched handoff.');assert.equal(doc.querySelector('#ins-agents').textContent,'No dispatched task in this period.');
  // An older server sends no first_pass or delivered: those cards and tiles read "not measured", never 0.
- factory=full();delete factory.total.first_pass;delete factory.total.delivered;w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
+ factory=full();delete factory.total.first_pass;delete factory.total.delivered;delete factory.total.not_delivered_causes;delete factory.total.delivered_by_hand;w.eval("INS_READ.metrics=0;loadMetrics()");await settle();
+ assert.equal(doc.querySelector('#ins-causes').textContent,'not measured: this server does not report causes yet.');assert.equal(doc.getElementById('ins-causes-n').textContent,'');
  assert.deepEqual(cards().slice(0,2),[['First-pass rate','not measured','this server does not report it yet'],['Delivery rate','not measured','this server does not report it yet']]);
  const old=[...doc.querySelectorAll('#f-body .mtiles:not(.fload-avg) .mtile')].slice(1,3);assert.deepEqual(old.map(x=>x.children[0].textContent),['not measured','not measured']);
  assert(!/\b0%|NaN|undefined/.test(doc.getElementById('ins-cards').textContent+old.map(x=>x.textContent).join('')),'a missing rate read as a number');
