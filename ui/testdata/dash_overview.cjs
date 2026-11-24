@@ -56,17 +56,21 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  assert(!doc.getElementById('page-overview').hidden,'a bare address does not land on Overview');
  assert.equal(doc.querySelector('.rail-item[aria-current="page"]').dataset.rail,'overview');assert.equal(doc.querySelector('#rail .rail-item').dataset.rail,'overview','Overview is not first in the rail');
  assert.equal(doc.querySelector('#page-title').textContent,'Overview');
- // Compact stats, smaller stale counts, one health strip, agents, charts, running table.
- assert.deepEqual([...body().querySelectorAll('[data-ov-card]')].map(c=>c.querySelector('h3').textContent),['Tasks','Server health','Agents']);
- assert.deepEqual([...card('tasks').querySelectorAll('dt')].map(c=>c.textContent),['Running','Queued','Waiting on a person','Blocked','Approvals pending','Finished today since midnight (UTC)']);
- assert(body().querySelector('.ov-quiet [data-ov-fig="stale-queued"]'),'stale counts are not apart from active totals');
- assert(card('server').compareDocumentPosition(body().querySelector('.ov-history'))&w.Node.DOCUMENT_POSITION_FOLLOWING);
- assert(body().querySelector('.ov-history').compareDocumentPosition(body().querySelector('.ov-running'))&w.Node.DOCUMENT_POSITION_FOLLOWING);
- for(const k of ['server','tasks','agents'])assert(/^updated \d/.test(card(k).querySelector('[data-ov-fresh]').textContent),k+' card does not say how fresh it is');
+ // The order (dash-review REQUIRED 1): Tasks, Agents, Running tasks right under Agents, Needs a person, Server health, then the charts.
+ const order=()=>[...body().querySelectorAll('[data-ov-card],.ov-running,[data-ov-needs],.ov-history')].map(n=>n.dataset.ovCard||(n.matches('[data-ov-stale-workers]')?'stale':n.matches('.ov-running')?'running':n.matches('[data-ov-needs]')?'needs':'history'));
+ assert.deepEqual(order(),['tasks','agents','running','needs','server','history']);
+ assert.equal(card('agents').closest('.ov-cards').nextElementSibling,body().querySelector('.ov-running'),'Running tasks is not directly under the Agents card');
+ assert.deepEqual([...card('tasks').querySelectorAll(':scope > .ov-figs > .ov-figure > dt')].map(c=>c.textContent),['Running','Queued','Waiting on a person','Blocked','Approvals pending','Finished today']);
+ // The stale counts are the Tasks card's footnote, apart from its active totals, not a row floating between cards.
+ assert(card('tasks').querySelector('.ov-quiet[data-ov-stale-counts] [data-ov-fig="stale-queued"]'),'stale counts are not in the Tasks card footer');
+ assert(!body().querySelector('.ov-cards > .ov-quiet'),'stale counts float between cards');
+ // One "updated" for the cards that share /api/load: the Tasks card says it, Agents and Server health do not repeat it.
+ assert(/^updated \d/.test(card('tasks').querySelector('[data-ov-fresh]').textContent),'the Tasks card does not say how fresh it is');
+ for(const k of ['server','agents'])assert(!card(k).querySelector('[data-ov-fresh]'),k+' repeats the updated time');
  assert.equal(fig('server','store'),'postgres');assert.equal(fig('server','queue'),'3');assert.equal(fig('server','latency'),'p50 8.2 ms · p95 41 ms');
  assert.equal(fig('server','cpu'),'25% of 8 cores');assert.equal(fig('server','mem'),'50% used of 16.0 GB');assert(/up 2h 30m/.test(fig('server','up')),'up: '+fig('server','up'));assert.equal(fig('server','lease'),'4s ago');
- assert.equal(fig('tasks','running'),'21 server ledger · 1 users’ devices1 server workers · 0 node leases · 1 workers on users’ devices');
- for(const [id,value] of [['queued','31 server ledger · 2 users’ devices'],['blocked','11 server ledger · 0 users’ devices'],['waiting','10 server ledger · 1 users’ devices'],['approvals','2Server approval requests'],['finished','74 server ledger · 3 users’ devices'],['stale-queued','27'],['stale-running','0']])assert.equal(fig('tasks',id),value,id+' count or split lost');
+ assert.equal(fig('tasks','running'),'21 server ledger · 1 users’ devices');assert(body().querySelector('[data-ov-fig="running"]').closest('.ov-figure').title.includes('1 server workers · 0 node leases · 1 workers on users’ devices'),'where Running\'s workers are is lost');
+ for(const [id,value] of [['queued','31 server ledger · 2 users’ devices'],['blocked','11 server ledger · 0 users’ devices'],['waiting','10 server ledger · 1 users’ devices'],['approvals','2Server approval requests'],['finished','7since midnight (UTC) · 4 server ledger · 3 users’ devices'],['stale-queued','27'],['stale-running','0']])assert.equal(fig('tasks',id),value,id+' count or split lost');
  assert.equal(fig('agents','nodes'),'1 idle · 2 busy · 0 not ready · 1 offline');assert.equal(fig('agents','leases'),'1 of 6');assert.equal(fig('agents','sessions'),'5');
  assert.equal(doc.querySelector('#stats [data-session-count]').textContent,fig('agents','sessions'),'header and card disagree on sessions');
  for(const f of body().querySelectorAll('.ov-figure'))assert(f.title,'a figure lost its definition tooltip');
@@ -133,6 +137,7 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  running.running.push({...running.running[0],id:'hof-stale',where:'host',node:'quiet-laptop',stale:true,stale_reason:'member host has not mirrored recently',mirrored:now});load.tasks.stale_running=1;await poll();
  assert.equal(body().querySelectorAll('tr[data-running]').length,2);assert.equal(body().querySelectorAll('tr[data-stale-running]').length,1);assert.equal(body().querySelector('[data-ov-count]').textContent,'2');assert.equal(fig('tasks','stale-running'),'1');
  assert(body().querySelector('tr[data-stale-running]').textContent.includes('member host has not mirrored recently'),'stale worker has no visible reason');
+ assert.deepEqual(order(),['tasks','agents','running','stale','needs','server','history'],'unconfirmed workers are not right after Running');
  running.running.pop();load.tasks.stale_running=0;await poll();
  rows[1].querySelector('td:nth-child(3)').click();await settle();assert.equal(w.location.hash,'#issues/hof-run2','a row click does not open its task');
  w.location.hash='#overview';await settle();assert(body().querySelector('tr[data-running="hof-run1"]'),'Overview did not come back');
@@ -142,9 +147,11 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
   ['fmtDur(59600)','1m 00s'],['fmtDur(3599600)','1h 00m'],['fmtDur(9960)','10s'],['fmtDur(9940)','9.9s']])assert.equal(w.eval(expr),want,expr);
  // /api/load is asked with the viewer's zone; Finished today says whose midnight it counts from, UTC for an older server.
  {const tz=w.eval('Intl.DateTimeFormat().resolvedOptions().timeZone');assert(requests.includes('GET /api/load?tz='+encodeURIComponent(tz)),'no tz on /api/load: '+requests.filter(r=>r.includes('/api/load')));
-  const hint=()=>card('tasks').querySelector('[data-ov-day-tz]');assert.equal(hint().textContent,' since midnight (UTC)','an older server without day_tz is not labelled UTC');
-  load.tasks.day_tz='America/New_York';await poll();assert.equal(hint().textContent,' since midnight (America/New_York)');assert(/Finished today since midnight \(America\/New_York\)/.test(hint().closest('dt').textContent));
-  assert.equal(fig('tasks','finished'),'74 server ledger · 3 users’ devices','the finished count lost its split');delete load.tasks.day_tz;await poll()}
+  const hint=()=>card('tasks').querySelector('[data-ov-day-tz]');assert.equal(hint().textContent,'since midnight (UTC) · ','an older server without day_tz is not labelled UTC');
+  // It is the footnote under the number, so Finished today's number lines up with the other five.
+  assert(hint().closest('dd')&&!hint().closest('dt'),'since midnight is not under the number');
+  load.tasks.day_tz='America/New_York';await poll();assert.equal(hint().textContent,'since midnight (America/New_York) · ');
+  assert.equal(fig('tasks','finished'),'7since midnight (America/New_York) · 4 server ledger · 3 users’ devices','the finished count lost its split');delete load.tasks.day_tz;await poll()}
  // Needs a person lists only what a person can unblock now: not an unconfirmed worker, a quiet host's mirrored task or an offered handoff with no worker.
  {const needs=()=>body().querySelector('[data-ov-needs]'),ids=()=>[...needs().querySelectorAll('[data-ov-need-row]')].map(r=>r.dataset.ovNeedRow);
   running.running.push({...running.running[1],id:'hof-unconf',where:'host',node:'quiet-laptop',stale:true,stale_reason:'member host has not confirmed a live worker',worker_state:'blocked'});

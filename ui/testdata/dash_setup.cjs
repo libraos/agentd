@@ -12,10 +12,10 @@ const client=(tool,found,connected)=>({tool,found,connected});
 const state=o=>({show:true,reason:'no_repository',later:null,steps:{host:{command:'agentd doctor'},agents:{done:false,clients:[client('claude',true,false),client('codex',true,false),client('opencode',false,false)],command:'agentd connect'},repository:{done:false,repositories:[],command:'agentd repo add DIR --route on'},task:{done:false,handoff:null,budget:'30m',dispatch:true,default_tool:'claude',command:'agentd run "GOAL" --budget 30m'}},...o});
 const doctor={doctor:[{id:'ledger',status:'pass',detail:'ok'},{id:'claude-mcp',status:'fail',detail:'not registered',fix:'agentd connect claude'}],services:[],connect:[{tool:'claude',found:true}],checked_at:now};
 // boot opens the server at url as user/role; srv is the server's state, changed by the posts.
-function boot(url,user,role,srv){const requests=[],posts=[],errors=[];
+function boot(url,user,role,srv,team){const requests=[],posts=[],errors=[];
   const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
   const json=(body,status=200)=>({ok:status<400,status,json:async()=>body,text:async()=>JSON.stringify(body)});
-  const dash={user,role,now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],waiting:[],claims:[],messages:[],inbox:[],dispatch:true,checkouts:[]};
+  const dash={user,role,now,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],waiting:[],claims:[],messages:[],inbox:[],dispatch:true,checkouts:[],...(team?{team:{members:3}}:{})};
   const dom=new JSDOM(html,{url,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
     w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');
     w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};
@@ -103,6 +103,12 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  srv=server({connected:true,repos:[{path:'/srv/a',route:'on'}],dispatch:false});t=boot('http://127.0.0.1:21620/#setup','alice','owner',srv);({w,doc}=t);await settle();
  assert.equal(step(),'task','it does not open on the first step not done');assert(body().querySelector('[data-setup-off]').textContent.includes('libraos-core config set dash.dispatch true'));assert(!body().querySelector('#setup-task'));t.dom.window.close();
 
+ // A team server in use is not taken to the wizard: Overview says so in a banner, with Open setup and Not now (dash-review B).
+ srv=server();t=boot('http://127.0.0.1:21620/','alice','owner',srv,true);({w,doc}=t);await settle();
+ assert.notEqual(w.location.hash,'#setup','a team server was taken to the wizard');assert(!doc.querySelector('#page-overview').hidden,'Overview is not shown');
+ {const b=doc.querySelector('#page-overview #setup-banner');assert(b,'no setup banner on Overview');assert(b.textContent.includes('no repository'),b.textContent);
+  assert.equal(b.querySelector('a').getAttribute('href'),'#setup');btn(b,'Not now').click();await settle();
+  assert.deepEqual(t.posts.at(-1),['/api/setup',{action:'later'}]);assert(!doc.querySelector('#setup-banner'),'Not now left the banner');assert(!t.errors.length,t.errors.join('\n'));t.dom.window.close()}
  // An install with a repository and an agent: the wizard does not open on its own.
  srv=server({connected:true,repos:[{path:'/srv/a',route:'on'}]});t=boot('http://127.0.0.1:21620/','alice','owner',srv);({w,doc}=t);await settle();assert.notEqual(w.location.hash,'#setup');t.dom.window.close();
 
