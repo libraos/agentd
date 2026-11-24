@@ -18,6 +18,8 @@ It works with the coding agents you already use and the logins you already have.
 
 LibraOS Core was called agentd. Its command is now `libraos-core`, and `agentd` still works: existing scripts, services, MCP settings and the data directory keep working unchanged.
 
+This repository was called `libraos/libraos-core` until 2026-11-24, and links to that name redirect here; the product is still named LibraOS Core and its command is still `libraos-core`.
+
 [![Measured on 2026-11-03: 8 screens in 3.8 min with LibraOS Core (4 Claude + 4 Codex workers) vs 9.5 min in one Claude session, 2.5x faster, 8 of 8 checked](docs/before-after.png)](https://libraos.com/docs/agentd/)
 
 ## What You Can Do
