@@ -93,10 +93,12 @@ body.no-panel .shell{grid-template-columns:var(--rail-w) var(--ag-col) minmax(0,
 .brand-mark{display:block;flex:none}.rail-mark .brand-mark{width:22px;height:22px}.app-logo .brand-mark{width:14px;height:14px}.appob-logo .brand-mark{width:20px;height:20px}
 .rail-item,.rail-aux{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 5px;border-radius:var(--r-m);color:var(--mute);font-size:var(--fs-xs);line-height:1.2;text-decoration:none}
 .rail-item:hover,.rail-aux:hover{background:var(--hover);color:var(--fg);text-decoration:none}.rail-item[aria-current="page"],.rail-aux[aria-current="page"]{background:var(--sel);color:var(--fg);font-weight:500}.rail-item:focus-visible,.rail-aux:focus-visible{outline-offset:-2px}
-/* Help is the foot's small link beside Settings, not a rail item (#907: at most six) */
+/* Help is the foot's small link beside Settings, not a rail item (#907: at most six, seven for an owner with Triggers) */
 .rail-aux{padding:4px 0 3px;opacity:.85}
 .rail-icon{position:relative;display:block;height:20px}.rail-icon svg{display:block}
 .rail-badge{position:absolute;top:-6px;left:12px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent-fill);color:var(--accent-ink);font-size:11px;line-height:16px;font-weight:500;text-align:center;font-variant-numeric:tabular-nums}.rail-badge[hidden]{display:none}
+/* Triggers is a rail item for an owner only (data-owner-only); its Off badge is muted, not a count */
+.rail-item[hidden]{display:none}.rail-badge.rail-off{background:var(--panel);color:var(--mute);border:1px solid var(--line);height:14px;line-height:12px;font-size:10px;padding:0 3px}
 .rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:2px;padding-top:10px}
 aside.side{display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--sidebar);overflow-y:auto;min-height:0}
 aside.side:focus{outline:none}
@@ -577,9 +579,9 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 @media(max-width:640px){.wf-row{grid-template-columns:80px 1fr 52px}.wf-axis{margin:4px 60px 0 88px}.wf-split{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}.wf-steps{border-right:0;border-bottom:1px solid var(--line)}.wf-detail{max-height:38%}}
 @media(max-width:860px){
   body{display:block;height:auto}.shell,body.no-panel .shell{display:block}.column{display:block;padding-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom))}
-  /* the rail is a bottom bar with five items (Overview, Tasks, Team, Insights, Chat); Settings and Help are in the account menu */
+  /* the rail is a bottom bar with five items (Overview, Tasks, Team, Insights, Chat); Settings, Triggers (an owner's) and Help are in the account menu */
   .rail{position:fixed;left:0;right:0;bottom:0;z-index:8;flex-direction:row;gap:0;height:calc(var(--bar-h) + env(safe-area-inset-bottom));padding:4px 4px env(safe-area-inset-bottom);border-right:0;border-top:1px solid var(--line);overflow:visible}
-  .rail-item{flex:1 1 0;min-width:0;justify-content:center}.rail-mark,.rail-foot{display:none}
+  .rail-item{flex:1 1 0;min-width:0;justify-content:center}.rail-mark,.rail-foot,.rail-item[data-rail="triggers"]{display:none}
   /* the second panel is a drawer above the bar, so the bar stays usable */
   aside.side{position:fixed;top:0;left:0;bottom:calc(var(--bar-h) + env(safe-area-inset-bottom));width:min(300px,86vw);z-index:7;border-right:1px solid var(--line);transform:translateX(-105%);visibility:hidden;transition:transform .2s ease,visibility .2s}
   body.panel-open aside.side{transform:none;visibility:visible;transition:transform .2s ease,visibility 0s}
@@ -673,7 +675,7 @@ body.page-chat main{padding-top:0;padding-left:0;padding-bottom:0;overflow:hidde
 .acct-card .stats .stat{display:flex;align-items:baseline;gap:4px;width:100%;padding:6px 10px;border-radius:var(--r-s);text-align:left}.acct-card .stats .stat:hover{background:var(--hover);text-decoration:none}
 .acct-links,.acct-foot{display:grid;gap:2px;padding:6px 0;border-top:1px solid var(--line)}
 .acct-card .acct-links>a,.acct-card .acct-links>button,.acct-card .acct-foot>button{display:block;width:100%;min-height:32px;padding:6px 10px;border:0;border-radius:var(--r-s);background:transparent;box-shadow:none;color:var(--fg);text-align:left;font-size:13px;line-height:20px;text-decoration:none}
-.acct-card .acct-links>a:hover,.acct-card .acct-links>button:hover,.acct-card .acct-foot>button:hover{background:var(--hover);text-decoration:none}
+.acct-card .acct-links>a[hidden]{display:none}.acct-card .acct-links>a:hover,.acct-card .acct-links>button:hover,.acct-card .acct-foot>button:hover{background:var(--hover);text-decoration:none}
 .acct-card .acct-foot>button{color:var(--red)}
 .acct-foot:has(>[hidden]){display:none}.acct-foot>[hidden]{display:none}
 .access-note{padding:8px 24px;color:var(--mute);font-size:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
@@ -846,7 +848,7 @@ body:not(.app-left-open) .app-left{display:none}
 .app-search,.app-navrow{display:flex;width:100%;align-items:center;gap:8px;padding:6px 8px;border:0;border-radius:8px;background:none;text-align:left;font-size:13px;font-weight:500;letter-spacing:-.01em;color:color-mix(in srgb,var(--o-wsb-fg) 60%,transparent);--app-hover:color-mix(in srgb,var(--o-wsb-fg) 8%,transparent)}
 .app-search{background:color-mix(in srgb,var(--o-wsb-fg) 5%,transparent)}
 .app-search svg,.app-navrow svg{color:color-mix(in srgb,var(--o-wsb-fg) 30%,transparent)}
-.app-navrow[aria-current="page"]{background:var(--o-wsb-accent);--app-hover:var(--o-wsb-accent);color:var(--o-fg)}.app-navrow[aria-current="page"] svg{color:inherit}
+.app-navrow[hidden]{display:none}.app-navrow[aria-current="page"]{background:var(--o-wsb-accent);--app-hover:var(--o-wsb-accent);color:var(--o-fg)}.app-navrow[aria-current="page"] svg{color:inherit}
 .app-navnote{margin-left:auto;font-size:11px;font-weight:500;color:var(--o-mfg)}
 .app-projhead{margin-top:8px;height:32px;flex:none;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 8px}
 .app-projhead>span{padding-left:8px;font-size:12px;font-weight:600;color:color-mix(in srgb,var(--o-mfg) 80%,transparent)}
@@ -1293,6 +1295,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <a class="rail-item" data-rail="team" href="#team"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="7.5" r="2.7"/><path d="M2.8 16c.4-2.8 2.3-4.3 4.7-4.3s4.3 1.5 4.7 4.3"/><path d="M12.6 5.1a2.7 2.7 0 0 1 0 4.8M14.3 11.9c1.6.5 2.6 1.9 2.9 4.1"/></svg></span><span class="rail-label">Team</span></a>
   <a class="rail-item" data-rail="insights" href="#insights"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 16.5h13"/><path d="M6 13.5v-3M10 13.5v-9M14 13.5v-6"/></svg></span><span class="rail-label">Insights</span></a>
   <a class="rail-item" data-rail="chat" href="#chat"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-3.5 2.8V14a2 2 0 0 1-2-2z"/></svg></span><span class="rail-label">Chat</span></a>
+  <a class="rail-item" data-rail="triggers" href="#triggers" data-owner-only hidden><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.2 2.8 4.8 11.2h4.7l-.8 6 6.5-8.4H10.4z"/></svg><span class="rail-badge rail-off" id="triggers-badge" hidden>Off</span></span><span class="rail-label">Triggers</span></a>
   <div class="rail-foot"><a class="rail-item" data-rail="settings" href="#settings"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6h6.2M13.7 6h2.8M3.5 14h2.8M10.3 14h6.2"/><circle cx="11.7" cy="6" r="2"/><circle cx="8.3" cy="14" r="2"/></svg></span><span class="rail-label">Settings</span></a><a class="rail-aux" data-rail="help" title="Help" href="#help"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6.8"/><path d="M8 8a2 2 0 1 1 3.1 1.7c-.7.5-1.1.9-1.1 1.8"/><path d="M10 14h.01"/></svg></span><span class="rail-label">Help</span></a></div>
 </nav>
 <!-- end:rail -->
@@ -1352,7 +1355,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     <div class="tokenbox acct-who"><span id="userstate"></span><span id="tokstate">Read-only</span><button id="tokset" class="primary">Unlock</button></div>
     <div class="tokenbox" id="account-nodes" aria-label="Your nodes" hidden></div>
     <div class="stats" id="account-stats"></div>
-    <div class="acct-links"><a href="#settings">Settings</a><a href="#help">Help</a><button type="button" id="keys-open" aria-keyshortcuts="Shift+?">Keyboard shortcuts</button></div>
+    <div class="acct-links"><a href="#settings">Settings</a><a href="#triggers" data-owner-only hidden>Triggers</a><a href="#help">Help</a><button type="button" id="keys-open" aria-keyshortcuts="Shift+?">Keyboard shortcuts</button></div>
     <div class="acct-foot"><button id="tokclear" hidden>Sign out</button></div>
   </div></details>
 </header>
@@ -1562,7 +1565,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     <div id="appob-entry" data-region="onboard-entry" hidden></div>
     <button type="button" class="app-navrow" data-app-nav="home"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Home</button>
     <button type="button" class="app-navrow" data-app-nav="tasks" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13"/></svg>Tasks</button>
-    <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers</button>
+    <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true" data-owner-only hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers</button>
   </nav>
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
     <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count">0</span></button>
@@ -1870,7 +1873,7 @@ function hostOf(id){const s=((lastDash||{}).sessions||[]).find(x=>x.id===id);ret
 // Its panel is #panel-NAME, its rail link data-rail="NAME" in region:rail, and a
 // link in a panel is a plain <a class="pitem" href="#NAME/VIEW">.
 //   rail     the rail item this page sits under when it has none of its own (#907 step 4:
-//            Inbox under Tasks, Triggers under Settings)
+//            Inbox under Tasks; Triggers has its own, shown to an owner only)
 //   sub      a fixed name after the title (Tasks / Needs me)
 //   pageOf(route)  the page element's id when it is not one per view (a Settings section
 //            drawn by Team's code: Repositories, Roles, Sessions on this host)
@@ -5450,7 +5453,7 @@ async function trigLoad(){const seq=++TRIG.request,q=new URLSearchParams();if(TR
   $('trig-error').hidden=true;$('trig-status').textContent='Loading triggers…';
   try{const r=await fetch('/api/triggers'+(q.toString()?'?'+q:''),{cache:'no-store',headers:auth()});let d={};try{d=await r.json()}catch(e){}if(seq!==TRIG.request)return;
     if(!r.ok)throw new Error(d.error||'Could not read triggers (HTTP '+r.status+').');TRIG.data=d;trigRender();$('trig-status').textContent=''}
-  catch(e){if(seq!==TRIG.request)return;TRIG.data=null;$('trig-body').replaceChildren();$('trig-meta').textContent='';$('trig-error').textContent=errorText(e);$('trig-error').hidden=false;$('trig-status').textContent=''}}
+  catch(e){if(seq!==TRIG.request)return;TRIG.data=null;trigBadge();$('trig-body').replaceChildren();$('trig-meta').textContent='';$('trig-error').textContent=errorText(e);$('trig-error').hidden=false;$('trig-status').textContent=''}}
 function trigList(v){return Array.isArray(v)&&v.length?v.join(', '):''}
 function trigWrite(t){const d=TRIG.data;return sheet({title:'Write “'+t.title+'”',description:'Writes repos, authors, label, budget, max_per_day and the checkout under [triggers] in config.toml, with a backup and a history entry. enabled is not written: nothing fires until someone runs '+d.enable+' in a terminal.',action:'Write to config.toml',
   onSubmit:async()=>{await settingsAPI({action:'trigger_template',template:t.name,repo:d.repo,author:d.author});toast('Template written. Triggers are still off.',true);trigLoad()}})}
@@ -5475,7 +5478,7 @@ function trigSignals(d){const m=d.signals;if(!m)return null;
     settingsPairs([['Most a day',m.max_per_day],['Offered in 24 hours',String(m.offered_today??0)]]),
     el('h4',{},'Latest offers'),(m.offers||[]).length?settingsTable(['When','Signal','Task','State','Result'],m.offers.map(o=>[whenText(o.created),o.signal,el('span',{},trigTask(o.id),o.goal?el('small',{class:'tm-why'},o.goal):null),word(o.state),o.signal_result||''])):el('p',{class:'mute','data-trig':'empty'},'Nothing offered yet.'))}
 function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st.enabled===true,dirs=Object.entries(st.dirs||{});
-  $('trig-meta').textContent=(on?'On':'Off')+' · owners only';
+  $('trig-meta').textContent=(on?'On':'Off')+' · owners only';trigBadge(on);
   const head=on?st.problem?'On, but cannot fire: '+st.problem:'On. A red PR or a labelled issue starts a worker.':'Off. Nothing starts a worker on its own.';
   const runs=el('section',{class:'trig-col','data-trig':'offers','aria-label':'Latest runs',tabindex:'-1'},el('h3',{},'Latest runs'),(st.offers||[]).length?
     el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task','Error'],st.offers.map(o=>[whenText(o.created),o.kind==='pr'?'PR went red':'Labelled issue',o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),o.error||'']))):
@@ -5494,12 +5497,15 @@ function trigRender(){const d=TRIG.data;if(!d)return;const st=d.status||{},on=st
   $('trig-body').replaceChildren(state,el('div',{class:'trig-cols'},left,el('div',{class:'trig-col'},settings,runs,trigImprove(d),trigSignals(d))));
   lockState()}
 $('trig-refresh').onclick=()=>trigLoad();
-// Triggers is shown to an owner only (#907 step 4): no link to it elsewhere (Settings' panel, Help,
-// Workers, Settings that widen access), and a user who is not an owner who opens #triggers reads that
-// it is for owners, with nothing asked of the server (which refuses them anyway).
-function trigDenied(){TRIG.request++;TRIG.data=null;$('trig-body').replaceChildren();$('trig-meta').textContent='';$('trig-status').textContent='';$('trig-error').textContent='Triggers are for owners.';$('trig-error').hidden=false}
+// Triggers is shown to an owner only (#907 step 4): its rail item, the account menu's link, Settings'
+// panel and Workers line and the app's nav row are data-owner-only, Settings that widen access names it
+// only to an owner, and a user who is not an owner who opens #triggers reads that it is for owners, with
+// nothing asked of the server (which refuses them anyway).
+// trigBadge: the rail item's Off while triggers are off. It is read from the GET this page already made; no request is made for it, so it shows nothing until one has been read.
+function trigBadge(on){const b=$('triggers-badge'),a=document.querySelector('[data-rail="triggers"]');b.hidden=on!==false;a.setAttribute('aria-label',on===false?'Triggers, off':'Triggers');b.title=on===false?'Triggers are off':''}
+function trigDenied(){TRIG.request++;TRIG.data=null;trigBadge();$('trig-body').replaceChildren();$('trig-meta').textContent='';$('trig-status').textContent='';$('trig-error').textContent='Triggers are for owners.';$('trig-error').hidden=false}
 function trigEnter(){if(lastDash&&!settingsOwner())trigDenied();else trigLoad()}
-dashPage('triggers',{title:'Triggers',rail:'settings',panel:false,enter:trigEnter,unlock:trigEnter,render(){if(ROUTE.item==='triggers'&&TRIG.data&&!settingsOwner())trigDenied()},leave(){TRIG.request++}});
+dashPage('triggers',{title:'Triggers',panel:false,enter:trigEnter,unlock:trigEnter,render(){if(ROUTE.item==='triggers'&&TRIG.data&&!settingsOwner())trigDenied()},leave(){TRIG.request++}});
 // end:triggers
 // region:connect: agentd connect from Settings > Agents, owners only (#466, #487: its table is there). Preview is
 // agentd connect TOOL --dry-run and changes nothing; Connect (offered after a clean preview) runs it,
