@@ -182,6 +182,7 @@ body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
 .ib-detail{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-m);min-width:0;padding:20px;display:grid;gap:16px;position:sticky;top:0}.ib-detail:empty{display:none}
 .ib-detail h3{margin:0;font-size:var(--fs-l);overflow-wrap:anywhere}.ib-dsub{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:var(--fs-s);color:var(--mute);margin-top:4px}
 .ib-msg{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px 14px;border-radius:var(--r-s);background:var(--sunk)}
+.lesson-fields{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;margin:0;padding:12px 14px;border-radius:var(--r-s);background:var(--sunk)}.lesson-fields dt{color:var(--mute)}.lesson-fields dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}.lesson-drafted{color:var(--amber)}.lesson-why{font-size:var(--fs-s)}@media(max-width:860px){.lesson-fields{grid-template-columns:1fr}}
 .ib-prog{display:grid;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-s);font-size:var(--fs-s)}.ib-prog .facts{display:flex;flex-wrap:wrap;gap:2px 12px;color:var(--mute)}.ib-prog .add{color:var(--green)}.ib-prog .del{color:var(--red)}
 .ib-answer{display:grid;gap:6px}.ib-answer textarea{width:100%;box-sizing:border-box;font:inherit;min-height:84px}.ib-answer .row{display:flex;gap:8px;flex-wrap:wrap}
 .ib-detail .kact{justify-content:flex-start;flex-wrap:wrap;gap:8px;margin-left:0}.ib-back{display:none}
@@ -3239,6 +3240,33 @@ function approvalActs(id,title,from,self){
   el('button',{class:'primary','data-write':true,onclick:()=>approvalDecision(id,title,from,'approve')},'Approve'),
   el('button',{class:'no','data-write':true,onclick:()=>approvalDecision(id,title,from,'reject')},'Reject'),
   self===undefined&&(ROLE==='owner'||TOKEN&&!ROLE&&!ON_TEAM)?el('button',{'data-write':true,onclick:()=>approvalDecision(id,title,from,'approve',true)},'Approve anyway (owner override)'):null]}
+// region:lessons: a lesson agentd proposed (#1055), or an approved one it
+// suggests retiring, in the Inbox. Show reads it; Edit, Approve, Reject and
+// Retire send the server's lesson_* actions, which act only for the person
+// signed in (never the shared token, never a viewer): the page sends no name,
+// the server records the signed-in one. Others get the terminal command.
+function lessonText(x){return x.lesson_text||{}}
+function lessonCan(){return !!USER&&ROLE==='owner'}
+function lessonWhyNot(x){const cmd='agentd lesson '+(x.suggest_retire?'retire':'approve')+' '+x.lesson;return !USER?'A lesson is decided by an owner signed in with their own name, not with the shared token. At the host: '+cmd:ROLE!=='owner'?'Only an owner decides a lesson. At the host, an owner runs: '+cmd:''}
+function lessonFacts(x){const t=lessonText(x),sg=x.suggest_retire;
+  if(sg)return el('div',{class:'ib-msg lesson-retire'},el('p',{},'Suggest retiring: '+words(sg.why||'')),el('p',{class:'mute'},'Retiring removes it from the lessons collection; keeping it needs nothing but Mark resolved. Retiring stays your decision.'));
+  return el('dl',{class:'lesson-fields'},
+    el('dt',{},'What happened'),el('dd',{},t.happened||''),el('dt',{},'Why'),el('dd',{},t.why||''),el('dt',{},'Next time'),el('dd',{},t.next||''),
+    el('dt',{},'Seen'),el('dd',{},(x.count||1)+' time'+((x.count||1)===1?'':'s')),
+    x.drafted_by?el('dt',{},'Worded by'):null,x.drafted_by?el('dd',{class:'lesson-drafted'},'a model ('+String(x.drafted_by).replace(/^model:/,'')+'); check it against its sources before approving'):null)}
+function lessonShowSheet(x){const t=lessonText(x);return sheet({title:'Lesson '+x.lesson+(t.title?': '+t.title:''),description:x.suggest_retire?'An approved lesson agentd suggests retiring.':'A proposal. Nothing is stored in the lessons collection until an owner approves it.',action:'Done',cancel:'Close',content:lessonFacts(x)})}
+function lessonEditSheet(x){const t=lessonText(x),f=(name,label,multi)=>({name,label,value:t[name]||'',required:true,multiline:multi,maxlength:name==='title'?120:600});
+  return actionSheet({title:'Edit lesson '+x.lesson,description:'Your words replace these fields; the lesson stays a proposal until approved. Names, hosts, paths and secrets are refused.',action:'Save',pending:'Saving…',fields:[f('title','Title'),f('happened','What happened',true),f('why','Why',true),f('next','Next time',true)],
+    validate:v=>['title','happened','why','next'].every(k=>v[k]===(t[k]||'').trim())?['title','Change at least one field, or cancel.']:null},
+    x.id,v=>{const b={action:'lesson_edit',id:x.lesson};for(const k of ['title','happened','why','next'])if(v[k]!==(t[k]||'').trim())b[k]=v[k];return b},'Lesson saved')}
+function lessonActs(x){const show=el('button',{type:'button',onclick:()=>lessonShowSheet(x)},'Show');
+  if(!lessonCan())return [show,el('span',{class:'mute lesson-why'},lessonWhyNot(x))];
+  if(x.suggest_retire)return [show,el('button',{class:'no','data-write':true,onclick:()=>actionSheet({title:'Retire lesson '+x.lesson+'?',description:'It is removed from the lessons collection and is not proposed again. Its history stays.',action:'Retire',danger:true,pending:'Retiring…',fields:[{name:'note',label:'Reason',required:true,multiline:true}]},x.id,v=>({action:'lesson_retire',id:x.lesson,note:v.note}),'Lesson retired')},'Retire')];
+  return [show,
+    el('button',{type:'button','data-write':true,onclick:()=>lessonEditSheet(x)},'Edit'),
+    el('button',{class:'primary','data-write':true,onclick:()=>actionSheet({title:'Approve lesson '+x.lesson+'?',description:'It is stored in the lessons collection as you see it'+(x.drafted_by?' (worded by a model)':'')+', for workers to be given later.',action:'Approve',pending:'Approving…',fields:[{name:'note',label:'Note',multiline:true}],content:lessonFacts(x)},x.id,v=>({action:'lesson_approve',id:x.lesson,note:v.note}),'Lesson approved')},'Approve'),
+    el('button',{class:'no','data-write':true,onclick:()=>actionSheet({title:'Reject lesson '+x.lesson+'?',description:'It is not stored, and a source like it is not proposed again.',action:'Reject',danger:true,pending:'Rejecting…',fields:[{name:'note',label:'Reason',required:true,multiline:true}]},x.id,v=>({action:'lesson_reject',id:x.lesson,note:v.note}),'Lesson rejected')},'Reject')]}
+// end:lessons
 // One row of what waits on the user: an inbox item, a pending approval or
 // an issue. The kind is a muted word before the text, the actions on the right.
 function needNorm(x){return x.what==='approval'?{kind:'approval',id:x.ref,approval:x.ref,title:x.title,from:x.from,handoff:x.handoff,about:x.about,age:x.age,read:true,approvalOnly:true,can_answer:x.can_answer,required_role:x.required_role,answer_hint:x.answer_hint,self:x.self===true,spec:x.spec,mine:x.mine}:x}
@@ -3257,6 +3285,7 @@ function needActs(x,extra){
   else if(x.handoff)more.push(el('a',{href:itemHash(null,x.handoff),onclick:()=>inboxRead(x)},'Open work item'));
   if(x.kind==='review'&&x.handoff){visible.push(...openPRInboxActs(x));more.unshift(el('button',{type:'button',onclick:()=>resultSheet(x.handoff,'Result: '+(x.goal||x.handoff))},'View result'))}
   if(x.kind==='result'&&x.handoff)visible.push(...resultInboxActs(x));
+  if(x.kind==='lesson'&&x.lesson)visible.push(...lessonActs(x));
   if(!x.approvalOnly){
     if(x.kind==='stale'&&x.handoff)visible.push(el('button',{class:'no','data-write':true,onclick:()=>actionSheet({title:'Cancel this expired offer?',description:'The offer will be cancelled. Its history stays available.',action:'Cancel offer',danger:true,pending:'Cancelling…'},x.id,{action:'clear_stale',id:x.handoff},'Offer cancelled')},'Clear'));
     // Opening the item's link marks it read; only an item with nothing to open keeps Mark read.
@@ -3380,7 +3409,7 @@ function inboxBadge(d){const n=inboxNeedCount(d),u=inboxUnread(d),b=$('inbox-bad
   const m=$('needs-me-n');if(m){m.textContent=n?String(n):'';m.title=n?label+unread:''}}
 const INBOX_NAMES={needs:'Needs you',approvals:'Approvals',blocked:'Blocked',failed:'Failed',mine:'My work',expired:'Expired'},
   INBOX_EMPTY={needs:'Nothing needs you.',approvals:'No approvals are waiting.',blocked:'No worker is blocked.',failed:'No worker has failed.',mine:'Nothing of yours needs you.',expired:'Nothing has expired.'},
-  INBOX_TAGS={attention:['Needs attention','a'],blocked:['Blocked','a'],failed:['Failed','r'],approval:['Approval','b'],spec:['Spec approval','b'],validator:['Validator'],linked_done:['Linked work'],improve:['Proposal'],review:['Ready for review','b'],result:['Report ready','b'],stale:['Expired'],answered:['Answered']};
+  INBOX_TAGS={attention:['Needs attention','a'],blocked:['Blocked','a'],failed:['Failed','r'],approval:['Approval','b'],spec:['Spec approval','b'],validator:['Validator'],linked_done:['Linked work'],improve:['Proposal'],review:['Ready for review','b'],result:['Report ready','b'],stale:['Expired'],answered:['Answered'],lesson:['Lesson','b']};
 let inboxFilter='needs',inboxSel='',inboxPicked=false;
 // The two panes (#481): the list on the left, one row per item, and the selected
 // item on the right with what it asks, what its task has done so far and the
@@ -3388,9 +3417,9 @@ let inboxFilter='needs',inboxSel='',inboxPicked=false;
 // keep it; with none, the first item shows (on a phone, the list does).
 function inboxKey(x){return x.what==='issue'?x.ref:needNorm(x).id}
 function inboxHref(f,id){return '#inbox'+(f&&f!=='needs'?'/'+f:'')+(id?'?item='+encodeURIComponent(id):'')}
-function inboxTag(x){if(x.what==='issue')return ['Issue',''];x=needNorm(x);return x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind]}
+function inboxTag(x){if(x.what==='issue')return ['Issue',''];x=needNorm(x);if(x.kind==='lesson'&&x.suggest_retire)return ['Suggest retire','a'];return x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind]}
 // The tag says what kind of item it is, so the title names the task: its goal, else the item's own words.
-function inboxTitle(x){if(x.what==='issue')return x.title;x=needNorm(x);return words(x.goal&&(x.kind==='stale'||/^(failed|review|result)$/.test(x.kind))?x.goal:x.title)}
+function inboxTitle(x){if(x.what==='issue')return x.title;x=needNorm(x);if(x.kind==='lesson'&&x.lesson_text&&x.lesson_text.title)return words((x.suggest_retire?'Retire? ':'')+x.lesson_text.title);if(x.kind==='lesson'&&x.suggest_retire&&x.suggest_retire.title)return words('Retire? '+x.suggest_retire.title);return words(x.goal&&(x.kind==='stale'||/^(failed|review|result)$/.test(x.kind))?x.goal:x.title)}
 function inboxRow(raw){
   const key=inboxKey(raw),tag=inboxTag(raw),full=inboxTitle(raw),x=raw.what==='issue'?raw:needNorm(raw),on=key===inboxSel,h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff);
   return el('article',{class:'ib-row'+(raw.what!=='issue'&&!x.read?' unread':'')+(on?' on':''),'data-id':key},
@@ -3447,6 +3476,7 @@ function inboxDetail(raw){
       x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLink(x.from)):null,x.age?el('span',{},x.age+' ago'):null,(x.prs||[]).map(p=>el('a',{href:ghHref(p,'PR'),target:'_blank',rel:'noopener'},p+' ↗'))));
   const ask=x.kind==='blocked'?[el('div',{class:'ib-msg'},x.worker_wait||h&&h.worker_wait||'The worker ended its turn and is waiting for a reply.'),workerReport(x)]:
     x.approvalOnly||x.kind==='spec'?[el('div',{class:'ib-msg'},x.title),inboxReleases(x)]:
+    x.kind==='lesson'&&x.lesson?[lessonFacts(x)]:
     [plainText(full)!==cardTitle(full)?el('div',{class:'ib-msg'},full):null,failureDetail(x),x.kind==='review'?openPRInboxLine(x):null,x.kind==='result'?resultInboxLine(x):null];
   return [back,head,...ask.filter(Boolean),x.handoff?inboxProgress(x.handoff):null,x.kind==='blocked'?inboxAnswer(x):null,el('div',{class:'kact'},needActs(x,{inbox:true,detail:true})),x.kind==='blocked'?blockedHow(x):null].filter(Boolean)}
 // inboxDetailDraw redraws the right pane alone; the focused control and an open
