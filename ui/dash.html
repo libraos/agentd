@@ -2061,7 +2061,7 @@ settingsSections();
 dashPage('settings',{title:'Settings',pageOf:r=>SET_TEAM[r.rest[0]]?'team':'',enter(r){const t=document.documentElement.dataset.theme||'system';for(const n of document.querySelectorAll('[name=theme]'))n.checked=n.value===t;settingsAccess();settingsShow(r&&r.rest[0]||'agents');if(SET_TEAM[r.rest[0]])teamMoved(r);if(!SETTINGS.loading)settingsLoad()},unlock(){settingsAccess();if(!SETTINGS.loading)settingsLoad()},render(){settingsAccess()},leave(){SETTINGS.request++;SETTINGS.agentsRequest++;SETTINGS.loading=false}});
 // end:settings
 $('theme-pick').addEventListener('change',e=>setTheme(e.target.value));
-dashPage('help',{title:'Help',panel:false,enter(){if(!$('help-docs'))$('page-help').append(el('p',{id:'help-docs'},el('a',{href:'https://github.com/libraos/cli#readme',target:'_blank',rel:'noopener noreferrer'},'Documentation ↗'))) }});
+dashPage('help',{title:'Help',panel:false,enter(){if(!$('help-docs'))$('page-help').append(el('p',{id:'help-docs'},el('a',{href:'https://github.com/libraos/libraos-core#readme',target:'_blank',rel:'noopener noreferrer'},'Documentation ↗'))) }});
 dashPage('notfound',{title:'Page not found',panel:false});
 // end:shell
 // region:agents-list: the persistent Agents list beside the rail (#479). It reads the

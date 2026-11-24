@@ -116,12 +116,13 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  // A page hooks in from its dashPage(): the row its own address shows, and whether the list shows by default.
  w.eval("PAGES.inbox.agentsSelected=r=>r.rest[0]==='failed'?'hof-fail':'';PAGES.help.agents=true");await go('#inbox/failed');assert.equal(row('hof-fail').getAttribute('aria-current'),'page','a page cannot say which row it shows');
  if(!phone){await go('#help');assert(!collapsed(),'a page cannot show the list by default')}
- // Repository links use the repositories' current names (libraos/core#1038: libraos/agentd is now libraos/cli),
+ // Repository links use the repositories' current names (libraos/core#1038: libraos/agentd, then libraos/cli,
+ // is now libraos/libraos-core),
  // not GitHub's redirect from the old ones: Help's documentation link and the issue and PR links ghHref builds.
- await go('#help');assert.equal(doc.querySelector('#help-docs a').getAttribute('href'),'https://github.com/libraos/cli#readme');
- assert.equal(w.eval("ghHref('libraos/cli#12','PR')"),'https://github.com/libraos/cli/pull/12');
+ await go('#help');assert.equal(doc.querySelector('#help-docs a').getAttribute('href'),'https://github.com/libraos/libraos-core#readme');
+ assert.equal(w.eval("ghHref('libraos/libraos-core#12','PR')"),'https://github.com/libraos/libraos-core/pull/12');
  assert.equal(w.eval("ghHref('libraos/core#1038','issue')"),'https://github.com/libraos/core/issues/1038');
- assert(!/libraos\/agentd(?![\w-])|libraos\/agentd-(core|next)\b/.test(doc.documentElement.outerHTML),'the page still names an old repository');
+ assert(!/libraos\/(agentd|cli)(?![\w-])|libraos\/agentd-(core|next)\b/.test(doc.documentElement.outerHTML),'the page still names an old repository');
  assert(!errors.length,errors.join('\n'));
  console.log('dash_shell: ok',phone?'phone':'desktop',process.env.DASH_UI_THEME||'light');
  dom.window.close();process.exit(0);
