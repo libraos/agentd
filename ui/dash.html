@@ -4851,7 +4851,7 @@ function infoTip(text){if(!text)return null;return el('button',{type:'button',cl
 // What each indicator means, following docs/factory-report.md.
 const HELP={
   autonomous:'Tasks a worker finished with its check passed and no person stepping in, out of all tasks given to a worker. A retry with nobody involved still counts. Cancelled and still running tasks stay in the total.',
-  first_pass:'What the worker tool did alone: tasks finished with their check passed on the first worker attempt, with no person stepping in and no takeover, out of all tasks given to a worker. A retry does not count. A fix round started as a new task is not seen, so this can read high.',
+  first_pass:'What the worker tool did alone: tasks finished with their check passed on the first worker attempt, with no person stepping in and no takeover, out of all tasks given to a worker. A retry does not count. A fix round started as a new task is not seen, so this can read high. Tasks from a host on an older release carry no attempt count and are left out, so this can cover fewer tasks than the delivery rate.',
   delivered:'What was finally delivered: tasks accepted with their check passed, plus tasks whose work landed anyway (a merged pull request or a person confirming it), out of all tasks given to a worker. The gap to the first-pass rate is what retries, review and fix rounds added.',
   cost:'The median worker cost of an accepted task, from its last attempt only. Earlier attempts and tasks that were never accepted are not in it; the fully loaded cost has those.',
   loaded:'Everything the tasks given to a worker spent, every attempt counted, divided by the accepted ones. It is higher than the median by the retries and by work that was never accepted.',
@@ -5157,7 +5157,7 @@ function insCard(key,label,big,note,why,err){const wait=big===undefined,none=big
 function insCards(){const f=INS.f,t=f?f.total||{}:null,m=INS.m,val=(have,pick)=>have?pick():undefined;
   const fp=t&&t.first_pass,dl=t&&t.delivered,c=t&&t.cost_per_accepted||{},lat=m&&((m.workflow||{}).latency||{}).open_to_merge;
   $('ins-cards').replaceChildren(
-    insCard('first_pass','First-pass rate',val(t,()=>insRate(fp)),fp&&fp.pct!==undefined?fp.n+' of '+fp.of+' tasks · one attempt, nobody stepping in'+(fp.unknown?' · '+fp.unknown+' from older hosts left out':''):'',insWhy(fp),INS.fErr),
+    insCard('first_pass','First-pass rate',val(t,()=>insRate(fp)),fp&&fp.pct!==undefined?fp.n+' of '+fp.of+' tasks · one attempt, nobody stepping in'+(fp.unknown?' · '+fp.unknown+' more from a host on an older release, left out':''):'',insWhy(fp),INS.fErr),
     insCard('delivered','Delivery rate',val(t,()=>insRate(dl)),dl&&dl.pct!==undefined?dl.n+' of '+dl.of+' tasks · accepted, merged or confirmed':'',insWhy(dl),INS.fErr),
     insCard('cost','Cost per accepted task',val(t,()=>c.median_usd===undefined?null:'$'+Number(c.median_usd).toFixed(2)),'median of the accepted tasks\' worker cost'+(c.unpriced?' · '+c.unpriced+' unpriced':''),c.not_computable||'no accepted task has a price',INS.fErr),
     insCard('latency','PR workflow latency',val(m,()=>!lat||!lat.n?null:Number(lat.median_hours).toFixed(1)+' h'),'open to merge, median · '+(lat&&lat.n)+' merged PRs · '+PR_LEDGER,(metricsNoPRs(m)?'No PRs recorded for this period':'no PR merged in this period')+' · '+PR_LEDGER,INS.mErr))}
@@ -5194,7 +5194,9 @@ function insSpend(r){return r.usd===undefined?INS_NONE:(r.missing_usd?'≥ ':'')
 function insAgents(rows){if(!rows||!rows.length)return [el('div',{class:'empty'},'No dispatched task in this period.')];
   const head=['Agent','Model','Tasks','Accepted','First pass','Median minutes','Tokens','Spend'];
   // first_pass of tasks with its share; a server that does not send it: not measured
-  const first=r=>r.first_pass===undefined||r.first_pass===null?INS_NONE:r.first_pass+' of '+r.tasks+(Number(r.tasks)>0?' ('+Math.round(100*r.first_pass/r.tasks)+'%)':'');
+  // Over the tasks whose attempt count is known: first_pass_unknown (from a host on an older
+  // release) is left out of the rate and said, as on the First-pass card.
+  const first=r=>{if(r.first_pass===undefined||r.first_pass===null)return INS_NONE;const out=Number(r.first_pass_unknown)||0,of=Number(r.tasks)-out;return of>0?r.first_pass+' of '+of+' ('+Math.round(100*r.first_pass/of)+'%)'+(out?' · '+out+' left out':''):INS_NONE};
   return [el('div',{class:'tablewrap phone-rows'},el('table',{class:'ins-agents'},el('thead',{},el('tr',{},head.map((h,i)=>el('th',{class:i>1?'num':null},h,h==='First pass'?infoTip(HELP.first_pass):null)))),
     el('tbody',{},rows.map(r=>{const wt=r.wall_time||{},cells=[toolName(r.agent),r.model||'not recorded',String(r.tasks),String(r.accepted),first(r),wt.median_min===undefined?INS_NONE:Number(wt.median_min).toFixed(1),insTokens(r),insSpend(r)];
       return el('tr',{},cells.map((c,i)=>el('td',{class:i>1?'num':null,'data-label':head[i]},c)))}))))]}
