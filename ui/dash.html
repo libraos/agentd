@@ -2266,7 +2266,12 @@ function stats(d){
     el('button',{class:'stat'+(need?' hot':''),title:'Open Inbox: approvals, blocked or failed workers, and other items waiting for you. The same number as the Inbox badge.',onclick:()=>{location.hash='inbox';$('account').open=false}},el('b',{},need),'in Inbox'),
     el('button',{class:'stat',title:census?census.definition:'Claude sessions running on this computer: '+(h.busy||0)+' working, '+(h.idle||0)+' idle. Team also lists registered Codex sessions.',onclick:()=>{location.hash='team';$('account').open=false}},el('b',{'data-session-count':''},census?String(census.total):(h.busy||0)+' of '+((h.busy||0)+(h.idle||0))),census?'live sessions':'sessions working'));
   const n=t=>((d.counts||{})[t]||{}).active||0,hs=d.handoffs||{};
-  $('now-tiles').replaceChildren(...[[n('claude'),'registered Claude sessions'],[n('codex'),'registered Codex sessions'],[hs.offered||0,'unassigned tasks'],[d.claims_open||0,'reserved resources'],[d.runs_running||0,'runs in progress'],[d.events_1h||0,'events in the last hour']].map(([v,l])=>el('span',{class:'now-stat'},el('b',{},v),' '+l)))}
+  $('now-tiles').replaceChildren(...[...capacityTiles(d.capacity),[n('claude'),'registered Claude sessions'],[n('codex'),'registered Codex sessions'],[hs.offered||0,'unassigned tasks'],[d.claims_open||0,'reserved resources'],[d.runs_running||0,'runs in progress'],[d.events_1h||0,'events in the last hour']].map(([v,l,t,id])=>el('span',{class:'now-stat',title:t||null,'data-now':id||null},el('b',{},v),' '+l)))}
+// capacityTiles: "3 of 4 workers working" and "1 of 1 checks running, 1 waiting", from /api/dash capacity;
+// none when an older server sends no capacity.
+function capacityTiles(c){if(!c||!c.workers||!c.checks)return [];const w=c.workers,k=c.checks,wait=k.waiting||0;
+  return [[(w.working||0)+' of '+(w.limit||0),'workers working','Dispatched workers running now against [dispatch] max_workers','workers'],
+    [(k.running||0)+' of '+(k.limit||0),'checks running'+(wait?', '+wait+' waiting for a slot':''),'Task checks running on this host against [dispatch] max_checks ('+(k.source==='set'?'set in config.toml':'from the hardware')+'); more wait for a slot, never counted as failed','checks']]}
 // region:nodes
 /* Worker nodes and devices under each account (#831, libraos/core#900), read
    only. GET /api/nodes: each card names its person, null for a dedicated worker an

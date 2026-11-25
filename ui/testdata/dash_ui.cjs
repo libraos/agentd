@@ -19,6 +19,16 @@ vm.runInContext(core,ctx);
 vm.runInContext(page.split('function approvalDecision(')[1].split('// One row of what waits')[0].replace(/^/,'function approvalDecision('),ctx);
 // The missing-dependency note the worker sheets (New handoff, Dispatch, Start again) add.
 vm.runInContext(page.split('const DEPS_WHAT=')[1].split('function workerFields(')[0].replace(/^/,'const DEPS_WHAT='),ctx);
+// Right now's capacity tiles: workers working and checks running against their limits, the waiting named.
+{vm.runInContext(page.split('function capacityTiles(')[1].split('// region:nodes')[0].replace(/^/,'function capacityTiles('),ctx);
+ const t=c=>vm.runInContext('capacityTiles('+JSON.stringify(c)+')',ctx);
+ assert.deepEqual(t(null),[],'no capacity (an older server) gave tiles');
+ const [w,k]=t({workers:{working:3,limit:4},checks:{running:1,waiting:2,limit:1,source:'derived'}});
+ assert.equal(w[0]+' '+w[1],'3 of 4 workers working');
+ assert.equal(k[0]+' '+k[1],'1 of 1 checks running, 2 waiting for a slot');
+ assert(k[2].includes('from the hardware'),'a derived limit not said: '+k[2]);
+ const [,k2]=t({workers:{working:0,limit:2},checks:{running:0,waiting:0,limit:3,source:'set'}});
+ assert.equal(k2[1],'checks running','no wait still named');assert(k2[2].includes('set in config.toml'));}
 // A Python project that lists no packages (python-runner) warns only for a check run by pytest, tox or nox, never python -m unittest (#662).
 {const d="({checkout_deps:{'/py':['python-runner'],'/req':['python'],'/js':['node']}})",w=(cwd,tool,check)=>vm.runInContext('depsWarnText('+d+','+JSON.stringify(cwd)+','+JSON.stringify(tool)+','+JSON.stringify(check)+')',ctx);
  assert.equal(w('/py','codex','python.exe -m unittest discover -s tests -v'),'','a standard-library check warned');
