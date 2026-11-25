@@ -450,8 +450,9 @@ details.need-term>summary{cursor:pointer;color:var(--mute)}
 .home-ghead{display:flex;align-items:baseline;gap:8px}.home-ghead h3{margin:0;font-size:var(--fs-s,13px);font-weight:600}.home-ghead .n{margin-left:auto;font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
 .home-hint{margin:2px 0 8px;font-size:12px;color:var(--mute)}.home-empty{margin:0;font-size:12px;color:var(--mute)}
 .home-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
-.home-row{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:start;gap:8px;padding:6px 0;border-top:1px solid var(--line)}.home-row:first-child{border-top:0}
-.home-row .status{grid-column:2;grid-row:1;justify-self:end;padding-top:1px}
+.home-row{display:grid;grid-template-columns:minmax(0,1fr) 6.5rem;align-items:start;gap:8px;padding:6px 0;border-top:1px solid var(--line)}.home-row:first-child{border-top:0}
+/* the chip column is the same width on every row, so chips line up and a title never reaches under one */
+.home-chip{grid-column:2;grid-row:1;justify-self:end;min-width:0;max-width:100%;overflow:hidden;padding-top:1px;text-align:right}.home-chip>.status,.home-chip>.tmark{max-width:100%;overflow:hidden;text-overflow:ellipsis}
 /* the title wraps inside its own column, never under the state chip (a button is nowrap by default) */
 .home-main{grid-column:1;grid-row:1;min-width:0}.home-open{display:block;max-width:100%;white-space:normal;overflow-wrap:anywhere;font-weight:500;text-align:left;color:var(--fg)}
 .home-meta{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:12px;color:var(--mute)}
@@ -1342,6 +1343,15 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-rpanel .checks{padding:10px 12px;font-size:12px}.app-rpanel .checks h5{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em}.app-rpanel .check-run{padding:6px 0;border-top:1px solid var(--o-border)}
 .app-rpanel .checks-cmd{display:block;margin-bottom:6px;font:11px var(--o-mono);overflow-wrap:anywhere}.app-rpanel .check-noev{color:var(--o-question-text);font-weight:600}
 @media(max-width:860px){.app-tabs>.app-tab[data-kind="term"]{width:auto;min-width:120px}.app-tabs>.app-tab{min-width:112px}.app-tclose{width:28px;height:28px;color:var(--o-mfg)}.app-frow,.app-crow{min-height:40px}.app-menu{left:8px!important;right:8px;width:auto!important}}
+/* the result strip (review M4): one line on a wide centre, wrapping on a phone; above every tab, never in a drawer */
+.app-result{flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;padding:8px 16px;border-bottom:1px solid var(--o-border);background:var(--o-card);color:var(--o-fg);font-size:12px}
+.app-result[data-mark="failed"]{box-shadow:inset 3px 0 0 var(--o-red)}.app-result[data-mark="done"]{box-shadow:inset 3px 0 0 var(--o-ok)}
+.app-rverdict{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;min-width:0;font-weight:600}.app-rverdict .tmark{color:var(--o-fg);font-size:12px}
+.app-result .m-done .tm-g{color:var(--o-ok)}.app-result .m-failed .tm-g{color:var(--o-red)}.app-rwhy{font-weight:400;color:var(--o-mfg);overflow-wrap:anywhere}
+.app-rfacts{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;min-width:0}.app-rfacts>div{display:flex;gap:4px;min-width:0}.app-rfacts dt{color:var(--o-mfg)}.app-rfacts dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.app-rfacts code{font:11px/16px var(--o-mono)}.app-rfacts [data-check="failed"],.app-rfacts [data-check="timed_out"],.app-rfacts [data-check="no_tests"]{color:var(--o-red);font-weight:600}.app-rfacts [data-check="passed"]{color:var(--o-ok);font-weight:600}
+.app-racts{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}.app-racts .app-why{flex:1 0 100%;margin:0;font-size:11px;color:var(--o-mfg)}
+@media(max-width:860px){.app-result{padding:8px 12px;gap:6px 12px}.app-racts{margin-left:0;flex:1 0 100%}.app-racts .app-btn{min-height:36px}}
 /* end:css-app-workspace */
 /* region:css-app-keys: the personal app's keyboard shortcuts overlay (libraos/core#566): the reference app's groups and
    keycaps (SPEC.md §2 shortcut keycap, §8), on the shared sheet; one column on a phone. */
@@ -1718,6 +1728,8 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     <button type="button" class="app-command" data-app-action="command" aria-disabled="true" title="Actions on the open task, each with its command"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m6 3 14 9-14 9z"/></svg>Command</button>
     <button type="button" class="app-ibtn app-righttoggle" data-app-action="toggle-right" aria-controls="app-right" aria-label="Toggle right sidebar" title="Toggle right sidebar (Ctrl+L)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/></svg></button>
   </div>
+  <!-- the result strip of a done or failed task (review M4), over every tab; drawn by awResult -->
+  <section class="app-result" id="app-result" aria-label="Result" hidden></section>
   <!-- region:app-tab-body: the open tab's content (#565) -->
   <div class="app-tabbody" data-region="tab-body" id="app-tab-body"><div class="app-empty" data-k="no-task">No task open. Pick one on the left.</div></div>
 </section>
@@ -2310,7 +2322,7 @@ function agentsModel(d){const items=needItems(d),{rows}=items,attention=d.attent
     openPR=new Set((d.waiting||[]).filter(x=>x.what==='PR').map(x=>x.ref)),need=[],groups=new Map(),counts={need:0,working:0,waiting:0},add=(k,r)=>{if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r)};
   for(const h of d.handoff_list||[]){const who=h.state==='held'?h.from:h.claimer,ended=attention&&h.attention_status==='stale',live=ended?null:liveOf(who,h),needs=(rows.get(h.id)||[]).filter(x=>x.kind!=='stale'&&x.can_answer!==false),
       entry=attention&&attention.needs.get(h.id),status=entry?entry.status:statusOf(h,needs,openPR),
-      mark=entry?status==='failed'?'failed':'needs_you':ended?'waiting':markOf(h.mark)&&(!attention||!['needs_you','failed'].includes(h.mark))?h.mark:status==='progress'?'working':status==='todo'?'not_started':!attention&&status==='needs'?'needs_you':!attention&&status==='failed'?'failed':'waiting',
+      mark=handoffMark(h,status,attention,entry),
       r={id:h.id,h,who,live,needs,status,mark,project:projectOf(h),title:cardTitle(h.title||h.goal||h.id),full:h.title||h.goal||h.id,href:itemHash(null,h.id),issue:h.issue||''};
     // A task that needs you whose dispatched worker is still alive (the server's worker_running) is working too (#604).
     if(attention?!!entry:mark==='needs_you'||mark==='failed'||needs.length||live&&live.key==='wait'){counts.need++;if(h.worker_running)counts.working++;need.push(r);continue}
@@ -2320,9 +2332,15 @@ function agentsModel(d){const items=needItems(d),{rows}=items,attention=d.attent
   const standalone=attention?[...attention.needs.values()].filter(e=>!e.h).map(e=>e.notice):[];
   counts.need+=standalone.length;
   return {need:order(need),standalone,groups:[...groups.keys()].sort((a,b)=>(!a)-(!b)||a.localeCompare(b)).map(k=>({project:k,rows:order(groups.get(k))})),counts}}
-// agentsState: the state word under a row's title, as the task's card says it.
-function agentsState(r){if(r.h&&r.h.attention_status==='stale')return 'stale';if(r.live)return r.live.text;const n=r.needs&&r.needs[0];if(n)return n.kind==='failed'?'failed':n.kind==='blocked'?'waiting on you':n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':'waiting on you';
-  return r.h?(r.mark==='not_started'?'not started':r.h.state==='blocked'?'waiting for another task':(markOf(r.mark)||{word:word(r.h.state)}).word.toLowerCase()):'working'}
+// agentsState: the state under a row's title: the task's mark word first (region:marks, the word its card,
+// Home and /panel use), then, only where it adds something, what it waits on or what its session is doing.
+// Agents, agentd app's sidebar and /panel all say it so (review M3): a running task reads Working there, never
+// "worker starting" in one place and "In progress" in another.
+function agentsState(r){const w=markWord(r.mark)||(r.h?word(r.h.state):markWord('working')),x=agentsDetail(r);return x?w+' · '+x:w}
+function agentsDetail(r){const h=r.h,n=r.needs&&r.needs[0],l=r.live;if(h&&h.attention_status==='stale')return 'stale';
+  if(n)return n.kind==='failed'?(r.mark==='failed'?'':'could not finish'):n.kind==='blocked'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':n.kind==='question'?'question':'';
+  if(l)return l.key==='working'?'':l.key==='wait'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):l.text;
+  return h&&h.state==='blocked'?'on another task':''}
 // hostTag names the member host a mirrored handoff (#848) came from.
 function hostTag(x){return x&&x.origin==='host'&&x.host?el('span',{class:'host-tag',title:'Mirrored from host '+x.host+(x.mirror&&x.mirror.person?' ('+x.mirror.person+')':'')+'; read only here'},'on '+x.host):null}
 function agentsRow(r){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).pop(),sid=r.who||'',act=TEAM.activity&&TEAM.activity[sid],agent=h?toolName(h.worker||toolOf(sid))||(h.state==='offered'?'Unassigned':sessLabel(sid)):toolName(r.session.tool)||'Agent',
@@ -3148,6 +3166,10 @@ window.addEventListener('pagehide',()=>{for(const hid of Object.keys(TERM))termC
 // the same word, glyph and colour, never colour alone. The strip over the board
 // counts each mark among the tasks the view and project show, and a count shows
 // exactly those tasks; its legend says what each mark means.
+// These six words are the one task-state vocabulary (review M3): the server Tasks page, agentd
+// app's sidebar, Home and /panel all name a task's state with markWord(handoffMark(...)), and
+// statusOf's keys read the same words where a card has no mark (STATUS below), so one task
+// never reads "In progress" in one view, "Working" in another and "worker starting" in a third.
 function marks(){return [
   ['needs_you','Needs you','!','A person must act: its worker asks something or was stopped, its budget ran out, it could not start, or an approval waits.'],
   ['failed','Failed','\u2715','Its latest worker ended badly or its check did not pass.'],
@@ -3156,6 +3178,17 @@ function marks(){return [
   ['not_started','Not started','\u25CB','Offered, with no worker asked for and nobody on it yet.'],
   ['done','Done','\u2713','Finished: done, cancelled or declined.']]}
 function markOf(key){const m=marks().find(x=>x[0]===key);return m?{key:m[0],word:m[1],glyph:m[2],help:m[3]}:null}
+function markWord(key){const m=markOf(key);return m?m.word:''}
+// handoffMark: an open task's one mark, the same for every view. The server's mark (taskMark), except
+// that with attention_version the Inbox's own rule decides Needs you and Failed (entry: the task's
+// attention row) and a stale one is Waiting; with no server mark, its status (statusOf) stands in.
+function handoffMark(h,status,attention,entry){
+  if(entry)return status==='failed'?'failed':'needs_you';
+  if(attention&&h.attention_status==='stale')return 'waiting';
+  if(markOf(h.mark)&&(!attention||!['needs_you','failed'].includes(h.mark)))return h.mark;
+  return status==='progress'?'working':status==='todo'?(h.state==='blocked'?'waiting':'not_started'):!attention&&status==='needs'?'needs_you':!attention&&status==='failed'?'failed':'waiting'}
+// doneMark: a finished task's mark: the server's, else Failed when its worker failed, else Done.
+function doneMark(x){return markOf(x&&x.mark)?x.mark:x&&x.failed?'failed':'done'}
 var MARK_PICK='',MARK_LEGEND=false;
 function markEl(key){const m=markOf(key);if(!m)return null;return el('span',{class:'tmark m-'+key,'data-mark':key,title:m.help},el('i',{class:'tm-g','aria-hidden':'true'},m.glyph),m.word)}
 // taskStatus: a task's mark when the server sent one, else the status it drew before.
@@ -3200,7 +3233,7 @@ function mineOf(x,user,my){return user?[x.from_user,x.to_user,x.claimer_user].in
 // did not pass):
 //   To do        offered with no worker running yet, or blocked on other
 //                handoffs (state blocked)
-//   In progress  claimed or held (a checkpoint), or a dispatched worker
+//   Working      claimed or held (a checkpoint), or a dispatched worker
 //                running on it; a session working with no handoff
 //   Needs you    a pending approval, a blocked, failed or stopped worker, or
 //                any inbox row waiting on a person (needs is that list)
@@ -3220,7 +3253,9 @@ function statusOf(x,needs,openPR){
   if(x.state==='offered')return x.dispatched&&(x.attempts||[]).some(a=>a.running)?'progress':'todo';
   if(x.state==='claimed'&&/^(review|validate)$/.test(x.stage||''))return 'review';
   return 'progress'}
-const STATUS={todo:'To do',progress:'In progress',needs:'Needs attention',review:'In review',done:'Done',failed:'Failed',cancelled:'Cancelled',declined:'Declined',stale:'Stale'},
+// The words are region:marks' where a status is a task state (Working, Needs you, Failed, Done), so a card with no
+// server mark reads what one with a mark does; To do is a column of Not started and Waiting tasks, In review a PR's.
+const STATUS={todo:'To do',progress:markWord('working'),needs:markWord('needs_you'),review:'In review',done:markWord('done'),failed:markWord('failed'),cancelled:'Cancelled',declined:'Declined',stale:'Stale'},
   RANK={needs:0,failed:0,progress:1,review:2,todo:3,done:4,cancelled:4,declined:4},
   // FINISHED: what the views do not count as open and the List folds away. Failed is not
   // finished work to file away: it waits on a person, like Needs you.
@@ -3779,14 +3814,16 @@ function issueItems(d,unfiltered){
   const needRows=(xs,extra)=>{const out=xs.slice(0,2).map((x,i)=>needRow(x,i?null:extra,true));if(xs.length>2)out.push(el('div',{class:'krow'},el('button',{class:'linkish mute',onclick:()=>showWorkItem(xs[0].handoff)},'+'+(xs.length-2)+' more in the panel')));return out};
   for(const h of (d.handoff_list||[]).filter(wf)){
     if(attention&&(h.other_mirror||h.attention_status==='stale'))continue;
-    const entry=attention&&attention.needs.get(h.id),needs=rows.get(h.id)||[],status=entry?entry.status:statusOf(h,needs,openPR),who=h.state==='held'?h.from:h.claimer,live=liveOf(who,h),acts=handoffActions(d,h),wacts=handoffWorkerActions(d,h);
+    const entry=attention&&attention.needs.get(h.id),needs=rows.get(h.id)||[],status=entry?entry.status:statusOf(h,needs,openPR),who=h.state==='held'?h.from:h.claimer,live=liveOf(who,h),acts=handoffActions(d,h),wacts=handoffWorkerActions(d,h),
+      // The task's one mark, as Agents, agentd app's sidebar and /panel draw it (handoffMark); a row with no server mark keeps its status.
+      mark=markOf(h.mark)?handoffMark(h,status,attention,entry):'';
     const person=team?(h.state==='held'?h.from_user:h.claimer_user):null;
     const meta=[person?el('span',{},person):who?whoLink(who):el('span',{},h.to_user?'For '+h.to_user:h.worker?toolName(h.worker)+' worker':'Unassigned'),live?el('span',{title:live.text},live.key==='wait'?'Waiting on you':live.text):cardStage(h.stage),changeEl(h)];
     // One menu per card: with a need row, the card's actions join that row's.
     const merge=needs.length>0&&needs[0].what!=='issue',rws=needs.length?needRows(needs,merge?{visible:wacts,more:acts.slice(wacts.length)}:null):[];
     if(acts.length&&!merge)meta.push(moreMenu(acts));
-    items.push({kind:'handoff',project:projectOf(h),status,attention:!!entry,mark:h.mark,sid:who,src:h,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
-      node:card({status,mark:h.mark,live:live&&live.key==='working',liveTitle:live&&live.text,title:cardTitle(h.title||h.goal),full:h.title||h.goal,link:itemHash(h.issue,h.id),ref:h.id,meta,age:h.updated_ago,rows:rws,sub:!!(h.parent&&h.depth)})})}
+    items.push({kind:'handoff',project:projectOf(h),status,attention:!!entry,mark,sid:who,src:h,mine:mineOf(h,user,my)||needs.some(x=>x.mine),worker:!!(h.worker||h.dispatched),issues:h.issues,
+      node:card({status,mark,live:live&&live.key==='working',liveTitle:live&&live.text,title:cardTitle(h.title||h.goal),full:h.title||h.goal,link:itemHash(h.issue,h.id),ref:h.id,meta,age:h.updated_ago,rows:rws,sub:!!(h.parent&&h.depth)})})}
   for(const x of (d.done||[]).filter(x=>x.what==='handoff'&&wf(x))){
     const status=statusOf(x,[],openPR),who=x.by||x.from,why=status==='failed'?failedWhy(x):'';
     items.push({kind:'done',project:projectOf(x),status,mark:x.mark,sid:who,src:x,mine:mineOf(x,user,my),worker:!!x.worker,issues:x.issues,
@@ -4461,11 +4498,11 @@ function communityDraw(){if(ROUTE.item!=='community')return;const box=$('communi
 dashPage('community',{title:'Tasks',sub:'Community',rail:'issues',panel:false,enter(){communityDraw();if(!APP.on)loadIssues()},unlock(){if(!APP.on)loadIssues()},render(){if(ROUTE.item!=='community')return;communityDraw();if(!APP.on)loadIssues()}});
 // end:community
 // region:home: the landing page (libraos/core#850). Five groups, each a count and a
-// short list: Working, Needs attention (team), Waiting on another task, Review and validation,
+// short list: Working, Needs attention (Needs you while Created by is Me), Waiting on another task, Review and validation,
 // Closed recently. They come from
 // issueItems, the list Tasks draws (its handoffs, the day's finished ones, open PRs, issue
 // cards, sessions working with no task, mirrored member-host tasks), so the numbers agree
-// with Tasks' columns: Working is In progress, Needs you is Needs attention and Failed,
+// with Tasks' columns: Working is Working, Needs attention is Needs you and Failed,
 // Ready to review is In review, Done is Done, Cancelled and Declined, and Blocked is a task
 // waiting on other tasks (state blocked); To do that is not blocked is named under the groups.
 // Filters: created by (a person, the sender's user; or a service or trigger, the handoff's
@@ -4476,10 +4513,16 @@ dashPage('community',{title:'Tasks',sub:'Community',rail:'issues',panel:false,en
 // Read only: rows are links to the task (#issues/...); nothing here writes, so a viewer
 // sees the same page. In agentd app (region:app) the same view is the Home page over the
 // centre, from the snapshot it already has: no new route, a task row opens the workspace.
-// Labels say whose each group is (libraos/core#904): Needs attention is the team's,
-// unlike Inbox, which is the signed-in person's alone.
-const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs attention (team)','A question, an approval, or a blocked, failed or stopped worker, whoever started it.'],['blocked','Waiting on another task','Waiting on other tasks to finish first.'],['review','Review and validation','A pull request open, or an agent at the review or validate stage.'],['done','Closed recently','Done, cancelled or declined in the last 24 hours.']],
-  HOME_COLUMN={working:'progress',needs:'needs',blocked:'todo',review:'review',done:'done'},HOME_CAP=5,HOME_PERSON_SOURCES=new Set(['','interactive','cli']),HOME={by:'',project:''};
+// Created by starts at Me in agentd app (review M3): the personal Home is one's own tasks first, and its
+// Needs attention group reads Needs you then; Anyone widens every group to everyone's. Each row's state is
+// the task's one mark (region:marks), the word its Tasks card and the app's sidebar use.
+const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['needs','Needs attention','A question, an approval, or a blocked, failed or stopped worker.'],['blocked','Waiting on another task','Waiting on other tasks to finish first.'],['review','Review and validation','A pull request open, or an agent at the review or validate stage.'],['done','Closed recently','Done, cancelled or declined in the last 24 hours.']],
+  HOME_COLUMN={working:'progress',needs:'needs',blocked:'todo',review:'review',done:'done'},HOME_CAP=5,HOME_PERSON_SOURCES=new Set(['','interactive','cli']),HOME={by:null,project:''};
+// HOME.by null is the default: in agentd app, the signed-in person (Me), so the personal Home starts with
+// one's own tasks; elsewhere, or with no person (the shared token), Anyone. Anyone is by=anyone in the
+// address when Me is the default, so a reload keeps it.
+function homeMe(d){return APP.on&&d&&d.user?'person:'+d.user:''}
+function homeBy(d){return HOME.by===null?homeMe(d):HOME.by}
 // homeGroupOf: which of the five groups an item is in, '' for To do that waits on nothing.
 function homeGroupOf(i){const s=i.status,x=i.src||{};if(s==='needs'||s==='failed')return 'needs';if(s==='progress')return 'working';if(s==='review')return 'review';if(FINISHED.has(s))return 'done';
   if(s==='todo'&&(x.state==='blocked'||(x.handoffs||[]).some(h=>h&&h.state==='blocked')))return 'blocked';return ''}
@@ -4489,7 +4532,7 @@ function homeCreator(i,live){const x=i.src||{};if(i.kind==='issue'){const h=(x.h
 function homeByLabel(by){return by.startsWith('source:')?word(by.slice(7)):by.replace(/^person:/,'')}
 // homeModel: the groups under the filters, and every creator and project there is to choose.
 function homeLive(d){return new Map([...(d.handoff_list||[]).map(h=>[h.id,h]),...(d.done||[]).filter(x=>x.what==='handoff').map(x=>[x.ref,x])])}
-function homeModel(d,f){f=f||HOME;const live=homeLive(d);
+function homeModel(d,f){f=f||{by:homeBy(d),project:HOME.project};const live=homeLive(d);
   const items=issueItems(d,true).filter(i=>!i.folded||d.attention_version&&i.attention),people=new Set(),sources=new Set(),projects=new Set(),groups=Object.fromEntries(HOME_GROUPS.map(([k])=>[k,[]]));let todo=0;
   for(const i of items){i.by=homeCreator(i,live);if(i.by.startsWith('person:'))people.add(i.by.slice(7));else if(i.by.startsWith('source:'))sources.add(i.by.slice(7));if(i.project)projects.add(i.project)}
   for(const i of items){if(f.by&&i.by!==f.by||f.project&&i.project!==f.project)continue;const g=homeGroupOf(i);if(g==='needs'&&d.attention_version&&!i.attention)continue;if(g)groups[g].push(i);else if(i.status==='todo')todo++}
@@ -4507,31 +4550,32 @@ function homeRow(i,app){const r=homeRowOf(i,app),ext=/^https:/.test(r.href),t=ap
   const open=t?el('button',{type:'button',class:'home-open linkish','data-task-id':r.id,title:r.full,onclick:()=>appTaskOpen(r.id)},r.title)
     :r.href?el('a',{class:'home-open',href:r.href,title:r.full,target:ext?'_blank':null,rel:ext?'noopener':null},r.title):el('span',{class:'home-open',title:r.full},r.title);
   const meta=[i.project?el('span',{class:'kproj',title:i.project},shortProject(i.project)):null,i.by?el('span',{'data-home-by':i.by},'by '+homeByLabel(i.by)):null,hostTag(i.src),r.age?el('span',{class:'age'},r.age+' ago'):null].filter(Boolean);
-  return el('li',{class:'home-row','data-home-row':r.id||i.pr||(i.src&&(i.src.ref||i.src.id))||''},statusEl(i.status),el('div',{class:'home-main'},open,meta.length?el('div',{class:'home-meta'},meta):null))}
-function homeParams(){const p=new URLSearchParams();if(HOME.by)p.set('by',HOME.by);if(HOME.project)p.set('project',HOME.project);return p}
-function homeRead(p){p=p||new URLSearchParams();HOME.by=p.get('by')||'';HOME.project=p.get('project')||''}
+  // The task's one mark (region:marks), as its Tasks card and the app's sidebar say it; an item with none (a PR) its status.
+  return el('li',{class:'home-row','data-home-row':r.id||i.pr||(i.src&&(i.src.ref||i.src.id))||''},el('span',{class:'home-chip'},taskStatus(i,i.status)),el('div',{class:'home-main'},open,meta.length?el('div',{class:'home-meta'},meta):null))}
+function homeParams(){const p=new URLSearchParams(),me=homeMe(lastDash);if(HOME.by===''&&me)p.set('by','anyone');else if(HOME.by&&HOME.by!==me)p.set('by',HOME.by);if(HOME.project)p.set('project',HOME.project);return p}
+function homeRead(p){p=p||new URLSearchParams();const by=p.get('by');HOME.by=by===null?null:by==='anyone'?'':by;HOME.project=p.get('project')||''}
 function homeHashNow(){const q=homeParams().toString();return '#home'+(q?'?'+q:'')}
 // homeSet: a filter changed; the address follows (replaced, not a new history entry) and the view redraws.
 function homeSet(key,value){if(key)HOME[key]=value;if(APP.on){if(location.hash!==homeHashNow())history.replaceState(null,'',homeHashNow());appHomePage()}else{routeQuery('home',homeParams(),true);homeDraw()}}
 // homeView: the filter row, the To do note and the five groups; app is agentd app's Home page.
-function homeView(d,app){const m=homeModel(d,HOME),sfx=app?'-app':'',opt=(v,label)=>el('option',{value:v},label),filtered=!!(HOME.by||HOME.project);
-  const by=el('select',{id:'home-by'+sfx,'data-home-filter':'by',onchange:e=>homeSet('by',e.target.value)},opt('','Anyone'),
-    m.people.length?el('optgroup',{label:'People'},m.people.map(p=>opt('person:'+p,p))):null,
+function homeView(d,app){const me=homeMe(d),cur=homeBy(d),m=homeModel(d,{by:cur,project:HOME.project}),sfx=app?'-app':'',opt=(v,label)=>el('option',{value:v},label),filtered=!!(cur!==me||HOME.project),others=m.people.filter(p=>'person:'+p!==me);
+  const by=el('select',{id:'home-by'+sfx,'data-home-filter':'by',onchange:e=>homeSet('by',e.target.value)},me?opt(me,'Me'):null,opt('','Anyone'),
+    others.length?el('optgroup',{label:'People'},others.map(p=>opt('person:'+p,p))):null,
     m.sources.length?el('optgroup',{label:'Services and triggers'},m.sources.map(s=>opt('source:'+s,word(s)))):null);
-  if(HOME.by&&![...by.options].some(o=>o.value===HOME.by))by.append(opt(HOME.by,homeByLabel(HOME.by)));by.value=HOME.by;
+  if(cur&&![...by.options].some(o=>o.value===cur))by.append(opt(cur,homeByLabel(cur)));by.value=cur;
   const proj=el('select',{id:'home-project'+sfx,'data-home-filter':'project',onchange:e=>homeSet('project',e.target.value)},opt('','All projects'),m.projects.map(p=>opt(p,shortProject(p))));
   if(HOME.project&&!m.projects.includes(HOME.project))proj.append(opt(HOME.project,shortProject(HOME.project)));proj.value=HOME.project;
   const bar=el('div',{class:'wfilter home-filters',role:'group','aria-label':'Filters'},el('label',{class:'issue-proj',for:'home-by'+sfx},'Created by ',by),el('label',{class:'issue-proj',for:'home-project'+sfx},'Project ',proj),
-    filtered?el('button',{type:'button','data-home-clear':'',onclick:()=>{HOME.by=HOME.project='';homeSet('','')}},'Clear filters'):null);
+    filtered?el('button',{type:'button','data-home-clear':'',onclick:()=>{HOME.by=null;HOME.project='';homeSet('','')}},'Clear filters'):null);
   // A link that opens exactly the set counted names the count; one that opens a wider list
   // (agentd app's Tasks, the To do column for Waiting on another task) says Browse Tasks.
-  const tasksHref=column=>{const p=new URLSearchParams({view:d.attention_version&&column==='needs'?'needs':'all',layout:'board',column});if(HOME.project)p.set('project',HOME.project);if(HOME.by)p.set('by',HOME.by);return '#issues?'+p};
+  const tasksHref=column=>{const p=new URLSearchParams({view:d.attention_version&&column==='needs'?'needs':'all',layout:'board',column});if(HOME.project)p.set('project',HOME.project);if(cur)p.set('by',cur);return '#issues?'+p};
   const more=(key,n)=>{if(app)return el('button',{type:'button',class:'linkish home-more',onclick:()=>appPage('tasks')},'Browse Tasks');const exact=key!=='blocked';
     return el('a',{class:'home-more',href:tasksHref(HOME_COLUMN[key]),title:exact?null:'Opens To do, which also holds tasks not waiting on another'},exact?'All '+n+' in Tasks':'Browse Tasks')};
-  const groups=el('div',{class:'home-groups'},HOME_GROUPS.map(([key,label,hint])=>{const xs=m.groups[key],hid='home-h-'+key+sfx,scoped=key==='needs'&&d.attention_version;
+  const groups=el('div',{class:'home-groups'},HOME_GROUPS.map(([key,label,hint])=>{const xs=m.groups[key],hid='home-h-'+key+sfx,scoped=key==='needs'&&d.attention_version,mine=key==='needs'&&!!me&&cur===me,head=mine?'Needs you':label;
     return el('section',{class:'home-group','data-home-group':key,'aria-labelledby':hid},
-      el('div',{class:'home-ghead'},el('h3',{id:hid},scoped?'Needs attention':label),el('span',{class:'n','data-home-count':key,title:xs.length+' in '+(scoped?'Needs attention':label)},String(xs.length))),
-      el('p',{class:'home-hint'},scoped?'Questions, approvals and tasks needing a person. Other people’s mirrored tasks are listed separately in Tasks.':hint,key==='needs'?[' See ',app?'your Inbox':el('a',{href:'#inbox'},'your Inbox'),'.']:null),
+      el('div',{class:'home-ghead'},el('h3',{id:hid},head),el('span',{class:'n','data-home-count':key,title:xs.length+' in '+head},String(xs.length))),
+      el('p',{class:'home-hint'},scoped?'Questions, approvals and tasks needing a person. Other people’s mirrored tasks are listed separately in Tasks.':mine?'A question, an approval, or a blocked, failed or stopped worker on a task you started.':hint,key==='needs'?[' See ',app?'your Inbox':el('a',{href:'#inbox'},'your Inbox'),'.']:null),
       xs.length?el('ul',{class:'home-rows'},xs.slice(0,HOME_CAP).map(i=>homeRow(i,app))):el('p',{class:'home-empty'},filtered?'Nothing here matches these filters.':'Nothing here.'),
       xs.length>HOME_CAP?more(key,xs.length):null)}));
   const note=m.todo?el('p',{class:'home-note','data-home-todo':String(m.todo)},m.todo+' more '+(m.todo===1?'task is':'tasks are')+' to do, not started yet. ',app?null:el('a',{href:tasksHref('todo'),title:'To do also holds the tasks waiting on another'},'Browse Tasks')):null;
@@ -4552,7 +4596,7 @@ dashPage('home',{title:'Home',panel:false,enter(r){homeRead(r.params);homeDraw()
   render(){if(ROUTE.item!=='home')return;homeDraw();loadIssues()}});
 // appHomePage: the same view as agentd app's Home page (region:app-sidebar's appPage).
 function appHomePage(){const p=$('app-page');if(!p||!APP.on||APPS.page!=='home'||!lastDash)return;const a=document.activeElement,keep=a&&p.contains(a)&&a.id?a.id:'';
-  p.replaceChildren(appPageHead('Home'),el('div',{class:'home-app'},el('p',{class:'home-hint'},'Tasks by where they stand, yours and others’. A task row opens it.'),...homeView(lastDash,true)));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
+  p.replaceChildren(appPageHead('Home'),el('div',{class:'home-app'},el('p',{class:'home-hint'},'Your tasks by where they stand; Created by: Anyone shows others’ too. A task row opens it.'),...homeView(lastDash,true)));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
 // end:home
 // region:overview: load and running tasks every 10 s, history once a minute. All feeds
 // retain their last good answer on transient failure, and drop it on a refused read or
@@ -6267,7 +6311,8 @@ function appMine(d){const l=d.handoff_list||[];return l.some(h=>h.mine===false)?
 // appSpend: dollars over a task's attempts, a running one's so far included (usd_so_far); appSoFar says one is.
 function appSpend(h){const a=(h.attempts||[]).filter(x=>typeof x.usd==='number'||typeof x.usd_so_far==='number');return a.length?a.reduce((s,x)=>s+(typeof x.usd==='number'?x.usd:x.usd_so_far),0):null}
 function appSoFar(h){return (h.attempts||[]).some(x=>typeof x.usd!=='number'&&typeof x.usd_so_far==='number')}
-const APP_DOTS={needs_you:'Needs you',failed:'Failed',working:'Working',waiting:'Waiting',done:'Done',idle:'Not started'};
+// The dots' words are region:marks' (idle is Not started's dot), the one vocabulary every view uses.
+const APP_DOTS={needs_you:markWord('needs_you'),failed:markWord('failed'),working:markWord('working'),waiting:markWord('waiting'),done:markWord('done'),idle:markWord('not_started')};
 function appDot(mark){return Object.hasOwn(APP_DOTS,mark)?mark:'idle'}
 function appIcon(d,size){const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:size||14,height:size||14,fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(k,v);
   for(const p of [].concat(d)){const n=document.createElementNS(NS,'path');n.setAttribute('d',p);svg.append(n)}return svg}
@@ -6276,13 +6321,14 @@ const APP_ICONS={folder:'M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.6
 // from the Agents list's own model (its marks and Needs you rule), the day's finished ones from done.
 function appSidebarModel(d){const m=agentsModel(d),need=new Set(m.need.map(r=>r.id)),rows=[],seen=new Set();
   for(const r of [...m.need,...m.groups.flatMap(g=>g.rows)])if(r.h&&!seen.has(r.id)){seen.add(r.id);rows.push({...r,mine:r.h.mine!==false&&!r.h.read_only,need:need.has(r.id)})}
-  for(const x of d.done||[])if(x.what==='handoff'&&x.ref&&!seen.has(x.ref)){seen.add(x.ref);rows.push({id:x.ref,h:x,mark:x.failed?'failed':'done',done:true,project:projectOf(x),title:cardTitle(x.title||x.ref),full:x.title||x.ref,href:itemHash(null,x.ref),mine:x.mine!==false,need:false})}
+  for(const x of d.done||[])if(x.what==='handoff'&&x.ref&&!seen.has(x.ref)){seen.add(x.ref);rows.push({id:x.ref,h:x,mark:doneMark(x),done:true,project:projectOf(x),title:cardTitle(x.title||x.ref),full:x.title||x.ref,href:itemHash(null,x.ref),mine:x.mine!==false,need:false})}
   const mine=new Map(),others=[];
   for(const r of rows){if(!r.mine){others.push(r);continue}if(!mine.has(r.project))mine.set(r.project,[]);mine.get(r.project).push(r)}
   const groups=[...mine.keys()].sort((a,b)=>(!a)-(!b)||a.localeCompare(b)).map(k=>({project:k,rows:mine.get(k)}));
   return {rows,groups,others,standalone:m.standalone,need:rows.filter(r=>r.need&&(d.attention_version||r.mine)),byId:new Map(rows.map(r=>[r.id,r]))}}
 function appOwner(r){return r.h.mirror&&r.h.mirror.person||r.h.from_user||r.h.claimer_user||'someone else'}
-function appTaskRow(r){const h=r.h,usd=appSpend(h),dot=appDot(r.mark),meta=h.host&&h.origin==='host'?appOwner(r)+' · act on host '+h.host:r.mine?h.branch||agentsState(r):[appOwner(r),h.branch||r.project].filter(Boolean).join(' · ');
+// Its second line leads with the task's state word (agentsState: the mark's, as Home, Tasks and /panel say it), then its branch.
+function appTaskRow(r){const h=r.h,usd=appSpend(h),dot=appDot(r.mark),state=r.done?APP_DOTS[dot]:agentsState(r),meta=h.host&&h.origin==='host'?[appOwner(r),state,'act on host '+h.host].join(' · '):r.mine?[state,h.branch].filter(Boolean).join(' · '):[appOwner(r),state,h.branch||r.project].filter(Boolean).join(' · ');
   return el('button',{type:'button',class:'app-task','data-task-id':r.id,'data-mark':r.mark,'data-done':r.done?'':null,'data-readonly':r.mine?null:'','aria-current':APP.task===r.id?'true':null,title:r.full+'\n'+APP_DOTS[dot]+(r.mine?'':' · read only: '+appOwner(r)+'’s task')},
     el('span',{class:'app-lane'},el('span',{class:'app-dot','data-dot':dot,role:'img','aria-label':APP_DOTS[dot]},dot==='needs_you'?'?':null)),
     el('span',{class:'app-tbody'},el('span',{class:'app-trow'},el('span',{class:'app-ttitle'},r.title),usd!==null?el('span',{class:'app-tspend',title:'Spent by its workers'},'$'+usd.toFixed(2)+(appSoFar(h)?' so far':'')):null),
@@ -6896,8 +6942,9 @@ function awIcon(k,n){const s=document.createElementNS('http://www.w3.org/2000/sv
 // awFRow: a Session feed row led by an inline icon (dot: the worker or a report; corner: a result or a step),
 // not the terminal's ⏺ and ⎿, which many hosts' fonts lack (review m1).
 function awFRow(icon,attrs,...kids){return el('div',{...attrs,class:attrs.class+' app-fr'},el('span',{class:'app-fi','data-icon':icon,'aria-hidden':'true'},awIcon(icon,12)),el('span',{class:'app-ft'},...kids))}
-// awTask is the open task's row in the snapshot (open, then finished), or just its id.
-function awTask(hid){const d=lastDash||{};return (d.handoff_list||[]).find(h=>h.id===hid)||(d.done||[]).find(h=>h.id===hid)||{id:hid}}
+// awTask is the open task's row in the snapshot (open, then finished), or just its id. A finished row names
+// its task by ref (the done list's key), so it is matched by either and given its id.
+function awTask(hid){const d=lastDash||{},x=(d.handoff_list||[]).find(h=>h.id===hid)||(d.done||[]).find(h=>h.id===hid||h.what==='handoff'&&h.ref===hid);return x?(x.id===hid?x:{...x,id:hid}):{id:hid}}
 // awTheirs: the task is another person's, so it is read only here (the sidebar says so in its event).
 function awTheirs(h){return !!(USER&&h.from_user&&h.from_user!==USER)}
 function awState(hid){return AW.by[hid]||(AW.by[hid]={tabs:[{key:'session',kind:'session'}],cur:'session'})}
@@ -6914,7 +6961,7 @@ function awTick(){if(!APP.on||!AW.hid||document.hidden)return;awPanels(false);co
 function awTyping(){const a=document.activeElement;return !!(a&&a.closest&&a.closest('#app-tab-body textarea'))}
 // The tab strip: Session first, the rest in the order opened.
 function awTabLabel(t,h){if(t.kind==='session')return 'Session';if(t.kind==='log')return 'Log';if(t.kind==='term')return 'Terminal '+t.n;if(t.kind==='diff')return awBase(t.path)+' (diff)';return awBase(t.path)}
-function awDraw(){const strip=$('app-tabs'),center=$('app-center');if(!AW.hid){strip.replaceChildren();return}
+function awDraw(){const strip=$('app-tabs'),center=$('app-center');awResult(AW.hid);if(!AW.hid){strip.replaceChildren();return}
   const h=awTask(AW.hid),s=awState(AW.hid);center.dataset.ws=AW.hid;
   strip.replaceChildren(...s.tabs.map(t=>{const on=t.key===s.cur,label=awTabLabel(t,h);
     return el('div',{role:'tab',class:'app-tab',tabindex:on?'0':'-1','aria-selected':String(on),'aria-controls':'app-tab-body','data-tab':t.key,'data-kind':t.kind,'data-mark':t.mark||null,title:t.path?t.path+(t.kind==='diff'?' (diff)':''):label},
@@ -7086,7 +7133,47 @@ document.addEventListener('click',e=>{if(AW.menu&&!e.target.closest('.app-menu,[
 document.addEventListener('keydown',e=>{if(!AW.menu)return;if(e.key==='Escape'){const k=AW.menu.dataset.menu;awMenu(null);const b=$('app-center').querySelector('[data-app-action="'+(k==='command'?'command':'new-tab')+'"]');if(b)b.focus()}
   else if(e.key==='ArrowDown'||e.key==='ArrowUp'){const it=[...AW.menu.querySelectorAll('.app-mitem')],i=it.indexOf(document.activeElement);if(!it.length)return;e.preventDefault();it[(i+(e.key==='ArrowDown'?1:-1)+it.length)%it.length].focus()}});
 // The right sidebar's panels for the open task; load=true reads afresh on opening a task.
-function awPanels(load){const hid=AW.hid;if(!hid)return;awFiles(hid,load);awChanges(hid,load);awChecks(hid,load);awDetails(hid,load)}
+function awPanels(load){const hid=AW.hid;if(!hid)return;awFiles(hid,load);awChanges(hid,load);awChecks(hid,load);awDetails(hid,load);awResultLoad(hid)}
+// The result strip (review M4): a done or failed task opens with its result at the top of the centre, over
+// every tab, so a phone shows it without opening a drawer, as the server's result card does: the verdict (the
+// task's mark word, why it failed, and the delivery verdict), the check with its test count (GET /api/checks'
+// newest run, else the snapshot's check_state), the branch (GET /api/review), the cost (GET /api/taskdetail, else
+// what its workers' attempts spent), Push and open a draft PR (the Changes panel's button: the same confirm sheet,
+// openPRConfirm, and the same rule, openPRWhy; it never pushes or merges by itself) and Start again (the Command
+// menu's retryHandoff, only where the server sent retry) or, on a finished task whose box takes a follow-up
+// (#670), Follow up, which goes to that box. It reads what the panels load; a part that cannot be read is left out.
+function awFinishedMark(hid){const h=awTask(hid),r=APPS.model&&APPS.model.byId.get(hid);
+  if(r&&(r.mark==='done'||r.mark==='failed'))return r.mark;if(r&&!r.done)return h.retry&&!h.worker_running?'failed':'';
+  return /^(done|cancelled|declined)$/.test(h.state||'')||h.what==='handoff'?doneMark(h):''}
+function awResultCheck(hid,h){const c=CHECKS[hid],d=c&&c.data,run=d&&(d.runs||[])[0];
+  if(run){const res=String(run.result||'');return {state:res,text:AP_CHECK[res]||'Check '+words(res),tests:/^\d/.test(String(run.tests||''))?String(run.tests):''}}
+  if(d&&d.none)return {state:'none',text:AP_CHECK.none,tests:''};
+  return h.check_state?{state:h.check_state,text:AP_CHECK[h.check_state]||AP_CHECK.none,tests:''}:null}
+function awResultCost(hid,h){const d=AW_DET[hid]&&AW_DET[hid].data,c=d&&d.cost;
+  if(c&&(c.usd!=null||c.minutes))return [c.usd!=null?(c.floor?'≥ ':'')+'$'+Number(c.usd).toFixed(2):'',c.minutes?fmtMin(c.minutes):''].filter(Boolean).join(' · ');
+  const v=appSpend(h);if(v!==null)return '$'+v.toFixed(2);const m=/\$(\d+\.\d\d)/.exec(String(h.result||''));return m?'$'+m[1]:''}
+function awResultWhy(h,check){if(/^(cancelled|declined)$/.test(h.state||''))return capFirst(h.state);
+  if(check&&/^(failed|timed_out|no_tests)$/.test(check.state))return check.text;
+  return (h.attempts||[]).length?failedWhy(h):h.failure?capFirst(plainText(words(h.failure))):'Its worker did not finish'}
+function awResult(hid){const box=$('app-result');if(!box)return;const mark=hid&&AW.hid===hid?awFinishedMark(hid):'';
+  if(!mark){box.hidden=true;box.replaceChildren();delete box.dataset.hid;delete box.dataset.mark;return}
+  const h=awTask(hid),d=lastDash||{},rc=OPENPR[hid]&&OPENPR[hid].data,det=AW_DET[hid]&&AW_DET[hid].data,dl=det&&det.delivery||{},check=awResultCheck(hid,h),cost=awResultCost(hid,h);
+  const why=mark==='failed'||/^(cancelled|declined)$/.test(h.state||'')?awResultWhy(h,check):'',branch=rc&&rc.branch||h.branch||h.worker_branch||det&&det.branch||'';
+  const fact=(k,key,v)=>v?el('div',{'data-k':key},el('dt',{},k),el('dd',{},v)):null;
+  const acts=[];if(!AW.ro){
+    if(rc&&rc.pr)acts.push(el('a',{class:'app-btn','data-k':'pr',href:ghHref(rc.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer',title:'Merged on GitHub by a person, never from here'},'Draft PR '+rc.pr.ref+(rc.pr.state?' · '+String(rc.pr.state).toLowerCase():'')));
+    else if(rc&&(rc.files||[]).length){const no=openPRWhy(rc);acts.push(el('button',{type:'button',class:'app-btn app-primary','data-act':'open_pr','data-write':'','aria-disabled':no?'true':null,title:no||'Asks first. Same as: '+CLI+' handoff pr '+hid,onclick:()=>{if(!no)openPRConfirm(rc)}},awIcon('push',13),'Push and open a draft PR'))}
+    if(d.dispatch&&h.dispatched&&h.retry){const no=h.retry.may===false?h.retry.why_not||'You cannot start this task again.':'';acts.push(el('button',{type:'button',class:'app-btn','data-act':'retry','data-write':'','aria-disabled':no?'true':null,title:no||'A new worker on its branch, with the same goal, check and budget',onclick:()=>{if(!no)retryHandoff(h)}},awIcon('again',13),'Start again'))}
+    else{const m=TW.msg[hid]&&TW.msg[hid].data;if(m&&m.may&&!m.live&&m.followup)acts.push(el('button',{type:'button',class:'app-btn','data-act':'followup',title:m.followup_note||'A message starts a worker again on the task’s branch.',onclick:()=>awFollowUp(hid)},awIcon('again',13),'Follow up'))}}
+  const no=acts.map(a=>a.getAttribute('aria-disabled')==='true'&&a.title).filter(Boolean)[0];
+  box.hidden=false;box.dataset.hid=hid;box.dataset.mark=mark;
+  box.replaceChildren(el('div',{class:'app-rverdict','data-k':'verdict'},markEl(mark),why?el('span',{class:'app-rwhy'},why):null,dl.outcome&&dl.outcome!=='open'&&AW_OUTCOME[dl.outcome]?el('span',{class:'app-verdict','data-outcome':dl.outcome,title:dl.reason||null},AW_OUTCOME[dl.outcome]):null),
+    el('dl',{class:'app-rfacts'},fact('Check','check',check?[el('span',{'data-check':check.state},check.text),check.tests?' · '+check.tests:'']:null),fact('Branch','branch',branch?el('code',{},branch):null),fact('Cost','cost',cost)),
+    acts.length?el('div',{class:'app-racts','data-app-write':''},...acts,no?el('p',{class:'app-why'},no):null):null)}
+function awResultLoad(hid){if(!awFinishedMark(hid)){awResult(hid);return}awResult(hid);
+  Promise.all([openPRLoad(hid),checksLoad(hid),awDetailLoad(hid),twMsgLoad(hid)]).then(()=>{if(AW.hid===hid)awResult(hid)})}
+// Follow up: the Session tab and its message box, which starts a worker again on the task's branch (#670).
+function awFollowUp(hid){if(AW.hid!==hid)return;awPick('session');const t=document.querySelector('#app-tab-body .app-msgbar textarea');if(t)t.focus()}
 function awSec(id){return $('app-panel-'+id)}
 // Files: Names lists the worker directory's files (changed ones marked); Contents searches the change's diffs.
 function awFiles(hid,load){const box=awSec('files'),fc=FILES[hid]||(FILES[hid]={});
