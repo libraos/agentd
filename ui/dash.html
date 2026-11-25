@@ -1036,6 +1036,26 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-page section{max-width:640px}.app-page section p{color:var(--o-mfg);line-height:1.5}.app-page code{margin:6px 0 12px;font-size:12px}
 @media(max-width:860px){.app-task{min-height:44px}.app-repo{min-height:44px}.app-page{padding:12px}.app-ptable .app-pcol-opt{display:none}}
 /* end:css-app-sidebar */
+/* region:css-app-inbox: the app's Inbox page (region:app-inbox): the panel's Needs-you rows at full width, in the app's tokens */
+.app-iscope{display:inline-flex;border:1px solid var(--o-border);border-radius:8px;overflow:hidden;flex-shrink:0}
+.app-page .app-phead .app-iscope-btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border:0;border-radius:0;background:var(--o-card);color:var(--o-mfg);font-size:12px;font-weight:500;--app-hover:var(--o-accent)}
+.app-page .app-phead .app-iscope-btn+.app-iscope-btn{border-left:1px solid var(--o-border)}
+.app-page .app-phead .app-iscope-btn[aria-pressed="true"]{background:var(--o-accent);color:var(--o-fg);--app-hover:var(--o-accent)}
+.app-iscope-n{font-variant-numeric:tabular-nums;font-weight:600}
+.app-inbox{display:flex;flex-direction:column;gap:8px;max-width:860px}
+.app-inbox .ap-need{min-width:0;padding:12px 14px;border:1px solid var(--o-border);border-left:3px solid var(--o-question);border-radius:10px;background:var(--o-card);color:var(--o-fg);font-size:13px;line-height:1.45}
+.app-inbox .ap-need[data-kind="failed"]{border-left-color:var(--o-red)}.app-inbox .ap-need[data-kind="lesson"]{border-left-color:var(--o-ring)}
+.app-inbox .ap-ntext{overflow-wrap:anywhere;white-space:pre-line}.app-inbox .ap-ntext b{font-weight:600}
+.app-inbox .ap-mute{margin-top:4px;font-size:12px;color:var(--o-mfg);overflow-wrap:anywhere}
+.app-inbox .ap-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.app-inbox .ap-btn{display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 12px;border:1px solid var(--o-border);border-radius:8px;background:var(--o-bg);color:var(--o-fg);font-size:12px;font-weight:500;--app-hover:var(--o-accent)}
+.app-inbox .ap-primary{background:var(--o-primary);border-color:var(--o-primary);color:var(--o-primary-fg);--app-hover:var(--o-primary)}.app-inbox .ap-danger{color:var(--o-red)}
+.app-inbox .ap-where{display:flex;flex-direction:column;gap:4px;margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--o-muted)}.app-inbox .ap-where>.ap-mute{margin:0}
+.app-inbox .ap-cmd{display:flex;align-items:center;gap:8px;min-width:0}
+.app-inbox .ap-cmd code{flex:1;min-width:0;margin:0;font:12px/18px var(--o-mono);color:var(--o-fg);overflow-wrap:anywhere}
+.app-inbox .ap-copy{flex-shrink:0;height:24px;padding:0 8px;font-size:11px}
+@media(max-width:860px){.app-inbox .ap-btn,.app-page .app-phead .app-iscope-btn{min-height:44px}.app-inbox .ap-copy{min-height:36px}}
+/* end:css-app-inbox */
 /* region:css-app-triggers: the app's Triggers page (libraos/core#680), cards in the reference app's page style */
 .app-page .appt-sp{flex:1}.app-page .app-phead button{height:28px;padding:0 12px;border-radius:6px;font-size:12px}
 .appt-card{margin:0 0 16px;padding:12px 16px;overflow:visible}.appt-head{display:flex;align-items:center;gap:10px}.appt-title{flex:1;min-width:0}.appt-title b{display:block;font-size:13px}.appt-title small{color:var(--o-mfg);font-size:11px;overflow-wrap:anywhere}
@@ -1352,7 +1372,8 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 .ap-cli{display:block;margin:4px 0 0;color:var(--mute);white-space:pre-wrap}
 .ap-inbox .ap-need{border-left:3px solid var(--amber)}
 .ap-need{padding:6px 8px;margin:0 0 4px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-s);min-width:0}
-.ap-need[data-kind="failed"]{border-left-color:var(--red)}.ap-ntext{overflow-wrap:anywhere}
+.ap-need[data-kind="failed"]{border-left-color:var(--red)}.ap-ntext{overflow-wrap:anywhere;white-space:pre-line}
+.ap-where{display:flex;flex-direction:column;gap:2px;margin-top:6px}.ap-cmd{display:flex;align-items:center;gap:6px;min-width:0}.ap-cmd code{flex:1;min-width:0}.ap .ap-copy{min-height:20px;padding:0 6px}
 .ap-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
 .ap .ap-btn{font:inherit;font-size:var(--fs-xs);min-height:24px;padding:2px 10px;border-radius:var(--r-s);border:1px solid var(--line);background:var(--raised);color:var(--fg);cursor:pointer;box-shadow:none}
 .ap .ap-btn:hover:not([aria-disabled="true"]){background:var(--hover)}.ap .ap-btn[aria-disabled="true"]{opacity:.55;cursor:default}
@@ -1665,11 +1686,13 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <div class="app-tbleft"><span class="app-logo" aria-hidden="true" data-brand-mark></span><span class="app-name" data-brand="product">LibraOS Engine</span><span class="app-grow"></span><button type="button" class="app-sidetoggle" data-app-action="toggle-left" aria-controls="app-left" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl+B)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg></button></div>
   <nav class="app-nav" aria-label="Search and views">
     <button type="button" class="app-search" data-app-action="search" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
-    <!-- region:app-nav: Home (work by status, region:home), Tasks (every task as a table) and Triggers (an owner's, region:app-triggers) open in the centre; wired by the issues that build them -->
+    <!-- region:app-nav: Home (work by status, region:home), Tasks (every task as a table), Inbox (what waits on me, region:app-inbox) and Triggers (an owner's, region:app-triggers) open in the centre; wired by the issues that build them -->
     <!-- region:app-onboard-entry: the reference app's "Onboarding checklist" row (#569), first in the nav; drawn by region:app-onboard -->
     <div id="appob-entry" data-region="onboard-entry" hidden></div>
     <button type="button" class="app-navrow" data-app-nav="home"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Home</button>
     <button type="button" class="app-navrow" data-app-nav="tasks" aria-disabled="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 5h.01M3 12h.01M3 19h.01M8 5h13M8 12h13M8 19h13"/></svg>Tasks</button>
+    <!-- region:app-inbox's nav row: what waits on me (the panel's Needs you), a page over the centre; the bell opens it too -->
+    <button type="button" class="app-navrow" data-app-nav="inbox"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>Inbox<span class="app-navnote" id="app-inbox-count" hidden></span></button>
     <button type="button" class="app-navrow" data-app-nav="triggers" aria-disabled="true" data-owner-only hidden><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5M16 2v4M8 2v4M3 10h5"/><circle cx="16" cy="16" r="6"/><path d="M16 14v2l1 1"/></svg>Triggers</button>
   </nav>
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
@@ -3270,14 +3293,21 @@ function approvalActs(id,title,from,self){
   el('button',{class:'primary','data-write':true,onclick:()=>approvalDecision(id,title,from,'approve')},'Approve'),
   el('button',{class:'no','data-write':true,onclick:()=>approvalDecision(id,title,from,'reject')},'Reject'),
   self===undefined&&(ROLE==='owner'||TOKEN&&!ROLE&&!ON_TEAM)?el('button',{'data-write':true,onclick:()=>approvalDecision(id,title,from,'approve',true)},'Approve anyway (owner override)'):null]}
+// pageMay: whether this page may send /api/action kind. The personal app serves only its allowlist (core's
+// dash_appmode.go appActions, mirrored in APP_ACTIONS) and answers 404 to any other kind; approval_answer
+// and pr_merge are never on it. The team dash sends every kind and the server checks the person. Where
+// the page may not act, a row says where to act instead and offers no button that would only fail.
+const APP_ACTIONS=new Set(['offer','dispatch','stop','retry','task_msg','msg','set_check','push_branch','open_pr','takeover','cancel','open_editor']);
+function pageMay(kind){return !(lastDash&&lastDash.mode==='app')||APP_ACTIONS.has(kind)}
 // region:lessons: a lesson agentd proposed (#1055), or an approved one it
 // suggests retiring, in the Inbox. Show reads it; Edit, Approve, Reject and
 // Retire send the server's lesson_* actions, which act only for the person
 // signed in (never the shared token, never a viewer): the page sends no name,
 // the server records the signed-in one. Others get the terminal command.
 function lessonText(x){return x.lesson_text||{}}
-function lessonCan(){return !!USER&&ROLE==='owner'}
-function lessonWhyNot(x){const cmd=CLI+' lesson '+(x.suggest_retire?'retire':'approve')+' '+x.lesson;return !USER?'A lesson is decided by an owner signed in with their own name, not with the shared token. At the host: '+cmd:ROLE!=='owner'?'Only an owner decides a lesson. At the host, an owner runs: '+cmd:''}
+function lessonCan(){return !!USER&&ROLE==='owner'&&pageMay('lesson_approve')}
+function lessonCmd(x){return CLI+' lesson '+(x.suggest_retire?'retire':'approve')+' '+x.lesson}
+function lessonWhyNot(x){const cmd=lessonCmd(x);return !pageMay('lesson_approve')?'The app does not decide lessons. In the dash, or at the host, an owner runs: '+cmd:!USER?'A lesson is decided by an owner signed in with their own name, not with the shared token. At the host: '+cmd:ROLE!=='owner'?'Only an owner decides a lesson. At the host, an owner runs: '+cmd:''}
 function lessonFacts(x){const t=lessonText(x),sg=x.suggest_retire;
   if(sg)return el('div',{class:'ib-msg lesson-retire'},el('p',{},'Suggest retiring: '+words(sg.why||'')),el('p',{class:'mute'},'Retiring removes it from the lessons collection; keeping it needs nothing but Mark resolved. Retiring stays your decision.'));
   return el('dl',{class:'lesson-fields'},
@@ -3310,6 +3340,7 @@ function needActs(x,extra){
   // A failed or expired item's next step is a button, not a command: the work item's own Start again or Dispatch.
   if(extra&&extra.inbox&&h&&(x.kind==='failed'||x.kind==='stale'))visible.push(...handoffWorkerActions(lastDash||{},h));
   if(x.approvalOnly&&x.can_answer===false)visible.push(el('span',{class:'mute'},x.self?capFirst(x.answer_hint||'waiting for someone else to answer'):'Waiting for '+(x.required_role?'a '+x.required_role:'an owner')+' to answer; your role cannot'+(x.answer_hint?': '+x.answer_hint:'')));
+  else if((x.approvalOnly||x.kind==='spec'&&x.approval)&&!pageMay('approval_answer'))visible.push(el('span',{class:'mute','data-where':'approval'},'The app does not answer approvals. Answer it in the dash, or at your own terminal: '+CLI+' approval answer '+x.approval+' --approve (or --reject)'));
   else if(x.approvalOnly||x.kind==='spec'&&x.approval){const [yes,no,own]=approvalActs(x.approval,x.title,x.from,x.approvalOnly?x.self:undefined);visible.push(yes,no);if(own)more.push(own)}
   if(x.kind==='blocked'){const h=((lastDash||{}).handoff_list||[]).find(h=>h.id===x.handoff),sid=x.claimer||h&&h.claimer;if(sid)visible.unshift(el('a',{href:teamHref('session',sid),onclick:()=>inboxRead(x)},'Open session'));else if(x.handoff)visible.unshift(el('a',{href:itemHash(null,x.handoff),onclick:()=>inboxRead(x)},'Open work item'))}
   else if(x.handoff)more.push(el('a',{href:itemHash(null,x.handoff),onclick:()=>inboxRead(x)},'Open work item'));
@@ -3407,9 +3438,6 @@ function attentionGroups(scope,stale,others){
 }
 function attentionOtherNeeds(others){return new Map([...others].map(([owner,rows])=>[owner,rows.filter(h=>h.attention_status)]))}
 function attentionInboxLink(x){return el('a',{class:'ag-row',href:inboxHref('needs',inboxKey(x))},el('span',{class:'ag-title'},cardTitle(x.title||x.ref||x.id)))}
-function attentionAppNotice(raw){const x=needNorm(raw),title=cardTitle(raw.title||raw.ref||raw.id),approval=x.approvalOnly||x.kind==='spec'&&x.approval;
-  return el('div',{class:'ag-row'},el('span',{class:'ag-title'},title),raw.what==='issue'?el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open issue'):
-    approval?el('span',{class:'kact'},approvalActs(x.approval,x.title,x.from,x.self)):null)}
 // inboxSets is what the page and its badge both read, so they cannot disagree. A spec
 // waiting for an answer arrives twice, as its approval and as its inbox row, and is one
 // row here. Expired items keep to their own filter: a backlog of old offers must not push
@@ -6166,7 +6194,7 @@ function appHomeFromHash(){if(APP.homeAsked)return;APP.homeAsked=true;if(!/^#hom
 function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
 // appTitle: the window title in the personal app, 'PAGE · PRODUCT' (no "Server": that is the team
 // dash's): the page over the centre, else the open task's title, else what the centre says.
-const APP_PAGE_TITLES={home:'Home',tasks:'Tasks',triggers:'Triggers',settings:'Settings'};
+const APP_PAGE_TITLES={home:'Home',tasks:'Tasks',inbox:'Inbox',triggers:'Triggers',settings:'Settings'};
 function appTitle(){if(!APP.on)return;const r=APP.task&&APPS.model&&APPS.model.byId.get(APP.task);
   document.title=(APPS.page?APP_PAGE_TITLES[APPS.page]||word(APPS.page):APP.task?r&&r.full||APP.task:'No task open')+' · '+PRODUCT}
 function appSides(){appTitle();const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
@@ -6222,8 +6250,7 @@ appPanel(APP.panel);
 //             word (/api/dash's mine on each task in app mode: the handoff's sender user); a task
 //             without it (an older server) counts as mine
 //   bell      how many of my tasks wait on me (the status bar's own count, read from my tasks
-//             only); it toggles the list between Projects and Needs you, as the reference app's bell toggles
-//             its list
+//             only); it opens the Inbox page (region:app-inbox), and again closes it
 //   Tasks     every task as a table over the centre (the reference app's Tasks page); Triggers is
 //             region:app-triggers' page (an owner's; read only for anyone else)
 //   keys      ArrowDown and ArrowUp move between tasks while the sidebar has the focus, Enter
@@ -6232,7 +6259,7 @@ appPanel(APP.panel);
 // #app-shell gets data-task (and data-readonly when it is someone else's, which hides the frame's
 // write controls and any marked data-app-write), and document gets an "app-task" event whose
 // detail is {id, mine, readOnly, task}.
-const APPS={view:'projects',page:'',collapsed:new Set(),model:null};
+const APPS={page:'',collapsed:new Set(),model:null};
 try{const v=JSON.parse(localStorage.getItem('dash-app-collapsed')||'[]');if(Array.isArray(v))APPS.collapsed=new Set(v.map(String))}catch(e){}
 APP.task='';
 // appMine: the snapshot with my tasks only, for the status bar's and the bell's counts.
@@ -6264,12 +6291,11 @@ function appRepoRow(key,name,icon,note){const open=!APPS.collapsed.has(key);
   return el('button',{type:'button',class:'app-repo','data-repo':key,'aria-expanded':String(open),title:name},appIcon(icon,14),el('span',{class:'app-rname'},name),note?el('span',{class:'app-rnote'},note):null,el('span',{class:'app-chev'},appIcon(APP_ICONS.chev,14)))}
 function appGroup(key,name,icon,rows,note){return [appRepoRow(key,name,icon,note),...(APPS.collapsed.has(key)?[]:rows.map(appTaskRow))]}
 function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects'),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.taskId||a.dataset.repo||'':'',kids=[];
-  const bell=document.querySelector('#app-shell [data-app-action="bell"]');bell.setAttribute('aria-pressed',String(APPS.view==='needs'));
+  const bell=document.querySelector('#app-shell [data-app-action="bell"]');bell.setAttribute('aria-pressed',String(APPS.page==='inbox'));
   const count=m.need.length+m.standalone.length;
-  bell.setAttribute('aria-label',(d.attention_version?count+' need attention':m.need.length+' of your tasks '+(m.need.length===1?'waits':'wait')+' on you')+(APPS.view==='needs'?'; showing them, click for all projects':'; click to list them'));
-  $('app-projects-name').textContent=APPS.view==='needs'?'Needs you':'Projects';
-  if(APPS.view==='needs'){kids.push(...m.need.map(appTaskRow),...m.standalone.map(attentionAppNotice));if(!count)kids.push(el('p',{class:'app-listnote'},'Nothing waits on you. The bell counts your tasks that need you: a question, a failed worker, a stop or a budget that ran out.'))}
-  else{for(const g of m.groups)kids.push(...appGroup('p:'+g.project,g.project||'No repository',APP_ICONS.folder,g.rows));
+  bell.setAttribute('aria-label',(d.attention_version?count+' need attention':m.need.length+' of your tasks '+(m.need.length===1?'waits':'wait')+' on you')+(APPS.page==='inbox'?'; the Inbox is open, click to close it':'; click to open the Inbox'));
+  bell.title='Inbox: what waits on you';appInboxCount(d);
+  {for(const g of m.groups)kids.push(...appGroup('p:'+g.project,g.project||'No repository',APP_ICONS.folder,g.rows));
     const mirrors=new Map();if(d.attention_version)for(const r of m.others)if(r.h.other_mirror){const owner=appOwner(r);if(!mirrors.has(owner))mirrors.set(owner,[]);mirrors.get(owner).push(r)}
     const remaining=m.others.filter(r=>!d.attention_version||!r.h.other_mirror);
     if(remaining.length)kids.push(...appGroup('others','Other people’s',APP_ICONS.users,remaining,'Read only'));
@@ -6277,7 +6303,7 @@ function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects
     if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: '+CLI+' new "GOAL".'))}
   box.replaceChildren(...kids);
   if(keep){const n=box.querySelector('[data-task-id="'+CSS.escape(keep)+'"],[data-repo="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
-  if(APPS.page==='tasks')appTasksPage();if(APPS.page==='home')appHomePage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
+  if(APPS.page==='tasks')appTasksPage();if(APPS.page==='home')appHomePage();if(APPS.page==='inbox')appInboxPage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
 function appReadOnly(r){const s=$('app-shell');if(r&&!r.mine)s.setAttribute('data-readonly','');else s.removeAttribute('data-readonly')}
 // appTaskOpen: the seam the centre and right sidebar listen on (see the region's head).
 function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)return;APP.task=id;appPage('');
@@ -6288,9 +6314,12 @@ function appTaskOpen(id){const r=APPS.model&&APPS.model.byId.get(id);if(!r)retur
 function appPage(name){const was=APPS.page;APPS.page=name;let p=$('app-page');
   if(name==='home'){if(location.hash!==homeHashNow())history.replaceState(null,'',homeHashNow())}else if(was==='home'&&/^#home(\?|$)/.test(location.hash))history.replaceState(null,'',location.pathname+location.search);
   for(const n of document.querySelectorAll('#app-shell [data-app-nav]'))if(n.dataset.appNav===name)n.setAttribute('aria-current','page');else n.removeAttribute('aria-current');
+  const bell=document.querySelector('#app-shell [data-app-action="bell"]');if(bell)bell.setAttribute('aria-pressed',String(name==='inbox'));
+  // The Inbox covers the centre; on a phone the task list's drawer (where the bell and nav are) closes over it.
+  if(name==='inbox'&&PHONE.matches&&APP.drawer==='left')APP.drawer='';
   document.body.classList.toggle('app-paged',!!name);if(name&&APP.drawer==='right')APP.drawer='';appSides();if(!name){if(p)p.hidden=true;return}
   if(!p){p=el('section',{class:'app-page',id:'app-page','aria-live':'polite'});$('app-center').append(p)}p.hidden=false;
-  if(name==='tasks')appTasksPage();else if(name==='settings')appSettingsPage();else if(name==='home')appHomePage();else appTriggersPage()}
+  if(name==='tasks')appTasksPage();else if(name==='settings')appSettingsPage();else if(name==='home')appHomePage();else if(name==='inbox')appInboxPage();else appTriggersPage()}
 function appPageHead(title,...more){return el('div',{class:'app-phead'},el('button',{type:'button',class:'app-ibtn','data-app-close':'',title:'Close','aria-label':'Close '+title},appIcon(APP_ICONS.x,16)),el('h2',{},title),...more)}
 function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;const m=APPS.model||{rows:[]},old=p.querySelector('.app-pfilter'),q=old?old.value:'',at=document.activeElement===old;
   const f=el('input',{class:'app-pfilter',type:'search',placeholder:'Filter tasks','aria-label':'Filter tasks',value:q}),ql=q.trim().toLowerCase();
@@ -6318,7 +6347,7 @@ $('app-shell').addEventListener('click',e=>{if(!e.target.closest('#app-repo-pop,
   if(t.matches('.app-repo')){const k=t.dataset.repo;if(APPS.collapsed.has(k))APPS.collapsed.delete(k);else APPS.collapsed.add(k);try{localStorage.setItem('dash-app-collapsed',JSON.stringify([...APPS.collapsed]))}catch(e){}if(lastDash)appSidebar(lastDash);return}
   if(t.matches('[data-app-nav]')){appPage(APPS.page===t.dataset.appNav?'':t.dataset.appNav);return}
   if(t.matches('[data-app-close]')){appPage('');return}
-  if(t.dataset.appAction==='bell'){APPS.view=APPS.view==='needs'?'projects':'needs';if(lastDash)appSidebar(lastDash);return}
+  if(t.dataset.appAction==='bell'){appPage(APPS.page==='inbox'?'':'inbox');return}
   if(t.dataset.appAction==='add-repo')appRepoPop($('app-repo-pop')?$('app-repo-pop').hidden:true)});
 // Keys, in the capture phase so the team server's own n and Enter (region:keys) do not run in app mode.
 document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||activeSheet||SEARCH.box&&SEARCH.box.open)return;
@@ -6331,6 +6360,33 @@ document.addEventListener('keydown',e=>{if(!APP.on||e.defaultPrevented||e.ctrlKe
   const i=rows.indexOf(t),cur=i<0?rows.findIndex(n=>n.dataset.taskId===APP.task):i,n=cur<0?(e.key==='ArrowDown'?0:rows.length-1):Math.min(rows.length-1,Math.max(0,cur+(e.key==='ArrowDown'?1:-1)));
   e.preventDefault();e.stopPropagation();rows[n].focus();if(rows[n].scrollIntoView)rows[n].scrollIntoView({block:'nearest'})},true);
 // end:app-sidebar
+// region:app-inbox: the app's Inbox page (personal app review M1), what waits on me, over the centre as Tasks
+// is. The left nav's Inbox row and the bell open it. It is the embedded panel's Needs you (region:app-panel's
+// apNeedRow) at full width: Could not finish, Approval, Question, Lesson, Worker blocked and the rest, each
+// with its whole text (an approval is never cut short of what it asks), who and when, its task, and what can
+// be done here. Scope: Mine (inboxSets' mine, the default, not kept across reloads) or Everyone's (every item
+// this viewer can act on, inboxSets' needs). The personal app's allowlist holds: it never answers an approval, a
+// worker's question or a lesson (pageMay), so those rows say where to act instead, with the command to copy.
+const APPI={all:false};
+// A task the bell counts (its mark is Needs you or Failed) with no Inbox item of its own is a row too, of the
+// kind its state says, so the bell and the page never disagree.
+const APPI_TIER=x=>x.kind==='blocked'?0:x.kind==='failed'?1:x.approvalOnly||x.kind==='spec'?2:x.what==='issue'?4:3;
+function appInboxItems(d){d=d||{};const s=inboxSets(d),covered=new Set(s.needs.map(x=>x.handoff).filter(Boolean));
+  const extra=appSidebarModel(d).rows.filter(r=>r.need&&!r.done&&!covered.has(r.id)).map(r=>{const ws=r.h.worker_state||'';
+    return {synthetic:true,id:'task:'+r.id,handoff:r.id,kind:r.mark==='failed'?'failed':ws==='blocked'?'blocked':ws==='waiting_answer'?'question':'attention',title:r.full,read:true,mine:r.mine,age:r.h.updated_ago||''}});
+  const order=xs=>xs.map(needNorm).map((x,i)=>[x,i]).sort((a,b)=>APPI_TIER(a[0])-APPI_TIER(b[0])||a[1]-b[1]).map(a=>a[0]);
+  return {mine:order([...s.mine.filter(x=>x.what!=='issue'),...extra.filter(x=>x.mine)]),all:order([...s.needs,...extra])}}
+function appInboxCount(d){const n=$('app-inbox-count');if(!n)return;const c=appInboxItems(d).mine.length;n.textContent=c;n.hidden=!c;
+  const row=n.closest('[data-app-nav]');if(row)row.setAttribute('aria-label',c?'Inbox, '+c+' waiting on you':'Inbox')}
+function appInboxPage(){const p=$('app-page');if(!p||APPS.page!=='inbox')return;const d=lastDash||{},it=appInboxItems(d),xs=APPI.all?it.all:it.mine;
+  const a=document.activeElement,focus=p.contains(a)&&a.dataset?a.dataset.inboxScope?'[data-inbox-scope="'+a.dataset.inboxScope+'"]':a.dataset.openTask?'[data-open-task="'+CSS.escape(a.dataset.openTask)+'"]':'':'';
+  const scope=(k,label,n)=>el('button',{type:'button',class:'app-iscope-btn','data-inbox-scope':k,'aria-pressed':String(APPI.all===(k==='all')),onclick:()=>{APPI.all=k==='all';appInboxPage()}},label,el('span',{class:'app-iscope-n'},String(n)));
+  const head=appPageHead('Inbox',el('span',{class:'appt-sp'}),el('div',{class:'app-iscope',role:'group','aria-label':'Whose items'},scope('mine','Mine',it.mine.length),scope('all','Everyone’s',it.all.length)));
+  const body=xs.length?el('div',{class:'app-inbox','data-scope':APPI.all?'all':'mine'},xs.map(x=>apNeedRow(x,false,'data-open-task')))
+    :el('div',{class:'app-pcard'},el('div',{class:'app-pempty'},el('b',{},APPI.all?'Nothing waits on anyone':'Nothing waits on you'),
+      APPI.all?'Questions, approvals, lessons and blocked or failed workers show here.':it.all.length?'Everyone’s has '+it.all.length+(it.all.length===1?' item.':' items.'):'Questions, approvals, lessons and your blocked or failed workers show here.'));
+  p.replaceChildren(head,body);if(focus){const n=p.querySelector(focus);if(n)n.focus({preventScroll:true})}}
+// end:app-inbox
 // region:app-triggers: the app's Triggers page for an owner (libraos/core#680), the reference
 // app's Automations page with agentd's own content. GET /api/triggers is what agentd trigger status and
 // agentd schedule list print. An owner:
@@ -7143,18 +7199,35 @@ function apDraw(d){const md=apModel(d);if(AP.hid&&!md.m.byId.has(AP.hid))AP.hid=
 function apHead(d,md){const sel=$('ap-project'),keep=document.activeElement===sel;
   sel.replaceChildren(el('option',{value:AP_ALL},'All projects'),...md.projects.map(p=>el('option',{value:p},p?p.split('/').pop():'No repository')));sel.value=md.project;sel.hidden=md.projects.length<2;if(keep)sel.focus();
   const wd=d.watchdog,n=$('ap-watchdog');n.hidden=!wd||!!wd.running;n.replaceChildren(...(wd&&!wd.running?[el('span',{},'No watchdog: offered tasks do not start. '),el('code',{},wd.start||CLI+' install')]:[]))}
-function apKind(x){return x.what==='issue'?'Issue':x.kind==='attention'?'Needs attention':x.approvalOnly?'Approval':x.kind==='blocked'?'Worker blocked':x.kind==='failed'?'Could not finish':x.kind==='spec'?'Spec approval':x.kind==='validator'?'Validator waiting':x.kind==='review'?'Ready for review':x.kind==='result'?'Report ready':x.kind==='stale'?'Expired':word(x.kind||'answered')}
-// apApproval: an approval's Approve and Reject (region:inbox's approvalActs, the same sheet and action),
-// or why this person cannot answer it.
-function apAnswer(x){if(PENDING[x.approval])return [el('span',{class:'ap-mute',role:'status'},PENDING[x.approval])];
-  if(x.can_answer===false)return [el('span',{class:'ap-mute'},x.self?capFirst(x.answer_hint||'waiting for someone else to answer'):'Waiting for '+(x.required_role?(/^[aeiou]/.test(x.required_role)?'an ':'a ')+x.required_role:'an owner')+' to answer')];
-  const [yes,no]=approvalActs(x.approval,x.title,x.from,x.approvalOnly?x.self:undefined);for(const b of [yes,no])if(b)b.classList.add('ap-btn');if(yes)yes.classList.add('ap-primary');return [yes,no].filter(Boolean)}
-function apNeedRow(x,inTask){const failed=x.kind==='failed',text=failed&&x.failure?capFirst(plainText(words(x.failure))):cardTitle(words(x.title||''));
-  const acts=x.approvalOnly||x.kind==='spec'&&x.approval?apAnswer(x):[];
+function apKind(x){return x.what==='issue'?'Issue':x.kind==='attention'?'Needs attention':x.approvalOnly?'Approval':x.kind==='blocked'?'Worker blocked':x.kind==='failed'?'Could not finish':x.kind==='question'?'Question':x.kind==='lesson'?'Lesson':x.kind==='spec'?'Spec approval':x.kind==='validator'?'Validator waiting':x.kind==='review'?'Ready for review':x.kind==='result'?'Report ready':x.kind==='stale'?'Expired':word(x.kind||'answered')}
+// apWhere: where to act instead, with each command to copy.
+function apWhere(key,text,cmds){return el('div',{class:'ap-where','data-where':key},el('span',{class:'ap-mute'},text),
+  ...cmds.map(c=>el('span',{class:'ap-cmd'},el('code',{},c),el('button',{type:'button',class:'ap-btn ap-copy','aria-label':'Copy: '+c,onclick:()=>chatCopy(c)},'Copy'))))}
+// apAnswer: an approval's Approve and Reject (region:inbox's approvalActs: the same confirm sheet, which
+// shows the request's full text, and action), why this person cannot answer it, or, where the page may not
+// answer approvals (the personal app), where to answer it: {acts, notes}.
+function apAnswer(x){if(PENDING[x.approval])return {acts:[el('span',{class:'ap-mute',role:'status'},PENDING[x.approval])],notes:[]};
+  if(x.can_answer===false)return {acts:[el('span',{class:'ap-mute'},x.self?capFirst(x.answer_hint||'waiting for someone else to answer'):'Waiting for '+(x.required_role?(/^[aeiou]/.test(x.required_role)?'an ':'a ')+x.required_role:'an owner')+' to answer')],notes:[]};
+  if(!pageMay('approval_answer'))return {acts:[],notes:[apWhere('approval','The app does not answer approvals. Answer it in the dash, or at your own terminal:',[CLI+' approval answer '+x.approval+' --approve',CLI+' approval answer '+x.approval+' --reject'])]};
+  const [yes,no]=approvalActs(x.approval,x.title,x.from,x.approvalOnly?x.self:undefined);for(const b of [yes,no])if(b)b.classList.add('ap-btn');if(yes)yes.classList.add('ap-primary');return {acts:[yes,no].filter(Boolean),notes:[]}}
+// apLesson: a lesson's Show, and its Edit, Approve, Reject or Retire where the server takes them from this
+// viewer (region:lessons: an owner signed in with their own name, never in the personal app); else where to decide it.
+function apLesson(x){if(lessonCan()){const acts=lessonActs(x);for(const b of acts)if(b&&b.tagName==='BUTTON'){b.classList.add('ap-btn');if(b.classList.contains('primary'))b.classList.add('ap-primary');if(b.classList.contains('no'))b.classList.add('ap-danger')}return {acts,notes:[]}}
+  const show=el('button',{type:'button',class:'ap-btn',onclick:()=>lessonShowSheet(x)},'Show');
+  const where=!pageMay('lesson_approve')?'The app does not decide lessons. In the dash, or at the host, an owner runs:':!USER?'A lesson is decided by an owner signed in with their own name. At the host, an owner runs:':'Only an owner decides a lesson. At the host, an owner runs:';
+  return {acts:[show],notes:[apWhere('lesson',where,x.suggest_retire?[lessonCmd(x)]:[lessonCmd(x),CLI+' lesson reject '+x.lesson])]}}
+// apNeedRow: one item that waits on a person, its kind and full text (never cut: an approval is read
+// whole before anyone answers it), who and when, and what can be done here. open is the attribute that
+// opens its task: the panel's data-ap-open, or data-open-task on the app's Inbox page.
+function apNeedRow(x,inTask,open){const failed=x.kind==='failed',text=failed&&x.failure?capFirst(plainText(words(x.failure))):words(x.title||'');
+  const {acts,notes}=x.approvalOnly||x.kind==='spec'&&x.approval?apAnswer(x):x.kind==='lesson'&&x.lesson?apLesson(x):{acts:[],notes:[]};
+  if(x.kind==='question'&&x.handoff&&!pageMay('handoff_answer'))notes.push(apWhere('question','The app does not answer a worker’s question. Answer it at your own terminal:',[CLI+' handoff answer '+x.handoff+' --text "..."']));
   if(x.what==='issue')acts.push(el('a',{href:ghHref(x.ref,'issue'),target:'_blank',rel:'noopener'},'Open issue'));
-  if(!inTask&&x.handoff)acts.push(el('button',{type:'button',class:'ap-btn','data-ap-open':x.handoff},'Open task'));
+  if(!inTask&&x.handoff)acts.push(el('button',{type:'button',class:'ap-btn',[open||'data-ap-open']:x.handoff},'Open task'));
+  const h=!inTask&&open&&x.handoff&&lastDash&&[...(lastDash.handoff_list||[]),...(lastDash.done||[]).filter(y=>y.what==='handoff').map(y=>({...y,id:y.ref}))].find(y=>y.id===x.handoff),about=h&&(h.title||h.goal);
   return el('div',{class:'ap-need','data-kind':x.approvalOnly?'approval':x.kind||'','data-id':x.approval||x.id||null},el('div',{class:'ap-ntext'},el('b',{},apKind(x)),' ',text),
-    x.age?el('div',{class:'ap-mute'},(x.from&&!inTask?'from '+sessLabel(x.from)+' · ':'')+x.age+' ago'):null,acts.length?el('div',{class:'ap-acts'},acts):null)}
+    about&&about!==x.title?el('div',{class:'ap-mute ap-about'},'Task: '+about):null,
+    x.age?el('div',{class:'ap-mute'},(x.from&&!inTask?'from '+sessLabel(x.from)+' · ':'')+x.age+' ago'):null,acts.length?el('div',{class:'ap-acts'},acts):null,...notes)}
 function apInbox(d,md){const box=$('ap-inbox'),xs=apNeeds(d).filter(x=>!AP.hid||x.handoff!==AP.hid);box.hidden=!xs.length;if(!xs.length){box.replaceChildren();return}
   const count=d.attention_version?new Set(xs.map(x=>x.handoff||inboxKey(x))).size:xs.length;
   box.replaceChildren(el('h2',{class:'ap-h'},'Needs you',el('span',{class:'ap-count'},String(count))),...xs.map(x=>apNeedRow(x,false)))}
