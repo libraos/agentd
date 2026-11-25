@@ -82,7 +82,7 @@ const open=async(w,id)=>{w.location.hash='#inbox?item='+encodeURIComponent(id);a
   p=await open(w,'lesson:lsn-a1');
   for(const t of ['Edit','Approve','Reject'])assert(!button(p,t),role+' sees '+t);
   assert(button(p,'Show'),'Show is for everyone');
-  assert(want.test(p.textContent)&&/agentd lesson approve lsn-a1/.test(p.textContent),'no terminal command for '+(role||'the token')+': '+p.textContent);
+  assert(want.test(p.textContent)&&/libraos-core lesson approve lsn-a1/.test(p.textContent),'no terminal command for '+(role||'the token')+': '+p.textContent);
   p=await open(w,'lesson-retire:lsn-c3');assert(!button(p,'Retire'),role+' sees Retire');
   assert(!errors.length,errors.join('\n'));w.close()}
  console.log('dash_lessons: ok');process.exit(0)

@@ -42,7 +42,7 @@ async function boot(o={}){
  assert.equal(t.step(),'agent_surface','the wizard does not open on step 1');
  const modal=t.q('.appob-modal');assert.equal(modal.getAttribute('role'),'dialog');assert.equal(modal.getAttribute('aria-modal'),'true');
  {const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'0 0 200 200',what);assert(!s.querySelector('rect')&&s.querySelector('path[fill^="url(#"]').getAttribute('d').startsWith('M15.748 141.995H75.5134')&&s.querySelector('mask path').getAttribute('d').startsWith('M86.1052 191.812C104.403'),what+': not the LibraOS L and ring');for(const ref of [...s.querySelectorAll('[fill^="url(#"],[mask^="url(#"],[clip-path^="url(#"]')].map(n=>(n.getAttribute('fill')||n.getAttribute('mask')||n.getAttribute('clip-path')).slice(5,-1)))assert.equal(t.doc.querySelectorAll('[id="'+ref+'"]').length,1,what+': '+ref+' is not one of a kind')};isMark(modal.querySelector('.appob-logo'),'the onboarding head');isMark(t.doc.querySelector('.app-logo'),'the app header')}
- assert(/Welcome to LibraOS Core/i.test(t.text()),'no eyebrow');assert(/How do you want to work with agents\?/.test(t.text()),'step 1 title');
+ assert(/Welcome to LibraOS Engine/i.test(t.text()),'no eyebrow');assert(/How do you want to work with agents\?/.test(t.text()),'step 1 title');
  assert(/1 of 5/.test(t.text()),'counter: '+t.text().slice(0,200));assert.equal(t.doc.querySelectorAll('#appob-layer .appob-seg').length,5,'five segments without gh and off Windows');
  assert.deepEqual([...t.doc.querySelectorAll('#appob-layer .appob-seg')].map(n=>n.title),['Chat or Terminal','Default Agent','Appearance','Integrations','Notifications']);
  assert(t.q('.appob-cli'),'step 1 shows no command');assert(/libraos-core handoff show ID/.test(t.q('.appob-cli').textContent));
@@ -53,7 +53,7 @@ async function boot(o={}){
  await t.click('[data-ob="surface-chat"]');assert.equal(t.q('[data-ob="surface-chat"]').getAttribute('aria-pressed'),'true','Chat does not select');
  await t.click('[data-ob="continue"]');assert.equal(t.step(),'agent','Continue does not reach step 2');assert.equal(t.srv.posts.length,0,'step 1 saved something');
  // --- step 2, default agent ---
- assert(/Pick your default agent/.test(t.text())&&/2 of 5/.test(t.text()),'step 2: '+t.text().slice(0,160));assert(!/Welcome to LibraOS Core/i.test(t.text()),'the eyebrow is on page 2');
+ assert(/Pick your default agent/.test(t.text())&&/2 of 5/.test(t.text()),'step 2: '+t.text().slice(0,160));assert(!/Welcome to LibraOS Engine/i.test(t.text()),'the eyebrow is on page 2');
  assert(/Agents open in\s*Chat UI/.test(t.text()),'the surface pill does not follow step 1');
  assert(/Detected on your system\s*2/.test(t.text()),'detected agents: '+t.text());
  assert(t.q('[data-ob="agent-claude"]')&&t.q('[data-ob="agent-codex"]')&&!t.q('[data-ob="agent-opencode"]'),'only found agents are tiles');
@@ -88,7 +88,7 @@ async function boot(o={}){
  sel.value='ding';sel.dispatchEvent(new t.w.Event('change',{bubbles:true}));
  // Ctrl+Enter inside the select is not Continue.
  t.key('Enter',{ctrlKey:true},sel);await settle();assert.equal(t.step(),'notifications','Ctrl+Enter in a field continued');
- await t.click('[data-ob="test-notify"]');assert.deepEqual(t.srv.notes,['LibraOS Core: This is a test notification.'],'no test notification');
+ await t.click('[data-ob="test-notify"]');assert.deepEqual(t.srv.notes,['LibraOS Engine: This is a test notification.'],'no test notification');
  assert.equal(t.q('[data-ob="continue"]').textContent.replace(/Ctrl ↵|⌘ ↵/,'').trim(),'Add your first project','no repository: the button does not say so');
  await t.click('[data-ob="continue"]');
  p=t.last();assert.equal(p.notifications,true);assert.equal(p.sound,'ding');assert.equal(p.lastCompletedStep,5);assert.equal(p.outcome,'completed');assert(p.closedAt>0,'closedAt');assert.equal(p.toastShown,true);
@@ -131,7 +131,7 @@ async function boot(o={}){
  const done=id=>items()[id].classList.contains('done');
  assert(done('notifications'),'notifications: permission granted and on');assert(done('default-agent'),'default agent chosen');assert(done('task-sources'),'gh connected');
  for(const id of ['agent-capabilities','setup-script','add-two-repos','two-worktrees'])assert(!done(id),id+' done too early');
- assert(/Not in LibraOS Core/.test(items().browser.textContent)&&!done('browser'),'the browser milestone keeps its place uncounted');
+ assert(/Not in LibraOS Engine/.test(items().browser.textContent)&&!done('browser'),'the browser milestone keeps its place uncounted');
  for(const [id,cmd] of [['agent-capabilities','libraos-core connect'],['add-two-repos','libraos-core repo add DIR'],['two-worktrees','libraos-core new'],['task-sources','gh auth login'],['default-agent','libraos-core connect claude']])assert(items()[id].querySelector('code').textContent.startsWith(cmd),id+' command');
  assert(/3\/7/.test(t.text()),'progress: '+t.text().slice(0,200));
  // Each remaining condition comes from the facts.

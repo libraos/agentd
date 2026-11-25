@@ -17,6 +17,8 @@ class N {
 const ids={},copied=[],ctx={console,Node:N,Map,URL,Blob,Date,encodeURIComponent,decodeURIComponent,CSS:{escape:x=>x},document:{activeElement:null,body:new N('body'),hidden:false,createElement:t=>new N(t),createElementNS:(_,t)=>new N(t),createTextNode:t=>String(t),getElementById:id=>ids[id]??=new N(),querySelector:()=>null,addEventListener(){}},navigator:{clipboard:{writeText:async t=>copied.push(t)}},setInterval(){},setTimeout(){},clearTimeout(){},addEventListener(){},TOKEN:'test',COOKIE:false,ROLE:'owner',CONNECTED:true,PHONE:{matches:false},ROUTE:{item:'chat'},CAN:()=>true,auth:()=>({}),writeReason:()=>'',toast(){},dashPage(){},history:{pushState(){}},location:{hash:'#chat'},parseRoute:()=>({item:'chat'}),fetch(){throw Error('unexpected transport')},$:id=>ids[id]??=new N()};
 vm.createContext(ctx);const run=s=>vm.runInContext(s,ctx);
 // These declarations are single-line helpers; Chat is a separately delimited region.
+// The product and CLI names (region:brand) that shown commands are built from.
+run(page.split('\n').find(l=>l.startsWith('const PRODUCT=')));
 run(page.split('\n').find(l=>l.startsWith('function el(')));
 run(page.split('\n').find(l=>l.startsWith('function modelName(')));
 // The text helpers Chat's cards and list use: plain titles, and role and tool names.
