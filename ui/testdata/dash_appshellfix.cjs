@@ -2,7 +2,7 @@
 // B1  the task workspace's + and Command menus carry the frame's tokens (mounted inside #app-shell), so their
 //     computed background is the card colour, never transparent, with the frame's font, in light and dark;
 // M2  /panel's column is full width up to 600 px in a 1440 px window, not a strip;
-// M3  Home's titles wrap in their own column and never run under the state chip;
+// M3  Home's titles wrap in their own column and never run under the state chip, whose column is one fixed width;
 // m1  Session's Conversation and History rows lead with inline SVG icons, not ⏺ ⎿ ✻;
 // m2  the bell's count is a positioned badge on the bell, shown only above 0;
 // m3  with no task open on a phone, the centre is a button "Open the task list" that opens the drawer;
@@ -73,8 +73,8 @@ const opaque=v=>!!v&&!/var\(/.test(v)&&!/^(transparent|none|initial|rgba\(0, 0, 
  w.appPage('home');await settle();assert.equal(display(right),'none','the right sidebar shows on Home');
  // M3: a long Home title wraps in its own column; the chip has its own.
  const row=q('#app-page .home-row[data-home-row="hof-s1"]');assert(row,'no Home row for the long title');
- const rs=w.getComputedStyle(row),chip=q('.status',row),main=q('.home-main',row),title=q('.home-open',row);
- assert.equal(rs.display,'grid','the Home row is not a grid');assert(/minmax\(0(px)?, ?1fr\)/.test(rs.gridTemplateColumns)&&/max-content/.test(rs.gridTemplateColumns),'no fixed chip column: '+rs.gridTemplateColumns);
+ const rs=w.getComputedStyle(row),chip=q('.home-chip',row),main=q('.home-main',row),title=q('.home-open',row);
+ assert.equal(rs.display,'grid','the Home row is not a grid');assert(/minmax\(0(px)?, ?1fr\)/.test(rs.gridTemplateColumns)&&/\s\d+(\.\d+)?(rem|em|px)$/.test(rs.gridTemplateColumns.trim()),'no fixed chip column: '+rs.gridTemplateColumns);
  assert.equal(w.getComputedStyle(chip).gridColumn.split('/')[0].trim(),'2','the chip is not in its column');assert.equal(w.getComputedStyle(main).gridColumn.split('/')[0].trim(),'1','the title is not in its column');
  assert(/^0(px)?$/.test(w.getComputedStyle(main).minWidth),'the title column can grow past its track');assert.equal(w.getComputedStyle(title).whiteSpace,'normal','the title button does not wrap');
  assert.equal(title.textContent.length>40,true);

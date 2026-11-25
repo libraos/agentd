@@ -73,7 +73,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<8
  // A row: ref, title, author, age, note, waiting_on, tasks and PRs with status words, comments.
  const r12=rows()[1],t12=r12.textContent;
  for(const want of ['acme/alpha#12','Docs typo','by dana','(contributor)','2 comments','opened 2d ago','Fix is in progress','waiting on reporter'])assert(t12.includes(want),'row 12 lacks '+want+': '+t12);
- const task=r12.querySelector('[data-community-task="hof-run"]');assert(task&&/In progress/.test(task.textContent),'the linked task lacks its status words: '+(task&&task.textContent));
+ const task=r12.querySelector('[data-community-task="hof-run"]');assert(task&&/Working/.test(task.textContent),'the linked task lacks its status words: '+(task&&task.textContent));
  const pr=r12.querySelector('[data-community-pr="acme/alpha#40"]');assert(pr&&/PR #40/.test(pr.textContent)&&/In review/.test(pr.textContent),'the linked PR lacks its status words: '+(pr&&pr.textContent));
  assert.equal(pr.querySelector('a').getAttribute('href'),'https://github.com/acme/alpha/pull/40');
  assert.equal(r12.querySelector('a[target=_blank]').getAttribute('href'),'https://github.com/acme/alpha/issues/12');
