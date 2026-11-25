@@ -1,7 +1,7 @@
 // libraos/core#563: the app's left sidebar. In app mode (/api/dash mode "app") my tasks
 // are listed by repository, each as the reference app's worktree card (status dot, title, branch, spend);
 // others' tasks are in their own read-only group (the server's mine on each task); the bell
-// counts my tasks waiting on me and toggles the list to them; Tasks is every task as a table over
+// counts my tasks waiting on me and opens the Inbox page (dash_appinbox.cjs), again closes it; Tasks is every task as a table over
 // the centre and Triggers is an owner's page (dash_apptriggers.cjs); ArrowUp/ArrowDown, Enter and N work in the sidebar.
 // Opening another person's task marks the frame read only. Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_appsidebar.cjs dash.html
@@ -77,9 +77,11 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert(/2 waiting on you/.test($('app-status').textContent.replace(/\s+/g,' ')),'status bar waiting: '+$('app-status').textContent);
  assert(/1 running/.test($('app-status').textContent.replace(/\s+/g,' ')),'status bar running counts mine only: '+$('app-status').textContent);
  bell.click();await tick();
- assert.equal(bell.getAttribute('aria-pressed'),'true');assert.equal($('app-projects-name').textContent,'Needs you');
- assert.deepEqual(items().map(x=>x[1]).sort(),['hof-f1','hof-n1'],'the bell list: '+JSON.stringify(items()));
- bell.click();await tick();assert.equal($('app-projects-name').textContent,'Projects');assert(items().length>7,'the bell does not toggle back');
+ assert.equal(bell.getAttribute('aria-pressed'),'true');assert.equal($('app-projects-name').textContent,'Projects','the bell changed the list');
+ const ipage=$('app-page');assert(ipage&&shown(ipage)&&/^Inbox/.test(ipage.querySelector('.app-phead h2').textContent),'the bell does not open the Inbox');
+ assert.deepEqual([...ipage.querySelectorAll('[data-open-task]')].map(n=>n.dataset.openTask).sort(),['hof-f1','hof-n1'],'the Inbox has the bell’s tasks');
+ bell.click();await tick();assert(!shown($('app-page')),'the bell does not close the Inbox');assert.equal(bell.getAttribute('aria-pressed'),'false');assert(items().length>7,'the list changed');
+ await openLeft();
  // Opening a task: the seam event, aria-current; another person's marks the frame read only.
  const seen=[];doc.addEventListener('app-task',e=>seen.push(e.detail));
  row('hof-b1').click();await tick();

@@ -1,6 +1,6 @@
 // libraos/core#693: agentd app's embedded panel at /panel, for a browser tab inside another agent app.
 // The same page draws one column there: no sidebar, top bar or tabs; what needs me at the top (approvals
-// with working Approve and Reject); my tasks in the current project (a project switch) with state, check
+// with where to answer them: the personal app never answers approval_answer, so no button pretends to); my tasks in the current project (a project switch) with state, check
 // result and cost; a task as a narrow panel with its checks and proof, cost and budget, delivery,
 // approvals, branch and draft PR, Stop and Cancel, and no chat, files or terminal. At / the full app is
 // unchanged, and the team server never draws the panel.
@@ -64,15 +64,13 @@ const shown=n=>{for(let x=n;x&&x.nodeType===1;x=x.parentElement)if(x.hidden)retu
  // An approval I cannot answer is not mine to act on: it waits on its task's panel, saying who may.
  const needs=qa('.ap-need',ib);assert.equal(needs.length,2,'needs: '+needs.map(n=>n.textContent).join(' | '));
  const a1=needs.find(n=>n.dataset.id==='apr-1');assert(a1&&/Approval/.test(a1.textContent)&&/gh pr create --draft/.test(a1.textContent),'no approval apr-1');
- const btns=qa('button',a1).map(b=>b.textContent);assert(btns.includes('Approve')&&btns.includes('Reject')&&btns.includes('Open task'),'apr-1 buttons: '+btns);
+ // The personal app never answers an approval (its allowlist refuses approval_answer): no Approve or Reject that would
+ // only fail, but where to answer it, with the commands to copy.
+ const btns=qa('button',a1).map(b=>b.textContent);assert(!btns.includes('Approve')&&!btns.includes('Reject')&&btns.includes('Open task'),'apr-1 buttons: '+btns);
+ const where=q('[data-where="approval"]',a1);assert(where&&/does not answer approvals/.test(where.textContent)&&/in the dash, or at your own terminal/.test(where.textContent),'apr-1 does not say where to answer: '+a1.textContent);
+ assert.deepEqual(qa('code',where).map(c=>c.textContent),['libraos-engine approval answer apr-1 --approve','libraos-engine approval answer apr-1 --reject']);
  assert(needs.some(n=>n.dataset.kind==='blocked'&&/Worker blocked/.test(n.textContent)),'no blocked worker');
- // A working approval: Approve opens the sheet; submitting posts the app's approval_answer.
- click(qa('button',a1).find(b=>b.textContent==='Approve'));await settle();
- let dlg=q('dialog');assert(dlg&&dlg.open,'no confirm sheet');dlg.querySelector('textarea').value='fine';dlg.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
- assert.deepEqual(posts.at(-1),{action:'approval_answer',id:'apr-1',decision:'approve',note:'fine'});
- click(qa('button',qa('.ap-need',ib).find(n=>n.dataset.id==='apr-1')).find(b=>b.textContent==='Reject'));await settle();
- dlg=q('dialog');dlg.querySelector('textarea').value='not now';dlg.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
- assert.deepEqual(posts.at(-1),{action:'approval_answer',id:'apr-1',decision:'reject',note:'not now'});
+ let dlg=null;
  // The list: my tasks in the current project (that of my task that needs me), with state, check result and cost; not bob's.
  const sel=$('ap-project');assert(shown(sel),'no project switch with two projects');assert.equal(sel.value,'acme/demo-repo');
  assert.deepEqual(qa('option',sel).map(o=>o.textContent),['All projects','demo-repo','other']);
@@ -108,10 +106,11 @@ const shown=n=>{for(let x=n;x&&x.nodeType===1;x=x.parentElement)if(x.hidden)retu
  click(q('[data-act="cancel"]',sec('actions')));await settle();dlg=q('dialog');assert(dlg&&dlg.open&&/Cancel this task/.test(dlg.textContent),'no Cancel sheet');
  dlg.querySelector('textarea, input').value='duplicate';dlg.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
  assert.equal(posts.at(-1).action,'cancel');assert.equal(posts.at(-1).id,'hof-p1');
+ assert(!posts.some(p=>p.action==='approval_answer'),'the panel sent an approval_answer the app refuses');
  // Back, then the task with approvals: they are on its panel with their buttons, and its draft PR's state.
  click(q('[data-ap-back]',t));await settle();assert(shown($('ap-list'))&&$('ap-task').hidden,'Back did not return');
  click(qa('button',qa('.ap-need',ib).find(n=>n.dataset.id==='apr-1')).find(b=>b.textContent==='Open task'));await settle();
- assert.equal($('ap-task').dataset.hid,'hof-apr');assert(!qa('.ap-need',ib).some(n=>n.dataset.id==='apr-1'),'the open task’s approval is in Needs you too');assert(shown(sec('approvals'))&&qa('button',sec('approvals')).some(b=>b.textContent==='Approve'),'the task’s approvals have no buttons');
+ assert.equal($('ap-task').dataset.hid,'hof-apr');assert(!qa('.ap-need',ib).some(n=>n.dataset.id==='apr-1'),'the open task’s approval is in Needs you too');assert(shown(sec('approvals'))&&!qa('button',sec('approvals')).some(b=>b.textContent==='Approve')&&q('[data-where="approval"]',sec('approvals')),'the task’s approvals do not say where to answer');
  const a2=qa('.ap-need',sec('approvals')).find(n=>n.dataset.id==='apr-2');assert(a2&&/Waiting for an owner to answer/.test(a2.textContent)&&!qa('button',a2).some(b=>b.textContent==='Approve'),'apr-2 offers an answer it cannot give');
  assert(/acme\/demo-repo#7/.test(sec('branch').textContent)&&/open/.test(sec('branch').textContent),'no draft PR state: '+sec('branch').textContent);
  assert(!q('[data-act="open_pr"]',sec('branch')),'a task with a PR offers another');
