@@ -45,7 +45,7 @@ async function boot(o={}){
  assert(/Welcome to LibraOS Engine/i.test(t.text()),'no eyebrow');assert(/How do you want to work with agents\?/.test(t.text()),'step 1 title');
  assert(/1 of 5/.test(t.text()),'counter: '+t.text().slice(0,200));assert.equal(t.doc.querySelectorAll('#appob-layer .appob-seg').length,5,'five segments without gh and off Windows');
  assert.deepEqual([...t.doc.querySelectorAll('#appob-layer .appob-seg')].map(n=>n.title),['Chat or Terminal','Default Agent','Appearance','Integrations','Notifications']);
- assert(t.q('.appob-cli'),'step 1 shows no command');assert(/libraos-core handoff show ID/.test(t.q('.appob-cli').textContent));
+ assert(t.q('.appob-cli'),'step 1 shows no command');assert(/libraos-engine handoff show ID/.test(t.q('.appob-cli').textContent));
  assert.equal(t.q('[data-ob="surface-terminal"]').getAttribute('aria-pressed'),'true','Terminal is not the default');
  assert(t.q('[data-ob="later"]'),'no Set up later on step 1');assert(!t.q('[data-ob="back"]'),'Back on the first page');
  assert(/Ctrl ↵|⌘ ↵/.test(t.q('[data-ob="continue"]').textContent),'no key chip');
@@ -58,7 +58,7 @@ async function boot(o={}){
  assert(/Detected on your system\s*2/.test(t.text()),'detected agents: '+t.text());
  assert(t.q('[data-ob="agent-claude"]')&&t.q('[data-ob="agent-codex"]')&&!t.q('[data-ob="agent-opencode"]'),'only found agents are tiles');
  assert.equal(t.q('[data-ob="agent-codex"]').getAttribute('aria-pressed'),'true','the configured default is not preselected');
- await t.click('[data-ob="agent-claude"]');assert(/libraos-core connect claude/.test(t.q('.appob-cli').textContent),'the command does not follow the pick');
+ await t.click('[data-ob="agent-claude"]');assert(/libraos-engine connect claude/.test(t.q('.appob-cli').textContent),'the command does not follow the pick');
  assert(/Worker permissions/.test(t.text())&&/config\.toml/.test(t.text()),'no read-only permission row in Yolo mode’s place');
  assert(!t.q('.appob-yolo input'),'a permission switch is on the page');
  await t.click('[data-ob="continue"]');
@@ -104,7 +104,7 @@ async function boot(o={}){
  t.srv.facts={...t.srv.facts,repositories:[{path:'/r/a',name:'a',task_file:false}],commands:{...t.srv.facts.commands,repo_add:'agentd repo add '+evil}};
  await t.click('[data-ob="add-recheck"]');assert(!/Add a project/.test(t.text()),'Re-check does not close Add a project');
  // Toast: Send feedback shows the command; Later closes.
- await t.click('[data-ob="toast-feedback"]');assert(/libraos-core feedback/.test(t.q('.appob-toast').textContent),'feedback command');
+ await t.click('[data-ob="toast-feedback"]');assert(/libraos-engine feedback/.test(t.q('.appob-toast').textContent),'feedback command');
  await t.click('[data-ob="toast-later"]');assert(!t.q('.appob-toast'),'Later does not close the toast');
  // --- coach marks: eligible (saw the wizard at first load), no dialog open, a tab open ---
  t.$('app-tabs').append(Object.assign(t.doc.createElement('button'),{type:'button',textContent:'Session'}));t.$('app-tabs').lastChild.setAttribute('role','tab');t.$('app-tabs').lastChild.setAttribute('aria-selected','true');
@@ -132,7 +132,7 @@ async function boot(o={}){
  assert(done('notifications'),'notifications: permission granted and on');assert(done('default-agent'),'default agent chosen');assert(done('task-sources'),'gh connected');
  for(const id of ['agent-capabilities','setup-script','add-two-repos','two-worktrees'])assert(!done(id),id+' done too early');
  assert(/Not in LibraOS Engine/.test(items().browser.textContent)&&!done('browser'),'the browser milestone keeps its place uncounted');
- for(const [id,cmd] of [['agent-capabilities','libraos-core connect'],['add-two-repos','libraos-core repo add DIR'],['two-worktrees','libraos-core new'],['task-sources','gh auth login'],['default-agent','libraos-core connect claude']])assert(items()[id].querySelector('code').textContent.startsWith(cmd),id+' command');
+ for(const [id,cmd] of [['agent-capabilities','libraos-engine connect'],['add-two-repos','libraos-engine repo add DIR'],['two-worktrees','libraos-engine new'],['task-sources','gh auth login'],['default-agent','libraos-engine connect claude']])assert(items()[id].querySelector('code').textContent.startsWith(cmd),id+' command');
  assert(/3\/7/.test(t.text()),'progress: '+t.text().slice(0,200));
  // Each remaining condition comes from the facts.
  t.srv.facts={...t.srv.facts,clients:[{tool:'claude',found:true,connected:true}],task_files:1,repositories:[{path:'/r/a'},{path:'/r/b'}],first_task:{done:true,handoff:'hof-1',count:1}};
@@ -201,7 +201,7 @@ async function boot(o={}){
  assert(t.shown(prefs())&&/Personal settings/.test(prefs().querySelector('section').getAttribute('aria-label')),'no personal Settings view');
  assert(!t.doc.body.classList.contains('app-left-open')||!phone,'Settings leaves the phone drawer over the page');
  for(const id of ['theme','agent_surface','agent','integrations','notifications','windows_terminal'])assert(change(id),'missing preference '+id);
- assert(/GitHub connected/.test(prefs().textContent)&&/libraos-core config set dispatch.default_tool codex/.test(prefs().textContent),'saved preferences or terminal command missing');
+ assert(/GitHub connected/.test(prefs().textContent)&&/libraos-engine config set dispatch.default_tool codex/.test(prefs().textContent),'saved preferences or terminal command missing');
  assert(!t.srv.posts.length&&!t.step(),'opening Settings changes onboarding');
  const preserved=()=>{const p=t.last();for(const k of ['closedAt','outcome','lastCompletedStep','guideHidden','toursSeen','toastShown'])assert.deepEqual(p[k],completed[k],'settings rewrites '+k);assert.deepEqual(p.checklist,completed.checklist,'settings rewrites checklist')};
  for(const theme of ['dark','light','system']){
@@ -214,7 +214,7 @@ async function boot(o={}){
  await t.click(change('agent_surface'));await t.click('[data-ob="surface-chat"]');await t.click('[data-ob="continue"]');
  assert.equal(t.last().surface,'chat','Settings cannot change work style');assert(/Chat UI/.test(prefs().textContent));preserved();
  await t.click(change('agent'));await t.click('[data-ob="agent-claude"]');await t.click('[data-ob="continue"]');
- assert.equal(t.last().defaultAgent,'claude');assert(/libraos-core config set dispatch.default_tool claude/.test(prefs().textContent));preserved();
+ assert.equal(t.last().defaultAgent,'claude');assert(/libraos-engine config set dispatch.default_tool claude/.test(prefs().textContent));preserved();
  await t.click(change('notifications'));t.q('[data-ob="sound"]').value='blip';t.q('[data-ob="sound"]').dispatchEvent(new t.w.Event('change',{bubbles:true}));await t.click('[data-ob="continue"]');
  assert.equal(t.last().sound,'blip');assert.equal(t.last().notifications,true);assert(/Blip/.test(prefs().textContent));preserved();
  // Reopening reads the saved choices. The normal Settings route stays hidden,

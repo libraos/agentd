@@ -35,7 +35,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','
   if(u.pathname==='/api/auth')return {ok:true,status:204};
   if(u.pathname==='/api/dash')body=dash;
   else if(u.pathname==='/api/issues')body={issues:[]};
-  else if(u.pathname==='/api/triggers')body={status,templates:[],repo:'acme/app',author:'alice',enable:'libraos-core config set triggers.enabled true'};
+  else if(u.pathname==='/api/triggers')body={status,templates:[],repo:'acme/app',author:'alice',enable:'libraos-engine config set triggers.enabled true'};
   else if(u.pathname==='/api/settings'&&opts.method==='POST'){posts.push(JSON.parse(opts.body));if(postFail){status_=400;body={error:postFail}}else body={changed:true,enabled:false}}
   return {ok:status_<400,status:status_,json:async()=>JSON.parse(JSON.stringify(body)),text:async()=>JSON.stringify(body)}}}});
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<4;i++)await tick()};

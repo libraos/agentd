@@ -1624,7 +1624,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <!-- region:page-triggers -->
 <div id="page-triggers" class="page textpage" hidden>
   <div class="set-toolbar"><div class="trig-title"><h2>Triggers</h2><span class="trig-meta" id="trig-meta"></span></div><button type="button" id="trig-refresh">Refresh</button></div>
-  <p class="mute" id="trig-intro">What starts work on its own: <code>[triggers]</code> (what <code><span data-brand="cli">libraos-core</span> trigger status</code> prints, and templates for it), and beside it <code>[improve]</code> and <code>[signals]</code>. All three are off by default, only an owner sees this page, and nothing here turns any of them on: that is a terminal step.</p>
+  <p class="mute" id="trig-intro">What starts work on its own: <code>[triggers]</code> (what <code><span data-brand="cli">libraos-engine</span> trigger status</code> prints, and templates for it), and beside it <code>[improve]</code> and <code>[signals]</code>. All three are off by default, only an owner sees this page, and nothing here turns any of them on: that is a terminal step.</p>
   <p id="trig-error" role="alert" hidden></p><p id="trig-status" class="mute" role="status"></p>
   <div id="trig-body" class="trig-col"></div>
 </div>
@@ -1647,7 +1647,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     </dl></section>
   <section class="runs" aria-label="Words used here"><div class="colhead"><h2>Words used here</h2></div><dl><dt>Unassigned</dt><dd>A task offered for an agent to take.</dd><dt>Working</dt><dd>The host process reports activity; a session can be connected without doing work.</dd><dt>Not seen</dt><dd>The session has not checked in recently. This is separate from the task’s result.</dd><dt>Reserved resource</dt><dd>A path or port an agent says it is using, recorded as a claim.</dd><dt>Validation</dt><dd>A check of the work. A passing check does not merge or publish it.</dd><dt>Lower bound (≥)</dt><dd>At least this amount is known; some usage or prices are missing.</dd><dt>From / Taken by</dt><dd>The session that offered the task and the session that claimed it.</dd></dl></section>
   <section class="runs" aria-label="From the command line"><div class="colhead"><h2>From the command line</h2></div>
-    <p class="mute">Every command takes <code>-h</code>. Start with <code><span data-brand="cli">libraos-core</span> doctor</code> to see whether this install works, and <code><span data-brand="cli">libraos-core</span> status</code> for what is waiting.</p></section>
+    <p class="mute">Every command takes <code>-h</code>. Start with <code><span data-brand="cli">libraos-engine</span> doctor</code> to see whether this install works, and <code><span data-brand="cli">libraos-engine</span> status</code> for what is waiting.</p></section>
   <section class="runs" aria-label="Send feedback"><div class="colhead"><h2>Send feedback</h2></div>
     <form id="feedback-form"><label>Category <select name="category"><option value="bug">Bug</option><option value="idea">Idea</option><option value="ux">User experience</option><option value="other">Other</option></select></label><label>Rating (optional) <select name="rating"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><label>Feedback <textarea name="text" maxlength="5000" required></textarea></label><button type="submit">Send feedback</button><span id="feedback-status" class="mute" role="status"></span></form></section>
 </div>
@@ -1674,8 +1674,8 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   </nav>
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
     <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count" aria-hidden="true" hidden>0</span></button>
-    <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (libraos-core repo add)" data-brand-title="Add a repository (CLI repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
-    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (libraos-core new, N)" data-brand-title="New task (CLI new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (libraos-engine repo add)" data-brand-title="Add a repository (CLI repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (libraos-engine new, N)" data-brand-title="New task (CLI new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
   </div></div>
   <!-- region:app-projects: repositories as folders, their tasks under them, others' tasks in their own group (#563) -->
   <nav class="app-projects" data-region="projects" id="app-projects" aria-labelledby="app-projects-name"></nav>
@@ -1764,7 +1764,7 @@ function appWatchdog(d){const n=document.getElementById('appwatchdog');if(!n)ret
 // two command lines) carry data-brand and are rewritten from these at load (brandApply).
 // Not brand text, and unchanged: API paths and fields, agentd/hof-... branch names,
 // .agentd/tasks.toml, localStorage keys, notification tags, classes and ids.
-const PRODUCT='LibraOS Engine',CLI='libraos-core',SERVER_NAME=PRODUCT+' Server';
+const PRODUCT='LibraOS Engine',CLI='libraos-engine',SERVER_NAME=PRODUCT+' Server';
 function brandApply(){for(const n of document.querySelectorAll('[data-brand]')){const k=n.dataset.brand;
   if(k==='product'){if(n.tagName==='META')n.setAttribute('content',PRODUCT);else n.textContent=PRODUCT}
   else if(k==='cli')n.textContent=CLI;
@@ -1809,7 +1809,7 @@ function plainText(text){return String(text||'')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\s'"`,;()]+)*\/\.claude\/worktrees\/[^\s'"`,;()]+/g,'the worker’s folder')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\/\s'"`,;()]+)*\/worktrees\/[^\/\s'"`,;()]+-[0-9a-f]{8}\/(?:hof|run|pr|issue|imp|improve|trigger)-[^\/\s'"`,;()][^\s'"`,;()]*/g,'the worker’s folder')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s'"`,;()]+)((?:\/[^\/\s'"`,;()]+)*)\/?/g,(m,rest)=>rest.split('/').filter(Boolean).pop()||'the home folder')
-  .replace(/\s*\((?:[^()]*?:\s*)?(?:git|libraos-core|agentd|gh|claude|codex|npm|npx|go|make|pip)\s[^()]*(?:\)|$)/g,'')
+  .replace(/\s*\((?:[^()]*?:\s*)?(?:git|libraos-engine|libraos-core|agentd|gh|claude|codex|npm|npx|go|make|pip)\s[^()]*(?:\)|$)/g,'')
   .replace(new RegExp('\\b(the|a|an|its|this|existing)\\s+branch\\s+'+PLAIN_BRANCH,'gi'),'$1 worker branch')
   .replace(new RegExp('\\b(?:branch\\s+)?'+PLAIN_BRANCH,'gi'),'a worker branch')
   .replace(new RegExp('\\b(?:task|handoff|work item)\\s+hof-'+PLAIN_ID+'\\b','gi'),'an earlier task')
@@ -1966,7 +1966,7 @@ function meter(ctx,win,text){
 // name; a worker agentd started (host name "agentd hof-…") as its tool's worker.
 const WORKER_HOST=/^agentd (?:hof|run)-/;
 function sessLabel(id){const s=sessionRow(id),n=nameOf(id),t=toolName(toolOf(id));
-  if(s&&s.user&&s.tool==='other'&&(s.label==='user'||/via the (?:agentd|libraos-core|LibraOS Core) dash/.test(s.task||'')))return s.user;
+  if(s&&s.user&&s.tool==='other'&&(s.label==='user'||/via the (?:agentd|libraos-engine|libraos-core|LibraOS Engine|LibraOS Core) dash/.test(s.task||'')))return s.user;
   if(n&&n!==id&&!WORKER_HOST.test(n))return toolName(n);
   return t?t+(WORKER_HOST.test(n||'')?' worker':' session'):'Agent session'}
 function sessLink(id,label){if(id==='agentd'&&!label)return el('span',{},PRODUCT);return id&&id!=='any'?el('button',{class:'linkish',title:'Open session history ('+id+')',onclick:()=>showHistory(id,hostOf(id))},el('span',{title:id},label||sessLabel(id))):el('span',{class:'mute'},id||'–')}
@@ -2177,7 +2177,7 @@ function settingsUserCreate(){let result,invite=false;return sheet({title:'Creat
   fields:[{name:'name',label:'Name',required:true},{name:'role',label:'Role',value:'dev',options:[{value:'dev',label:'Developer'},{value:'viewer',label:'Viewer'},{value:'owner',label:'Owner'}],required:true},{name:'email',label:'Email',type:'email'},{name:'delivery',label:'How they sign in',value:'password',segment:true,options:[{value:'password',label:'Show a temporary password'},{value:'invite',label:'Send an invitation'}],required:true}],
   validate:v=>v.delivery==='invite'&&!v.email?['email','An invitation needs an email address.']:null,
   onSubmit:async v=>{invite=v.delivery==='invite';result=invite?await settingsAPI({action:'invite',name:v.name,email:v.email,role:v.role}):await settingsAPI({action:'user_create',name:v.name,role:v.role,...(v.email?{email:v.email}:{})});await settingsLoad()}}).then(v=>{if(v&&result){if(invite)settingsInviteResult(result);else settingsTempPassword(result.user||v.name,result.temp_password)}})}
-function settingsUserReset(u){let result;return sheet({title:'Reset password for '+u.name,description:'This signs '+u.name+' out of the dash and '+PRODUCT+' and gives them a new temporary password, which they must change after signing in. Their API tokens and devices keep working; for a compromised account, Disable, then Enable.',action:'Reset password',danger:true,onSubmit:async()=>{result=await settingsAPI({action:'user_reset_password',name:u.name});await settingsLoad()}}).then(v=>{if(v&&result)settingsTempPassword(result.user||u.name,result.temp_password)})}
+function settingsUserReset(u){let result;return sheet({title:'Reset password for '+u.name,description:'This signs '+u.name+' out of the dash and LibraOS Next and gives them a new temporary password, which they must change after signing in. Their API tokens and devices keep working; for a compromised account, Disable, then Enable.',action:'Reset password',danger:true,onSubmit:async()=>{result=await settingsAPI({action:'user_reset_password',name:u.name});await settingsLoad()}}).then(v=>{if(v&&result)settingsTempPassword(result.user||u.name,result.temp_password)})}
 // GitHub login (#882): an owner sets anyone's from Users, a person their own
 // from Members; empty clears it. The server checks the login's form.
 function settingsUserGitHub(u){return sheet({title:'GitHub login for '+u.name,description:'A team server checks GitHub before a worker starts on an issue, and treats the assignee, PRs and branches of this login as '+u.name+'’s own work. Leave it empty to clear it.',action:'Save',
@@ -3310,7 +3310,7 @@ function inboxRead(x){if(!x.approvalOnly&&!x.read&&CAN()&&CONNECTED)pending(x.id
 // The reason is said in full, in plain words; the next step (often a command for
 // the host) and the exact message, with its paths, wait under Details.
 // shown: the row already says the reason, so only Details is added.
-function failureDetail(x,shown){if(!x.failure&&!x.next_step)return null;const next=x.next_step||'',cmd=/^\s*(libraos-core|agentd|claude|codex|git|gh)\s/.test(next)?next:(/\b((?:libraos-core|agentd) trust \S+)/.exec(next)||[])[1]||'',
+function failureDetail(x,shown){if(!x.failure&&!x.next_step)return null;const next=x.next_step||'',cmd=/^\s*(libraos-engine|libraos-core|agentd|claude|codex|git|gh)\s/.test(next)?next:(/\b((?:libraos-core|agentd) trust \S+)/.exec(next)||[])[1]||'',
     why=x.failure?words(x.failure):'',plain=capFirst(plainText(why)),exact=!!why&&plain!==capFirst(why);
   return el('div',{class:'failure-detail'},why&&!shown?el('div',{class:'failure-reason'},el('b',{},'Why: '),plain):null,
     next||exact?el('details',{class:'tech failure-next'},el('summary',{},'Details'),

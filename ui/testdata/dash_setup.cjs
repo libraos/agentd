@@ -51,13 +51,13 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  assert.deepEqual(steps().map(b=>b.dataset.step),['host','agents','repository','task']);assert.equal(step(),'host');
  assert.equal(body().querySelector('[data-setup-count]').textContent,'Step 1 of 4');
  {const d=body().ownerDocument;const isMark=(box,what)=>{assert(box,what+': no mark');const s=box.querySelector('svg.brand-mark');assert(s&&box.textContent.trim()==='',what+' still shows the old "a" mark');assert.equal(s.getAttribute('viewBox'),'0 0 200 200',what);assert(!s.querySelector('rect')&&s.querySelector('path[fill^="url(#"]').getAttribute('d').startsWith('M15.748 141.995H75.5134')&&s.querySelector('mask path').getAttribute('d').startsWith('M86.1052 191.812C104.403'),what+': not the LibraOS L and ring');for(const ref of [...s.querySelectorAll('[fill^="url(#"],[mask^="url(#"],[clip-path^="url(#"]')].map(n=>(n.getAttribute('fill')||n.getAttribute('mask')||n.getAttribute('clip-path')).slice(5,-1)))assert.equal(d.querySelectorAll('[id="'+ref+'"]').length,1,what+': '+ref+' is not one of a kind')};isMark(body().querySelector('.setup-head .rail-mark'),'the setup head')}
- const cmd=()=>body().querySelector('[data-setup-command] code').textContent;assert.equal(cmd(),'libraos-core doctor');
+ const cmd=()=>body().querySelector('[data-setup-command] code').textContent;assert.equal(cmd(),'libraos-engine doctor');
  // Step 1 reflects doctor: one required check fails, with its fix; not marked done.
  assert(t.requests.includes('GET /api/settings?diagnostics=1'),'doctor was not run');
  assert.equal(body().querySelector('[data-setup-state]').dataset.setupState,'fail');assert(body().textContent.includes('agentd connect claude'),'the fix is not shown');
  assert(!steps()[0].classList.contains('done'),'a failing doctor is marked done');
  // Step 2: Preview then Connect (the existing connect); the state is read again and Claude is connected.
- btn(body(),'Skip for now').click();await settle();assert.equal(step(),'agents');assert.equal(cmd(),'libraos-core connect claude');
+ btn(body(),'Skip for now').click();await settle();assert.equal(step(),'agents');assert.equal(cmd(),'libraos-engine connect claude');
  const card=tool=>body().querySelector('[data-setup-agent="'+tool+'"]');
  assert.equal(card('claude').querySelector('[data-setup-state]').textContent,'Installed');assert.equal(card('opencode').querySelector('[data-setup-state]').textContent,'Not installed');assert(!card('opencode').querySelector('button'),'Preview offered for a missing agent');
  card('claude').querySelector('[data-connect-preview]').click();await settle();
@@ -66,7 +66,7 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
  assert.deepEqual(t.posts.at(-1),['/api/settings',{action:'connect',tool:'claude',dry_run:false}]);
  assert.equal(card('claude').querySelector('[data-setup-state]').textContent,'Connected','the card does not show the connect');assert(steps()[1].classList.contains('done'),'step 2 not marked done');
  // Step 3: a refusal shows the server's reason; an add lists the checkout with its routing, as text.
- btn(body(),'Continue').click();await settle();assert.equal(step(),'repository');assert.equal(cmd(),'libraos-core repo add DIR --route on|off');
+ btn(body(),'Continue').click();await settle();assert.equal(step(),'repository');assert.equal(cmd(),'libraos-engine repo add DIR --route on|off');
  const repo=()=>body().querySelector('#setup-repo'),submit=async f=>{f.dispatchEvent(new w.Event('submit',{cancelable:true}));await settle()};
  assert.deepEqual([...repo().querySelectorAll('#setup-repo-route option')].map(o=>o.textContent),['On','Off']);
  repo().querySelector('#setup-repo-dir').value='/srv/plain';await submit(repo());
@@ -103,7 +103,7 @@ const btn=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textConten
 
  // Dispatch off: step 4 says so and gives the terminal command; nothing is sent.
  srv=server({connected:true,repos:[{path:'/srv/a',route:'on'}],dispatch:false});t=boot('http://127.0.0.1:21620/#setup','alice','owner',srv);({w,doc}=t);await settle();
- assert.equal(step(),'task','it does not open on the first step not done');assert(body().querySelector('[data-setup-off]').textContent.includes('libraos-core config set dash.dispatch true'));assert(!body().querySelector('#setup-task'));t.dom.window.close();
+ assert.equal(step(),'task','it does not open on the first step not done');assert(body().querySelector('[data-setup-off]').textContent.includes('libraos-engine config set dash.dispatch true'));assert(!body().querySelector('#setup-task'));t.dom.window.close();
 
  // A team server in use is not taken to the wizard: Overview says so in a banner, with Open setup and Not now (dash-review B).
  srv=server();t=boot('http://127.0.0.1:21620/','alice','owner',srv,true);({w,doc}=t);await settle();

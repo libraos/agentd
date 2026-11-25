@@ -58,7 +58,7 @@ assert(/background:var\(--seg-on\)/.test(rule('.views button.on')),'.views butto
 assert(/color:var\(--fg\)/.test(rule('.ov-range button[aria-pressed="true"]')),'the pressed range button keeps accent text on --sel');
 for(const sel of [':focus-visible','button:focus-visible,a:focus-visible,summary:focus-visible'])assert(/outline:3px solid var\(--focus\)/.test(rule(sel)),sel+' does not use --focus');
 assert(/color:var\(--red\)/.test(rule('.doctor-fail'))&&/color:var\(--amber\)/.test(rule('.doctor-warn')),'Diagnostics fail/warn colours');
-// App mode (libraos-core app) draws its buttons' focus ring from its own tokens: 3:1 on its surfaces.
+// App mode (libraos-engine app) draws its buttons' focus ring from its own tokens: 3:1 on its surfaces.
 const appBlock=re=>{const m=css.match(re);assert(m,'app token block missing: '+re);const t={};for(const [,k,v] of m[1].matchAll(/--([\w-]+):([^;]+);/g))t[k]=v.trim();return t};
 const appLight=appBlock(/\.app-shell\{([^}]*)\}/),appDark={...appLight,...appBlock(/:root\[data-theme="dark"\] \.app-shell\{([^}]*)\}/)};
 assert(/outline:2px solid var\(--o-mfg\)/.test(rule('.app-shell button:focus-visible')),'app buttons do not use a 3:1 focus ring');
