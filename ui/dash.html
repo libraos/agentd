@@ -2268,7 +2268,7 @@ function agentsDraw(d){if(!d||APP.on)return;const box=$('agents-rows'),m=agentsM
   // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
   $('agents-counts').replaceChildren(...[[m.counts.need,d.attention_version?'need attention':m.counts.need===1?'task needs you':'tasks need you',d.attention_version?'Each task counts once, even with several Inbox notices.':'Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
   // Inbox notices with no task are their own group, last, each row with a mark like a task's (dash-review A, M).
-  // A task mirrored from the person's device with an approval or a question gets one-click buttons under its row (relayQuick).
+  // A task mirrored from the user's device with an approval or a question gets one-click buttons under its row (relayQuick).
   const rowsOf=rs=>rs.flatMap(r=>[agentsRow(r),relayQuick(r.h)].filter(Boolean));
   const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...rowsOf(m.need));
   for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...rowsOf(g.rows));
@@ -3919,7 +3919,7 @@ function mirrorBody(d){const row=(k,v)=>v===undefined||v===null||v===''?null:el(
 // mirrorNote is the one line a mirrored task's page says (#848): where it lives and when the server last heard of it.
 function mirrorNote(d){const t=d.mirrored?new Date(d.mirrored):null,when=t&&!isNaN(t)?t.toLocaleString():'at an unknown time';
   return 'Mirrored from '+(d.node||'a users device')+(d.person?' ('+d.person+')':'')+', last updated '+when+'.'+(d.relay&&d.relay.may?' Act on it here: '+(d.node||'that device')+' applies what you send on its next contact.':' Act on it on that device.')}
-// region:relay (libraos/core relay.go): a task mirrored from a person's device is acted on from here. The
+// region:relay (libraos/core relay.go): a task mirrored from a user's device is acted on from here. The
 // server records the click (Approve, Reject, Answer, Cancel, Unpark) bound to what this page showed (the
 // approval and its text's digest, the worker's attempt and question, the task's version) with a nonce; the
 // device takes it on its next contact, checks it again against its own users and applies it as that person.
@@ -3967,7 +3967,7 @@ function relayQuick(h){const rv=h&&h.relay;if(!rv||!rv.may)return null;const a=(
   return el('div',{class:'ag-relay','data-relay-quick':h.id,'aria-label':'Answer from here'},
     a?relayBtn('Approve','approve',()=>relayApprove(h.id,rv,a,'approve'),'primary'):null,a?relayBtn('Reject','reject',()=>relayApprove(h.id,rv,a,'reject'),'danger'):null,
     q?relayBtn('Answer','answer',()=>relayAnswer(h.id,rv),'primary'):null)}
-// relayInbox: the Inbox's part for tasks mirrored from the person's devices with something to answer or a
+// relayInbox: the Inbox's part for tasks mirrored from the user's devices with something to answer or a
 // relayed action on its way (the snapshot's relay_inbox).
 function relayInbox(d){const xs=(d&&d.relay_inbox)||[];if(!xs.length)return null;
   return el('section',{class:'ib-relay','data-relay-inbox':'','aria-label':'From your devices'},el('div',{class:'ag-group ag-need'},el('span',{},'From your devices'),el('span',{},xs.length)),
