@@ -4,7 +4,7 @@
 //  2. Show, Edit, Approve and Reject send the server's lesson_* actions with
 //     the lesson's id and never a person's name (the server records the one
 //     signed in); Edit sends only the fields changed;
-//  3. an approved lesson agentd suggests retiring has Retire (reason required);
+//  3. an approved lesson LibraOS Engine suggests retiring has Retire (reason required);
 //  4. a viewer, a developer and the shared token get no write button, only the
 //     terminal command; lesson text is text.
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_lessons.cjs dash.html
@@ -82,7 +82,7 @@ const open=async(w,id)=>{w.location.hash='#inbox?item='+encodeURIComponent(id);a
   p=await open(w,'lesson:lsn-a1');
   for(const t of ['Edit','Approve','Reject'])assert(!button(p,t),role+' sees '+t);
   assert(button(p,'Show'),'Show is for everyone');
-  assert(want.test(p.textContent)&&/agentd lesson approve lsn-a1/.test(p.textContent),'no terminal command for '+(role||'the token')+': '+p.textContent);
+  assert(want.test(p.textContent)&&/libraos-engine lesson approve lsn-a1/.test(p.textContent),'no terminal command for '+(role||'the token')+': '+p.textContent);
   p=await open(w,'lesson-retire:lsn-c3');assert(!button(p,'Retire'),role+' sees Retire');
   assert(!errors.length,errors.join('\n'));w.close()}
  console.log('dash_lessons: ok');process.exit(0)

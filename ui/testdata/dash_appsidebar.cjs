@@ -46,7 +46,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert(body.classList.contains('app-mode'),'app mode is not on');await openLeft();
  // #667: the sidebar header uses the product name in every theme and viewport.
  const name=doc.querySelector('#app-left .app-name');
- assert.equal(name.textContent,'LibraOS Core','sidebar product name');assert(shown(name),'sidebar product name is hidden');
+ assert.equal(name.textContent,'LibraOS Engine','sidebar product name');assert(shown(name),'sidebar product name is hidden');
  // Grouping: my tasks by repository (folders sorted, each task under its own), finished ones too;
  // then Other people's with Bob's only.
  const it=items();
@@ -129,7 +129,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  key('Escape',{},doc.body);await tick();assert(!shown($('app-page')),'Escape does not close Triggers');
  // Add a repository: the terminal's command, never a request.
  await openLeft();doc.querySelector('#app-shell [data-app-action="add-repo"]').click();await tick();
- assert(shown($('app-repo-pop'))&&/libraos-core repo add/.test($('app-repo-pop').textContent),'add a repository');
+ assert(shown($('app-repo-pop'))&&/libraos-engine repo add/.test($('app-repo-pop').textContent),'add a repository');
  key('Escape',{},doc.body);await tick();assert(!shown($('app-repo-pop')),'Escape does not close it');
  // Phone: opening a task closes the drawer.
  if(phone){await openLeft();row('hof-w1').click();await tick();assert(!body.classList.contains('app-left-open'),'the drawer stays open after a task is opened')}
@@ -138,7 +138,7 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert(!box().querySelector('.app-repo[data-repo="others"]'),'others group without mine');assert(row('hof-b1')&&!row('hof-b1').hasAttribute('data-readonly'));
  // No tasks: a note with the command.
  snap=app({handoff_list:[],done:[]});await w.refresh();await settle();
- assert(/libraos-core new/.test(box().textContent),'empty list: '+box().textContent);assert.equal(bell.querySelector('.app-count').textContent,'0');
+ assert(/libraos-engine new/.test(box().textContent),'empty list: '+box().textContent);assert.equal(bell.querySelector('.app-count').textContent,'0');
  // Team mode: nothing of this, and n is the team server's again.
  snap={...base};await w.refresh();await settle();assert(!body.classList.contains('app-mode'));
  newClicks=0;key('n',{},doc.body);await tick();assert.equal(newClicks,0,'N presses the app’s button in team mode');
