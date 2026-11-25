@@ -57,7 +57,7 @@ const w=dom.window,d=w.document,tick=()=>new Promise(r=>setTimeout(r,25));
  const login=/\.login-error main:before\{([^}]*)\}/.exec(head);assert(login,'the sign-in page has no mark');
  assert(/content:""/.test(login[1])&&/display:block/.test(login[1])&&/width:40px;height:40px/.test(login[1]),'the sign-in mark is not a 40px block');
  const loginURI=/url\("([^"]+)"\)/.exec(login[1]);assert(loginURI,'the sign-in mark has no image');assert.equal(loginURI[1],icon,'the sign-in mark is not the tab icon artwork');
- {const page=new JSDOM(head+'</head><body class="login-error"><main><h1>Sign in to LibraOS Core Server</h1></main></body>');assert(page.window.document.querySelector('.login-error main h1'),'the sign-in page shape changed')}
+ {const page=new JSDOM(head+'</head><body class="login-error"><main><h1>Sign in to LibraOS Engine Server</h1></main></body>');assert(page.window.document.querySelector('.login-error main h1'),'the sign-in page shape changed')}
 
  // The rail and the app's top bar: the inline mark, the artwork exactly, ids of their own; labels kept.
  const isMark=(box,what)=>{assert(box,what+': no mark box');const s=box.querySelectorAll('svg.brand-mark');assert.equal(s.length,1,what+': '+s.length+' marks');assert.equal(box.textContent.trim(),'',what+' shows text, not the mark');
@@ -66,8 +66,8 @@ const w=dom.window,d=w.document,tick=()=>new Promise(r=>setTimeout(r,25));
   assert.equal(artOf(s[0]),ART,what+' is not the LibraOS artwork');refsResolve(s[0],d,what);return s[0]};
  const rail=d.querySelector('.rail-mark'),app=d.querySelector('.app-logo');
  isMark(rail,'the rail');isMark(app,'the app top bar');
- assert.equal(rail.getAttribute('title'),'LibraOS Core Server');assert.equal(rail.getAttribute('aria-label'),'LibraOS Core Server, go to Overview');
- assert.equal(app.getAttribute('aria-hidden'),'true');assert.equal(d.querySelector('.app-name').textContent,'LibraOS Core');
+ assert.equal(rail.getAttribute('title'),'LibraOS Engine Server');assert.equal(rail.getAttribute('aria-label'),'LibraOS Engine Server, go to Overview');
+ assert.equal(app.getAttribute('aria-hidden'),'true');assert.equal(d.querySelector('.app-name').textContent,'LibraOS Engine');
  // More copies (the setup page, onboarding) keep every id one of a kind.
  const more=[w.brandMark(),w.brandMark()];more.forEach(s=>d.body.append(s));more.forEach((s,i)=>{assert.equal(artOf(s),ART,'copy '+i);refsResolve(s,d,'copy '+i)});isMark(rail,'the rail, with more copies');more.forEach(s=>s.remove());
 

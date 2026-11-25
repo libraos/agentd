@@ -1,10 +1,10 @@
-# LibraOS Core dash
+# LibraOS Engine dash
 
-The LibraOS Core dashboard front end: `dash.html`, one HTML document with no build step
+The LibraOS Engine dashboard front end: `dash.html`, one HTML document with no build step
 and no dependencies. The one third-party file is the terminal widget, xterm.js 6.0.0
 (MIT), vendored unmodified in `vendor/` (`xterm.js`, `xterm.css`) and served by the
 binary at `/vendor/` only while `[dash] terminal` is on; its licence is in the
-repository's THIRD_PARTY_NOTICES. Nothing is loaded from a CDN. The LibraOS Core binary embeds a pinned copy of this directory
+repository's THIRD_PARTY_NOTICES. Nothing is loaded from a CDN. The LibraOS Engine binary embeds a pinned copy of this directory
 and serves it on the dash port; every number on the page comes from the binary's
 `/api` routes, so the page does nothing on its own.
 
@@ -17,11 +17,15 @@ npm install        # jsdom only
 npm test
 ```
 
+The product's name and the CLI program's name each come from one constant at the top of
+the page script (`region:brand`: `PRODUCT`, `CLI`); every page text and shown command is built
+from them, so renaming either is a one-line change. `testdata/dash_brand.cjs` checks this.
+
 Each test also runs alone, on `dash.html` beside `testdata/`: `node testdata/dash_home.cjs`.
 
 `testdata/` holds the tests: `dash_ui`, `dash_openpr` and `dash_chat` read the
 document, `dash_dom`, `dash_voice`, `dash_changes`, `dash_checks`, `dash_terminal` and the rest run it in jsdom on desktop and phone,
-light and dark. A change to the page lands in a release when LibraOS Core moves its pin
+light and dark. A change to the page lands in a release when LibraOS Engine moves its pin
 to the new commit.
 
 ## License

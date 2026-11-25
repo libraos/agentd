@@ -144,7 +144,7 @@ async function usersPanel(){
 
  // Reset: the sheet names the effect; Cancel sends nothing.
  btn(rows()[1],'Reset password').click();await tick();
- assert(/signs bob out of the dash and LibraOS Next/i.test(dialog(doc).textContent)&&!/out everywhere/i.test(dialog(doc).textContent)&&/Disable, then Enable/.test(dialog(doc).textContent),'reset sheet does not name the effect: '+dialog(doc).textContent);
+ assert(/signs bob out of the dash and LibraOS Engine/i.test(dialog(doc).textContent)&&!/out everywhere/i.test(dialog(doc).textContent)&&/Disable, then Enable/.test(dialog(doc).textContent),'reset sheet does not name the effect: '+dialog(doc).textContent);
  const n=posts().length;btn(dialog(doc),'Cancel').click();await tick();assert.equal(posts().length,n,'Cancel sent a reset');
  btn(rows()[1],'Reset password').click();await tick();answer=[200,{user:'bob',temp_password:TEMP[1]}];await submit(w,doc);
  assert.deepEqual(posts().at(-1),{action:'user_reset_password',name:'bob'});assert.equal(box.querySelector('input').value,TEMP[1]);
