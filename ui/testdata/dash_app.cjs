@@ -69,6 +69,9 @@ const css=[...doc.querySelectorAll('style')].map(n=>n.textContent).join('\n');
  key('Escape');await tick();assert(!shown(pop),'Escape does not close the watchdog command');
  // Sidebars: desktop open by default, Mod+B and Mod+L toggle them; on a phone both are drawers, closed until asked, one at a time.
  const open=side=>body.classList.contains('app-'+side+'-open');
+ // The right sidebar is the open task's (review m4): with no task open Mod+L and its toggle do nothing; a task opens it again.
+ assert.equal(w.getComputedStyle(right).display,'none','the right sidebar shows with no task open');key('l',{ctrlKey:true});await tick();
+ assert.equal(open('right'),!phone,'Mod+L with no task open changed the right sidebar');w.appTaskOpen('hof-a1');await settle();
  if(!phone){
   assert(open('left')&&open('right'),'sidebars are not open by default on desktop');
   key('b',{ctrlKey:true});await tick();assert(!open('left'),'Ctrl+B does not hide the left sidebar');
