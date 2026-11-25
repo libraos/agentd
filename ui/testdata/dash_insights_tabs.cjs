@@ -9,19 +9,24 @@ const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const now=new Date().toISOString(),phone=process.env.DASH_UI_PHONE==='1',evil='<img src=x onerror=alert(1)>';
 const cov=(a,p,t,extra)=>({attempts:a,priced:p,with_tokens:t,priced_pct:a?100*p/a:0,with_tokens_pct:a?100*t/a:0,...extra});
-const group=(key,name,o)=>({[key]:name,handoffs:o.h,dispatched:o.d,success:{autonomous_completion:{n:o.ac,of:o.d,pct:o.d?100*o.ac/o.d:0},delivered:{n:o.dl,of:o.h,pct:100*o.dl/o.h},false_accept:{not_computable:'no accepted handoff'},unverified:o.u},
+const group=(key,name,o)=>({[key]:name,handoffs:o.h,dispatched:o.d,success:{autonomous_completion:{n:o.ac,of:o.d,pct:o.d?100*o.ac/o.d:0},delivered:{n:o.dl,of:o.h,pct:100*o.dl/o.h},false_accept:o.fa||{not_computable:'no accepted handoff'},unverified:o.u},
  cost:{usd:o.usd,lower_bound:!!o.lb,unpriced_attempts:o.lb?1:0,running_attempts:0,cost_per_accepted:o.cpa},usage:{attempts:o.a,input_tokens:o.in,output_tokens:o.out,cache_read_tokens:o.cr,cache_write_tokens:0,worker_minutes:o.min},
  coverage:cov(o.a,o.lb?o.a-1:o.a,o.a,{handoffs_in_period:5,key_known_in_period:o.known})});
+// Metric 7 in a period under 14 days old: none known yet by design, so what is found so far
+// and when the first clean one is confirmed, never "not measured".
+const soFarMsg='0 found wrong so far of 3 accepted; clean ones are confirmed 14 days after done (first on 2026-11-30)';
+const soFar={not_computable:soFarMsg,message:soFarMsg,found_so_far:0,accepted:3,accepted_unknown:3,first_settle:'2026-11-30'};
+const soFarNoDetect={not_computable:'x',message:'0 found wrong so far of 4 accepted; clean ones are confirmed 14 days after done, and none can be yet (a linked PR still open); outcome detection has not run: agentd pr sync-gh / agentd handoff outcome detect',found_so_far:0,accepted:4,accepted_unknown:4,detection_ran:false};
 let fail=0,answers=0;
 function insights(q){answers++;const since=q.get('since'),scope=q.get('scope')||'all';
  return {since:since==='7d'?'2026-11-11T00:00:00Z':'2026-10-21T00:00:00Z',until:'2026-11-18T00:00:00Z',scope,handoffs:5,
   rules:{success:'Fixture success rule.',cost:'Fixture cost rule',usage:'Fixture usage rule',coverage:'Fixture coverage rule'},
-  total:{handoffs:5,dispatched:4,success:{autonomous_completion:{n:3,of:4,pct:75},delivered:{n:4,of:5,pct:80},false_accept:{not_computable:'no person verdict recorded'},retired_with_reason:{n:1,of:1,pct:100},unverified:1},
+  total:{handoffs:5,dispatched:4,success:{autonomous_completion:{n:3,of:4,pct:75},delivered:{n:4,of:5,pct:80},false_accept:soFar,retired_with_reason:{n:1,of:1,pct:100},unverified:1},
    cost:{usd:12.5,lower_bound:true,unpriced_attempts:1,running_attempts:0,cost_per_accepted:{median_usd:2.25,p90_usd:4,priced:3,unpriced:0},fully_loaded:{per_accepted_usd:4.17,total_usd:12.5,lower_bound:true}},
    usage:{attempts:6,input_tokens:2500000,output_tokens:42000,cache_read_tokens:1800000,cache_write_tokens:9000,worker_minutes:95,tasks_per_day:[{day:'2026-11-16',handoffs:3},{day:'2026-11-17',handoffs:2}]},
    coverage:cov(6,5,6)},
   by_person:[group('person','alice',{h:3,d:3,ac:2,dl:3,u:0,usd:10,lb:true,cpa:{median_usd:2,priced:2},a:4,in:2e6,out:30000,cr:1.5e6,min:70,known:4}),group('person',evil,{h:1,d:1,ac:1,dl:1,u:1,usd:2.5,cpa:{not_computable:'no accepted handoff priced'},a:2,in:5e5,out:12000,cr:3e5,min:25,known:4})],
-  by_model:[group('model','model-x',{h:4,d:4,ac:3,dl:4,u:1,usd:12.5,lb:true,cpa:{median_usd:2.25,priced:3},a:6,in:2.5e6,out:42000,cr:1.8e6,min:95,known:4})],
+  by_model:[group('model','model-x',{fa:soFarNoDetect,h:4,d:4,ac:3,dl:4,u:1,usd:12.5,lb:true,cpa:{median_usd:2.25,priced:3},a:6,in:2.5e6,out:42000,cr:1.8e6,min:95,known:4})],
   by_project:[]}}
 const requests=[];
 const dash={user:'alice',role:'owner',now,team:true,handoff_list:[],done:[],sessions:[],left:[],unlinked:[],inbox:[],waiting:[],claims:[],messages:[],counts:{},handoffs:{},host_states:{}};
@@ -52,10 +57,16 @@ const rows=key=>[...shown().querySelectorAll('[data-ix-group="'+key+'"] tbody tr
  assert(/Covers 5 handoffs created 2026-10-21 to 2026-11-18 \(all work\)/.test(coverage),coverage);assert(/6 worker attempts: 5 priced \(83\.3%\), 6 with tokens \(100%\)/.test(coverage),coverage);
  // Success: rates as n of of, a figure not computed says not measured with its reason, never 0.
  assert.deepEqual(card('autonomous'),['75%','3 of 4 · accepted with no intervention']);assert.deepEqual(card('delivered'),['80%','4 of 5 · accepted, merged or confirmed']);
- assert.equal(card('false_accept')[0],'not measured');assert.equal(card('false_accept')[1],'no person verdict recorded');
+ assert.deepEqual(card('false_accept'),['0 so far','of 3 accepted · clean ones confirmed from 2026-11-30'],'a recent period reads not measured');
+ assert.equal(shown().querySelector('[data-ix-card="false_accept"]').title,soFarMsg);assert(!/not measured|detection has not run/.test(shown().querySelector('[data-ix-card="false_accept"]').textContent));
  assert.deepEqual(card('unverified'),['1','done with no check']);assert(!doc.querySelector('[data-ix-card="first_pass"]'),'a figure the server did not send is shown');
  assert(/Fixture success rule/.test(doc.querySelector('[data-ix-rule="success"]').textContent),'the rule is not said');assert(!/\.\./.test(doc.querySelector('[data-ix-rule="success"]').textContent),'a rule ends with two full stops');
  const people=rows('person');assert.deepEqual(people.map(r=>r[0]),['alice',evil]);assert.equal(people[0][3],'66.7% (2 of 3)');assert.equal(people[0][5],'not measured');
+ // the metrics page's cells read the same: so far, not "not computable"
+ const fc=w.eval('factoryCell('+JSON.stringify(soFar)+',m=>m.n+"/"+m.of)');assert.equal(fc.textContent,'0 so far');assert(/2026-11-30/.test(fc.title),fc.title);
+ assert.equal(w.eval('factoryFrac('+JSON.stringify(soFar)+',"n")'),'0 so far');assert.equal(w.eval('factoryFrac({n:1,of:2},"n")'),'1/2');
+ const mx=rows('model')[0];assert.equal(mx[5],'0 so far');const mxTitle=shown().querySelector('[data-ix-group="model"] tbody tr td:nth-child(6) span').title;
+ assert(/outcome detection has not run/.test(mxTitle),'the hint is not kept where detection never ran: '+mxTitle);
  assert(!doc.querySelector('#page-success img'),'a name became markup');
  assert.equal(doc.querySelector('[data-ix-known="person"]').textContent,'4 of 5 handoffs name a user','the group does not say its coverage');
  assert(/No handoff in this period/.test(doc.querySelector('[data-ix-group="project"]').textContent),'an empty group is not said');

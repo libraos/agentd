@@ -5068,13 +5068,19 @@ function ixNum(v){return typeof v==='number'&&isFinite(v)?v:null}
 function ixUsd(v,floor){v=ixNum(v);return v===null?null:(floor?'≥ ':'')+'$'+v.toFixed(2)}
 function ixPct(v){v=ixNum(v);return v===null?'':(Math.round(v*10)/10)+'%'}
 function ixDay(t){return String(t||'').slice(0,10)}
+// ixSoFar: metric 7 with no accepted handoff known yet (a period under 14 days old, by
+// design: a clean accept is confirmed 14 days after done): false accepts found so far and
+// the date the first clean one is confirmed, never "not measured".
+function ixSoFar(m){if(!m||typeof m!=='object'||ixNum(m.found_so_far)===null)return null;
+  const note=(ixNum(m.accepted)!==null?'of '+m.accepted+' accepted · ':'')+(m.first_settle?'clean ones confirmed from '+m.first_settle:'none confirmable yet: a pull request still open')+(m.detection_ran===false?' · outcome detection has not run':'');
+  return {big:m.found_so_far+' so far',note,title:String(m.message||m.not_computable||note)}}
 // ixRate: a factory metric as read: n of of (pct), a plain count, or not measured with its reason.
 function ixRate(m){if(m===undefined||m===null)return el('span',{class:'mute'},'—');if(typeof m==='number')return String(m);
-  if(typeof m!=='object')return String(m);if(m.not_computable)return el('span',{class:'ins-none',title:String(m.not_computable)},INS_NONE);
+  if(typeof m!=='object')return String(m);const so=ixSoFar(m);if(so)return el('span',{class:'ins-sofar',title:so.title},so.big);if(m.not_computable)return el('span',{class:'ins-none',title:String(m.not_computable)},INS_NONE);
   if(ixNum(m.n)!==null&&ixNum(m.of)!==null)return el('span',{title:m.n+' of '+m.of},ixPct(m.pct??(m.of?100*m.n/m.of:0))+' ('+m.n+' of '+m.of+')');return el('span',{class:'mute'},'—')}
 function ixWhy(m){return m&&typeof m==='object'&&m.not_computable?String(m.not_computable):''}
 function ixCard(key,label,big,note){const none=big===null||big===undefined;return el('div',{class:'ins-card','data-ix-card':key},el('span',{class:'ins-label'},label),el('b',{class:none?'ins-none':null},none?INS_NONE:big),el('span',{class:'ins-note'},note||''))}
-function ixRateCard(key,label,m,note){if(m===undefined)return null;if(typeof m==='number')return ixCard(key,label,String(m),note);const why=ixWhy(m);
+function ixRateCard(key,label,m,note){if(m===undefined)return null;if(typeof m==='number')return ixCard(key,label,String(m),note);const so=ixSoFar(m);if(so){const c=ixCard(key,label,so.big,so.note);c.title=so.title;return c}const why=ixWhy(m);
   return ixCard(key,label,why||!m?null:ixNum(m.n)!==null?ixPct(m.pct??(m.of?100*m.n/m.of:0)):null,why||(m&&ixNum(m.n)!==null?m.n+' of '+m.of+(note?' · '+note:''):note))}
 // ixCost: a group's dollars, a lower bound when an attempt is unpriced or running.
 function ixCost(c){c=c||{};const n=ixNum(c.usd);if(n===null)return null;if(n===0&&c.lower_bound&&!(c.running_attempts||0)&&(c.unpriced_attempts||0))return 'unpriced';return ixUsd(n,!!c.lower_bound)}
@@ -5163,7 +5169,7 @@ const HELP={
   auto_completed:'Finished with its check passed and no person stepping in.',
   not_delivered:'Finished with no check, cancelled or declined, and nothing of it was merged or confirmed.',
   failed:'Finished, but its check failed, timed out or never ran, and nothing of it was merged or confirmed.',
-  false_accept:'Accepted, then found wrong afterwards: reverted, its issue reopened, or done again.',
+  false_accept:'Accepted, then found wrong afterwards: reverted, its issue reopened, or done again. A clean one is confirmed only 14 days after it was done and its pull requests merged, so a recent period shows how many were found wrong so far and when the first is confirmed.',
   causes:'Why tasks given to a worker were not delivered, one cause each from a fixed list. A person names it when cancelling or declining; agentd fills it where the record already says it (a budget stop, a timed-out check, an infrastructure failure, a worker waiting, a failed check). Unclassified: nobody named one and the record does not say.',
   wrong_result:'The work was wrong or its check failed.',
   refused_in_error:'agentd refused a finish that was right.',
@@ -5363,9 +5369,9 @@ async function benchCompare(){const request=++benchCompareRequest,box=$('b-compa
 function benchCompareClose(){++benchCompareRequest;const box=$('b-compare');box.hidden=true;box.replaceChildren()}
 // loadFactory: agentd factory report for the metrics page's range (/api/factory).
 let factoryRequest=0;
-function factoryFrac(m,n){return !m||m.not_computable?'–':m[n]+'/'+m.of}
+function factoryFrac(m,n){return m&&ixNum(m.found_so_far)!==null?m.found_so_far+' so far':!m||m.not_computable?'–':m[n]+'/'+m.of}
 // A figure an older server does not send reads "not measured", never 0.
-function factoryCell(m,f){return !m?el('span',{class:'mute',title:'this server does not report it yet'},INS_NONE):m.not_computable?el('span',{class:'mute',title:m.not_computable},'not computable'):f(m)}
+function factoryCell(m,f){const so=ixSoFar(m);return !m?el('span',{class:'mute',title:'this server does not report it yet'},INS_NONE):so?el('span',{class:'ins-sofar',title:so.title+' · '+so.note},so.big):m.not_computable?el('span',{class:'mute',title:m.not_computable},'not computable'):f(m)}
 function factoryRow(name,x){const c=x.cost_per_accepted||{},w=x.wall_time||{};
   return el('tr',{},el('td',{},name),el('td',{class:'num'},x.dispatched),el('td',{class:'num'},factoryFrac(x.autonomous_completion,'n')),el('td',{class:'num'},factoryFrac(x.retired_with_reason,'n')),
     el('td',{class:'num'},c.median_usd===undefined?'–':'$'+Number(c.median_usd).toFixed(2)+(c.unpriced?' (+'+c.unpriced+' unpriced)':'')),el('td',{class:'num'},factoryFrac(x.interventions,'with_any')),el('td',{class:'num'},w.median_min===undefined?'–':Math.round(w.median_min)))}
