@@ -136,6 +136,13 @@ header>.stats{flex:0 1 auto;margin-left:auto;font-size:var(--fs-s)}header>.stats
 /* region:css-agents-list: the Agents page (#agents; #479's list, now a page of its own): counts and New task,
    then Needs you, then open tasks by repository; one row is a mark, the title, and agent and state under it. */
 #page-agents{max-width:880px}
+/* Agents' right side (wide screens only): the task under the pointer or focus, its whole text and, for one
+   mirrored from a device, its worker's whole question or approval request with Answer, Approve and Reject. */
+.ag-preview{display:none}
+@media (min-width:1200px){#page-agents{max-width:1360px}.ag-split{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:16px;align-items:start}
+  .ag-preview{display:block;position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow:auto;border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:14px 16px}}
+.ag-preview h3{margin:0 0 4px;font-size:15px}.ag-preview .ag-pv-sub{color:var(--mute);font-size:var(--fs-s);margin:0 0 10px}
+.ag-preview .ag-pv-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 12px;font-size:13px}.ag-preview .relay-acts{margin-top:8px}
 .ag-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}.ag-head h2{flex:1;margin:0}.ag-head button{min-height:30px}
 .ag-counts{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 0 10px;font-size:var(--fs-s);color:var(--mute)}.ag-counts b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
 .ag-rows{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:4px 6px 8px}
@@ -420,7 +427,8 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 /* relayed actions (libraos/core relay.go): a person acts on a task mirrored from their device; its device applies it */
 .relay-acts{border:1px solid var(--line);border-left:3px solid var(--accent,var(--amber));border-radius:var(--r-m);background:var(--panel);padding:10px 12px;display:grid;gap:8px;min-width:0}
 .relay-acts .relay-ask{display:grid;gap:6px;padding:8px 0;border-top:1px solid var(--line)}.relay-acts .relay-ask:first-of-type{border-top:0}
-.relay-acts .relay-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.relay-btns{display:flex;flex-wrap:wrap;gap:6px}.relay-btns button{min-height:32px}
+.relay-acts .relay-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.relay-quote{margin:0;padding:8px 12px;max-height:40vh;overflow:auto;border-left:3px solid var(--line);background:var(--sunk);white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.relay-btns{display:flex;flex-wrap:wrap;gap:6px}.relay-btns button{min-height:32px}
 .relay-log{list-style:none;margin:0;padding:0;display:grid;gap:4px}.relay-log li{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;overflow-wrap:anywhere}
 .relay-state{font-size:12px;border-radius:999px;padding:0 8px;border:1px solid var(--line)}.relay-state[data-state=done]{color:var(--green,inherit)}.relay-state[data-state=refused],.relay-state[data-state=expired]{color:var(--red,inherit)}
 .ag-relay{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 8px 34px}.ag-relay button{min-height:28px;font-size:12px}
@@ -1520,8 +1528,13 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <div id="page-agents" class="page" hidden>
   <div class="ag-head"><h2 id="agents-title">Agents</h2><button type="button" class="primary" id="agents-new" data-write title="Start a worker on a new task">New task</button></div>
   <div class="ag-counts" id="agents-counts" aria-label="Tasks by state"></div>
+  <div class="ag-split">
+  <div class="ag-list">
   <nav class="ag-rows" id="agents-rows" aria-label="Tasks that need you, then open tasks by repository"><div class="empty">Loading…</div></nav>
   <a class="ag-add" id="agents-add" href="#settings/repositories">+ Add a repository</a>
+  </div>
+  <aside class="ag-preview" id="agents-preview" aria-label="The task under the pointer or focus" aria-live="polite"></aside>
+  </div>
 </div>
 <!-- end:page-agents -->
 <!-- region:page-home: the landing page (libraos/core#850), drawn by region:home -->
@@ -1959,6 +1972,7 @@ function sheet(o){if(activeSheet)return Promise.resolve(null);return new Promise
   const finish=value=>{if(finished)return;finished=true;dialog.close();dialog.remove();activeSheet=null;const row=backKey&&[...document.querySelectorAll('['+backKey.name+']')].find(n=>n.getAttribute(backKey.name)===backKey.value),replacement=row&&[...row.querySelectorAll('button,a,summary')].find(n=>n.textContent===backText);const target=back&&back.isConnected?back:backID&&$(backID)||replacement||row&&row.querySelector('button,a,summary');focusBack(target);resolve(value)};
   const cancel=el('button',{type:'button',onclick:()=>{if(!busy)finish(null)}},o.cancel||'Cancel'),submit=el('button',{type:'submit',class:o.danger?'danger':'primary'},o.action||'Continue');
   const values=()=>Object.fromEntries(fields.map(f=>[f.name,inputs[f.name].value.trim()]));
+  if(o.lead)body.append(o.lead);
   for(const f of fields){const id='sheet-'+serial+'-'+f.name,hint=el('div',{class:'field-hint',id:id+'-hint'},f.hint||''),err=el('div',{class:'field-error',id:id+'-error',hidden:true});
     const input=f.options?el('select',{},f.options.map(v=>el('option',{value:typeof v==='string'?v:v.value},typeof v==='string'?v:v.label))):el(f.multiline?'textarea':'input',{type:f.type||'text',maxlength:f.maxlength||2000,autocomplete:'off',rows:f.multiline?3:null});
     input.id=id;input.value=f.value||'';input.setAttribute('aria-describedby',id+'-hint '+id+'-error');if(f.required)input.setAttribute('aria-required','true');inputs[f.name]=input;errors[f.name]=err;
@@ -2398,7 +2412,18 @@ function agentsRow(r){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).p
     sub=[agent,agentsState(r),num,run&&run.minutes!==undefined?fmtMin(run.minutes):'',run&&run.usd!==undefined?'$'+run.usd.toFixed(2):''].filter(Boolean).join(' · '),
     tip=[r.full,[modelName(act&&act.model||run&&run.model||''),r.session&&r.session.user||h&&h.claimer_user||''].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
   return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub,h?hostTag(h):null),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
+// agentsPreview: the right side's view of row r (wide screens): its whole goal, its state, what its worker
+// waits on and, for a task mirrored from the user's device, the relay panel with the whole question or request.
+function agentsPreview(r){if(!r)return [el('p',{class:'mute'},'Point at or focus a task to see it here.')];const h=r.h;
+  return [el('h3',{},el('a',{href:r.href},r.title)),el('p',{class:'ag-pv-sub'},agentsState(r),h?hostTag(h):null),
+    r.full&&r.full!==r.title?el('p',{class:'ag-pv-text'},r.full):null,
+    h&&h.worker_wait&&!(h.relay&&h.relay.question)?el('p',{class:'ag-pv-text'},el('b',{},'Its worker waits: '),h.worker_wait):null,
+    h&&h.relay?relayPanel(h.id,h.relay):null,el('a',{href:r.href},'Open the task')].filter(Boolean)}
+const AGENTS_PV={id:''};
 function agentsDraw(d){if(!d||APP.on)return;const box=$('agents-rows'),m=agentsModel(d),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'';
+  const all=[...m.need,...m.groups.flatMap(g=>g.rows)],pv=$('agents-preview'),show=id=>{const r=all.find(x=>x.id===id)||m.need[0]||all[0];if(!pv)return;
+    if(pv.contains(document.activeElement)&&AGENTS_PV.id===(r&&r.id))return;AGENTS_PV.id=r?r.id:'';pv.replaceChildren(...agentsPreview(r))};
+  box.onmouseover=box.onfocusin=e=>{const n=e.target.closest&&e.target.closest('[data-agent-id]');if(n&&n.dataset.agentId!==AGENTS_PV.id)show(n.dataset.agentId)};
   // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
   $('agents-counts').replaceChildren(...[[m.counts.need,d.attention_version?'need attention':m.counts.need===1?'task needs you':'tasks need you',d.attention_version?'Each task counts once, even with several Inbox notices.':'Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
   // Inbox notices with no task are their own group, last, each row with a mark like a task's (dash-review A, M).
@@ -2409,6 +2434,7 @@ function agentsDraw(d){if(!d||APP.on)return;const box=$('agents-rows'),m=agentsM
   if(m.standalone.length)kids.push(el('div',{class:'ag-group ag-need','data-ag-inbox':''},el('span',{},'Inbox'),el('span',{},m.standalone.length)),...m.standalone.map(x=>{const a=attentionInboxLink(x);a.classList.add('ag-notice');a.prepend(el('span',{class:'ag-mark','aria-hidden':'true'},'✉'));return a}));
   box.replaceChildren(...(kids.length?kids:[el('div',{class:'empty'},'No open tasks. Start one with New task.')]));
   if(keep){const n=box.querySelector('[data-agent-id="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
+  show(AGENTS_PV.id);
   // Latest activity (Team's Working now showed it) for the sessions working on these rows, while the page shows.
   if(ROUTE.item==='agents'&&Date.now()-TEAM.activityAt>8000&&teamWorking(d).some(w=>w.session))teamLoadActivity(d)}
 // end:agents-list
@@ -4084,17 +4110,20 @@ function mirrorNote(d){const t=d.mirrored?new Date(d.mirrored):null,when=t&&!isN
 // rv is the server's relay view ({may, why, host, offline, waits, approvals, question, cancel, unpark,
 // actions}); with no rv (an older server) nothing changes. Each button opens a confirm sheet, as local
 // approvals do; each relayed action shows its state: pending (waits for the device), done, refused or expired.
+// relayQuote: an approval's or question's whole text in a confirm sheet, line breaks kept, scrolling when long;
+// a host clips it only past relayTextMax (relay.go), and then it ends with "…".
+function relayQuote(text){return el('blockquote',{class:'relay-quote','data-relay-quote':''},text||'(no text was sent)')}
 function relayNonce(){const b=new Uint8Array(16);(window.crypto||crypto).getRandomValues(b);return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const RELAY_KIND={approval_answer:'Answer to an approval',handoff_answer:'Answer to its worker',cancel:'Cancel',unpark:'Unpark'};
 const RELAY_STATE={pending:'Waiting for the device',taken:'Sent to the device',done:'Done',refused:'Refused',expired:'Expired'};
 function relaySend(id,rv,kind,o,fields,body,done){const nonce=relayNonce(),host=rv.host||'its device';
-  return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',action:o.action,danger:!!o.danger,pending:'Sending…',fields},
+  return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',lead:o.quote!=null?relayQuote(o.quote):null,action:o.action,danger:!!o.danger,pending:'Sending…',fields},
     'relay:'+id+':'+kind+':'+(o.key||''),v=>({action:'relay',id,kind,nonce,...body(v||{})}),done||'Sent to '+host)}
 function relayApprove(id,rv,a,decision){const reject=decision==='reject';
-  return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':'Approve this request?',description:'“'+words(a.text||'')+'”',action:reject?'Reject':'Approve',danger:reject,key:a.id},
+  return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':'Approve this request?',description:'The request is above your '+(reject?'reason':'note')+'.',quote:a.text||'',action:reject?'Reject':'Approve',danger:reject,key:a.id},
     [{name:'note',label:reject?'Reason':'Note',required:reject,multiline:true}],v=>({approval:a.id,attempt:a.attempt||'',subject:a.digest,decision,note:v.note||''}),reject?'Rejection sent to '+(rv.host||'the device'):'Approval sent to '+(rv.host||'the device'))}
 function relayAnswer(id,rv){const q=rv.question||{};
-  return relaySend(id,rv,'handoff_answer',{title:'Answer the worker?',description:'It asked: “'+words(q.text||'')+'”',action:'Send answer'},
+  return relaySend(id,rv,'handoff_answer',{title:'Answer the worker?',description:'Its question is above your answer.',quote:q.text||'',action:'Send answer'},
     [{name:'text',label:'Your answer',required:true,multiline:true}],v=>({attempt:q.attempt||'',subject:q.digest,text:v.text||''}),'Answer sent to '+(rv.host||'the device'))}
 function relayCancel(id,rv){return relaySend(id,rv,'cancel',{title:'Cancel this task?',description:'It is closed as cancelled on '+(rv.host||'its device')+', with your reason in its history.',action:'Cancel task',danger:true},
     [{name:'reason',label:'Reason',required:true,multiline:true}],v=>({version:rv.cancel.version,reason:v.reason||''}),'Cancel sent to '+(rv.host||'the device'))}
