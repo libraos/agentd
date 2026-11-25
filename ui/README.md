@@ -30,7 +30,9 @@ from them, so renaming either is a one-line change. `testdata/dash_brand.cjs` ch
 In the personal app a terminal command is not the main text (`region:cli-same`): it sits behind
 a "Same in a terminal" disclosure (`cliSame`) or a copy icon whose tooltip names it (`cliCopy`,
 `cliAt`). Settings > Terminal commands shows them inline again, kept per viewer in this
-browser's localStorage. `testdata/dash_appcli.cjs` checks this.
+browser's localStorage. The same holds for onboarding, the Getting started list, the trigger
+sheets, the empty task lists, the watchdog notice and `/panel`'s notes.
+`testdata/dash_appcli.cjs` and `testdata/dash_appcli_places.cjs` check this.
 
 The personal app's Settings (`region:app-settings`) shows Agents on this computer with the
 server's Settings > Agents table: the same renderer (`settingsAgentsTable`) and the same reads
