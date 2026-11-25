@@ -69,14 +69,14 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  for(const k of ['server','agents'])assert(!card(k).querySelector('[data-ov-fresh]'),k+' repeats the updated time');
  assert.equal(fig('server','store'),'postgres');assert.equal(fig('server','queue'),'3');assert.equal(fig('server','latency'),'p50 8.2 ms · p95 41 ms');
  assert.equal(fig('server','cpu'),'25% of 8 cores');assert.equal(fig('server','mem'),'50% used of 16.0 GB');assert(/up 2h 30m/.test(fig('server','up')),'up: '+fig('server','up'));assert.equal(fig('server','lease'),'4s ago');
- assert.equal(fig('tasks','running'),'21 server ledger · 1 users’ devices');assert(body().querySelector('[data-ov-fig="running"]').closest('.ov-figure').title.includes('1 server workers · 0 node leases · 1 workers on users’ devices'),'where Running\'s workers are is lost');
+ assert.equal(fig('tasks','running'),'21 server ledger · 1 users’ devices');assert(body().querySelector('[data-ov-fig="running"]').closest('.ov-figure').title.includes('1 server workers · 0 host leases · 1 workers on users’ devices'),'where Running\'s workers are is lost');
  for(const [id,value] of [['queued','31 server ledger · 2 users’ devices'],['blocked','11 server ledger · 0 users’ devices'],['waiting','10 server ledger · 1 users’ devices'],['approvals','2Server approval requests'],['finished','7since midnight (UTC) · 4 server ledger · 3 users’ devices'],['stale-queued','27'],['stale-running','0']])assert.equal(fig('tasks',id),value,id+' count or split lost');
  assert.equal(fig('agents','nodes'),'1 idle · 2 busy · 0 not ready · 1 offline');assert.equal(fig('agents','leases'),'1 of 6');assert.equal(fig('agents','sessions'),'5');
  assert.equal(doc.querySelector('#stats [data-session-count]').textContent,fig('agents','sessions'),'header and card disagree on sessions');
  for(const f of body().querySelectorAll('.ov-figure'))assert(f.title,'a figure lost its definition tooltip');
  // Every prior load number remains readable, including health details in help tooltips.
  const help=id=>body().querySelector('[data-ov-fig="'+id+'"]').closest('.ov-figure').title;
- assert(help('cpu').includes('load 2'));assert(help('mem').includes('16384 MiB total')&&help('mem').includes('8192 MiB available'));assert(help('latency').includes('120')&&help('latency').includes('300 seconds'));assert(help('finished').includes(load.tasks.day_since));assert(help('up').includes(load.server.started)&&help('up').includes('9000 seconds'));assert(help('lease').includes(load.server.lease_pass_at)&&help('lease').includes('4 seconds'));assert(help('nodes').startsWith('4 nodes total'));
+ assert(help('cpu').includes('load 2'));assert(help('mem').includes('16384 MiB total')&&help('mem').includes('8192 MiB available'));assert(help('latency').includes('120')&&help('latency').includes('300 seconds'));assert(help('finished').includes(load.tasks.day_since));assert(help('up').includes(load.server.started)&&help('up').includes('9000 seconds'));assert(help('lease').includes(load.server.lease_pass_at)&&help('lease').includes('4 seconds'));assert(help('nodes').startsWith('4 hosts total'));
  assert(/ann 3/.test(fig('agents','people'))&&/Unattributed agent connections 2/.test(fig('agents','people')),'sessions per user: '+fig('agents','people'));
  // Three real SVG charts use the endpoint's nested server/hosts values, never CDN assets.
  assert.equal(range('7d').getAttribute('aria-pressed'),'true','saved range was not restored');
@@ -127,7 +127,7 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  status.series=403;await historyPoll();assert(!chart('tasks')&&failed('series')&&!stale('series'),'denied history still displayed');status.series=502;await historyPoll();assert(failed('series').querySelector('button'),'first history failure has no retry');status.series=200;failed('series').querySelector('button').click();await settle();assert(chart('tasks'));
  // The running tasks: a row each, its columns, opening its task; a goal is text.
  const rows=[...body().querySelectorAll('tr[data-running]')];assert.deepEqual(rows.map(r=>r.dataset.running),['hof-run1','hof-run2']);
- assert.deepEqual([...body().querySelectorAll('.ov-table th')].map(t=>t.textContent),['Task','User','Project','Node','Tool and model','Elapsed','Spend','State']);
+ assert.deepEqual([...body().querySelectorAll('.ov-table th')].map(t=>t.textContent),['Task','User','Project','Host','Tool and model','Elapsed','Spend','State']);
  const cells=r=>[...r.querySelectorAll('td')].map(t=>t.textContent);
  assert.deepEqual(cells(rows[0]).slice(1),['ann','acme/app','box-1','Codex · gpt-5.4','12 min of 30 min','$1.50 of $5.00','running']);
  assert.deepEqual(cells(rows[1]).slice(1),['bob','acme/site','srv (this host)','Claude','3 min','unknown','waiting on a prompt']);

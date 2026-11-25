@@ -45,7 +45,7 @@ const change=async value=>{const s=select();s.focus();s.value=value;s.dispatchEv
  assert(calls.some(c=>c.path==='/api/team'&&c.query.split('&tz=')[0]==='?member=alice&since=7d'),'detail does not request a period');
  const report=view().querySelector('[data-person-detail="alice"]');assert(report,'no person report');
  assert(doc.getElementById('team-head').textContent.includes('Ledger role: dev'),'role not shown');
- for(const text of ['Finished on their machines','Recorded commits','Pull requests','Worker time','Spend','≥ $1.25','1 attempt has no price.','Handoffs sent or claimed','Permissions','project:acme/app','developer','Nodes and devices','Host: box.lan','Last IP: 192.0.2.5','worker:finish','hof-finished'])assert(report.textContent.includes(text),'report lacks '+text);
+ for(const text of ['Finished on their machines','Recorded commits','Pull requests','Worker time','Spend','≥ $1.25','1 attempt has no price.','Handoffs sent or claimed','Permissions','project:acme/app','developer','Hosts and devices','Host: box.lan','Last IP: 192.0.2.5','worker:finish','hof-finished'])assert(report.textContent.includes(text),'report lacks '+text);
  assert.equal(report.querySelector('[data-person-state="done"] b').textContent,'4');
  assert.equal(report.querySelectorAll('[data-machine]').length,1,'worker and device are separate cards');
  assert(report.querySelector('[data-machine="alice-box"] [data-device="dev-box"]'),'worker device is not paired');
@@ -58,7 +58,7 @@ const change=async value=>{const s=select();s.focus();s.value=value;s.dispatchEv
  pending['90d']();await settle();assert(view().textContent.includes('≥ $9.00'),'latest period not shown');assert.equal(doc.activeElement,select(),'completed period lost keyboard focus');
  pending['30d']();await settle();assert(view().textContent.includes('≥ $9.00')&&!view().textContent.includes('≥ $3.00'),'late reply overwrote the latest period');hold=false;
  // Empty accounts keep their current role and explicit empty states.
- empty=true;await change('7d');for(const text of ['No handoffs in this period.','No scoped grants.','No nodes or devices recorded.','No recorded activity in this period.','not priced'])assert(view().textContent.includes(text),'empty report lacks '+text);
+ empty=true;await change('7d');for(const text of ['No handoffs in this period.','No scoped grants.','No hosts or devices recorded.','No recorded activity in this period.','not priced'])assert(view().textContent.includes(text),'empty report lacks '+text);
  // A role/identity change discards cached reports and refetches; a refusal
  // has a readable reason, Retry, and a route back to Users.
  empty=false;await change('30d');assert(view().textContent.includes('192.0.2.5'));

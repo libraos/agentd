@@ -40,7 +40,7 @@ const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySe
  await settle();assert(!errors.length,errors.join('\n'));
  // Four tabs with their counts (Nodes, #831: this fixture has none); #team is Users; Team has no second panel and no Working now.
  assert.deepEqual(tabs().map(a=>a.dataset.tab),['users','permissions','nodes','activity']);
- assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Users','Permissions','Nodes and devices','Activity']);
+ assert.deepEqual(tabs().map(a=>a.firstChild.textContent),['Users','Permissions','Hosts and devices','Activity']);
  assert.deepEqual(tabs().map(a=>(a.querySelector('.n')||{}).textContent||''),['2','','0','']);
  assert.equal(current().dataset.tab,'users');assert(view().querySelector('a[href="#team/member/bob"]'),'#team does not open on Users');assert(doc.querySelector('#repo-add').hidden,'the repository form shows on Users');
  // Repositories, Roles and Sessions on this host are Settings > Server sections now: no More strip, and the old addresses land there.
