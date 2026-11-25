@@ -1220,6 +1220,7 @@ select.appnt-input{height:34px;padding-right:28px}
 .appob-sound b{font-size:14px;font-weight:600}.appob-sound p{margin:6px 0 16px;font-size:12px;color:var(--o-mfg)}
 .appob-select{position:relative;display:inline-flex;align-items:center;gap:8px;width:224px;height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--o-border);border-radius:8px;color:var(--o-mfg)}.appob-select select{flex:1;min-width:0;height:100%;border:0;background:none;color:var(--o-fg);font:inherit;font-size:14px;appearance:none;-webkit-appearance:none;outline-offset:-2px}
 /* each step's command */
+.appob-cli-same>.cli-same{flex-basis:100%;margin:0}.appob-itemtext>.cli-same{margin-top:2px}.app-listnote>.cli-same,.app-pempty>.cli-same,.ap-empty>.cli-same{text-align:left}.app-pempty>.cli-same{width:fit-content;max-width:100%;margin:8px auto 0}
 .appob-cli{margin-top:auto;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-top:8px;font-size:11px;color:var(--o-mfg)}.appob-clihead{font-weight:500;margin-right:2px}.appob-cli p{flex-basis:100%;margin:0}
 .app-shell [id^="appob"] code,.appob-cli code{padding:2px 6px;border-radius:6px;background:var(--o-muted);color:var(--o-fg);font:11px 'SF Mono',ui-monospace,Menlo,monospace;overflow-wrap:anywhere;user-select:all}
 /* skip confirmation, add project */
@@ -6323,7 +6324,8 @@ function appStatus(d,all){const m=agentsModel(d),n=d.attention_version?inboxNeed
   $('app-spend-item').title=sp?'What workers spent today'+(sp.user?', yours':'')+' (since midnight '+(sp.tz?'in '+sp.tz:'on the server’s clock')+'): '+sp.workers+' worker'+(sp.workers===1?'':'s')+(floor?'; '+(sp.unpriced+sp.pending)+' with no dollars yet, so this is at least':'')+'. Estimated from usage logs at configured prices.':'This server does not report today’s spend.'}
 // appPop: the watchdog item's popover, the server's note and start command, as text.
 function appPopDraw(){const wd=APP.watchdog,pop=$('app-watchdog-pop');
-  pop.replaceChildren(...(wd&&wd.running?[el('p',{},'A watchdog is running. It starts offered tasks, notices stuck workers and enforces budgets.')]:[el('p',{},(wd&&wd.note?wd.note:'No watchdog is running')+'. Start one from a terminal:'),el('code',{},wd&&wd.start||CLI+' install'),el('p',{style:'margin:8px 0 0'},'The page does not start it for you.')]))}
+  pop.replaceChildren(...(wd&&wd.running?[el('p',{},'A watchdog is running. It starts offered tasks, notices stuck workers and enforces budgets.')]:[...(cliInline()?[el('p',{},(wd&&wd.note?wd.note:'No watchdog is running')+'. Start one from a terminal:'),el('code',{},wd&&wd.start||CLI+' install')]
+    :[el('p',{},(wd&&wd.note?wd.note:'No watchdog is running')+'.'),cliSame(wd&&wd.start||CLI+' install',{label:'Start one from a terminal'})]),el('p',{style:'margin:8px 0 0'},'The page does not start it for you.')]))}
 function appPop(open){const pop=$('app-watchdog-pop'),item=document.querySelector('[data-app-status="watchdog"]');open=!!open;if(open)appPopDraw();pop.hidden=!open;item.setAttribute('aria-expanded',String(open))}
 $('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-action],[data-app-panel][role=tab],[data-app-status="watchdog"]');
   if(!e.target.closest('#app-watchdog-pop,[data-app-status="watchdog"]'))appPop(false);if(!t)return;
@@ -6402,7 +6404,7 @@ function appSidebar(d){const m=APPS.model=appSidebarModel(d),box=$('app-projects
     const remaining=m.others.filter(r=>!d.attention_version||!r.h.other_mirror);
     if(remaining.length)kids.push(...appGroup('others','Other people’s',APP_ICONS.users,remaining,'Read only'));
     for(const [owner,rows] of mirrors)kids.push(...appGroup('mirror:'+owner,owner,APP_ICONS.users,rows,'Read only'));
-    if(!m.rows.length)kids.push(el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: '+CLI+' new "GOAL".'))}
+    if(!m.rows.length)kids.push(cliInline()?el('p',{class:'app-listnote'},'No tasks yet. Start one with + (or N), or from a terminal: '+CLI+' new "GOAL".'):el('div',{class:'app-listnote'},'No tasks yet. Start one with + (or N).',cliSame(CLI+' new "GOAL"',{label:'Or from a terminal'})))}
   box.replaceChildren(...kids);
   if(keep){const n=box.querySelector('[data-task-id="'+CSS.escape(keep)+'"],[data-repo="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
   if(APPS.page==='tasks')appTasksPage();if(APPS.page==='home')appHomePage();if(APPS.page==='inbox')appInboxPage();if(APP.task)appReadOnly(m.byId.get(APP.task))}
@@ -6431,7 +6433,7 @@ function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;
     el('td',{class:'app-pcol-opt'},r.mine?'You':appOwner(r)+' · read only'),el('td',{},el('span',{class:'app-pstatus'},el('span',{class:'app-dot','data-dot':dot,'aria-hidden':'true'},dot==='needs_you'?'?':null),APP_DOTS[dot])),
     el('td',{class:'app-pcol-opt'},usd===null?'—':'$'+usd.toFixed(2)+(appSoFar(r.h)?' so far':'')),el('td',{class:'app-pcol-opt'},r.h.updated_ago||r.h.age||''))};
   p.replaceChildren(appPageHead('Tasks',f),el('div',{class:'app-pcard'},rows.length?el('table',{class:'app-ptable'},el('thead',{},el('tr',{},['ID','Title / context','From','Status','Spend','Updated'].map((h,i)=>el('th',{class:i===2||i>3?'app-pcol-opt':null,scope:'col'},h)))),el('tbody',{},rows.map(tr)))
-    :matches.length?null:el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or '+CLI+' new "GOAL" in a terminal.')),...attentionGroups('app-tasks',stale,mirrors));
+    :matches.length?null:el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':cliInline()?'Start one with + in Projects, or '+CLI+' new "GOAL" in a terminal.':['Start one with + in Projects.',cliSame(CLI+' new "GOAL"',{label:'Or from a terminal'})])),...attentionGroups('app-tasks',stale,mirrors));
   f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
 function appTriggersPage(){appTrigRender();appTrigLoad()}
 function appRepoPop(open){let pop=$('app-repo-pop');const b=document.querySelector('#app-shell [data-app-action="add-repo"]');
@@ -6543,13 +6545,15 @@ function appTrigEdit(){const d=APPT.data||{},st=d.status||{},has=(st.repos||[]).
     {name:'budget',label:'Budget per run',required:true,value:has?st.budget||'':first.budget||'30m',hint:'Each worker stops at it, such as 30m or $5.'},
     {name:'max_per_day',label:'Most runs a day',required:true,type:'number',value:String(has?st.max_per_day||'':first.max_per_day||3),hint:'1 to 50. One broken main can turn every PR red at once.'},
     ...trigIssueFields(st)];
-  return sheet({title:has?'Edit trigger':'New trigger',description:'Writes [triggers] in config.toml, with a backup and a history entry. It stays off: nothing fires until someone runs '+(d.enable||CLI+' config set triggers.enabled true')+' in a terminal.',
-    action:'Save to config.toml',fields,
+  const onCmd=d.enable||CLI+' config set triggers.enabled true',inline=cliInline();
+  return sheet({title:has?'Edit trigger':'New trigger',description:'Writes [triggers] in config.toml, with a backup and a history entry. It stays off: nothing fires until someone '+(inline?'runs '+onCmd+' in a terminal.':'turns triggers on from a terminal.'),
+    action:'Save to config.toml',fields,content:inline?null:cliSame(onCmd,{label:'Turn on from a terminal'}),
     setup(api){if(!tpls.length)return;api.body.prepend(el('div',{class:'appt-tpls','data-appt':'templates'},el('span',{},'Start from'),tpls.map(t=>el('button',{type:'button','data-template':t.name,title:t.about,onclick:()=>{api.inputs.label.value=t.label||'';api.inputs.budget.value=t.budget||'';api.inputs.max_per_day.value=String(t.max_per_day||'')}},t.title))))},
     validate(v){if(!appTrigSplit(v.repos).every(r=>/^[\w.-]+\/[\w.-]+$/.test(r)))return ['repos','Each repository is OWNER/NAME.'];const n=Number(v.max_per_day);if(!Number.isInteger(n)||n<1||n>50)return ['max_per_day','A whole number from 1 to 50.'];return trigIssueCheck(v,v.label)},
     onSubmit:async v=>{const r=await trigEditSend({action:'trigger_edit',repos:appTrigSplit(v.repos),authors:appTrigSplit(v.authors),label:v.label,budget:v.budget,max_per_day:Number(v.max_per_day),...trigIssueChanges(st,v)});
       toast((r.changed?'Saved to config.toml.':'Nothing changed.')+' Triggers are still off.'+(r.note?' '+r.note:''),true);appTrigLoad()}})}
-function appTrigPause(){return sheet({title:'Pause triggers?',description:'Writes enabled = false under [triggers] in config.toml. Red PRs and labelled issues start nothing until someone turns them on again from a terminal: '+CLI+' config set triggers.enabled true.',action:'Pause',caution:true,
+function appTrigPause(){const onCmd=CLI+' config set triggers.enabled true',inline=cliInline();
+  return sheet({title:'Pause triggers?',description:'Writes enabled = false under [triggers] in config.toml. Red PRs and labelled issues start nothing until someone turns them on again from a terminal'+(inline?': '+onCmd+'.':'.'),action:'Pause',caution:true,content:inline?null:cliSame(onCmd,{label:'Turn on again from a terminal'}),
   onSubmit:async()=>{const r=await settingsAPI({action:'trigger_pause'});toast(r.changed?'Triggers paused.':'Triggers were already off.',true);appTrigLoad()}})}
 function appTrigSchedule(s){const def=s.definition||{},on=s.enabled===true,runs=s.runs||[],name=s.name,dir=s.dir;
   const btn=(label,action,ok,extra)=>el('button',{type:'button','data-appt-action':action,...extra,onclick:()=>appTrigAct({action,dir,name},ok)},label);
@@ -6814,7 +6818,10 @@ function obSvg(d,size,extra){const ns='http://www.w3.org/2000/svg',s=document.cr
   for(const p of [].concat(d)){const n=document.createElementNS(ns,'path');n.setAttribute('d',p);s.append(n)}return s}
 const OB_I={check:'M20 6 9 17l-5-5',left:'m15 18-6-6 6-6',right:'m9 18 6-6-6-6',x:'M18 6 6 18M6 6l12 12',ext:['M15 3h6v6','M10 14 21 3','M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'],chat:['M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z','M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1'],term:['M4 17l6-6-6-6','M12 19h8'],swap:['m16 3 4 4-4 4','M20 7H4','m8 21-4-4 4-4','M4 17h16'],monitor:['M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z','M8 21h8','M12 17v4'],moon:'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z',sun:['M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8','M12 2v2','M12 20v2','m4.93 4.93 1.41 1.41','m17.66 17.66 1.41 1.41','M2 12h2','M20 12h2','m6.34 17.66-1.41 1.41','m19.07 4.93-1.41 1.41'],bell:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0'],ring:['M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9','M10.3 21a1.94 1.94 0 0 0 3.4 0','M4 2C2.8 3.7 2 5.7 2 8','M22 8c0-2.3-.8-4.3-2-6'],gh:['M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4','M9 18c-4.51 2-5-2-7-2'],plug:['M12 22v-5','M9 8V2','M15 8V2','M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z'],down:'m6 9 6 6 6-6',copy:['M8 8h12v12H8z','M4 16V4h12']};
 function obCheck(){return el('span',{class:'appob-mark on','aria-hidden':'true'},obSvg(OB_I.check,10,{'stroke-width':3}))}
-function obCli(lines,note){return el('div',{class:'appob-cli'},el('span',{class:'appob-clihead'},lines.length?'In the terminal':'In the terminal: no command'),...lines.map(c=>el('code',{},c)),note?el('p',{},note):null)}
+// obCli: a step's terminal commands (review M5 rest): behind cliSame's "In the terminal" disclosure, its note
+// inside; Settings > Terminal commands, or a step with no command (only its note), shows the block as before.
+function obCli(lines,note){if(lines.length&&!cliInline())return el('div',{class:'appob-cli appob-cli-same'},cliSame(lines,{label:'In the terminal',note}));
+  return el('div',{class:'appob-cli'},el('span',{class:'appob-clihead'},lines.length?'In the terminal':'In the terminal: no command'),...lines.map(c=>el('code',{},c)),note?el('p',{},note):null)}
 function obKbd(){return /Mac|iPhone|iPad/.test(navigator.platform||'')?'⌘ ↵':'Ctrl ↵'}
 function obPageSurface(){const d=OB.draft,card=(v,icon,name,lines,preview)=>el('button',{type:'button',class:'appob-card','aria-pressed':String(d.surface===v),'data-ob':'surface-'+v,onclick:()=>{d.surface=v;obDraw()}},
     el('div',{class:'appob-prev'},preview),el('div',{class:'appob-cardtext'},el('div',{class:'appob-cardhead'},obSvg(icon,16),el('span',{},name),d.surface===v?obCheck():el('span',{class:'appob-mark','aria-hidden':'true'})),...lines));
@@ -6891,7 +6898,7 @@ function obRing(done,total){const ns='http://www.w3.org/2000/svg',s=document.cre
   for(const on of [false,true]){const n=document.createElementNS(ns,'circle');for(const[k,v]of Object.entries({cx:10,cy:10,r,fill:'none',stroke:'currentColor','stroke-width':2,opacity:on?1:.25,...(on?{'stroke-linecap':'round','stroke-dasharray':c.toFixed(3),'stroke-dashoffset':(c*(1-done/total)).toFixed(3)}:{})}))n.setAttribute(k,v);s.append(n)}return s}
 function obGuideModal(){const p=obProgress(),row=i=>{const done=i.done();return el('li',{class:'appob-item'+(done?' done':''),'data-ob-item':i.id},
     el('span',{class:'appob-itemmark','aria-hidden':'true'},done?obSvg(OB_I.check,12,{'stroke-width':3}):null),
-    el('div',{class:'appob-itemtext'},el('b',{},i.title),el('p',{},i.desc),i.cmd?el('code',{},i.cmd()):null),
+    el('div',{class:'appob-itemtext'},el('b',{},i.title),el('p',{},i.desc),i.cmd?cliInline()?el('code',{},i.cmd()):cliSame(i.cmd(),{label:'In the terminal'}):null),
     done?el('span',{class:'appob-tag ok'},'Done'):i.act?el('button',{type:'button',class:'appob-btn','data-ob':'act-'+i.id,onclick:i.act[1]},i.act[0]):null)};
   return el('div',{class:'appob-back','data-ob-layer':'guide',onclick:()=>obGuide(false)},el('div',{class:'appob-guide',role:'dialog','aria-modal':'true','aria-labelledby':'appob-guide-t',onclick:e=>e.stopPropagation()},
     el('div',{class:'appob-guidehead'},el('div',{},el('h2',{id:'appob-guide-t'},'Getting started'),el('p',{},'Finish the core workflows that make '+PRODUCT+' useful for parallel agent work.'),el('span',{class:'appob-count'},p.done+'/'+p.total)),
@@ -7020,7 +7027,7 @@ function appSignOut(){return sheet({title:'Sign out',description:'This ends your
 function appCliPref(){const on=cliInline();
   return el('div',{class:'app-pref','data-pref':'cli'},el('div',{},el('h3',{},'Terminal commands'),el('p',{},on?'Shown inline, under each action':'Behind “Same in a terminal” and copy buttons')),
     el('button',{type:'button',class:'app-btn','data-app-pref':'cli','aria-pressed':String(on),'aria-label':on?'Hide terminal commands behind Same in a terminal':'Show terminal commands inline',onclick:()=>appCliToggle()},on?'Hide':'Show inline'))}
-function appCliToggle(){cliInlineSet(!cliInline());appSettingsPage();const b=document.querySelector('#app-page [data-app-pref="cli"]');if(b)b.focus({preventScroll:true});if(AW.hid){awBody();awPanels(false)}}
+function appCliToggle(){cliInlineSet(!cliInline());appSettingsPage();const b=document.querySelector('#app-page [data-app-pref="cli"]');if(b)b.focus({preventScroll:true});if(AW.hid){awBody();awPanels(false)}if(lastDash&&APPS.model)appSidebar(lastDash)}
 async function appSettingsLoad(){if(appSettingsLoading)return;appSettingsLoading=true;appSettingsError='';appSettingsPage();
   const ok=await obLoad();appSettingsLoading=false;if(!ok)appSettingsError='Could not load personal preferences. Try again.';appSettingsPage()}
 const appSettingsButton=document.querySelector('#app-shell [data-app-action="settings"]');
@@ -7407,10 +7414,12 @@ function apDraw(d){const md=apModel(d);if(AP.hid&&!md.m.byId.has(AP.hid))AP.hid=
   if(AP.hid)apTask(d,md.m.byId.get(AP.hid));else apList(md)}
 function apHead(d,md){const sel=$('ap-project'),keep=document.activeElement===sel;
   sel.replaceChildren(el('option',{value:AP_ALL},'All projects'),...md.projects.map(p=>el('option',{value:p},p?p.split('/').pop():'No repository')));sel.value=md.project;sel.hidden=md.projects.length<2;if(keep)sel.focus();
-  const wd=d.watchdog,n=$('ap-watchdog');n.hidden=!wd||!!wd.running;n.replaceChildren(...(wd&&!wd.running?[el('span',{},'No watchdog: offered tasks do not start. '),el('code',{},wd.start||CLI+' install')]:[]))}
+  const wd=d.watchdog,n=$('ap-watchdog');n.hidden=!wd||!!wd.running;n.replaceChildren(...(wd&&!wd.running?[el('span',{},'No watchdog: offered tasks do not start. '),cliInline()?el('code',{},wd.start||CLI+' install'):cliSame(wd.start||CLI+' install',{label:'Start one from a terminal'})]:[]))}
 function apKind(x){return x.what==='issue'?'Issue':x.kind==='attention'?'Needs attention':x.approvalOnly?'Approval':x.kind==='blocked'?'Worker blocked':x.kind==='failed'?'Could not finish':x.kind==='question'?'Question':x.kind==='lesson'?'Lesson':x.kind==='spec'?'Spec approval':x.kind==='validator'?'Validator waiting':x.kind==='review'?'Ready for review':x.kind==='result'?'Report ready':x.kind==='stale'?'Expired':word(x.kind||'answered')}
-// apWhere: where to act instead, with each command to copy.
-function apWhere(key,text,cmds){return el('div',{class:'ap-where','data-where':key},el('span',{class:'ap-mute'},text),
+// apWhere: where to act instead, with each command to copy: behind a disclosure (cliSame) unless the viewer
+// shows terminal commands inline (Settings > Terminal commands), then each as before with its Copy.
+function apWhere(key,text,cmds){if(!cliInline())return el('div',{class:'ap-where','data-where':key},el('span',{class:'ap-mute'},text.replace(/:$/,'.')),cliSame(cmds,{label:cmds.length>1?'The commands':'The command'}));
+  return el('div',{class:'ap-where','data-where':key},el('span',{class:'ap-mute'},text),
   ...cmds.map(c=>el('span',{class:'ap-cmd'},el('code',{},c),el('button',{type:'button',class:'ap-btn ap-copy','aria-label':'Copy: '+c,onclick:()=>chatCopy(c)},'Copy'))))}
 // apAnswer: an approval's Approve and Reject (region:inbox's approvalActs: the same confirm sheet, which
 // shows the request's full text, and action), why this person cannot answer it, or, where the page may not
@@ -7447,7 +7456,8 @@ function apRow(r){const dot=appDot(r.mark),usd=apSpend(r.h);
     el('span',{class:'ap-rbody'},el('span',{class:'ap-rtitle'},r.title),el('span',{class:'ap-rmeta'},el('span',{},r.done?APP_DOTS[dot]:agentsState(r)||APP_DOTS[dot]),apCheck(r.h.check_state),usd?el('span',{class:'ap-cost',title:'Spent by its workers'},usd):null)))}
 function apList(md){const box=$('ap-list'),rows=md.rows;
   box.replaceChildren(el('h2',{class:'ap-h'},'Tasks',el('span',{class:'ap-count'},String(rows.length))),
-    rows.length?el('div',{class:'ap-rows'},rows.map(apRow)):el('p',{class:'ap-mute ap-empty'},md.mine.length?'No task of yours in this project.':'No tasks yet. Start one from your agent, or: '+CLI+' new "GOAL".'))}
+    rows.length?el('div',{class:'ap-rows'},rows.map(apRow)):md.mine.length?el('p',{class:'ap-mute ap-empty'},'No task of yours in this project.'):cliInline()?el('p',{class:'ap-mute ap-empty'},'No tasks yet. Start one from your agent, or: '+CLI+' new "GOAL".')
+      :el('div',{class:'ap-mute ap-empty'},'No tasks yet. Start one from your agent.',cliSame(CLI+' new "GOAL"',{label:'Or from a terminal'})))}
 // The task: each section keeps its node across redraws and is filled from what is cached, so the 10 s
 // refresh does not flicker; checks, details and the change reload at most every 15 s.
 function apSec(box,key,title){let s=box.querySelector('[data-ap-sec="'+key+'"]');if(!s){s=el('section',{class:'ap-sec','data-ap-sec':key},el('h3',{class:'ap-h'},title),el('div',{class:'ap-sbody'}));box.append(s)}return s.querySelector('.ap-sbody')}

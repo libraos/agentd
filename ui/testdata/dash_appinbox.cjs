@@ -73,12 +73,12 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){cl
  assert(!btns(a1).includes('Approve')&&!btns(a1).includes('Reject'),'the app offers an answer it cannot send: '+btns(a1));
  const where=q('[data-where="approval"]',a1);assert(where&&/does not answer approvals/.test(where.textContent)&&/in the dash, or at your own terminal/.test(where.textContent),'no where for apr-1');
  assert.deepEqual(qa('code',where).map(c=>c.textContent),['libraos-engine approval answer apr-1 --approve','libraos-engine approval answer apr-1 --reject']);
- click(qa('.ap-copy',where)[0]);await settle();assert.deepEqual(copied,['libraos-engine approval answer apr-1 --approve']);
+ click(qa('.cli-copy',where)[0]);await settle();assert.deepEqual(copied,['libraos-engine approval answer apr-1 --approve']);
  // The question: answered at a terminal (handoff_answer is not on the app's allowlist), and its task opens.
  const q1=rowOf('question:hof-q1:1');assert(/Keep the old column names as aliases for one release\?/.test(q1.textContent));
  assert.deepEqual(qa('[data-where="question"] code',q1).map(c=>c.textContent),['libraos-engine handoff answer hof-q1 --text "..."']);
  // The lesson: Show reads it; approve and reject are an owner's in the dash or at the host, not here.
- const l1=rowOf('lesson:lsn-a1');assert.deepEqual(btns(l1).filter(t=>t!=='Copy'),['Show'],'lesson buttons: '+btns(l1));
+ const l1=rowOf('lesson:lsn-a1');assert.deepEqual(btns(l1).filter(t=>t&&t!=='Copy'),['Show'],'lesson buttons: '+btns(l1));
  assert(/The app does not decide lessons/.test(l1.textContent));assert.deepEqual(qa('[data-where="lesson"] code',l1).map(c=>c.textContent),['libraos-engine lesson approve lsn-a1','libraos-engine lesson reject lsn-a1']);
  click(qa('button',l1).find(b=>b.textContent==='Show'));await settle();let dlg=q('dialog.sheet');assert(dlg&&dlg.open&&/Raise the check limit/.test(dlg.textContent),'Show does not read the lesson');
  click(qa('button',dlg).find(b=>b.textContent==='Close'));await settle();
