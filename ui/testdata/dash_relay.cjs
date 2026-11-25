@@ -108,6 +108,15 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   quick.querySelector('[data-relay=approve]').click();await settle();const d=doc.querySelector('dialog.sheet');assert(d&&d.textContent.includes('Approve this request?'),'quick Approve opens no confirm sheet');
   [...d.querySelectorAll('.sheet-foot button')].find(b=>b.textContent==='Approve').click();await settle();
   const p=posts.pop();assert.equal(p.kind,'approval_answer');assert.equal(p.subject,approval.digest);assert.equal(p.decision,'approve');
+  // The right side (wide screens) shows the first Needs you task with its relay panel and the whole question.
+  const pv=doc.getElementById('agents-preview');assert(pv&&pv.querySelector('[data-relay-panel="'+ID+'"]'),'the preview has no relay panel: '+(pv?pv.innerHTML.slice(0,300):'no preview'));
+  assert(pv.textContent.includes('Postgres or SQLite?'),'the preview does not show the question');
+  // A long question with line breaks is quoted whole in the Answer sheet, not clipped into its description.
+  const long='Which store?\n'+'x'.repeat(1500)+' END';
+  w.eval('relayAnswer('+JSON.stringify(ID)+','+JSON.stringify({...relay,question:{...question,text:long}})+')');await settle();
+  const q=doc.querySelector('dialog.sheet [data-relay-quote]');assert(q,'the Answer sheet has no quote');assert.equal(q.textContent,long,'the quote is not the whole question');
+  assert(!doc.querySelector('dialog.sheet .sheet-head p').textContent.includes('Which store?'),'the question is still in the description');
+  [...doc.querySelectorAll('dialog.sheet .sheet-foot button')].find(b=>b.textContent==='Cancel').click();await settle();
   // No relay view, or one that may not act: no quick buttons.
   assert.equal(w.eval('relayQuick('+JSON.stringify({...row,relay:{may:false,why:'x'}})+')'),null);assert.equal(w.eval('relayQuick('+JSON.stringify({...row,relay:undefined})+')'),null);
   assert(!errors.length,errors.join('\n'))}
