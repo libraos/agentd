@@ -19,7 +19,7 @@ async function boot(o={}){
     w.localStorage.setItem('dash-token','fixture');w.localStorage.setItem('dash-theme',process.env.DASH_UI_THEME||'light');if(srv.session)w.sessionStorage.setItem('dash-app-onboard-closed',srv.session);
     w.HTMLDialogElement.prototype.showModal=function(){this.open=true};w.HTMLDialogElement.prototype.close=function(){this.open=false};w.matchMedia=q=>({matches:phone&&q.includes('max-width'),addEventListener(){}});w.ResizeObserver=class{observe(){}disconnect(){}};w.CSS={escape:x=>x};w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};
     srv.notes=[];w.Notification=class{constructor(t,o){srv.notes.push(t+': '+(o&&o.body))}static get permission(){return srv.notify}static requestPermission(){srv.notify='granted';return Promise.resolve('granted')}};
-    srv.paths=[];w.fetch=async(url,init)=>{const u=new URL(url,w.location.href);srv.paths.push(u.pathname);let body={},status=200;
+    srv.paths=[];srv.posted=[];w.fetch=async(url,init)=>{const u=new URL(url,w.location.href);srv.paths.push(u.pathname);if(init&&init.method&&init.method!=='GET')srv.posted.push(u.pathname);let body={},status=200;
       if(u.pathname==='/api/auth')return {ok:true,status:204};
       if(u.pathname==='/api/dash')body=srv.snap;
       if(u.pathname==='/api/onboarding'){if(srv.fail){status=srv.fail;body=srv.fail===404?{}:{error:'Could not read the onboarding state'}}else{if(init&&init.method==='POST'){const st=JSON.parse(init.body);srv.posts.push(st);srv.state=st}else{srv.gets++;srv.getURLs.push(u.search)}body={user:'alice',state:srv.state,facts:srv.facts}}}
@@ -60,13 +60,16 @@ async function boot(o={}){
  assert.equal(t.q('[data-ob="agent-codex"]').getAttribute('aria-pressed'),'true','the configured default is not preselected');
  await t.click('[data-ob="agent-claude"]');assert(/libraos-engine connect claude/.test(t.q('.appob-cli').textContent),'the command does not follow the pick');
  assert(/Worker permissions/.test(t.text())&&/config\.toml/.test(t.text()),'no read-only permission row in Yolo mode’s place');
- assert(!t.q('.appob-yolo input'),'a permission switch is on the page');
+ assert(!t.q('.appob-yolo input'),'a permission switch is on the page');assert(!/Yolo|no page equivalent/.test(t.text()),'the agent page names a switch the product does not have');
  await t.click('[data-ob="continue"]');
  let p=t.last();assert.equal(t.srv.posts.length,1);assert.equal(p.defaultAgent,'claude');assert.equal(p.surface,'chat');assert.equal(p.lastCompletedStep,1);assert.equal(p.checklist.choseAgent,true);assert.equal(p.closedAt,null);
  // --- step 3, theme: applied at once ---
  assert.equal(t.step(),'theme');assert(/Make it feel like home/.test(t.text())&&/3 of 5/.test(t.text()));
  for(const v of ['system','dark','light'])assert(t.q('[data-ob="theme-'+v+'"]'),'no '+v+' tile');
  assert(/Match OS/.test(t.text())&&/Easy on the eyes/.test(t.text())&&/Bright & crisp/.test(t.text()),'tile hints');
+ // Review m6: themes the product does not have are left out, not labelled as missing.
+ assert(!/More themes|theme plugins|Not in LibraOS Engine|keeps its place/.test(t.text()),'the theme page lists themes the product does not have: '+t.text());
+ assert.equal(t.doc.querySelectorAll('#appob-layer .appob-look').length,2,'only the built-in light and dark looks');
  await t.click('[data-ob="theme-dark"]');assert.equal(t.doc.documentElement.dataset.theme,'dark','Dark is not applied at once');
  // A progress segment jumps without saving.
  const before=t.srv.posts.length;await t.click('[data-ob="seg-agent_surface"]');assert.equal(t.step(),'agent_surface');assert.equal(t.srv.posts.length,before,'a segment click saved');
@@ -103,8 +106,9 @@ async function boot(o={}){
  // Add a project: Re-check closes it once a repository is registered; the command stays text.
  t.srv.facts={...t.srv.facts,repositories:[{path:'/r/a',name:'a',task_file:false}],commands:{...t.srv.facts.commands,repo_add:'agentd repo add '+evil}};
  await t.click('[data-ob="add-recheck"]');assert(!/Add a project/.test(t.text()),'Re-check does not close Add a project');
- // Toast: Send feedback shows the command; Later closes.
- await t.click('[data-ob="toast-feedback"]');assert(/libraos-engine feedback/.test(t.q('.appob-toast').textContent),'feedback command');
+ // Toast (review m7): its button says it copies the feedback command, and shows it; Later closes.
+ assert(/Copy feedback command/.test(t.q('[data-ob="toast-feedback"]').textContent)&&!/Send feedback/.test(t.q('.appob-toast').textContent),'the toast says Send for a copy');
+ await t.click('[data-ob="toast-feedback"]');assert(/libraos-engine feedback 'what you think'/.test(t.q('.appob-toast').textContent),'feedback command');
  await t.click('[data-ob="toast-later"]');assert(!t.q('.appob-toast'),'Later does not close the toast');
  // --- coach marks: eligible (saw the wizard at first load), no dialog open, a tab open ---
  t.$('app-tabs').append(Object.assign(t.doc.createElement('button'),{type:'button',textContent:'Session'}));t.$('app-tabs').lastChild.setAttribute('role','tab');t.$('app-tabs').lastChild.setAttribute('aria-selected','true');
@@ -126,12 +130,12 @@ async function boot(o={}){
  // --- checklist: Getting started, each item's condition ---
  await t.click('[data-ob="entry"]');assert(/Getting started/.test(t.text())&&/Finish the core workflows/.test(t.text()),'Getting started does not open');
  const items=()=>Object.fromEntries([...t.doc.querySelectorAll('#appob-layer [data-ob-item]')].map(n=>[n.dataset.obItem,n]));
- assert.deepEqual(Object.keys(items()),['notifications','default-agent','agent-capabilities','task-sources','setup-script','add-two-repos','two-worktrees','browser'],'the eight checklist items in order');
+ assert.deepEqual(Object.keys(items()),['notifications','default-agent','agent-capabilities','task-sources','setup-script','add-two-repos','two-worktrees'],'the seven checklist items in order (review m6: no browser milestone)');
  assert.deepEqual([...t.doc.querySelectorAll('#appob-layer .appob-guidesec h3')].map(h=>h.textContent),['Setup','Milestones']);
  const done=id=>items()[id].classList.contains('done');
  assert(done('notifications'),'notifications: permission granted and on');assert(done('default-agent'),'default agent chosen');assert(done('task-sources'),'gh connected');
  for(const id of ['agent-capabilities','setup-script','add-two-repos','two-worktrees'])assert(!done(id),id+' done too early');
- assert(/Not in LibraOS Engine/.test(items().browser.textContent)&&!done('browser'),'the browser milestone keeps its place uncounted');
+ assert(!/Not in LibraOS Engine|built-in browser/.test(t.text()),'the checklist lists a milestone the product does not have');
  for(const [id,cmd] of [['agent-capabilities','libraos-engine connect'],['add-two-repos','libraos-engine repo add DIR'],['two-worktrees','libraos-engine new'],['task-sources','gh auth login'],['default-agent','libraos-engine connect claude']])assert(items()[id].querySelector('code').textContent.startsWith(cmd),id+' command');
  assert(/3\/7/.test(t.text()),'progress: '+t.text().slice(0,200));
  // Each remaining condition comes from the facts.
@@ -144,7 +148,7 @@ async function boot(o={}){
  // Hide from sidebar.
  await t.click('[data-ob="guide-hide"]');assert.equal(t.last().guideHidden,true,'Hide is not saved');await t.click('[data-ob="guide-close"]');assert(!t.shown(t.$('appob-entry')),'the entry stays after Hide');
  // Help: the menu, Milestones, Keyboard shortcuts, Onboarding (reopens, resets).
- await t.click('[data-app-action="help"]');assert(t.q('.appob-menu'),'Help has no menu');assert.deepEqual([...t.doc.querySelectorAll('#appob-layer .appob-menu button')].map(b=>b.textContent),['Keyboard shortcuts','Send feedback','Milestones','Onboarding']);
+ await t.click('[data-app-action="help"]');assert(t.q('.appob-menu'),'Help has no menu');assert.deepEqual([...t.doc.querySelectorAll('#appob-layer .appob-menu button')].map(b=>b.textContent),['Keyboard shortcuts','Copy the feedback command…','Milestones','Onboarding']);
  await t.click('[data-ob="menu-milestones"]');assert(/Getting started/.test(t.text()),'Milestones does not open the checklist');t.key('Escape');await settle();assert(!/Getting started/.test(t.text()),'Escape does not close it');
  await t.click('[data-app-action="help"]');await t.click('[data-ob="menu-onboarding"]');
  p=t.last();assert.equal(p.closedAt,null);assert.equal(p.outcome,null);assert.equal(p.lastCompletedStep,-1);assert.equal(t.step(),'agent_surface','Onboarding does not reopen the wizard at the start');
@@ -166,10 +170,9 @@ async function boot(o={}){
  // Set up later on step 2 keeps that page's pick.
  t=await boot({state:{...fresh(),lastCompletedStep:-1}});await t.click('[data-ob="continue"]');await t.click('[data-ob="agent-claude"]');await t.click('[data-ob="later"]');
  p=t.last();assert.equal(p.defaultAgent,'claude');assert.equal(p.outcome,'completed');assert.equal(p.checklist.choseAgent,true);t.w.close();
- // --- gh installed: the GitHub step is skipped (N of 4); a Windows host has its terminal step (N of 6) ---
+ // --- gh installed: the GitHub step is skipped (N of 4); a Windows host has no terminal step either (review m6: nothing to set) ---
  t=await boot({facts:{gh:'sign_in'}});assert(/1 of 4/.test(t.text()),'gh installed still shows its step');assert(!t.q('[data-ob="seg-integrations"]'));t.w.close();
- t=await boot({facts:{os:'windows'}});assert(/1 of 6/.test(t.text()),'Windows has no terminal step');await t.click('[data-ob="seg-windows_terminal"]');assert(/Set Windows terminal defaults/.test(t.text()));
- await t.click('[data-ob="continue"]');assert.equal(t.last().lastCompletedStep,4,'the Windows step saves step 4');t.w.close();
+ t=await boot({facts:{os:'windows'}});assert(/1 of 5/.test(t.text()),'Windows still has a terminal step');assert(!t.q('[data-ob="seg-windows_terminal"]'),'a Windows terminal segment');t.w.close();
  // No agent on PATH: the reference app's notice and the popular list; a pick not on PATH is warned of.
  t=await boot({facts:{clients:[{tool:'claude',found:false,connected:false},{tool:'codex',found:false,connected:false},{tool:'opencode',found:false,connected:false}]}});
  await t.click('[data-ob="continue"]');assert(/No agents detected on your PATH/.test(t.text())&&/Popular agents\s*3/.test(t.text()),'no-agent notice');
@@ -200,7 +203,7 @@ async function boot(o={}){
  const prefs=()=>t.$('app-page'),change=id=>prefs().querySelector('[data-app-pref="'+id+'"]');
  assert(t.shown(prefs())&&/Personal settings/.test(prefs().querySelector('section').getAttribute('aria-label')),'no personal Settings view');
  assert(!t.doc.body.classList.contains('app-left-open')||!phone,'Settings leaves the phone drawer over the page');
- for(const id of ['theme','agent_surface','agent','integrations','notifications','windows_terminal'])assert(change(id),'missing preference '+id);
+ for(const id of ['theme','agent_surface','agent','integrations','notifications'])assert(change(id),'missing preference '+id);assert(!change('windows_terminal'),'a Windows terminal preference with nothing to set');
  assert(/GitHub connected/.test(prefs().textContent)&&/libraos-engine config set dispatch.default_tool codex/.test(prefs().textContent),'saved preferences or terminal command missing');
  assert(!t.srv.posts.length&&!t.step(),'opening Settings changes onboarding');
  const preserved=()=>{const p=t.last();for(const k of ['closedAt','outcome','lastCompletedStep','guideHidden','toursSeen','toastShown'])assert.deepEqual(p[k],completed[k],'settings rewrites '+k);assert.deepEqual(p.checklist,completed.checklist,'settings rewrites checklist')};
@@ -217,13 +220,13 @@ async function boot(o={}){
  assert.equal(t.last().defaultAgent,'claude');assert(/libraos-engine config set dispatch.default_tool claude/.test(prefs().textContent));preserved();
  await t.click(change('notifications'));t.q('[data-ob="sound"]').value='blip';t.q('[data-ob="sound"]').dispatchEvent(new t.w.Event('change',{bubbles:true}));await t.click('[data-ob="continue"]');
  assert.equal(t.last().sound,'blip');assert.equal(t.last().notifications,true);assert(/Blip/.test(prefs().textContent));preserved();
- // Reopening reads the saved choices. The normal Settings route stays hidden,
- // and no request is sent to /api/settings (unavailable in personal mode).
+ // Reopening reads the saved choices. The normal Settings route stays hidden, and
+ // Settings writes nothing to the server: it only reads /api/settings for its Agents table.
  t.doc.querySelector('#app-page [data-app-close]').click();await settle();assert(!t.shown(prefs()),'Close leaves Settings open');
  gear.click();await settle();assert(/Chat UI/.test(prefs().textContent)&&/Blip/.test(prefs().textContent),'reopening loses choices');
  t.key('Escape',{},t.doc.body);await settle();assert(!t.shown(prefs()),'Escape leaves Settings open');
  assert(!t.shown(t.$('page-settings')),'team settings show in personal mode');
- assert(!t.srv.paths.some(p=>['/api/settings','/api/triggers','/api/action'].includes(p)),'personal Settings calls server configuration routes');t.ok();t.w.close();
+ assert(!t.srv.paths.some(p=>['/api/triggers','/api/action'].includes(p))&&!t.srv.posted.some(p=>p==='/api/settings'),'personal Settings writes server configuration');t.ok();t.w.close();
  // Loading failures offer a retry, including a server with no saved state.
  t=await boot({fail:500});t.doc.querySelector('[data-app-action="settings"]').click();await settle();
  assert(/Could not load personal preferences/.test(t.$('app-page').textContent),'Settings hides load failures');

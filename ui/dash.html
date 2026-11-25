@@ -1083,6 +1083,15 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-preferences .app-pref{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--o-border)}
 .app-pref h3{margin:0;font-size:13px;font-weight:600;color:var(--o-fg)}.app-pref p{margin:5px 0 0;font-size:12px}.app-pref .app-btn{flex-shrink:0}
 .app-preferences .app-pref-note{margin-top:24px;font-size:12px}
+/* Settings' Agents and About (refresh item 6): the server's Agents table in the app's tokens */
+.app-page .app-set-sec{margin-top:28px}.app-set-h{display:flex;align-items:center;justify-content:space-between;gap:12px}.app-set-h h2{margin:0;font-size:15px;font-weight:600;color:var(--o-fg)}
+.app-agents table{width:100%;border-collapse:collapse;font-size:12px}.app-agents th{padding:6px 8px;border-bottom:1px solid var(--o-border);text-align:left;font-size:11px;font-weight:600;color:var(--o-mfg)}
+.app-agents td{padding:8px;border-bottom:1px solid var(--o-border);vertical-align:top;color:var(--o-fg)}.app-agents .tm-why{color:var(--o-mfg);font-size:11px}.app-agents .set-failure{color:var(--o-err,#d33)}
+.app-agents td code{display:inline;margin:0;padding:1px 4px}.app-agents .tablewrap{overflow-x:auto}.app-agents td:before{color:var(--o-mfg)}
+.app-agents .set-connect-out{border-color:var(--o-border);background:var(--o-muted);color:var(--o-fg)}.app-agents .set-connect-log{color:var(--o-fg)}
+.app-agents .cli-line{display:flex;align-items:center;gap:8px}.app-agents .cli-line code{flex:1;min-width:0;margin:0}
+.app-about dl{display:grid;grid-template-columns:120px minmax(0,1fr);gap:8px 12px;margin:12px 0 0;font-size:12px}.app-about dt{color:var(--o-mfg)}.app-about dd{margin:0;color:var(--o-fg);display:flex;align-items:center;gap:8px;min-width:0;overflow-wrap:anywhere}
+.app-about a{color:var(--o-fg)}.app-feedback-cmd{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:860px){.app-pref .app-btn{min-height:44px}.app-preferences .app-pref{gap:12px}}
 /* end:css-app-settings */
 /* region:css-app-newtask: New task in the personal app (libraos/core#564), the reference app's "Create worktree" dialog
@@ -1197,7 +1206,7 @@ select.appnt-input{height:34px;padding-right:28px}
 .appob-seg2{display:inline-flex;margin-left:12px;padding:2px;border:1px solid var(--o-border);border-radius:8px}.appob-seg2 button{padding:3px 12px;border:0;border-radius:6px;background:none;font-size:12px;color:var(--o-mfg)}.appob-seg2 button[aria-pressed="true"]{background:var(--o-muted);color:var(--o-fg);font-weight:500}.appob-seg2 small{margin-left:6px;font-size:10px;color:var(--o-mfg)}
 .appob-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory}
 .appob-look{position:relative;flex:none;width:160px;box-sizing:border-box;padding:6px;border:1px solid var(--o-border);border-radius:10px;display:flex;flex-direction:column;gap:2px;font-size:12px;scroll-snap-align:start}.appob-look .appob-mini{height:72px;margin-bottom:6px}.appob-look span{font-size:11px;color:var(--o-mfg)}.appob-look b{font-weight:500}
-.appob-look.on{border-color:color-mix(in srgb,var(--o-fg) 60%,transparent);background:color-mix(in srgb,var(--o-muted) 60%,var(--o-card))}.appob-look .appob-themecheck{top:12px;right:12px}.appob-more{border-style:dashed;justify-content:center;align-items:center;min-height:118px}
+.appob-look.on{border-color:color-mix(in srgb,var(--o-fg) 60%,transparent);background:color-mix(in srgb,var(--o-muted) 60%,var(--o-card))}.appob-look .appob-themecheck{top:12px;right:12px}
 /* step 4: GitHub */
 .appob-bullets{margin:0;padding:0 0 0 14px;display:flex;flex-direction:column;gap:8px;font-size:14px;color:var(--o-mfg)}.appob-bullets li::marker{font-size:10px}
 .appob-gh{display:flex;align-items:flex-start;gap:16px;padding:20px;border:1px solid var(--o-border);border-radius:14px;background:color-mix(in srgb,var(--o-muted) 20%,transparent)}
@@ -2200,7 +2209,7 @@ function settingsRefresh(){SETTINGS.agents=null;settingsLoad()}
 function settingsTeamRefresh(){settingsLoad();teamLoadLists();if(SETTINGS.section==='repositories'&&typeof reposLoad==='function')reposLoad()}
 function settingsAccess(){ownerOnlyShow();$('set-access').replaceChildren(el('dl',{},el('dt',{},'Signed in as'),el('dd',{},TOKEN?'Shared token':USER||'Guest'),el('dt',{},'Access'),el('dd',{},ROLE==='owner'?'Owner':ROLE||'Read-only'),el('dt',{},'Change access'),el('dd',{},'Ask an owner to change your role or send a sign-in link.')));
   if(SETTINGS.identity!==settingsIdentity()){SETTINGS.identity=settingsIdentity();SETTINGS.request++;SETTINGS.data=null;SETTINGS.diagnostics=null;SETTINGS.loading=false;$('set-invite-once').replaceChildren();$('set-invite-once').hidden=true;SETTINGS.agents=null;SETTINGS.agentsRequest++;$('set-connect-result').replaceChildren();$('set-connect-result').hidden=true;for(const n of ['agents','models','personal','workers','connections','terminal','diagnostics','app','history'])$('set-'+n+'-body').replaceChildren();$('set-agents-table').replaceChildren();settingsSections();if(ROUTE.item==='settings'||teamUsersShown())settingsLoad()}}
-async function settingsAPI(body,query=''){const identity=settingsIdentity(),r=await fetch('/api/settings'+query,{method:body?'POST':'GET',cache:'no-store',headers:{...auth(),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});let d={};try{d=await r.json()}catch(e){}if(body&&identity!==settingsIdentity())throw new Error('Sign-in changed while saving. Refresh to check the result.');if(!r.ok)throw new Error(d.error||'Could not read Settings (HTTP '+r.status+').');return d}
+async function settingsAPI(body,query=''){const identity=settingsIdentity(),r=await fetch('/api/settings'+query,{method:body?'POST':'GET',cache:'no-store',headers:{...auth(),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});let d={};try{d=await r.json()}catch(e){}if(body&&identity!==settingsIdentity())throw new Error('Sign-in changed while saving. Refresh to check the result.');if(!r.ok){const err=new Error(d.error||'Could not read Settings (HTTP '+r.status+').');err.status=r.status;throw err}return d}
 async function settingsLoad(){const seq=++SETTINGS.request,identity=settingsIdentity();SETTINGS.loading=true;$('set-error').hidden=true;$('set-status').textContent='Loading settings…';try{const d=await settingsAPI();if(seq!==SETTINGS.request||identity!==settingsIdentity())return;SETTINGS.data=d;SETTINGS.identity=identity;settingsRender();$('set-status').textContent=''}catch(e){if(seq===SETTINGS.request){SETTINGS.err=errorText(e);$('set-error').textContent=SETTINGS.err;$('set-error').hidden=false;$('set-status').textContent=SETTINGS.data?'Showing the previous settings. Refresh to try again.':'Sign in to view settings.'}}finally{if(seq===SETTINGS.request){SETTINGS.loading=false;SETTINGS.at=Date.now();if(teamUsersShown())teamDraw()}}}
 // settingsShow shows one section, marks it in the panel, and names it in the top bar.
 function settingsShow(id){const sec=SET_SECTIONS.find(x=>x.id===id&&!x.href)||SET_SECTIONS[0];id=sec.id;SETTINGS.section=id;for(const g of SET_IDS){const n=$('set-'+g);if(n)n.hidden=g!==id}
@@ -2291,14 +2300,16 @@ function settingsRevoke(i){return sheet({title:'Revoke invitation',description:'
 async function settingsDiagnostics(){const body=$('set-diagnostics-body');if(!SETTINGS.data?.owner)return;const identity=settingsIdentity();body.replaceChildren(el('p',{role:'status'},'Checking services…'));try{const d=await settingsAPI(null,'?diagnostics=1');if(identity!==settingsIdentity()||SETTINGS.section!=='diagnostics')return;body.replaceChildren(settingsSection('Checks',settingsTable(['Check','Status','Detail'],(d.doctor||[]).map(c=>[c.id,el('span',{class:'doctor-'+(['fail','warn'].includes(c.status)?c.status:'ok'),'data-doctor-status':c.status},c.status),el('span',{},c.detail,c.fix?el('small',{class:'tm-why'},c.fix):null)]))),settingsSection('Services',settingsTable(['Service','State'],(d.services||[]).map(s=>[s.name,s.state]))),el('p',{class:'mute'},'Connect agents ('+CLI+' connect, with Preview) is under ',el('a',{href:'#settings/agents'},'Agents'),'.'),el('p',{class:'mute'},'Checked ',settingsWhen(d.checked_at)))}catch(e){if(identity===settingsIdentity())body.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
 // The three agents: installed and connected from doctor's own checks (GET /api/settings?agents=1,
 // owners only), the model a worker on each starts with, and Preview connect (region:connect).
-async function settingsAgentsLoad(force=false){const box=$('set-agents-table');if(!SETTINGS.data)return;
-  if(!SETTINGS.data.owner){box.replaceChildren(settingsAgentsTable(null));return}
-  if(SETTINGS.agents&&!force){box.replaceChildren(settingsAgentsTable(SETTINGS.agents));return}
-  const seq=++SETTINGS.agentsRequest,identity=settingsIdentity();if(!SETTINGS.agents)box.replaceChildren(settingsAgentsTable(null,'Checking agents…'));
-  try{const d=await settingsAPI(null,'?agents=1');if(seq!==SETTINGS.agentsRequest||identity!==settingsIdentity())return;SETTINGS.agents=d;box.replaceChildren(settingsAgentsTable(d))}
+// box and result are Settings > Agents' own unless the caller passes its own: the personal app's
+// Settings draws the same table with the same data into its page (region:app-settings).
+async function settingsAgentsLoad(force=false,box=$('set-agents-table'),result=$('set-connect-result')){if(!SETTINGS.data)return;
+  if(!SETTINGS.data.owner){box.replaceChildren(settingsAgentsTable(null,'',result));return}
+  if(SETTINGS.agents&&!force){box.replaceChildren(settingsAgentsTable(SETTINGS.agents,'',result));return}
+  const seq=++SETTINGS.agentsRequest,identity=settingsIdentity();if(!SETTINGS.agents)box.replaceChildren(settingsAgentsTable(null,'Checking agents…',result));
+  try{const d=await settingsAPI(null,'?agents=1');if(seq!==SETTINGS.agentsRequest||identity!==settingsIdentity())return;SETTINGS.agents=d;box.replaceChildren(settingsAgentsTable(d,'',result))}
   catch(e){if(seq===SETTINGS.agentsRequest&&identity===settingsIdentity())box.replaceChildren(el('p',{role:'alert'},errorText(e)))}}
 // d null: a member who is not an owner, who sees each agent's configured model only.
-function settingsAgentsTable(d,pending){const cfg=SETTINGS.data?.config||{},owner=!!d,result=$('set-connect-result');
+function settingsAgentsTable(d,pending,result=$('set-connect-result')){const cfg=SETTINGS.data?.config||{},owner=!!d;
   const rows=(d?d.agents||[]:['claude','codex','opencode'].map(tool=>({tool,name:{claude:'Claude Code',codex:'Codex',opencode:'opencode'}[tool],model:settingsCfg(cfg,'dispatch.'+tool+'_model',v=>v||null),model_source:settingsCfg(cfg,'dispatch.'+tool+'_model',v=>v?'[dispatch] '+tool+'_model':'the tool’s own default')}))).map(a=>{
     const inst=!owner?pending||'Owners see this':el('span',{'data-agent-installed':a.tool},a.installed?'Installed':'Not installed',a.install_status==='fail'?el('small',{class:'tm-why set-failure'},a.install_detail):null,!a.installed&&a.install_fix?el('small',{class:'tm-why'},'Install: ',el('code',{},a.install_fix)):null);
     const ok=(a.parts||[]).filter(p=>p.ok).map(p=>p.label),missing=(a.parts||[]).filter(p=>!p.ok).map(p=>p.label);
@@ -6160,9 +6171,14 @@ async function connectRun(tool,dry,box){if(CONNECT.busy)return;CONNECT.busy=true
     box.replaceChildren(el('h4',{'data-connect-head':dry?'preview':'connect'},head),el('pre',{class:'set-connect-log'},(r.output||[]).join('\n')||'Nothing to change.'),
       dry?null:el('div',{'data-connect-backups':''},el('h4',{},'Backups'),backups.length?el('ul',{},backups.map(p=>el('li',{},el('code',{},p)))):el('p',{class:'mute'},'No file needed a backup.')),
       dry&&r.ok?el('div',{class:'set-actions'},el('button',{type:'button',class:'primary','data-connect-apply':tool,onclick:()=>connectRun(tool,false,box)},'Connect '+tool)):null);
-    if(!dry){toast(head,r.ok);settingsAgentsLoad(true)}}
-  catch(e){if(identity===settingsIdentity())box.replaceChildren(el('p',{role:'alert'},errorText(e)))}
+    if(!dry){toast(head,r.ok);if(APP.on)appAgentsLoad(true);else settingsAgentsLoad(true)}}
+  catch(e){if(identity!==settingsIdentity())return;if(APP.on&&e.status===404){box.replaceChildren(connectInTerminal(tool));return}box.replaceChildren(el('p',{role:'alert'},errorText(e)))}
   finally{CONNECT.busy=false;connectButtons(false)}}
+// connectInTerminal: the personal app's server takes no connect action (its Settings writes are the
+// Triggers page's), so Preview there answers 404; the same two steps are then the terminal's, shown in full.
+function connectInTerminal(tool){const cmds=[CLI+' connect '+tool+' --dry-run',CLI+' connect '+tool];
+  return el('div',{'data-connect-terminal':tool},el('h4',{},'Connect '+tool+' from a terminal'),el('p',{class:'mute'},'This app cannot run connect itself. In a terminal on this computer, preview the change, then make it:'),
+    cmds.map(c=>el('div',{class:'cli-line'},el('code',{},c),cliCopy(c,'Run in a terminal'))),el('p',{class:'mute'},'Then Refresh to read the result.'))}
 // end:connect
 // region:setup: the first-run wizard (#488). Four steps, each the terminal command it
 // stands for and its real state: 1 agentd doctor (GET /api/settings?diagnostics=1),
@@ -6693,15 +6709,14 @@ $('app-shell').addEventListener('click',e=>{const t=e.target.closest('[data-app-
 // step's agentd command changes; POST saves the state. Drawn into #appob-layer and #appob-entry
 // (region:app-shell) only in app mode; appShell calls appOnboard on each app render.
 //   wizard     shown while closedAt is null: the reference app's steps in its order (agent_surface,
-//              agent, theme, integrations unless gh is installed, windows_terminal on a
-//              Windows host only, notifications), "N of M", Back, Continue (Ctrl/Cmd+Enter),
+//              agent, theme, integrations unless gh is installed, notifications; the reference
+//              app's Windows terminal step has nothing to set here and is left out), "N of M", Back, Continue (Ctrl/Cmd+Enter),
 //              Set up later, and Esc or the backdrop asks "Skip onboarding?". Each Continue
 //              saves lastCompletedStep; a reopened wizard resumes at the first page past it.
 //              Each step shows the agentd command it stands for; nothing here runs one.
 //   checklist  "Onboarding checklist" in the sidebar (progress ring, Hide) in the session the
 //              wizard closed, opening "Getting started": the reference app's eight items, each read from the
-//              facts, with its command; the reference app's browser milestone has no agentd equivalent and
-//              keeps its place uncounted
+//              facts, with its command; the reference app's items with no agentd equivalent are left out
 //   tours      the reference app's coach marks, once each, for a person who saw the wizard at first load,
 //              never while a dialog is open; a step counts only when its target is on screen
 //   toast      "Onboarding completed!" once; Help > Onboarding reopens, Help > Milestones
@@ -6712,13 +6727,13 @@ const OB_STEPS=[
   {id:'agent',n:1,tip:'Default Agent'},
   {id:'theme',n:2,tip:'Appearance'},
   {id:'integrations',n:3,tip:'Integrations',skip:f=>f.gh!=='not_installed'},
-  {id:'windows_terminal',n:4,tip:'Windows Terminal',skip:f=>f.os!=='windows'},
   {id:'notifications',n:5,tip:'Notifications'}];
 const OB_AGENTS={claude:'Claude',codex:'Codex',opencode:'opencode'};
 const OB_SOUNDS=[['system','System Default'],['two-tone','Two Tone'],['bong','Bong'],['thump','Thump'],['blip','Blip'],['sonar','Sonar'],['blop','Blop'],['ding','Ding'],['clack','Clack'],['beep','Beep']];
 function obRepos(){return (OB.facts.repositories||[]).length}
 function obClients(){return OB.facts.clients||[]}
-// The reference app's eight checklist items (setup-guide), each with agentd's completion and command.
+// The checklist (the reference app's setup guide), each item with agentd's completion and command. Items the
+// product has no equivalent for (the reference app's built-in browser) are left out, not shown as missing (review m6).
 const OB_ITEMS=[
   {id:'notifications',sec:'Setup',title:'Turn on notifications',desc:'Know the moment a task finishes, needs you, or gets blocked.',done:()=>!!OB.st.notifications&&notifyOn(),cmd:()=>'Browser notifications for this page',act:['Turn on',()=>{obNotifyOn();obSave({notifications:true})}]},
   {id:'default-agent',sec:'Setup',title:'Choose your default agent',desc:'Start new work faster with your preferred agent already selected.',done:()=>OB.st.defaultAgent!=null,cmd:()=>CLI+' connect '+(OB.st.defaultAgent&&OB.st.defaultAgent!=='blank'?OB.st.defaultAgent:'TOOL'),act:['Choose',()=>{OB.guide=false;obOpen('agent',true)}]},
@@ -6726,9 +6741,8 @@ const OB_ITEMS=[
   {id:'task-sources',sec:'Setup',title:'Connect integrations',desc:'Start an agent from an issue in one click and keep PR status in view.',done:()=>OB.facts.gh==='connected'||!!OB.facts.linear,cmd:()=>'gh auth login',act:['Set up',()=>{OB.guide=false;obOpen('integrations',true)}]},
   {id:'setup-script',sec:'Setup',title:'Automate workspace setup',desc:'Commit .agentd/tasks.toml so every new task in a repository starts with its check, agent and budget.',done:()=>(OB.facts.task_files||0)>0,cmd:()=>'.agentd/tasks.toml  (docs/task-file.md)'},
   {id:'add-two-repos',sec:'Setup',title:'Start work in multiple repos',desc:'Bring your key repos into '+PRODUCT+' so you can start agent work without hunting for folders.',done:()=>obRepos()>=2,cmd:()=>CLI+' repo add DIR'},
-  {id:'two-worktrees',sec:'Milestones',title:'Work on two tasks at once',desc:'Each task runs in its own worktree on its own branch (even in the same repository). Perfect for working on two features at once.',done:()=>!!(OB.facts.first_task&&OB.facts.first_task.done),cmd:()=>CLI+' new "GOAL" --cwd DIR'},
-  {id:'browser',sec:'Milestones',title:'Use a built-in browser',desc:'Desktop coding apps have a browser inside the app; '+PRODUCT+' has none, so this milestone keeps its place and is not counted.',na:true}];
-function obProgress(){const xs=OB_ITEMS.filter(i=>!i.na);return {done:xs.filter(i=>i.done()).length,total:xs.length}}
+  {id:'two-worktrees',sec:'Milestones',title:'Work on two tasks at once',desc:'Each task runs in its own worktree on its own branch (even in the same repository). Perfect for working on two features at once.',done:()=>!!(OB.facts.first_task&&OB.facts.first_task.done),cmd:()=>CLI+' new "GOAL" --cwd DIR'}];
+function obProgress(){return {done:OB_ITEMS.filter(i=>i.done()).length,total:OB_ITEMS.length}}
 // The reference app's coach-mark tours. A target is a selector; one that is not on screen is left out of "N of M".
 const OB_TOURS=[
   {id:'workspace-agent-sessions',when:()=>!!document.querySelector('#app-tabs [role=tab][aria-selected="true"]'),steps:[
@@ -6822,7 +6836,7 @@ function obPageAgent(){const d=OB.draft,cl=obClients(),found=cl.filter(c=>c.foun
     el('div',{class:'appob-gridhead'},found.length?'Detected on your system':'Popular agents',el('span',{},String(list.length))),
     el('div',{class:'appob-grid'},tiles),
     d.surface==='chat'?null:el('p',{class:'appob-foot-note'},obSvg(OB_I.chat,14),'Want chat too? Turn it on any time from a task’s tabs. ',el('button',{type:'button',class:'appob-link','data-ob':'chat-now',onclick:()=>{d.surface='chat';obDraw()}},'Turn on now')),
-    el('div',{class:'appob-yolo'},el('div',{},el('div',{class:'appob-yolotitle'},'Worker permissions'),el('p',{},'Dispatched workers run with their tool’s own sandbox and '+PRODUCT+'’s worker rules ([dispatch.rules]). Those widen or narrow access, so they change only in config.toml, never from this page.'),el('p',{class:'appob-faint'},'A desktop coding app’s Yolo mode switch has no page equivalent here; docs/worker-rules.md describes the rules.')),el('span',{class:'appob-pill'},'Set in config.toml')),
+    el('div',{class:'appob-yolo'},el('div',{},el('div',{class:'appob-yolotitle'},'Worker permissions'),el('p',{},'Dispatched workers run with their tool’s own sandbox and '+PRODUCT+'’s worker rules ([dispatch.rules]). Those widen or narrow access, so they change only in config.toml, never from this page.'),el('p',{class:'appob-faint'},'docs/worker-rules.md describes the rules.')),el('span',{class:'appob-pill'},'Set in config.toml')),
     obCli([CLI+' connect '+tool,CLI+' config set dispatch.default_tool '+tool],'connect registers '+PRODUCT+' with the agent; the default is saved for this page and set for workers with config set.')]}
 function obMini(kind){const dk=kind==='dark',sp=kind==='system';return el('div',{class:'appob-mini'+(dk?' dk':'')+(sp?' sp':''),'aria-hidden':'true'},el('span',{class:'appob-minileft'},el('i'),el('i'),el('i')),el('span',{class:'appob-miniright'},el('i'),el('i'),el('i')))}
 function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?'':v);obDraw()},
@@ -6832,8 +6846,7 @@ function obPageTheme(){const d=OB.draft,set=v=>{d.theme=v;setTheme(v==='system'?
   return [el('div',{class:'appob-sechead'},el('b',{},'Color mode'),el('span',{},'Light, dark, or follow your OS.')),
     el('div',{class:'appob-themes'},tile('system',OB_I.monitor,'System','Match OS'),tile('dark',OB_I.moon,'Dark','Easy on the eyes'),tile('light',OB_I.sun,'Light','Bright & crisp')),
     el('div',{class:'appob-sechead'},el('b',{},'Theme'),el('span',{},'Optional. '+PRODUCT+' has its light and dark looks.'),d.theme==='system'?el('span',{class:'appob-seg2',role:'group','aria-label':'Look'},...['dark','light'].map(v=>el('button',{type:'button','aria-pressed':String(d.look===v),'data-ob':'look-'+v,onclick:()=>{d.look=v;obDraw()}},v==='dark'?'Dark look':'Light look',(v==='dark')===osDark?el('small',{},'now'):null))):null),
-    el('div',{class:'appob-carousel'},card('light',PRODUCT+' Light'),card('dark',PRODUCT+' Dark'),el('div',{class:'appob-look appob-more'},el('b',{},'More themes'),el('span',{},'Not in '+PRODUCT))),
-    el('p',{class:'appob-foot-note'},obSvg(OB_I.plug,14),PRODUCT+' has no theme plugins, so the theme gallery step keeps its place with the built-in looks.'),
+    el('div',{class:'appob-carousel'},card('light',PRODUCT+' Light'),card('dark',PRODUCT+' Dark')),
     obCli([],'Saved in this browser (the same setting as the server’s theme). The terminal has no theme to set.')]}
 function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not installed',sign_in:'Sign in needed',connected:'Connected'}[g]||'Checking…';
   return [el('ul',{class:'appob-bullets'},el('li',{},'Start a task from any GitHub issue, prefilled with its title and context'),el('li',{},'Browse GitHub issues and pull requests in '+PRODUCT+' without leaving it'),el('li',{},'See review status and CI checks on every task’s pull request'),el('li',{},'Push a worker’s branch and open a draft pull request ('+PRODUCT+' never merges)')),
@@ -6843,7 +6856,6 @@ function obPageIntegrations(){const g=OB.facts.gh,pill={not_installed:'CLI not i
     obCli(['gh auth login',CLI+' issue sync-gh',CLI+' pr sync-gh'],PRODUCT+' reads GitHub through gh; this page does not sign you in.')]}
 async function obRecheck(){OB.facts={...OB.facts,gh:'checking'};obDraw();await obLoad(true);const s=obStep();if(s&&s.id==='integrations'&&OB.facts.gh&&OB.facts.gh!=='not_installed'){if(OB.only||OB.page>=OB.steps.length-1)obFinish({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)},'completed');else{obSave({lastCompletedStep:Math.max(OB.st.lastCompletedStep,3)});OB.page++;obDraw()}}}
 function copyCmd(c){try{if(navigator.clipboard)navigator.clipboard.writeText(c).then(()=>toast('Copied: '+c,true),()=>{})}catch(e){}}
-function obPageWindows(){return [el('div',{class:'appob-notice',role:'note'},PRODUCT+'’s Terminal tab runs the shell of the account '+CLI+' app runs as, so it has no default shell or right-click setting to choose. This step keeps its place for a Windows host and saves nothing.'),obCli([],'')]}
 function obSound(v){try{const C=window.AudioContext||window.webkitAudioContext;if(!C||v==='system')return;const c=new C(),o=c.createOscillator(),g=c.createGain();o.frequency.value={'two-tone':660,bong:220,thump:110,blip:880,sonar:520,blop:330,ding:1046,clack:1500,beep:1000}[v]||660;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.15)}catch(e){}}
 function obTestNotify(){if(!notifySupported()){toast('This browser cannot show notifications.');return}
   const send=()=>{try{new Notification(PRODUCT,{body:'This is a test notification.'})}catch(e){toast('The browser did not show the notification.')}};
@@ -6858,7 +6870,6 @@ const OB_COPY={
   agent:['Pick your default agent',PRODUCT+' works with Claude, Codex and opencode. Choose the one you’ll reach for most.',obPageAgent],
   theme:['Make it feel like home','Choose light or dark. Change it any time in Settings.',obPageTheme],
   integrations:['Set up GitHub tasks','Install the GitHub CLI to:',obPageIntegrations],
-  windows_terminal:['Set Windows terminal defaults','Choose the default shell for new panes and how right-click behaves in the terminal.',obPageWindows],
   notifications:['Set up notifications',PRODUCT+' will notify you when tasks are done or need you.',obPageNotify]};
 function obWizard(){const s=obStep(),[title,sub,body]=OB_COPY[s.id],last=OB.page>=OB.steps.length-1,first=OB.page===0&&!OB.only,
     label=s.id==='notifications'&&!obRepos()&&!OB.only?'Add your first project':'Continue';
@@ -6878,10 +6889,10 @@ function obConfirm(){return el('div',{class:'appob-back appob-dim',onclick:e=>{e
   el('div',{class:'appob-row appob-end'},el('button',{type:'button',class:'appob-btn','data-ob':'skip',onclick:()=>obFinish({},'dismissed')},'Skip'),el('button',{type:'button',class:'appob-next','data-ob':'keep',onclick:()=>{OB.confirm=false;obDraw()}},'No, keep going'))))}
 function obRing(done,total){const ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg'),r=7,c=2*Math.PI*r;for(const[k,v]of Object.entries({viewBox:'0 0 20 20',width:16,height:16,class:'appob-ring','aria-hidden':'true'}))s.setAttribute(k,v);
   for(const on of [false,true]){const n=document.createElementNS(ns,'circle');for(const[k,v]of Object.entries({cx:10,cy:10,r,fill:'none',stroke:'currentColor','stroke-width':2,opacity:on?1:.25,...(on?{'stroke-linecap':'round','stroke-dasharray':c.toFixed(3),'stroke-dashoffset':(c*(1-done/total)).toFixed(3)}:{})}))n.setAttribute(k,v);s.append(n)}return s}
-function obGuideModal(){const p=obProgress(),row=i=>{const done=!i.na&&i.done();return el('li',{class:'appob-item'+(done?' done':''),'data-ob-item':i.id},
+function obGuideModal(){const p=obProgress(),row=i=>{const done=i.done();return el('li',{class:'appob-item'+(done?' done':''),'data-ob-item':i.id},
     el('span',{class:'appob-itemmark','aria-hidden':'true'},done?obSvg(OB_I.check,12,{'stroke-width':3}):null),
     el('div',{class:'appob-itemtext'},el('b',{},i.title),el('p',{},i.desc),i.cmd?el('code',{},i.cmd()):null),
-    i.na?el('span',{class:'appob-tag'},'Not in '+PRODUCT):done?el('span',{class:'appob-tag ok'},'Done'):i.act?el('button',{type:'button',class:'appob-btn','data-ob':'act-'+i.id,onclick:i.act[1]},i.act[0]):null)};
+    done?el('span',{class:'appob-tag ok'},'Done'):i.act?el('button',{type:'button',class:'appob-btn','data-ob':'act-'+i.id,onclick:i.act[1]},i.act[0]):null)};
   return el('div',{class:'appob-back','data-ob-layer':'guide',onclick:()=>obGuide(false)},el('div',{class:'appob-guide',role:'dialog','aria-modal':'true','aria-labelledby':'appob-guide-t',onclick:e=>e.stopPropagation()},
     el('div',{class:'appob-guidehead'},el('div',{},el('h2',{id:'appob-guide-t'},'Getting started'),el('p',{},'Finish the core workflows that make '+PRODUCT+' useful for parallel agent work.'),el('span',{class:'appob-count'},p.done+'/'+p.total)),
       el('div',{class:'appob-row'},OB.st.guideHidden?null:el('button',{type:'button',class:'appob-ghost','data-ob':'guide-hide',onclick:()=>obSave({guideHidden:true})},'Hide checklist from sidebar'),el('button',{type:'button',class:'app-ibtn','aria-label':'Close','data-ob':'guide-close',onclick:()=>obGuide(false)},obSvg(OB_I.x,14)))),
@@ -6890,14 +6901,14 @@ function obAddModal(){return el('div',{class:'appob-back','data-ob-layer':'add',
   el('h3',{id:'appob-add-t'},'Add a project'),el('p',{},'Register a repository so agents can work in it. In a terminal, from the repository:'),el('code',{},OB.facts.commands&&OB.facts.commands.repo_add||CLI+' repo add DIR'),
   el('p',{class:'appob-faint'},'The page does not add repositories itself; Re-check reads what the command registered.'),
   el('div',{class:'appob-row appob-end'},el('button',{type:'button',class:'appob-ghost','data-ob':'add-copy',onclick:()=>copyCmd(CLI+' repo add DIR')},obSvg(OB_I.copy,14),'Copy'),el('button',{type:'button',class:'appob-btn','data-ob':'add-recheck',onclick:async()=>{await obLoad();if(obRepos()){OB.add=false;obDraw()}else toast('No repository yet. Run '+CLI+' repo add DIR, then Re-check.')}},'Re-check'),el('button',{type:'button',class:'appob-next','data-ob':'add-close',onclick:()=>{OB.add=false;obDraw()}},'Done'))))}
-function obToast(){const cmd=CLI+' feedback "what you think"';return el('div',{class:'appob-toast',role:'status','aria-live':'polite'},
+function obToast(){const cmd=feedbackCmd('');return el('div',{class:'appob-toast',role:'status','aria-live':'polite'},
   el('div',{class:'appob-toasthead'},el('span',{class:'appob-okcircle','aria-hidden':'true'},obSvg(OB_I.check,12,{'stroke-width':3})),el('b',{},'Onboarding completed!'),el('button',{type:'button',class:'app-ibtn','aria-label':'Dismiss','data-ob':'toast-x',onclick:()=>{OB.toast=false;obDraw()}},obSvg(OB_I.x,14))),
   el('p',{},'If you’re enjoying '+PRODUCT+' so far, a line of feedback helps us make it better.'),OB.feedback?el('code',{},cmd):null,
-  el('div',{class:'appob-row'},el('button',{type:'button',class:'appob-amber','data-ob':'toast-feedback',onclick:()=>{OB.feedback=true;copyCmd(cmd);obDraw()}},obSvg(OB_I.ext,14),'Send feedback'),el('button',{type:'button',class:'appob-btn appob-later84','data-ob':'toast-later',onclick:()=>{OB.toast=false;obDraw()}},'Later')))}
+  el('div',{class:'appob-row'},el('button',{type:'button',class:'appob-amber','data-ob':'toast-feedback',onclick:()=>{OB.feedback=true;copyCmd(cmd);obDraw()}},obSvg(OB_I.copy,14),'Copy feedback command'),el('button',{type:'button',class:'appob-btn appob-later84','data-ob':'toast-later',onclick:()=>{OB.toast=false;obDraw()}},'Later')))}
 function obMenu(){const b=document.querySelector('#app-left [data-app-action="help"]'),r=b?b.getBoundingClientRect():{left:8,top:innerHeight-40},
     item=(t,f,key)=>el('button',{type:'button',role:'menuitem','data-ob':'menu-'+key,onclick:()=>{OB.menu=false;obDraw();f()}},t);
   return el('div',{class:'appob-menu',role:'menu','aria-label':'Help',style:'left:'+Math.max(8,r.left)+'px;bottom:'+Math.max(8,innerHeight-r.top+4)+'px'},
-    item('Keyboard shortcuts',()=>keysSheet(),'keys'),item('Send feedback',()=>{copyCmd(CLI+' feedback "what you think"');toast('In a terminal: '+CLI+' feedback "what you think"',true)},'feedback'),item('Milestones',()=>obGuide(true),'milestones'),item('Onboarding',obReopen,'onboarding'))}
+    item('Keyboard shortcuts',()=>keysSheet(),'keys'),item('Copy the feedback command…',()=>appFeedback(),'feedback'),item('Milestones',()=>obGuide(true),'milestones'),item('Onboarding',obReopen,'onboarding'))}
 function obTourPop(){const t=OB.tour,s=t.steps[t.i],n=document.querySelector(s.target),r=n?n.getBoundingClientRect():{left:0,top:0,right:0,bottom:0,width:0,height:0},W=Math.min(320,innerWidth-24);
   let left=s.place==='right'?r.right+12:r.left+r.width/2-W/2,top=s.place==='right'?r.top:r.bottom+12;left=Math.max(12,Math.min(left,innerWidth-W-12));top=Math.max(12,top);
   return el('div',{class:'appob-tour',role:'dialog','aria-labelledby':'appob-tour-t','data-tour':t.id,'data-tour-step':String(t.i),style:'left:'+left+'px;top:'+top+'px'},
@@ -6952,12 +6963,59 @@ function appSettingsPage(){const p=$('app-page');if(!APP.on||APPS.page!=='settin
       row('agent','Default agent',st.defaultAgent==='blank'?'Blank terminal':OB_AGENTS[st.defaultAgent]||'Not chosen'),
       row('integrations','Integrations',OB.facts.gh==='connected'?'GitHub connected':OB.facts.gh==='sign_in'?'GitHub sign-in needed':'GitHub CLI not installed'),
       row('notifications','Notifications',(notifyOn()?'On in this browser':'Off in this browser')+' · '+(OB_SOUNDS.find(([v])=>v===st.sound)||OB_SOUNDS[0])[1]),
-      OB.facts.os==='windows'?row('windows_terminal','Windows terminal','Uses the shell of the account running '+CLI+' app'):null,
       el('p',{class:'app-pref-note'},'Worker defaults and connections are set from a terminal.'),
       cliSame([CLI+' config set dispatch.default_tool '+(OB_AGENTS[st.defaultAgent]?st.defaultAgent:'TOOL'),CLI+' connect TOOL'],{cls:'app-pref-cli'})
     ]:[el('p',{role:appSettingsError?'alert':'status'},appSettingsError||'Loading personal preferences…'),el('button',{type:'button',class:'app-btn',disabled:appSettingsLoading,onclick:appSettingsLoad},'Try again')],
-    appCliPref()));
+    appCliPref()),appAgentsSection(),appAboutSection());
+  if(!APPSET.asked){APPSET.asked=true;appAgentsLoad()}
   if(keep){const n=p.querySelector('[data-app-pref="'+keep+'"]');if(n)n.focus({preventScroll:true})}}
+// Agents on this computer (refresh item 6): the server's Settings > Agents table, the same renderer
+// (settingsAgentsTable) and the same data (GET /api/settings, then ?agents=1 for an owner), which
+// the app serves read only. Its two boxes live across redraws, so a check or a preview in flight keeps
+// its place. Preview and Connect are the server's connect action, which the app does not take yet: its
+// 404 shows the two terminal commands instead (connectInTerminal).
+const APPSET={asked:false,box:null,result:null,req:0};
+function appAgentsBoxes(){if(!APPSET.box){APPSET.box=el('div',{'data-app-agents':''});APPSET.result=el('div',{class:'set-connect-out','data-app-connect':'',hidden:true})}return APPSET}
+function appAgentsSection(){const {box,result}=appAgentsBoxes();
+  return el('section',{class:'app-set-sec app-agents','aria-labelledby':'app-agents-h','data-app-section':'agents'},
+    el('div',{class:'app-set-h'},el('h2',{id:'app-agents-h'},'Agents on this computer'),el('button',{type:'button',class:'app-btn','data-app-agents-refresh':'',onclick:()=>{SETTINGS.agents=null;result.replaceChildren();result.hidden=true;appAgentsLoad(true)}},'Refresh')),
+    el('p',{},'Which coding agents this computer can start, whether '+PRODUCT+' is connected to each, and the model a worker on each starts with.'),box,result)}
+async function appAgentsLoad(force){const {box,result}=appAgentsBoxes(),seq=++APPSET.req;
+  if(!SETTINGS.data||force){if(!SETTINGS.data)box.replaceChildren(el('p',{role:'status'},'Checking agents…'));
+    try{const d=await settingsAPI();if(seq!==APPSET.req)return;SETTINGS.data=d;SETTINGS.identity=settingsIdentity()}
+    catch(e){if(seq===APPSET.req)box.replaceChildren(el('p',{role:'alert'},errorText(e)));return}}
+  await settingsAgentsLoad(!!force,box,result)}
+// About (refresh item 6, review m8): the product, its version, who is signed in, the documentation,
+// feedback and Sign out. The app's snapshot names no version yet: it reads /api/dash's version when a
+// server sends one, else names the terminal command that prints it.
+function appVersion(){const v=lastDash&&lastDash.version;return typeof v==='string'&&v.trim()?v.trim():''}
+function appAboutSection(){const v=appVersion();
+  return el('section',{class:'app-set-sec app-about','aria-labelledby':'app-about-h','data-app-section':'about'},el('div',{class:'app-set-h'},el('h2',{id:'app-about-h'},'About')),
+    el('dl',{},el('dt',{},'Product'),el('dd',{},PRODUCT),
+      el('dt',{},'Version'),el('dd',{'data-app-version':v?'':'unknown'},v||'Not reported by this app',v?null:cliAt(CLI+' version','Prints it in a terminal')),
+      el('dt',{},'Signed in as'),el('dd',{},USER||(TOKEN?'This computer’s token':'Not signed in')),
+      el('dt',{},'Documentation'),el('dd',{},el('a',{href:'https://github.com/libraos/engine#readme',target:'_blank',rel:'noopener noreferrer'},'Documentation ↗'))),
+    el('div',{class:'app-pref'},el('div',{},el('h3',{},'Feedback'),el('p',{},'This app does not send feedback itself. Write it here and copy the command that sends it.')),
+      el('button',{type:'button',class:'app-btn','data-app-pref':'feedback',onclick:()=>appFeedback()},'Copy the feedback command…')),
+    el('div',{class:'app-pref'},el('div',{},el('h3',{},'Sign out'),el('p',{},'Ends your sign-in in this browser. '+CLI+' app opens a new sign-in link.')),
+      el('button',{type:'button',class:'app-btn','data-app-pref':'signout',onclick:()=>appSignOut()},'Sign out')))}
+// feedbackCmd: CLI feedback with the words as one argument, safe to paste: one line, no control
+// characters, at most 2000 characters. A POSIX shell gets single quotes (nothing expands inside; a '
+// closes, is escaped, reopens). On Windows the paste may go to cmd or PowerShell, whose double quotes
+// still expand % and ! (cmd) or $ and ` (PowerShell), so those characters and " are left out there.
+const FEEDBACK_WIN_DROP=/["%!$`]/g;
+function feedbackCmd(text){const win=!!(OB.facts&&OB.facts.os==='windows');let t=String(text||'').replace(/[\u0000-\u001f\u007f]+/g,' ');if(win)t=t.replace(FEEDBACK_WIN_DROP,'');t=t.replace(/\s+/g,' ').trim().slice(0,2000)||'what you think';
+  return CLI+' feedback '+(win?'"'+t+'"':"'"+t.replace(/'/g,"'\\''")+"'")}
+// appFeedback (review m7): an honestly labelled copy. The app's server has no feedback route, so the sheet
+// builds the command from what is written and copies it (or shows it, where the clipboard is refused).
+function appFeedback(){const shown=el('code',{class:'app-feedback-cmd','data-feedback-cmd':''},feedbackCmd(''));
+  return sheet({title:'Copy the feedback command',description:'This app does not send feedback itself. Copy this command and run it in a terminal on this computer: '+CLI+' feedback sends your words with this install’s credential.'+(OB.facts&&OB.facts.os==='windows'?' On Windows the characters " % ! $ ` are left out, so no shell reads them.':''),action:'Copy command',
+    fields:[{name:'text',label:'Your feedback',multiline:true,required:true,maxlength:2000}],content:el('div',{},el('p',{class:'field-hint'},'The command'),shown),
+    setup:api=>{api.inputs.text.addEventListener('input',()=>{shown.textContent=feedbackCmd(api.inputs.text.value)})},
+    onSubmit:v=>{cliCopyNow(feedbackCmd(v.text));return true}})}
+// appSignOut: POST /api/logout (the app serves it), then the page forgets its token and reloads signed out.
+function appSignOut(){return sheet({title:'Sign out',description:'This ends your sign-in in this browser. To open the app again, run '+CLI+' app in a terminal: it opens a new one-time sign-in link.',action:'Sign out',danger:true,
+  onSubmit:async()=>{const r=await fetch('/api/logout',{method:'POST',headers:auth()});if(!r.ok)throw new Error('Could not sign out. Try again.');COOKIE=false;USER=ROLE='';chatAuthChanged();setToken('');toast('Signed out',true);location.reload();return true}})}
 // appCliPref (review M5): the one preference that shows terminal commands inline again, kept in this browser for this viewer.
 function appCliPref(){const on=cliInline();
   return el('div',{class:'app-pref','data-pref':'cli'},el('div',{},el('h3',{},'Terminal commands'),el('p',{},on?'Shown inline, under each action':'Behind “Same in a terminal” and copy buttons')),

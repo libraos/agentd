@@ -32,6 +32,14 @@ a "Same in a terminal" disclosure (`cliSame`) or a copy icon whose tooltip names
 `cliAt`). Settings > Terminal commands shows them inline again, kept per viewer in this
 browser's localStorage. `testdata/dash_appcli.cjs` checks this.
 
+The personal app's Settings (`region:app-settings`) shows Agents on this computer with the
+server's Settings > Agents table: the same renderer (`settingsAgentsTable`) and the same reads
+(`GET /api/settings`, then `?agents=1` for an owner). The app's server does not take the
+connect action, so Preview there shows the two `connect` commands to run in a terminal. Settings
+also has About (version, who is signed in, documentation), Sign out (`POST /api/logout`) and
+feedback. Feedback is a copy of the `feedback` command with your words quoted, because the app
+has no feedback route. `testdata/dash_appsettings.cjs` checks this.
+
 Each test also runs alone, on `dash.html` beside `testdata/`: `node testdata/dash_home.cjs`.
 
 `testdata/` holds the tests: `dash_ui`, `dash_openpr` and `dash_chat` read the
