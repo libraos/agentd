@@ -417,6 +417,15 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 /* a mirrored task's page is one column under All tasks (the .idetail grid put the crumb alone on the left and the task in its narrow right column) */
 .idetail.mirror-detail{grid-template-columns:minmax(0,1fr);gap:0}.mirror-detail .mirror-item{display:grid;gap:10px;min-width:0;max-width:90ch}.mirror-detail .ititle{margin-bottom:0}.mirror-detail .mirror-note{margin:0}.mirror-detail .sec{margin-top:6px}
 /* What you can do (region:need-actions): the steps of a task that needs a person with no button here, each a command with Copy */
+/* relayed actions (libraos/core relay.go): a person acts on a task mirrored from their device; its device applies it */
+.relay-acts{border:1px solid var(--line);border-left:3px solid var(--accent,var(--amber));border-radius:var(--r-m);background:var(--panel);padding:10px 12px;display:grid;gap:8px;min-width:0}
+.relay-acts .relay-ask{display:grid;gap:6px;padding:8px 0;border-top:1px solid var(--line)}.relay-acts .relay-ask:first-of-type{border-top:0}
+.relay-acts .relay-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}.relay-btns{display:flex;flex-wrap:wrap;gap:6px}.relay-btns button{min-height:32px}
+.relay-log{list-style:none;margin:0;padding:0;display:grid;gap:4px}.relay-log li{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;overflow-wrap:anywhere}
+.relay-state{font-size:12px;border-radius:999px;padding:0 8px;border:1px solid var(--line)}.relay-state[data-state=done]{color:var(--green,inherit)}.relay-state[data-state=refused],.relay-state[data-state=expired]{color:var(--red,inherit)}
+.ag-relay{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 8px 34px}.ag-relay button{min-height:28px;font-size:12px}
+details.need-term>summary{cursor:pointer;color:var(--mute)}
+@media(max-width:860px){.relay-btns button,.ag-relay button{min-height:44px}}
 .need-acts{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-m);background:var(--panel);padding:10px 12px;display:grid;gap:8px;min-width:0}
 .need-h{margin:0;font-size:var(--fs-s)}.need-h b{color:var(--fg)}
 .need-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}.need-list li{display:grid;grid-template-columns:minmax(120px,max-content) minmax(0,1fr);gap:2px 12px;align-items:center;min-width:0}
@@ -1615,7 +1624,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <!-- region:page-triggers -->
 <div id="page-triggers" class="page textpage" hidden>
   <div class="set-toolbar"><div class="trig-title"><h2>Triggers</h2><span class="trig-meta" id="trig-meta"></span></div><button type="button" id="trig-refresh">Refresh</button></div>
-  <p class="mute" id="trig-intro">What starts work on its own: <code>[triggers]</code> (what <code><span data-brand="cli">libraos-core</span> trigger status</code> prints, and templates for it), and beside it <code>[improve]</code> and <code>[signals]</code>. All three are off by default, only an owner sees this page, and nothing here turns any of them on: that is a terminal step.</p>
+  <p class="mute" id="trig-intro">What starts work on its own: <code>[triggers]</code> (what <code><span data-brand="cli">libraos-engine</span> trigger status</code> prints, and templates for it), and beside it <code>[improve]</code> and <code>[signals]</code>. All three are off by default, only an owner sees this page, and nothing here turns any of them on: that is a terminal step.</p>
   <p id="trig-error" role="alert" hidden></p><p id="trig-status" class="mute" role="status"></p>
   <div id="trig-body" class="trig-col"></div>
 </div>
@@ -1638,7 +1647,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     </dl></section>
   <section class="runs" aria-label="Words used here"><div class="colhead"><h2>Words used here</h2></div><dl><dt>Unassigned</dt><dd>A task offered for an agent to take.</dd><dt>Working</dt><dd>The host process reports activity; a session can be connected without doing work.</dd><dt>Not seen</dt><dd>The session has not checked in recently. This is separate from the task’s result.</dd><dt>Reserved resource</dt><dd>A path or port an agent says it is using, recorded as a claim.</dd><dt>Validation</dt><dd>A check of the work. A passing check does not merge or publish it.</dd><dt>Lower bound (≥)</dt><dd>At least this amount is known; some usage or prices are missing.</dd><dt>From / Taken by</dt><dd>The session that offered the task and the session that claimed it.</dd></dl></section>
   <section class="runs" aria-label="From the command line"><div class="colhead"><h2>From the command line</h2></div>
-    <p class="mute">Every command takes <code>-h</code>. Start with <code><span data-brand="cli">libraos-core</span> doctor</code> to see whether this install works, and <code><span data-brand="cli">libraos-core</span> status</code> for what is waiting.</p></section>
+    <p class="mute">Every command takes <code>-h</code>. Start with <code><span data-brand="cli">libraos-engine</span> doctor</code> to see whether this install works, and <code><span data-brand="cli">libraos-engine</span> status</code> for what is waiting.</p></section>
   <section class="runs" aria-label="Send feedback"><div class="colhead"><h2>Send feedback</h2></div>
     <form id="feedback-form"><label>Category <select name="category"><option value="bug">Bug</option><option value="idea">Idea</option><option value="ux">User experience</option><option value="other">Other</option></select></label><label>Rating (optional) <select name="rating"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label><label>Feedback <textarea name="text" maxlength="5000" required></textarea></label><button type="submit">Send feedback</button><span id="feedback-status" class="mute" role="status"></span></form></section>
 </div>
@@ -1665,8 +1674,8 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   </nav>
   <div class="app-projhead"><span id="app-projects-name">Projects</span><div class="app-projacts">
     <button type="button" class="app-ibtn app-bell" data-app-action="bell" aria-label="Tasks waiting on you" title="Tasks waiting on you"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="app-count" id="app-bell-count" aria-hidden="true" hidden>0</span></button>
-    <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (libraos-core repo add)" data-brand-title="Add a repository (CLI repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
-    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (libraos-core new, N)" data-brand-title="New task (CLI new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="add-repo" aria-disabled="true" aria-label="Add a repository" title="Add a repository (libraos-engine repo add)" data-brand-title="Add a repository (CLI repo add)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 10v6M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></button>
+    <button type="button" class="app-ibtn" data-app-action="new-task" aria-haspopup="dialog" aria-keyshortcuts="N" aria-label="New task" title="New task (libraos-engine new, N)" data-brand-title="New task (CLI new, N)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></button>
   </div></div>
   <!-- region:app-projects: repositories as folders, their tasks under them, others' tasks in their own group (#563) -->
   <nav class="app-projects" data-region="projects" id="app-projects" aria-labelledby="app-projects-name"></nav>
@@ -1755,7 +1764,7 @@ function appWatchdog(d){const n=document.getElementById('appwatchdog');if(!n)ret
 // two command lines) carry data-brand and are rewritten from these at load (brandApply).
 // Not brand text, and unchanged: API paths and fields, agentd/hof-... branch names,
 // .agentd/tasks.toml, localStorage keys, notification tags, classes and ids.
-const PRODUCT='LibraOS Engine',CLI='libraos-core',SERVER_NAME=PRODUCT+' Server';
+const PRODUCT='LibraOS Engine',CLI='libraos-engine',SERVER_NAME=PRODUCT+' Server';
 function brandApply(){for(const n of document.querySelectorAll('[data-brand]')){const k=n.dataset.brand;
   if(k==='product'){if(n.tagName==='META')n.setAttribute('content',PRODUCT);else n.textContent=PRODUCT}
   else if(k==='cli')n.textContent=CLI;
@@ -1800,7 +1809,7 @@ function plainText(text){return String(text||'')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\s'"`,;()]+)*\/\.claude\/worktrees\/[^\s'"`,;()]+/g,'the worker’s folder')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s]+)?(?:\/[^\/\s'"`,;()]+)*\/worktrees\/[^\/\s'"`,;()]+-[0-9a-f]{8}\/(?:hof|run|pr|issue|imp|improve|trigger)-[^\/\s'"`,;()][^\s'"`,;()]*/g,'the worker’s folder')
   .replace(/(?:~(?=\/)|\/(?:home|Users)\/[^\/\s'"`,;()]+)((?:\/[^\/\s'"`,;()]+)*)\/?/g,(m,rest)=>rest.split('/').filter(Boolean).pop()||'the home folder')
-  .replace(/\s*\((?:[^()]*?:\s*)?(?:git|libraos-core|agentd|gh|claude|codex|npm|npx|go|make|pip)\s[^()]*(?:\)|$)/g,'')
+  .replace(/\s*\((?:[^()]*?:\s*)?(?:git|libraos-engine|libraos-core|agentd|gh|claude|codex|npm|npx|go|make|pip)\s[^()]*(?:\)|$)/g,'')
   .replace(new RegExp('\\b(the|a|an|its|this|existing)\\s+branch\\s+'+PLAIN_BRANCH,'gi'),'$1 worker branch')
   .replace(new RegExp('\\b(?:branch\\s+)?'+PLAIN_BRANCH,'gi'),'a worker branch')
   .replace(new RegExp('\\b(?:task|handoff|work item)\\s+hof-'+PLAIN_ID+'\\b','gi'),'an earlier task')
@@ -1957,7 +1966,7 @@ function meter(ctx,win,text){
 // name; a worker agentd started (host name "agentd hof-…") as its tool's worker.
 const WORKER_HOST=/^agentd (?:hof|run)-/;
 function sessLabel(id){const s=sessionRow(id),n=nameOf(id),t=toolName(toolOf(id));
-  if(s&&s.user&&s.tool==='other'&&(s.label==='user'||/via the (?:agentd|libraos-core|LibraOS Core) dash/.test(s.task||'')))return s.user;
+  if(s&&s.user&&s.tool==='other'&&(s.label==='user'||/via the (?:agentd|libraos-engine|libraos-core|LibraOS Engine|LibraOS Core) dash/.test(s.task||'')))return s.user;
   if(n&&n!==id&&!WORKER_HOST.test(n))return toolName(n);
   return t?t+(WORKER_HOST.test(n||'')?' worker':' session'):'Agent session'}
 function sessLink(id,label){if(id==='agentd'&&!label)return el('span',{},PRODUCT);return id&&id!=='any'?el('button',{class:'linkish',title:'Open session history ('+id+')',onclick:()=>showHistory(id,hostOf(id))},el('span',{title:id},label||sessLabel(id))):el('span',{class:'mute'},id||'–')}
@@ -2168,7 +2177,7 @@ function settingsUserCreate(){let result,invite=false;return sheet({title:'Creat
   fields:[{name:'name',label:'Name',required:true},{name:'role',label:'Role',value:'dev',options:[{value:'dev',label:'Developer'},{value:'viewer',label:'Viewer'},{value:'owner',label:'Owner'}],required:true},{name:'email',label:'Email',type:'email'},{name:'delivery',label:'How they sign in',value:'password',segment:true,options:[{value:'password',label:'Show a temporary password'},{value:'invite',label:'Send an invitation'}],required:true}],
   validate:v=>v.delivery==='invite'&&!v.email?['email','An invitation needs an email address.']:null,
   onSubmit:async v=>{invite=v.delivery==='invite';result=invite?await settingsAPI({action:'invite',name:v.name,email:v.email,role:v.role}):await settingsAPI({action:'user_create',name:v.name,role:v.role,...(v.email?{email:v.email}:{})});await settingsLoad()}}).then(v=>{if(v&&result){if(invite)settingsInviteResult(result);else settingsTempPassword(result.user||v.name,result.temp_password)}})}
-function settingsUserReset(u){let result;return sheet({title:'Reset password for '+u.name,description:'This signs '+u.name+' out of the dash and '+PRODUCT+' and gives them a new temporary password, which they must change after signing in. Their API tokens and devices keep working; for a compromised account, Disable, then Enable.',action:'Reset password',danger:true,onSubmit:async()=>{result=await settingsAPI({action:'user_reset_password',name:u.name});await settingsLoad()}}).then(v=>{if(v&&result)settingsTempPassword(result.user||u.name,result.temp_password)})}
+function settingsUserReset(u){let result;return sheet({title:'Reset password for '+u.name,description:'This signs '+u.name+' out of the dash and LibraOS Next and gives them a new temporary password, which they must change after signing in. Their API tokens and devices keep working; for a compromised account, Disable, then Enable.',action:'Reset password',danger:true,onSubmit:async()=>{result=await settingsAPI({action:'user_reset_password',name:u.name});await settingsLoad()}}).then(v=>{if(v&&result)settingsTempPassword(result.user||u.name,result.temp_password)})}
 // GitHub login (#882): an owner sets anyone's from Users, a person their own
 // from Members; empty clears it. The server checks the login's form.
 function settingsUserGitHub(u){return sheet({title:'GitHub login for '+u.name,description:'A team server checks GitHub before a worker starts on an issue, and treats the assignee, PRs and branches of this login as '+u.name+'’s own work. Leave it empty to clear it.',action:'Save',
@@ -2276,8 +2285,10 @@ function agentsDraw(d){if(!d||APP.on)return;const box=$('agents-rows'),m=agentsM
   // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
   $('agents-counts').replaceChildren(...[[m.counts.need,d.attention_version?'need attention':m.counts.need===1?'task needs you':'tasks need you',d.attention_version?'Each task counts once, even with several Inbox notices.':'Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
   // Inbox notices with no task are their own group, last, each row with a mark like a task's (dash-review A, M).
-  const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...m.need.map(r=>agentsRow(r)));
-  for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...g.rows.map(r=>agentsRow(r)));
+  // A task mirrored from the user's device with an approval or a question gets one-click buttons under its row (relayQuick).
+  const rowsOf=rs=>rs.flatMap(r=>[agentsRow(r),relayQuick(r.h)].filter(Boolean));
+  const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...rowsOf(m.need));
+  for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...rowsOf(g.rows));
   if(m.standalone.length)kids.push(el('div',{class:'ag-group ag-need','data-ag-inbox':''},el('span',{},'Inbox'),el('span',{},m.standalone.length)),...m.standalone.map(x=>{const a=attentionInboxLink(x);a.classList.add('ag-notice');a.prepend(el('span',{class:'ag-mark','aria-hidden':'true'},'✉'));return a}));
   box.replaceChildren(...(kids.length?kids:[el('div',{class:'empty'},'No open tasks. Start one with New task.')]));
   if(keep){const n=box.querySelector('[data-agent-id="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
@@ -3299,7 +3310,7 @@ function inboxRead(x){if(!x.approvalOnly&&!x.read&&CAN()&&CONNECTED)pending(x.id
 // The reason is said in full, in plain words; the next step (often a command for
 // the host) and the exact message, with its paths, wait under Details.
 // shown: the row already says the reason, so only Details is added.
-function failureDetail(x,shown){if(!x.failure&&!x.next_step)return null;const next=x.next_step||'',cmd=/^\s*(libraos-core|agentd|claude|codex|git|gh)\s/.test(next)?next:(/\b((?:libraos-core|agentd) trust \S+)/.exec(next)||[])[1]||'',
+function failureDetail(x,shown){if(!x.failure&&!x.next_step)return null;const next=x.next_step||'',cmd=/^\s*(libraos-engine|libraos-core|agentd|claude|codex|git|gh)\s/.test(next)?next:(/\b((?:libraos-core|agentd) trust \S+)/.exec(next)||[])[1]||'',
     why=x.failure?words(x.failure):'',plain=capFirst(plainText(why)),exact=!!why&&plain!==capFirst(why);
   return el('div',{class:'failure-detail'},why&&!shown?el('div',{class:'failure-reason'},el('b',{},'Why: '),plain):null,
     next||exact?el('details',{class:'tech failure-next'},el('summary',{},'Details'),
@@ -3489,7 +3500,8 @@ function inboxDraw(d){
   const list=sets[inboxFilter],open=count(inboxFilter),unread=list.filter(inboxUnreadDot).length,more=inboxFilter==='needs'?sets.expired.length:0;
   $('inbox-title').textContent=INBOX_NAMES[inboxFilter];$('inbox-count').textContent=open?open+' open'+(inboxFilter!=='expired'&&unread?', '+unread+' unread':''):'';
   const note=$('inbox-note'),anon=inboxFilter==='mine'&&!d.user,exp=inboxFilter==='expired'&&open,text=anon?'You are not signed in, so My work shows all work started by people, not work started automatically.':exp?'Offers nobody took in time. Start a worker on one, or clear it.':'';note.hidden=!text;note.textContent=text;
-  box.replaceChildren(...(open?list.map(inboxRow):[el('div',{class:'empty'},ROLE==='viewer'?'Nothing is assigned to you. Your account is read-only; owners may have other items waiting.':INBOX_EMPTY[inboxFilter],el('div',{class:'field-hint'},inboxFilter==='needs'?'New approvals and worker updates appear here. Browse Tasks to see all work.':el('a',{href:'#inbox'},'Show all inbox items')))]),...(more?[el('a',{class:'ib-more',href:'#inbox/expired'},more+' expired, kept under Expired')]:[]));
+  const relay=inboxFilter==='needs'?relayInbox(d):null;
+  box.replaceChildren(...(relay?[relay]:[]),...(open?list.map(inboxRow):relay?[]:[el('div',{class:'empty'},ROLE==='viewer'?'Nothing is assigned to you. Your account is read-only; owners may have other items waiting.':INBOX_EMPTY[inboxFilter],el('div',{class:'field-hint'},inboxFilter==='needs'?'New approvals and worker updates appear here. Browse Tasks to see all work.':el('a',{href:'#inbox'},'Show all inbox items')))]),...(more?[el('a',{class:'ib-more',href:'#inbox/expired'},more+' expired, kept under Expired')]:[]));
   inboxDetailDraw(d);
   if(id){const n=[...box.querySelectorAll('[data-id]')].find(n=>n.dataset.id===id),target=n&&[...n.querySelectorAll('button,a,summary')].find(c=>c.textContent===name&&!c.disabled);focusBack(target||n&&n.querySelector('button,a,summary'))}}
 dashPage('inbox',{title:'Tasks',sub:'Needs me',rail:'issues',panel:false,enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter,item=r.params.get('item')||'';inboxFilter=f;inboxPicked=!!item;const opened=item&&item!==inboxSel;inboxSel=item;if(lastDash){inboxDraw(lastDash);lockState()}
@@ -3923,7 +3935,61 @@ function mirrorBody(d){const row=(k,v)=>v===undefined||v===null||v===''?null:el(
     row('Minutes',d.minutes===undefined?'':Number(d.minutes).toFixed(1)),row('Cost',d.usd===undefined?'':'$'+Number(d.usd).toFixed(2)),row('Issues',(d.issues||[]).join(', ')),row('Pull requests',(d.prs||[]).join(', ')),row('Updated',d.updated))}
 // mirrorNote is the one line a mirrored task's page says (#848): where it lives and when the server last heard of it.
 function mirrorNote(d){const t=d.mirrored?new Date(d.mirrored):null,when=t&&!isNaN(t)?t.toLocaleString():'at an unknown time';
-  return 'Mirrored from '+(d.node||'a users device')+(d.person?' ('+d.person+')':'')+', last updated '+when+'. Act on it on that device.'}
+  return 'Mirrored from '+(d.node||'a users device')+(d.person?' ('+d.person+')':'')+', last updated '+when+'.'+(d.relay&&d.relay.may?' Act on it here: '+(d.node||'that device')+' applies what you send on its next contact.':' Act on it on that device.')}
+// region:relay (libraos/core relay.go): a task mirrored from a user's device is acted on from here. The
+// server records the click (Approve, Reject, Answer, Cancel, Unpark) bound to what this page showed (the
+// approval and its text's digest, the worker's attempt and question, the task's version) with a nonce; the
+// device takes it on its next contact, checks it again against its own users and applies it as that person.
+// rv is the server's relay view ({may, why, host, offline, waits, approvals, question, cancel, unpark,
+// actions}); with no rv (an older server) nothing changes. Each button opens a confirm sheet, as local
+// approvals do; each relayed action shows its state: pending (waits for the device), done, refused or expired.
+function relayNonce(){const b=new Uint8Array(16);(window.crypto||crypto).getRandomValues(b);return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const RELAY_KIND={approval_answer:'Answer to an approval',handoff_answer:'Answer to its worker',cancel:'Cancel',unpark:'Unpark'};
+const RELAY_STATE={pending:'Waiting for the device',taken:'Sent to the device',done:'Done',refused:'Refused',expired:'Expired'};
+function relaySend(id,rv,kind,o,fields,body,done){const nonce=relayNonce(),host=rv.host||'its device';
+  return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',action:o.action,danger:!!o.danger,pending:'Sending…',fields},
+    'relay:'+id+':'+kind+':'+(o.key||''),v=>({action:'relay',id,kind,nonce,...body(v||{})}),done||'Sent to '+host)}
+function relayApprove(id,rv,a,decision){const reject=decision==='reject';
+  return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':'Approve this request?',description:'“'+words(a.text||'')+'”',action:reject?'Reject':'Approve',danger:reject,key:a.id},
+    [{name:'note',label:reject?'Reason':'Note',required:reject,multiline:true}],v=>({approval:a.id,attempt:a.attempt||'',subject:a.digest,decision,note:v.note||''}),reject?'Rejection sent to '+(rv.host||'the device'):'Approval sent to '+(rv.host||'the device'))}
+function relayAnswer(id,rv){const q=rv.question||{};
+  return relaySend(id,rv,'handoff_answer',{title:'Answer the worker?',description:'It asked: “'+words(q.text||'')+'”',action:'Send answer'},
+    [{name:'text',label:'Your answer',required:true,multiline:true}],v=>({attempt:q.attempt||'',subject:q.digest,text:v.text||''}),'Answer sent to '+(rv.host||'the device'))}
+function relayCancel(id,rv){return relaySend(id,rv,'cancel',{title:'Cancel this task?',description:'It is closed as cancelled on '+(rv.host||'its device')+', with your reason in its history.',action:'Cancel task',danger:true},
+    [{name:'reason',label:'Reason',required:true,multiline:true}],v=>({version:rv.cancel.version,reason:v.reason||''}),'Cancel sent to '+(rv.host||'the device'))}
+function relayUnpark(id,rv){return relaySend(id,rv,'unpark',{title:'Unpark this task?',description:'Its park is cleared on '+(rv.host||'its device')+', so a worker takes it again.',action:'Unpark'},
+    [],()=>({version:rv.unpark.version}),'Unpark sent to '+(rv.host||'the device'))}
+function relayBtn(label,act,on,cls){return el('button',{type:'button',class:cls||'','data-write':true,'data-relay':act,disabled:!CAN(),onclick:on},label)}
+// relayLog: the relayed actions on this task, newest first, each with its state and why.
+function relayLog(rv){const xs=rv.actions||[];if(!xs.length)return null;
+  return el('ul',{class:'relay-log','aria-label':'Sent from here'},xs.map(a=>el('li',{'data-relay-id':a.id,'data-relay-state':a.state},
+    el('span',{class:'relay-state','data-state':a.state},RELAY_STATE[a.state]||word(a.state)),
+    el('span',{},(a.kind==='approval_answer'&&a.decision?capFirst(a.decision)+(a.decision==='approve'?'d':'ed'):RELAY_KIND[a.kind]||a.kind)+(a.person?' by '+a.person:'')+(a.age?', '+a.age+' ago':'')),
+    a.reason?el('span',{class:'mute'},a.reason):null)))}
+// relayPanel: what the signed-in person can do here for task id, from its relay view rv.
+function relayPanel(id,rv){if(!rv)return null;const kids=[],host=rv.host||'its device';
+  if(!rv.may){kids.push(el('p',{class:'mute','data-relay-why':''},rv.why||'You cannot act on this task from here.'));const log=relayLog(rv);if(log)kids.push(log);
+    return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here')),...kids)}
+  for(const a of rv.approvals||[])kids.push(el('div',{class:'relay-ask','data-relay-approval':a.id},el('span',{class:'mute'},'Approval requested'+(a.required_role?' (needs '+a.required_role+')':'')),el('p',{class:'relay-text'},a.text||''),
+    el('div',{class:'relay-btns'},relayBtn('Approve','approve',()=>relayApprove(id,rv,a,'approve'),'primary'),relayBtn('Reject','reject',()=>relayApprove(id,rv,a,'reject'),'danger'))));
+  if(rv.question)kids.push(el('div',{class:'relay-ask','data-relay-question':''},el('span',{class:'mute'},'Its worker asks'),el('p',{class:'relay-text'},rv.question.text||''),
+    el('div',{class:'relay-btns'},relayBtn('Answer','answer',()=>relayAnswer(id,rv),'primary'))));
+  const more=[rv.unpark?relayBtn('Unpark','unpark',()=>relayUnpark(id,rv)):null,rv.cancel?relayBtn('Cancel task','cancel',()=>relayCancel(id,rv),'danger'):null].filter(Boolean);
+  if(more.length)kids.push(el('div',{class:'relay-btns'},...more));
+  const log=relayLog(rv);if(log)kids.push(log);
+  const say='Your click goes to '+host+', which applies it as you on its next contact.'+(rv.waits?' '+capFirst(rv.waits)+'.':'');
+  return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here'),' ',el('span',{class:'mute'},say)),...kids)}
+// relayQuick: one-click Approve, Reject and Answer under a row (the Agents list's Needs you), opening the same sheets.
+function relayQuick(h){const rv=h&&h.relay;if(!rv||!rv.may)return null;const a=(rv.approvals||[])[0],q=rv.question;if(!a&&!q)return null;
+  return el('div',{class:'ag-relay','data-relay-quick':h.id,'aria-label':'Answer from here'},
+    a?relayBtn('Approve','approve',()=>relayApprove(h.id,rv,a,'approve'),'primary'):null,a?relayBtn('Reject','reject',()=>relayApprove(h.id,rv,a,'reject'),'danger'):null,
+    q?relayBtn('Answer','answer',()=>relayAnswer(h.id,rv),'primary'):null)}
+// relayInbox: the Inbox's part for tasks mirrored from the user's devices with something to answer or a
+// relayed action on its way (the snapshot's relay_inbox).
+function relayInbox(d){const xs=(d&&d.relay_inbox)||[];if(!xs.length)return null;
+  return el('section',{class:'ib-relay','data-relay-inbox':'','aria-label':'From your devices'},el('div',{class:'ag-group ag-need'},el('span',{},'From your devices'),el('span',{},xs.length)),
+    ...xs.map(x=>el('article',{class:'ib-relay-row','data-relay-row':x.handoff},el('a',{href:itemHash(null,x.handoff)},cardTitle(x.goal||x.handoff)),el('span',{class:'mute'},' on '+x.host+(x.updated_ago?', '+x.updated_ago+' ago':'')),relayPanel(x.handoff,x.relay))))}
+// end:relay
 // mirrorDetail is a users device's handoff on the task page, read only: what its device sent, and no action
 // button, message box, terminal or file panel, since nothing can be done to it on this server. It is one
 // column under All tasks: its title, its status and where it lives, then what the person can do on its device
@@ -3939,7 +4005,7 @@ function mirrorDetail(d){const x=(d.tree||[])[0]||{},id=x.id||d.ref,live=((lastD
     d.node?el('span',{},'on '+d.node):null,last&&!last.running&&last.end_reason?el('span',{},'last run: '+word(last.end_reason)):null,x.updated_ago?el('span',{class:'age'},'Updated '+x.updated_ago+' ago'):null);
   return el('div',{class:'mirror-item','data-read-only':'true'},el('h2',{class:'ititle'},title),status,
     el('p',{class:'note mirror-note',role:'note'},mirrorNote(d)),
-    needBlock(h,new Set(),{mirror:true,where:d.node}),
+    relayPanel(id,d.relay),needBlock(h,new Set(),{mirror:true,where:d.node,relay:d.relay}),
     goal&&String(goal).trim()!==String(title).trim()?el('dl',{class:'itext ifields'},el('dt',{},'Goal'),el('dd',{},goal)):null,
     el('div',{class:'sec'},'Properties'),el('div',{class:'props'},...props),
     el('div',{class:'sec'},'Runs',el('span',{class:'n'},runs.length)),runs.length?runs.map(a=>runRow(a)):el('p',{class:'mute'},'No worker ran on this, as far as its device sent.'))}
@@ -4163,12 +4229,14 @@ function needWhat(h,have,mirror,rows){const id=h.id,ws=h.worker_state||'',out=[]
   return out}
 function needCli(cli){return el('span',{class:'need-cli'},el('code',{},cli),el('button',{type:'button',class:'need-copy','data-copy':cli,'aria-label':'Copy the command: '+cli,title:'Copy the command',onclick:()=>chatCopy(cli)},'Copy'))}
 function needBlock(h,have,o={}){if(!needsPerson(h))return null;const xs=needWhat(h,have||new Set(),!!o.mirror,o.rows);if(!xs.length)return null;
-  const say=o.mirror?'This task lives on '+(o.where||'its device')+', so this server cannot act on it: run these there.':have&&have.size?'The buttons above act here. These have no button for this task: run them where '+PRODUCT+' runs.':'No button acts on this task here: run these where '+PRODUCT+' runs.';
+  const relayed=!!(o.mirror&&o.relay&&o.relay.may);
+  const say=relayed?'Or run these on '+(o.where||'its device')+'.':o.mirror?'This task lives on '+(o.where||'its device')+', so this server cannot act on it: run these there.':have&&have.size?'The buttons above act here. These have no button for this task: run them where '+PRODUCT+' runs.':'No button acts on this task here: run these where '+PRODUCT+' runs.';
   const viewer=ROLE==='viewer'?' You have read-only access, so an owner or the task’s sender runs them.':'';
+  const list=el('ul',{class:'need-list'},xs.map(x=>el('li',{'data-need':x.key},el('span',{class:'need-label'},x.label),
+      x.href?el('a',{href:x.href,target:'_blank',rel:'noopener noreferrer','data-need-link':''},x.text):needCli(x.cli),x.hint?el('span',{class:'field-hint'},x.hint):null)));
+  if(relayed)return el('details',{class:'need-acts need-term','data-need-actions':h.id},el('summary',{},'Same in a terminal'),el('p',{class:'mute'},say+viewer),list);
   return el('section',{class:'need-acts','data-need-actions':h.id,'aria-label':'What you can do'},
-    el('p',{class:'need-h'},el('b',{},'What you can do'),' ',el('span',{class:'mute'},say+viewer)),
-    el('ul',{class:'need-list'},xs.map(x=>el('li',{'data-need':x.key},el('span',{class:'need-label'},x.label),
-      x.href?el('a',{href:x.href,target:'_blank',rel:'noopener noreferrer','data-need-link':''},x.text):needCli(x.cli),x.hint?el('span',{class:'field-hint'},x.hint):null))))}
+    el('p',{class:'need-h'},el('b',{},'What you can do'),' ',el('span',{class:'mute'},say+viewer)),list)}
 // needHave: which of the steps the page already offers as a button for h (enabled or with its reason): the top
 // bar's, and inbox (an approval to answer, a result to read: its row under Session has the buttons).
 function needHave(dash,h,rows){const have=new Set();if(!h||h.read_only||!(dash.handoff_list||[]).some(y=>y.id===h.id))return have;

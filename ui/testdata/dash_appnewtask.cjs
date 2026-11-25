@@ -58,12 +58,12 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  assert(/go vet is clean/.test($('appnt-file').textContent),'the file\'s criteria are not named');
  // The shown command, as the request equals it.
  type($('appnt-goal'),'Add a flag');
- assert.equal(cmd(),"libraos-core new 'Add a flag' --cwd /w/beta --worker opencode --budget 30m",'command: '+cmd());
+ assert.equal(cmd(),"libraos-engine new 'Add a flag' --cwd /w/beta --worker opencode --budget 30m",'command: '+cmd());
  // Another repository with no task file: the agent is config's default_tool; nothing is checked, so --no-check.
  choose($('appnt-cwd'),'/w/alpha');await settle();
  assert.equal(agent(),'codex','the agent default is not config\'s default_tool');
  assert.equal($('appnt-check').value,'','alpha has no check');
- assert.equal(cmd(),"libraos-core new 'Add a flag' --cwd /w/alpha --worker codex --budget 30m --no-check",'command: '+cmd());
+ assert.equal(cmd(),"libraos-engine new 'Add a flag' --cwd /w/alpha --worker codex --budget 30m --no-check",'command: '+cmd());
  // A person's own pick stays when the repository changes.
  d.querySelector('[data-agent="claude"]').click();choose($('appnt-cwd'),'/w/beta');await settle();
  assert.equal(agent(),'claude','the person\'s agent was replaced by the default');
@@ -71,20 +71,20 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  d.querySelector('.appnt-advbtn').click();await tick();assert(shown(adv),'Advanced does not open');
  assert.equal(d.querySelector('.appnt-advbtn').getAttribute('aria-expanded'),'true');
  type($('appnt-accept'),"it is documented\n- it has a test");type($('appnt-check'),'go vet ./...');type($('appnt-issue'),'libraos/core#564');type($('appnt-budget'),'45m');
- assert.equal(cmd(),"libraos-core new 'Add a flag' --cwd /w/beta --worker claude --budget 45m --accept 'it is documented' --accept 'it has a test' --verify 'go vet ./...' --issue libraos/core#564",'command: '+cmd());
+ assert.equal(cmd(),"libraos-engine new 'Add a flag' --cwd /w/beta --worker claude --budget 45m --accept 'it is documented' --accept 'it has a test' --verify 'go vet ./...' --issue libraos/core#564",'command: '+cmd());
  // The server's and the goal's text stays text.
  type($('appnt-goal'),'Add '+evil);assert(cmd().includes(evil)&&!d.querySelector('img'),'the goal is not shown as text');
  // libraos/core#643: a word starting with #, - or ~ is quoted, and a goal starting with - goes last after --,
  // so the line pasted into a shell is still the request (bash reads a bare #42 as a comment).
- type($('appnt-goal'),'#42');assert(cmd().startsWith("libraos-core new '#42' --cwd"),'a # goal is not quoted: '+cmd());
- type($('appnt-goal'),'~/notes');assert(cmd().startsWith("libraos-core new '~/notes' --cwd"),'a ~ goal is not quoted: '+cmd());
- type($('appnt-goal'),'a#b');assert(cmd().startsWith('libraos-core new a#b --cwd'),'a # inside a word is quoted: '+cmd());
+ type($('appnt-goal'),'#42');assert(cmd().startsWith("libraos-engine new '#42' --cwd"),'a # goal is not quoted: '+cmd());
+ type($('appnt-goal'),'~/notes');assert(cmd().startsWith("libraos-engine new '~/notes' --cwd"),'a ~ goal is not quoted: '+cmd());
+ type($('appnt-goal'),'a#b');assert(cmd().startsWith('libraos-engine new a#b --cwd'),'a # inside a word is quoted: '+cmd());
  for(const g of ['--no-start','-h']){type($('appnt-goal'),g);
-  assert(cmd().startsWith('libraos-core new --cwd ')&&cmd().endsWith(" -- '"+g+"'"),'a goal starting with - is not after --: '+cmd())}
+  assert(cmd().startsWith('libraos-engine new --cwd ')&&cmd().endsWith(" -- '"+g+"'"),'a goal starting with - is not after --: '+cmd())}
  type($('appnt-issue'),'#564');assert(/ --issue '#564'( |$)/.test(cmd()),'a # issue is not quoted: '+cmd());type($('appnt-issue'),'libraos/core#564');
  type($('appnt-check'),'-x');assert(/ --verify '-x'( |$)/.test(cmd()),'a - check is not quoted: '+cmd());type($('appnt-check'),'go vet ./...');
  type($('appnt-goal'),"Fix the parser's input");
- assert(cmd().startsWith("libraos-core new 'Fix the parser'\\''s input' --cwd"),'a quote in the goal is not shell-quoted: '+cmd());
+ assert(cmd().startsWith("libraos-engine new 'Fix the parser'\\''s input' --cwd"),'a quote in the goal is not shell-quoted: '+cmd());
  // Ctrl+Enter submits the team sheet's own offer.
  key('Enter',{ctrlKey:true},$('appnt-goal'));await settle();
  assert.equal(posts.length,1,'no request was sent');const p=posts[0];
@@ -98,7 +98,7 @@ const newBtn=()=>$('app-left').querySelector('[data-app-action="new-task"]');
  let selected=null;doc.addEventListener('app:select',e=>{selected=e.detail});
  key('n');await settle();assert(dlg()&&dlg().open,'n does not open the dialog in app mode');assert.equal(w.location.hash,'','n left the app for the team page');
  assert.equal($('appnt-check').value,'make test');type($('appnt-goal'),'Second');
- assert.equal(cmd(),'libraos-core new Second --cwd /w/beta --worker opencode --budget 30m','command: '+cmd());
+ assert.equal(cmd(),'libraos-engine new Second --cwd /w/beta --worker opencode --budget 30m','command: '+cmd());
  answer={ok:true,handoff:'hof-new2'};dlg().querySelector('.appnt-create').click();await settle();
  assert.deepEqual({...posts[1],key:''},{action:'offer',kind:'implement',goal:'Second',cwd:'/w/beta',worker:'opencode',budget:'30m',accept:'',issue:'',check:'make test',key:''},'defaults request: '+JSON.stringify(posts[1]));
  assert.deepEqual(selected,{handoff:'hof-new2',repo:'/w/beta'},'no app:select event: '+JSON.stringify(selected));

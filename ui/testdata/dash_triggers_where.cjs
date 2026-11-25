@@ -41,7 +41,7 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','
   if(u.pathname==='/api/auth')return {ok:true,status:204};
   if(u.pathname==='/api/dash')body=dash;
   else if(u.pathname==='/api/issues')body={issues:[]};
-  else if(u.pathname==='/api/triggers')body={templates:[],repo:'acme/app',author:'alice',enable:'libraos-core config set triggers.enabled true',...answer};
+  else if(u.pathname==='/api/triggers')body={templates:[],repo:'acme/app',author:'alice',enable:'libraos-engine config set triggers.enabled true',...answer};
   return {ok:true,status:200,json:async()=>JSON.parse(JSON.stringify(body)),text:async()=>JSON.stringify(body)}}}});
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<4;i++)await tick()};
 const $=id=>doc.getElementById(id),body=()=>$('trig-body'),q=s=>body().querySelector(s);

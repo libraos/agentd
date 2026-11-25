@@ -1,12 +1,12 @@
 // The brand pass (2026-11-25): the product is LibraOS Engine. The server dash and the personal app
-// (and its /panel) never show LibraOS Core, AgentD or LibraOS Next in their rendered text or in the
+// (and its /panel) never show LibraOS Core or AgentD (LibraOS Next is another product and keeps its name) in their rendered text or in the
 // attributes a person reads (title, aria-label, placeholder, the install meta names), in every mode.
 // The product's name and the CLI program's name each come from one constant (region:brand):
 //   1  the real page: no old name anywhere a person reads; the window title is 'PAGE · LibraOS Engine'
-//      in the app and /panel, '… · LibraOS Engine Server' on the server; shown commands read libraos-core;
-//   2  the same page with both constants renamed: neither the old product name nor libraos-core is left
+//      in the app and /panel, '… · LibraOS Engine Server' on the server; shown commands read libraos-engine;
+//   2  the same page with both constants renamed: neither the old product name nor libraos-engine is left
 //      in what renders, so each is a one-line change;
-//   3  in the source, the product name and libraos-core appear only in the constants, in the HTML that
+//   3  in the source, the product name and libraos-engine appear only in the constants, in the HTML that
 //      brandApply rewrites (data-brand), in comments and in regexes that read server text.
 // Unchanged by design: API paths and fields, agentd/hof-… branch names, .agentd/tasks.toml, storage keys.
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_brand.cjs dash.html
@@ -14,10 +14,10 @@ const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
 const phone=process.env.DASH_UI_PHONE==='1',theme=process.env.DASH_UI_THEME||'light',now=new Date().toISOString();
 const real=fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','utf8');
-const CONST="const PRODUCT='LibraOS Engine',CLI='libraos-core',";
+const CONST="const PRODUCT='LibraOS Engine',CLI='libraos-engine',";
 assert(real.includes(CONST),'the brand constants are not where region:brand keeps them');
 const renamed=real.replace(CONST,"const PRODUCT='Zephyr Brand',CLI='zcli',");
-const OLD=/LibraOS Core|LibraOS Next|AgentD/;
+const OLD=/LibraOS Core|AgentD/;
 
 // Fixtures. Commands the server itself sends (cli, start, next_step) are left out, so what renders is the page's.
 const task=(id,o)=>({id,title:'Fix login '+id,goal:'Fix the login retry '+id,accept:['retry is added'],state:'claimed',claimer:'w-'+id,from:'s-alice',from_user:'alice',mine:true,worker:'claude',worker_tool:'claude',to:'any',project:'acme/web',stage:'implement',source:'interactive',updated_ago:'2m',branch:'agentd/'+id,
@@ -91,7 +91,7 @@ async function panelScenes(html,check){const t=load(html,'/panel',app),{w,doc}=t
   return t}
 
 (async()=>{
- // 1. The real page: no old name, the new one in the titles and headers, commands that read libraos-core.
+ // 1. The real page: no old name, the new one in the titles and headers, commands that read libraos-engine.
  const seen=new Set();
  const check=(where,text,doc)=>{assert(!OLD.test(text),where+' shows an old name: '+near(text,OLD));seen.add(where);
    if(/^server/.test(where))assert(/ · LibraOS Engine Server$/.test(doc.title),where+': the window title '+JSON.stringify(doc.title));
@@ -101,11 +101,11 @@ async function panelScenes(html,check){const t=load(html,'/panel',app),{w,doc}=t
   assert.equal(d.querySelector('.rail-mark').title,'LibraOS Engine Server','the server rail mark');
   assert.equal(d.querySelector('.rail-mark').getAttribute('aria-label'),'LibraOS Engine Server, go to Overview');
   for(const m of ['application-name','apple-mobile-web-app-title'])assert.equal(d.querySelector('meta[name="'+m+'"]').content,'LibraOS Engine',m);
-  t.w.location.hash='#help';await settle();assert(/libraos-core doctor/.test(d.getElementById('page-help').textContent),'the Help page command does not read libraos-core');t.w.close()}
+  t.w.location.hash='#help';await settle();assert(/libraos-engine doctor/.test(d.getElementById('page-help').textContent),'the Help page command does not read libraos-engine');t.w.close()}
  const a=await appScenes(real,check);
  {const d=a.doc;assert(/^Fix login hof-b1 · LibraOS Engine$/.test(d.title)||/ · LibraOS Engine$/.test(d.title),'app title: '+d.title);
   assert.equal(d.querySelector('.app-name').textContent,'LibraOS Engine','the app sidebar header');
-  assert.equal(d.querySelector('[data-app-action="new-task"]').title,'New task (libraos-core new, N)','the New task tooltip');
+  assert.equal(d.querySelector('[data-app-action="new-task"]').title,'New task (libraos-engine new, N)','the New task tooltip');
   // The window title follows the page: Home, then the open task's title.
   a.w.document.querySelector('#app-shell [data-app-nav="home"]').dispatchEvent(new a.w.MouseEvent('click',{bubbles:true}));await settle();
   assert.equal(d.title,'Home · LibraOS Engine','the Home window title');
@@ -121,7 +121,7 @@ async function panelScenes(html,check){const t=load(html,'/panel',app),{w,doc}=t
  for(const s of ['server #overview','server #settings/agents','server #help','app onboarding','app task','app page home','app new task','app shortcuts','app onboarding step notifications','app onboarding step agent','app onboarding done','app milestones','app help menu','app command menu','panel list','panel task'])assert(seen.has(s),'scene not reached: '+s);
 
  // 2. Both constants renamed: nothing of either old value is left in what renders.
- const LEFT=/LibraOS Engine|libraos-core/;
+ const LEFT=/LibraOS Engine|libraos-engine/;
  const check2=(where,text)=>{assert(!LEFT.test(text),where+' does not take the name from its constant: '+near(text,LEFT));assert(!OLD.test(text),where+': '+near(text,OLD))};
  await serverScenes(renamed,check2);
  {const t=await appScenes(renamed,check2);assert(/Zephyr Brand$/.test(t.doc.title),'the app title does not take PRODUCT: '+t.doc.title);
@@ -135,9 +135,9 @@ async function panelScenes(html,check){const t=load(html,'/panel',app),{w,doc}=t
  {let inBlock=false;const bad=[],lines=real.split('\n'),scriptAt=lines.findIndex((l,i)=>i>1000&&l==='<script>');assert(scriptAt>0,'no page script');lines.forEach((line,i)=>{const t=line.trim();
    const opens=t.startsWith('/*')||/^\s*\w+[^'"]*\/\*/.test(t)&&!t.includes('*/');if(opens&&!t.includes('*/'))inBlock=true;const wasBlock=inBlock;if(t.includes('*/'))inBlock=false;
    if(wasBlock||t.startsWith('//')||t.startsWith('<!--')||t.startsWith('*')||t.startsWith(CONST))return;
-   for(const m of line.matchAll(/LibraOS Engine|libraos-core|LibraOS Core|LibraOS Next|AgentD/g)){const before=line.slice(Math.max(0,m.index-3),m.index),after=line[m.index+m[0].length];
+   for(const m of line.matchAll(/LibraOS Engine|libraos-engine|libraos-core|LibraOS Core|AgentD/g)){const before=line.slice(Math.max(0,m.index-3),m.index),after=line[m.index+m[0].length];
      if(/[|(:]$/.test(before)&&/[|)]/.test(after))continue;// a regex alternative
-     if(i<scriptAt&&/data-brand(-title)?=|<title>/.test(line)&&/LibraOS Engine|libraos-core/.test(m[0]))continue;// static HTML that brandApply rewrites
+     if(i<scriptAt&&/data-brand(-title)?=|<title>/.test(line)&&/LibraOS Engine|libraos-engine/.test(m[0]))continue;// static HTML that brandApply rewrites
      bad.push((i+1)+': '+line.slice(Math.max(0,m.index-60),m.index+40))}});
   assert.deepEqual(bad,[],'an old name, or the product or CLI name written out instead of PRODUCT / CLI:\n'+bad.join('\n'))}
  console.log('dash_brand: ok ('+(phone?'phone':'desktop')+', '+theme+')');

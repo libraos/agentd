@@ -79,10 +79,10 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   // (3) Needs you: Start again, Take over and Cancel task as buttons; Raise budget as its command; the PR as a link.
   assert.deepEqual(topActs(doc),['Start again','Change check','Take over','Cancel task'],'top bar: '+JSON.stringify(topActs(doc)));assert(usable(doc).length===4,'the owner\'s buttons are disabled');
   assert.deepEqual(needKeys(doc),['budget','pr'],'what you can do');
-  assert.equal(needCli(doc,'budget'),'libraos-core handoff budget '+ID+' --budget 60m','the raise command');
+  assert.equal(needCli(doc,'budget'),'libraos-engine handoff budget '+ID+' --budget 60m','the raise command');
   const link=needs(doc).querySelector('[data-need-link]');assert.equal(link.getAttribute('href'),'https://github.com/acme/app/pull/1040');assert.equal(link.getAttribute('rel'),'noopener noreferrer');
   const copy=needs(doc).querySelector('[data-need="budget"] button.need-copy');assert(copy&&/Copy the command/.test(copy.getAttribute('aria-label')),'no labelled Copy');
-  copy.click();await settle();assert.deepEqual(copied,['libraos-core handoff budget '+ID+' --budget 60m'],'Copy did not copy the command');
+  copy.click();await settle();assert.deepEqual(copied,['libraos-engine handoff budget '+ID+' --budget 60m'],'Copy did not copy the command');
   // The buttons post the server's actions.
   usable(doc).find(b=>b.textContent==='Take over').click();await settle();[...doc.querySelectorAll('dialog.sheet .sheet-foot button')].find(b=>b.textContent==='Take over').click();await settle();
   assert.deepEqual(posts.pop(),{action:'takeover',id:ID});
@@ -100,7 +100,7 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
  // C. A dash where starting work is off: Dispatch again has no button, so it is a command.
  {const dash={...base,dispatch:false,user:'alice',role:'owner',handoff_list:[row()]};const {w,doc,errors}=page(dash,detail(row()));await settle();
   assert.deepEqual(topActs(doc),['Change check','Take over','Cancel task']);assert.deepEqual(needKeys(doc),['dispatch','budget','pr']);
-  assert.equal(needCli(doc,'dispatch'),'libraos-core handoff dispatch '+ID);
+  assert.equal(needCli(doc,'dispatch'),'libraos-engine handoff dispatch '+ID);
   assert(!errors.length,errors.join('\n'));w.close()}
  // D. Mirrored from a device: one column under All tasks with the title and status, no button that acts, and every step as a command.
  {const dash={...base,user:'alice',role:'owner',attention_version:1,handoff_list:[mirrorRow]};const {w,doc,errors,posts,copied}=page(dash,mirrorDetail);await settle();
@@ -112,11 +112,11 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   assert(item.querySelector('.mirror-status .s-needs'),'the mirrored status does not read Needs you: '+item.querySelector('.mirror-status').textContent);
   assert(item.querySelector('.mirror-status').textContent.includes('last run: Stopped at its budget'),'it does not say how the last run ended');
   assert.deepEqual(needKeys(doc),['dispatch','budget','takeover','cancel','pr'],'what you can do on a mirrored task');
-  assert.equal(needCli(doc,'takeover'),'libraos-core handoff claim '+ID+' --takeover');assert.equal(needCli(doc,'cancel'),'libraos-core handoff done '+ID+' --cancel --reason TEXT');
+  assert.equal(needCli(doc,'takeover'),'libraos-engine handoff claim '+ID+' --takeover');assert.equal(needCli(doc,'cancel'),'libraos-engine handoff done '+ID+' --cancel --reason TEXT');
   assert(/on alice-desk/.test(needs(doc).querySelector('.need-h').textContent),'it does not say where to run them');
   assert.deepEqual([...box.querySelectorAll('button,textarea,input,select')].filter(b=>!b.classList.contains('need-copy')).map(b=>b.outerHTML.slice(0,80)),[],'a mirrored page has a control other than Copy');
   assert(!box.querySelector('[data-write],[data-task-act],.tw-msgbox'),'a mirrored page has a write');
-  needs(doc).querySelector('[data-need="cancel"] .need-copy').click();await settle();assert.deepEqual(copied,['libraos-core handoff done '+ID+' --cancel --reason TEXT']);assert.equal(posts.length,0,'Copy wrote');
+  needs(doc).querySelector('[data-need="cancel"] .need-copy').click();await settle();assert.deepEqual(copied,['libraos-engine handoff done '+ID+' --cancel --reason TEXT']);assert.equal(posts.length,0,'Copy wrote');
   assert(!box.querySelector('img'),'the goal became markup');
   assert(!errors.length,errors.join('\n'));w.close()}
  // E. The shared token: Account says so.
@@ -141,7 +141,7 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   const what=(h,have,o)=>JSON.parse(w.eval('JSON.stringify(needWhat('+JSON.stringify(h)+',new Set('+JSON.stringify(have||[])+'),'+!!(o&&o.mirror)+','+JSON.stringify((o&&o.rows)||[])+'))'));
   const keys=(h,have,o)=>what(h,have,o).map(x=>x.key);
   const b={id:'hof-x',state:'claimed',to:'any',worker:'claude',dispatched:true,attempts:[{end_reason:'',running:true}]};
-  assert.deepEqual(keys({...b,worker_state:'waiting_answer',mark:'needs_you'}),['answer']);assert.equal(what({...b,worker_state:'waiting_answer'})[0].cli,'libraos-core handoff answer hof-x --text "..."');
+  assert.deepEqual(keys({...b,worker_state:'waiting_answer',mark:'needs_you'}),['answer']);assert.equal(what({...b,worker_state:'waiting_answer'})[0].cli,'libraos-engine handoff answer hof-x --text "..."');
   assert.deepEqual(keys({...b,worker_state:'blocked',mark:'needs_you'}),['show','takeover','cancel']);
   assert.deepEqual(keys({...b,worker_state:'blocked',mark:'needs_you'},['takeover','cancel']),['show']);
   assert.deepEqual(keys({...b,parked:'finalization',mark:'needs_you'}),['resume']);
@@ -151,7 +151,7 @@ const usable=doc=>[...doc.querySelectorAll('#issue-detail .tw-top .tw-acts butto
   assert.deepEqual(keys({...b,state:'offered',worker_state:'gone',mark:'needs_you',attempts:[{end_reason:'lost',running:false}]}),['dispatch','takeover','cancel']);
   assert.deepEqual(keys({...b,state:'claimed',worker_state:'stopped',mark:'needs_you'}),['takeover','cancel'],'a claimed task was offered Dispatch again');
   assert.deepEqual(keys({...b,state:'offered',budget_state:'stopped',budget:'90m,$5',attempts:[attempt]}).slice(0,2),['dispatch','budget']);
-  assert.equal(what({...b,state:'offered',budget:'90m,$5',attempts:[attempt]}).find(x=>x.key==='budget').cli,"libraos-core handoff budget hof-x --budget '180m,$10'");
+  assert.equal(what({...b,state:'offered',budget:'90m,$5',attempts:[attempt]}).find(x=>x.key==='budget').cli,"libraos-engine handoff budget hof-x --budget '180m,$10'");
   // The rule: wherever needsPerson holds, the page has a button for it or the block lists something.
   for(const h of [{...b,worker_state:'waiting_answer'},{...b,worker_state:'blocked'},{...b,parked:'x',mark:'needs_you'},{...b,mark:'needs_you'},{...b,mark:'failed'},{...b,attention_status:'needs'},{...b,state:'offered',worker_state:'stopped'},{...b,state:'held',mark:'needs_you'}]){
    assert(w.eval('needsPerson('+JSON.stringify(h)+')'),'not Needs you: '+JSON.stringify(h));

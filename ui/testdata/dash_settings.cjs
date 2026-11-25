@@ -115,7 +115,7 @@ const teamDrawn={repositories:1,roles:1,sessions:1},links={triggers:'#triggers',
  assert(rows[1][3].startsWith(evil),'model not shown as text');assert(!doc.querySelector('#set-agents img'),'a model became markup');
  assert.deepEqual([...doc.querySelectorAll('#set-agents [data-connect-preview]')].map(b=>b.dataset.connectPreview),['claude','codex']);
  assert(text('set-agents').includes('Default for new tasks')&&text('set-agents').includes('Codex'),'default tool missing');
- assert(text('set-agents').includes('Settings that widen access')&&text('set-agents').includes('libraos-core config set triggers.enabled true'),'widening settings missing');
+ assert(text('set-agents').includes('Settings that widen access')&&text('set-agents').includes('libraos-engine config set triggers.enabled true'),'widening settings missing');
  // No new setting is writable: outside the Edit and price sheets that existed, the
  // sections that show settings have no control that writes one.
  for(const id of ['agents','connections','terminal','app','history','diagnostics']){
@@ -147,11 +147,11 @@ const teamDrawn={repositories:1,roles:1,sessions:1},links={triggers:'#triggers',
  // Who to ask, by name, once: a host section has the one note, an owner-only section one card and no note, Personal neither.
  assert.equal(text('set-history').trim(),'Change history is owner-only. Ask an owner (alice) to see who changed which setting and when.');assert.equal(note(),'','an owner-only section repeats who to ask');
  assert(!/Owners only/.test(text('set-head')),'the description repeats owners only');
- await go('#settings/diagnostics');assert.equal(text('set-diagnostics').trim(),'Diagnostics are owner-only. Ask an owner (alice) to run libraos-core doctor.');assert.equal(note(),'');
+ await go('#settings/diagnostics');assert.equal(text('set-diagnostics').trim(),'Diagnostics are owner-only. Ask an owner (alice) to run libraos-engine doctor.');assert.equal(note(),'');
  for(const id of ['agents','workers','connections','terminal'])  {await go('#settings/'+id);assert.equal(note(),'Ask an owner (alice) to change these.',id)}
  for(const id of ['personal','app']){await go('#settings/'+id);assert.equal(note(),'',id+' says to ask an owner')}
  assert(!/Sign in as an owner/.test(doc.body.textContent),'the old read-only banner is left');
- await go('#settings/repositories');assert(/^Ask an owner \(alice\) to add one\. Or in a terminal on this host: libraos-core repo add DIR\.$/.test(doc.querySelector('#set-team-head [data-set-note]').textContent),'Repositories has no role note');
+ await go('#settings/repositories');assert(/^Ask an owner \(alice\) to add one\. Or in a terminal on this host: libraos-engine repo add DIR\.$/.test(doc.querySelector('#set-team-head [data-set-note]').textContent),'Repositories has no role note');
  // The section list keeps the owner-only sections, marked, for anyone else.
  assert.deepEqual([...doc.querySelectorAll('#settings-sections .set-item-tag')].map(n=>n.closest('a').dataset.section),['diagnostics','history'],'owner-only sections are not marked');
  // A withheld value reads "Owners see this", never a default that looks real; an owner-only link is text.

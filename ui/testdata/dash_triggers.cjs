@@ -68,7 +68,7 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  let p=pairs();const state=()=>body().querySelector('[data-trig=state]');
  assert(state(),'no state card');assert.equal(body().firstElementChild,state(),'the state card is not first');
  assert.equal(state().querySelector('strong').textContent,'On, but cannot fire: [triggers] authors is empty'+evil);
- assert(/libraos-core config set triggers\.enabled false/.test(state().textContent),'the state card has no terminal command to turn triggers off');
+ assert(/libraos-engine config set triggers\.enabled false/.test(state().textContent),'the state card has no terminal command to turn triggers off');
  assert(!state().querySelector('[data-trig=later]'),'shows a later reason while on');
  assert.equal(doc.getElementById('trig-meta').textContent,'On · owners only');
  // The state is a chip beside the title, not a line floating between it and Refresh.
