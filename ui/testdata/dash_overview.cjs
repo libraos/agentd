@@ -80,7 +80,7 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  assert(/ann 3/.test(fig('agents','people'))&&/Unattributed agent connections 2/.test(fig('agents','people')),'sessions per user: '+fig('agents','people'));
  // Three real SVG charts use the endpoint's nested server/hosts values, never CDN assets.
  assert.equal(range('7d').getAttribute('aria-pressed'),'true','saved range was not restored');
- assert(requests.includes('GET /api/overview/series?range=7d'),'saved range not sent');
+ const zq='&tz='+encodeURIComponent(w.eval('Intl.DateTimeFormat().resolvedOptions().timeZone'));assert(requests.includes('GET /api/overview/series?range=7d'+zq),'saved range or the viewer\u2019s zone not sent: '+requests.filter(r=>r.includes('series')));
  assert.deepEqual([...body().querySelectorAll('[data-ov-chart]')].map(c=>c.dataset.ovChart),['tasks','cost','host']);
  for(const kind of ['tasks','cost','host']){const svg=chart(kind).querySelector('svg');assert(svg&&svg.getAttribute('aria-label').includes('7d'),kind+' lacks a text alternative');assert(!/NaN|Infinity/.test(svg.outerHTML),kind+' has invalid geometry');assert.equal(svg.getAttribute('tabindex'),'0')}
  assert.equal(chart('tasks').querySelectorAll('[data-ov-event]').length,6);
@@ -99,7 +99,7 @@ const pointer=(node,type,x=50,pointerType='mouse')=>{const e=new w.Event(type,{b
  assert(chart('host').textContent.includes(evil)&&!body().querySelector('img'),'host name became markup');
  // Toggling refetches immediately and persists per viewer; re-entry reads the saved value.
  range('24h').click();await settle();assert.equal(range('24h').getAttribute('aria-pressed'),'true');assert.equal(w.localStorage.getItem('dash-overview-range:ann'),'24h');assert.equal((await table('tasks')).length,24);
- assert(requests.includes('GET /api/overview/series?range=24h'));
+ assert(requests.includes('GET /api/overview/series?range=24h'+zq));
  w.eval("OV.viewer=null;OV.range='7d';ovPoll(false)");await settle();assert.equal(range('24h').getAttribute('aria-pressed'),'true','choice not remembered');
  w.eval("USER='bob';ovDraw();ovPoll(false)");await settle();assert.equal(range('24h').getAttribute('aria-pressed'),'true','another viewer inherited ann’s range');range('7d').click();await settle();assert.equal(w.localStorage.getItem('dash-overview-range:bob'),'7d');
  w.eval("USER='ann';ovDraw();ovPoll(false)");await settle();assert.equal(range('24h').getAttribute('aria-pressed'),'true','another viewer changed ann’s preference');

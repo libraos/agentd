@@ -17,6 +17,12 @@ npm install        # jsdom only
 npm test
 ```
 
+Every time the page shows goes through one formatter (`region:time`: `fmtTime`, `timeEl`,
+`utcTitle`): the viewer's own zone, a short zone label where a time stands alone, and the UTC
+value only in the tooltip. Every day or week request carries the viewer's zone (`withTz`), and a
+figure names the zone the server answered with (`answerZone`, UTC from a server that sends none).
+`testdata/dash_timezone.cjs` checks this under `TZ=Asia/Shanghai` and `TZ=America/New_York`.
+
 The product's name and the CLI program's name each come from one constant at the top of
 the page script (`region:brand`: `PRODUCT`, `CLI`); every page text and shown command is built
 from them, so renaming either is a one-line change. `testdata/dash_brand.cjs` checks this.

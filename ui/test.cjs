@@ -1,5 +1,5 @@
 // Runs the page tests the way agentd's own test suite does: the three plain
-// checks, then the DOM suite in every mode. jsdom comes from DASH_UI_DOM_MODULE
+// checks, then the DOM suite in every mode, then the time zone test under two zones. jsdom comes from DASH_UI_DOM_MODULE
 // or from this directory's node_modules (npm install).
 'use strict';
 const {spawnSync}=require('child_process'),path=require('path');
@@ -8,4 +8,6 @@ if(!process.env.DASH_UI_DOM_MODULE){try{process.env.DASH_UI_DOM_MODULE=path.dirn
 const run=(script,env)=>{const r=spawnSync(process.execPath,[script,'dash.html'],{stdio:'inherit',env:{...process.env,...env}});if(r.status!==0){console.error(`${script} failed`,env||'');process.exit(r.status||1)}};
 for(const s of ['dash_ui','dash_openpr','dash_chat','dash_contrast'])run(`testdata/${s}.cjs`);
 for(const phone of ['0','1'])for(const theme of ['light','dark'])for(const s of ['dash_dom','dash_mirror','dash_voice','dash_changes','dash_checks','dash_log','dash_search','dash_notify','dash_newtask','dash_marks','dash_env','dash_filter','dash_keys','dash_templates','dash_files','dash_filter_marks','dash_linear','dash_triggers','dash_connect','dash_install','dash_brandmark','dash_terminal','dash_shell','dash_workspace','dash_inbox','dash_chat_sources','dash_insights','dash_team','dash_settings','dash_gateway','dash_lessons','dash_setup','dash_layout','dash_preload','dash_taskactions','dash_appwatchdog','dash_app','dash_appnewtask','dash_appsidebar','dash_apponboard','dash_appworkspace','dash_appkeys','dash_apprunning','dash_appsession','dash_apptriggers','dash_appfollowup','dash_appstartfail','dash_appmessages','dash_apppanel','dash_users','dash_nodes','dash_presence','dash_home','dash_issueanyway','dash_feedstale','dash_insights_scope','dash_insights_tabs','dash_home_links','dash_overview','dash_permissions','dash_appserverpage','dash_community','dash_taskpage','dash_apptriggers_triage','dash_triggers_triage','dash_triggers_where','dash_apptriggers_where','dash_livespend','dash_appshellfix','dash_brand'])run(`testdata/${s}.cjs`,{DASH_UI_PHONE:phone,DASH_UI_THEME:theme});
+// Times in the viewer's zone: under two zones (Intl in jsdom follows TZ), desktop and phone.
+for(const tz of ['Asia/Shanghai','America/New_York'])for(const phone of ['0','1'])run('testdata/dash_timezone.cjs',{TZ:tz,DASH_UI_PHONE:phone,DASH_UI_THEME:'light'});
 console.log('ui: all page tests passed');

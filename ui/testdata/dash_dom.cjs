@@ -128,7 +128,7 @@ if(process.env.DASH_UI_PHONE==='1')w.document.querySelector('#panel-toggle').sty
   assert.deepEqual([...body.querySelectorAll('.fload-avg > *')].map(t=>[t.querySelector('b').textContent,t.querySelector('.mute').textContent]),[['1.67','over 3 days'],['57.0','all attempts started that day'],['≥ $1.42','1 unpriced attempts']]);
   assert.deepEqual(cells('.fload'),[['2026-11-01','2','100.0','$3.60','3'],['2026-11-02','2','61.0','≥ $0.25','1'],['2026-11-03','1','10.0','$0.40','2']]);assert(!body.querySelector('.fload .bfail'),'a day under max_workers is marked');
   const obs=[];w.ResizeObserver=class{constructor(cb){this.cb=cb;obs.push(this)}observe(n){this.n=n}disconnect(){}};await evalJS('loadFactory("28d")');await tick();
-  const host=body.querySelector('.mchart');assert(host,'no load chart');assert.equal(host.querySelector('.mchart-title').textContent,'Dispatched and peak workers, per UTC day');assert.deepEqual([...host.querySelectorAll('.mchart-key span')].map(s=>s.textContent),['Dispatched','Peak workers at once','max_workers 6']);
+  const host=body.querySelector('.mchart');assert(host,'no load chart');assert.equal(host.querySelector('.mchart-title').textContent,'Dispatched and peak workers, per day (UTC)');assert.deepEqual([...host.querySelectorAll('.mchart-key span')].map(s=>s.textContent),['Dispatched','Peak workers at once','max_workers 6']);
   for(const o of obs)if(o.n===host){Object.defineProperty(host,'clientWidth',{value:600,configurable:true});o.cb()}
   const limit=host.querySelector('line.m-limit');assert(limit,'no max_workers line');assert.equal(limit.getAttribute('data-limit'),'6');assert.equal(Number(limit.getAttribute('y1')),56.8,'max_workers line not at 6 on a 0-10 axis');
   assert.equal(host.querySelectorAll('path.m-opened').length,3);assert.equal(host.querySelectorAll('path.m-merged').length,3);w.ResizeObserver=class{observe(){}disconnect(){}};
@@ -511,7 +511,7 @@ assert(line.previousElementSibling.classList.contains('chat-user'),'line is not 
    rw.matchMedia=q=>({matches:process.env.DASH_UI_PHONE==='1'&&q.includes('max-width'),addEventListener(){}});rw.ResizeObserver=class{observe(){}disconnect(){}};rw.CSS={escape:x=>x};rw.scrollTo=()=>{};rw.HTMLElement.prototype.scrollIntoView=()=>{};
    rw.setInterval=(fn,ms)=>{intervals.push({fn,ms});return intervals.length};
    rw.fetch=async(url,opts={})=>{
-    if(url==='/api/dash')return new Promise(resolve=>{finishDash=resolve});
+    if(String(url).split('?')[0]==='/api/dash')return new Promise(resolve=>{finishDash=resolve});
     if(url==='/api/chat/chat-test')return{ok:true,status:200,json:async()=>({chat:{id:'chat-test',role:'writer'},messages:withdrawn?[]:[unanswered],busy:false})};
     if(url.endsWith('/withdraw')){withdrawn++;return withdrawReply(unanswered.content)}
     return originalFetch(url,opts);

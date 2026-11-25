@@ -79,10 +79,10 @@ const view=()=>doc.querySelector('#team-view'),btn=(root,text)=>[...root.querySe
  form.querySelector('#repo-add-dir').value='/srv/beta';w.eval('refresh()');await settle();assert(!form.hidden&&form.querySelector('#repo-add-dir').value==='/srv/beta','a refresh wiped the form');
  // Added: the list and New task's repositories show it.
  answer=b=>{repos=[...repos,repo(b.dir,{route:b.route})];dash={...dash,checkouts:[...dash.checkouts,b.dir]};return {status:200,body:{path:b.dir,added:true,route:b.route}}};
- form.querySelector('#repo-add-route').value='off';const before=requests.filter(x=>x==='GET /api/dash').length;await submit();
+ form.querySelector('#repo-add-route').value='off';const before=requests.filter(x=>x.split('?')[0]==='GET /api/dash').length;await submit();
  assert.deepEqual(posts[1],{action:'add',dir:'/srv/beta',route:'off'});assert(form.hidden,'the form stays open after the add');
  r=rowOf('/srv/beta');assert(r,'the added checkout is not listed');assert.equal(r.querySelector('[data-route]').textContent,'Off');
- assert(requests.filter(x=>x==='GET /api/dash').length>before,'the snapshot New task reads was not refreshed');
+ assert(requests.filter(x=>x.split('?')[0]==='GET /api/dash').length>before,'the snapshot New task reads was not refreshed');
  // New task is a page (#482): its form is #nt-form, left with Cancel.
  w.eval('newHandoffSheet()');await settle();const ntForm=doc.getElementById('nt-form');assert(ntForm&&w.location.hash==='#new','New task did not open');const cwd=[...ntForm.querySelectorAll('select')].find(n=>n.id.endsWith('-cwd'));assert(cwd,'New task has no repository field');
  assert([...cwd.querySelectorAll('option')].some(o=>o.value==='/srv/beta'),'New task does not offer the added checkout');[...ntForm.querySelectorAll('.nt-foot button')].find(b=>b.textContent==='Cancel').click();await settle();assert(w.location.hash!=='#new','New task did not close');

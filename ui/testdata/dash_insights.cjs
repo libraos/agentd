@@ -50,7 +50,7 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  await route('#insights/metrics');assert(!doc.getElementById('page-metrics').hidden,'Metrics is hidden');assert(!doc.getElementById('ins-overview').hidden,'the overview is hidden');
  // The period picker sits above the overview, and the factory report is read for it.
  const head=doc.getElementById('ins-head');assert(head.querySelector('#m-range'),'no period picker at the top');assert(head.compareDocumentPosition(doc.getElementById('ins-overview'))&w.Node.DOCUMENT_POSITION_FOLLOWING);
- assert(requests.some(r=>r.startsWith('/api/factory?since=')),'no factory request for the period');assert.equal(doc.getElementById('ins-period').textContent,'2026-10-15 to 2026-10-29');
+ assert(requests.some(r=>r.startsWith('/api/factory?since=')),'no factory request for the period');assert.equal(doc.getElementById('ins-period').textContent,'2026-10-15 to 2026-10-29 (UTC)');
  // Four cards, in the design's order, with the factory report's figures: what the tool did
  // alone beside what was delivered. Autonomous completion and interventions stay as Factory tiles.
  assert.deepEqual(cards(),[['First-pass rate','25%','1 of 4 tasks · one attempt, nobody stepping in · 1 more from a host on an older release, left out'],['Delivery rate','80%','4 of 5 tasks · accepted, merged or confirmed'],
