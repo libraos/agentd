@@ -99,7 +99,8 @@ const opaque=v=>!!v&&!/var\(/.test(v)&&!/^(transparent|none|initial|rgba\(0, 0, 
   assert(opaque(bg),'the '+kind+' menu background is transparent: '+JSON.stringify(bg));assert.equal(bg,card,'the '+kind+' menu is not the card colour');
   const fg=resolved(w,m,'color');assert(opaque(fg)&&fg!==bg,'the '+kind+' menu text colour: '+fg);assert(/Geist/.test(w.getComputedStyle(m).fontFamily),'the '+kind+' menu has not the frame font');
   const it=q('.app-mitem',m);assert(it&&opaque(resolved(w,it,'color')),'a '+kind+' item has no text colour');assert.equal(w.getComputedStyle(it).whiteSpace,'normal','a '+kind+' item does not wrap, so its note and command run off the menu');
-  if(kind==='command'){const code=q('.app-mitem code',m);assert(code&&/SF Mono|monospace/.test(resolved(w,code,'font')),'the command line has no mono font: '+(code&&resolved(w,code,'font')))}
+  // M5: an item's command is its copy icon beside it, not a line under the label (inline mode: dash_appcli).
+  if(kind==='command'){assert(!q('.app-mitem code',m),'a command line under an item');const cp=q('.app-mrow>.cli-copy',m);assert(cp&&/--takeover$/.test(cp.dataset.cli)&&opaque(resolved(w,cp,'color')),'no copy icon with a colour beside Take over')}
   key('Escape');await tick();assert(!q('.app-menu'),'Escape does not close the '+kind+' menu')}
  assert(!errors.length,errors.join('\n'));
  // M2: /panel in a 1440 x 900 window: the column takes the width up to 600 px, centred, not a strip.

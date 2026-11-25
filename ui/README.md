@@ -27,6 +27,11 @@ The product's name and the CLI program's name each come from one constant at the
 the page script (`region:brand`: `PRODUCT`, `CLI`); every page text and shown command is built
 from them, so renaming either is a one-line change. `testdata/dash_brand.cjs` checks this.
 
+In the personal app a terminal command is not the main text (`region:cli-same`): it sits behind
+a "Same in a terminal" disclosure (`cliSame`) or a copy icon whose tooltip names it (`cliCopy`,
+`cliAt`). Settings > Terminal commands shows them inline again, kept per viewer in this
+browser's localStorage. `testdata/dash_appcli.cjs` checks this.
+
 Each test also runs alone, on `dash.html` beside `testdata/`: `node testdata/dash_home.cjs`.
 
 `testdata/` holds the tests: `dash_ui`, `dash_openpr` and `dash_chat` read the
