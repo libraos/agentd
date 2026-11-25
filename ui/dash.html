@@ -3230,14 +3230,17 @@ function fmtMin(m){if(!(m>=0))return '–';const s=Math.round(m*60);if(s<60)retu
 // per run, its height the run's share of the time.
 function runStrip(x){const as=x.attempts||[];if(!as.length)return null;
   let min=0,tok=0,usd=0,anyTok=false,anyUsd=false,floor=false;
-  for(const a of as){min+=a.minutes||0;if(a.tokens!==undefined){tok+=a.tokens;anyTok=true}else floor=true;if(a.usd!==undefined){usd+=a.usd;anyUsd=true}else floor=true}
+  let soFar=false;const notes=[];
+  for(const a of as){min+=a.minutes||0;const t=a.tokens!==undefined?a.tokens:a.tokens_so_far;if(t!==undefined){tok+=t;anyTok=true}else floor=true;
+    if(a.usd!==undefined){usd+=a.usd;anyUsd=true}else if(typeof a.usd_so_far==='number'){usd+=a.usd_so_far;anyUsd=true;soFar=true}else{floor=true;if(a.spend_note)notes.push(String(a.spend_note))}}
   // "≥" marks a figure some run did not report into; a run still going is counted up to now.
   const ge=()=>floor?el('i',{title:'a floor: a run did not report its usage'},'≥ '):null,fig=(v,label)=>el('span',{class:'fig'},el('b',{},v),' '+label);
   const top=Math.max(...as.map(a=>a.minutes||0),0.01),cls={run:'run',ok:'ok',bad:'bad',warn:'warn'};
   const bars=el('span',{class:'bars','aria-label':as.length+' run'+(as.length>1?'s':'')},as.map(a=>el('span',{class:'rb '+cls[endTick(a)],style:'height:'+Math.max(18,Math.round((a.minutes||0)/top*100))+'%',
-    title:[a.tool+(a.model?' '+a.model:''),a.running?'Running':word(a.end_reason)||'Unknown',fmtMin(a.minutes),a.tokens!==undefined?fmtTok(a.tokens)+' tokens':'usage not reported',a.usd!==undefined?'$'+a.usd.toFixed(2):null].filter(Boolean).join(', ')})));
-  return el('div',{class:'cost'},anyTok?fig([ge(),fmtTok(tok)],'tokens'):null,fig(fmtMin(min),'agent time'),anyUsd?fig([ge(),'$'+usd.toFixed(2)],as.length>1?'over '+as.length+' runs':'est.'):null,
-    !anyTok&&!anyUsd?el('span',{class:'fig',title:'no run reported tokens or dollars yet'},as.some(a=>a.running)?'usage not reported yet':'usage not reported'):null,bars)}
+    title:[a.tool+(a.model?' '+a.model:''),a.running?'Running':word(a.end_reason)||'Unknown',fmtMin(a.minutes),a.tokens!==undefined?fmtTok(a.tokens)+' tokens':a.tokens_so_far!==undefined?fmtTok(a.tokens_so_far)+' tokens so far':'usage not reported',a.usd!==undefined?'$'+a.usd.toFixed(2):typeof a.usd_so_far==='number'?'$'+a.usd_so_far.toFixed(2)+' so far':a.spend_note||null].filter(Boolean).join(', ')})));
+  return el('div',{class:'cost'},anyTok?fig([ge(),fmtTok(tok)],'tokens'):null,fig(fmtMin(min),'agent time'),anyUsd?fig([ge(),'$'+usd.toFixed(2)],(soFar?'so far':as.length>1?'over '+as.length+' runs':'est.')):null,
+    notes.length?el('span',{class:'fig','data-spend-note':''},[...new Set(notes)].join(', ')):null,
+    !anyTok&&!anyUsd&&!notes.length?el('span',{class:'fig',title:'no run reported tokens or dollars yet'},as.some(a=>a.running)?'usage not reported yet':'usage not reported'):null,bars)}
 function ghHref(ref,what){if(isLinearRef(ref))return linearHref(ref);const [repo,num]=ref.split('#');return 'https://github.com/'+repo+'/'+(what==='PR'?'pull':'issues')+'/'+num}
 // end:shared-work
 // region:inbox
@@ -3926,7 +3929,7 @@ function workItemBody(d,opt){const box=el('div',{}),dash=lastDash||{},ref=d.ref;
   if(sid&&!(opt&&opt.noRun)){const wf=el('div',{class:'wf'}),host=el('div',{class:'wi-exec cc'},wf);box.append(host);embedRun(sid,wf)}
 
   return box}
-function runRow(a,hid){return el('div',{class:'wi-row'},el('div',{class:'kmeta'},hid?wkLink(hid):null,el('span',{style:'color:var(--fg)'},toolName(a.tool)+' · '+(a.model||'unknown')),el('span',{},a.running?'Running':word(a.end_reason)||'Unknown'),a.check?el('span',{},a.check):null,el('span',{},fmtMin(a.minutes)),a.tokens!==undefined?el('span',{},fmtTok(a.tokens)+' tokens'):el('span',{},'usage not reported'),a.usd!==undefined?el('span',{},'$'+a.usd.toFixed(2)):el('span',{},a.running?'not priced yet':'not priced'),a.files?el('span',{},a.files+' files, +'+a.added+' −'+a.deleted):null),failureDetail(a))}
+function runRow(a,hid){return el('div',{class:'wi-row'},el('div',{class:'kmeta'},hid?wkLink(hid):null,el('span',{style:'color:var(--fg)'},toolName(a.tool)+' · '+(a.model||'unknown')),el('span',{},a.running?'Running':word(a.end_reason)||'Unknown'),a.check?el('span',{},a.check):null,el('span',{},fmtMin(a.minutes)),a.tokens!==undefined?el('span',{},fmtTok(a.tokens)+' tokens'):el('span',{},'usage not reported'),a.usd!==undefined?el('span',{},'$'+a.usd.toFixed(2)):typeof a.usd_so_far==='number'?el('span',{'data-so-far':''},'$'+a.usd_so_far.toFixed(2)+' so far'):el('span',{},a.spend_note?String(a.spend_note):a.running?'not priced yet':'not priced'),a.files?el('span',{},a.files+' files, +'+a.added+' −'+a.deleted):null),failureDetail(a))}
 // scoreRow: one scorer's result, the row agentd score wrote, numbers as stored.
 function scoreRow(r,id){const head=[id?wkLink(id):null,el('span',{style:'color:var(--fg)'},r.scorer)];
   if(r.state==='running')return el('div',{class:'wi-row'},el('div',{class:'kmeta'},head,el('span',{},'judging')));
@@ -4563,8 +4566,12 @@ function ovChart(kind,j){const host=kind==='host',money=kind==='cost',points=hos
 function ovHistory(){const j=feedFresh(OV_SERIES),range=el('div',{class:'ov-range',role:'group','aria-label':'History range'},['24h','7d'].map(r=>el('button',{type:'button','data-ov-range':r,'aria-pressed':String(r===OV.range),onclick:()=>ovRangeSet(r)},r))),box=el('section',{class:'ov-history','aria-labelledby':'ov-history-h'},el('div',{class:'ov-shead'},el('h3',{id:'ov-history-h'},'Activity over time'),j?ovFresh(OV_SERIES):null,range));
   if(OV_SERIES.err&&!j)box.append(ovFailed(OV_SERIES,'overview history','series',ovSeriesLoad));else if(!j)box.append(el('div',{class:'state'},'Loading history…'));else{const stale=feedStale(OV_SERIES,'series',ovSeriesLoad);if(stale)box.append(stale);box.append(el('div',{class:'ov-charts'},['tasks','cost','host'].map(kind=>ovChart(kind,j))))}return box}
 // ovSpend: dollars against the budget; null dollars are unknown, unpriced attempts make it a floor.
-function ovSpend(r){const b=r.budget||{},usd=ovNum(r.spend_usd),floor=usd!==null&&(r.spend_unpriced||0)>0,cap=ovNum(b.usd);
-  const spent=usd===null?'unknown':(floor?'≥ ':'')+ovUsd(usd);return cap!==null?spent+' of '+ovUsd(cap):b.text?spent+' (budget '+b.text+')':spent}
+// A running attempt counts so far (spend_running); why its dollars are unknown (spend_note) is said,
+// never a bare "unknown"; an older server sends neither and reads as before.
+function ovSpend(r){const b=r.budget||{},usd=ovNum(r.spend_usd),floor=usd!==null&&(r.spend_unpriced||0)>0,cap=ovNum(b.usd),note=r.spend_running&&r.spend_note?String(r.spend_note):'';
+  const spent=usd===null?note||'unknown':(floor?'≥ ':'')+ovUsd(usd)+(r.spend_running?' so far':'')+(note?' ('+note+')':'');return cap!==null?spent+' of '+ovUsd(cap):b.text?spent+' (budget '+b.text+')':spent}
+// ovSpendTip: when a running attempt's figure was measured, for the Spend cell's title.
+function ovSpendTip(r){const l=r.spend_running&&r.spend_live;if(!l)return '';return 'Spend so far, including the running attempt'+(l.measured_at?'; measured '+(ovClock(l.measured_at)||l.measured_at):'')+(r.where==='host'?'; reported by the device':'')}
 function ovElapsed(r){const m=ovNum(r.elapsed_min),cap=ovNum((r.budget||{}).minutes);return (m!==null?fmtMin(m):'–')+(cap!==null?' of '+fmtMin(cap):'')}
 // ovState: a worker's state as a person reads it; blocked is a worker waiting on a prompt, not a task waiting on others.
 const OV_STATES={running:'running',blocked:'waiting on a prompt',waiting_answer:'waiting on an answer',stalled:'quiet',exited:'exited'};
@@ -4577,7 +4584,7 @@ function ovRunning(stale=false){const rs=RUNNING.data.running.filter(r=>!!r.stal
       return el('tr',{'data-running':stale?null:r.id,'data-stale-running':stale?r.id:null,'data-running-host':r.where==='host'?r.node:null,onclick:e=>{if(!e.target.closest('a'))location.hash=href}},
         cell(0,el('a',{href,title:r.goal||r.id},r.goal||r.id)),cell(1,r.person),cell(2,r.project?shortProject(r.project):'',r.project),
         cell(3,r.node?el('span',{},r.node+(r.where==='local'?' (this host)':''),r.where==='host'?el('span',{class:'host-tag',title:'Mirrored from device '+r.node+(r.host_person?' ('+r.host_person+')':'')+'; read only here'+(r.mirrored?'; last mirrored '+r.mirrored:'')},r.stale?' device · stale':' device'):null):''),cell(4,[toolName(r.tool),r.model].filter(Boolean).join(' · ')),
-        cell(5,ovElapsed(r),r.started?'Started '+r.started:''),cell(6,ovSpend(r)),cell(7,el('span',{class:warn?'ov-warn':null},ovState(r),r.stale&&r.mirrored?el('small',{class:'tm-why'},'Last mirrored '+ovClock(r.mirrored)):null)))}))))}
+        cell(5,ovElapsed(r),r.started?'Started '+r.started:''),cell(6,ovSpend(r),ovSpendTip(r)),cell(7,el('span',{class:warn?'ov-warn':null},ovState(r),r.stale&&r.mirrored?el('small',{class:'tm-why'},'Last mirrored '+ovClock(r.mirrored)):null)))}))))}
 // ovNeeds: Needs a person (#907): the Tasks card's two numbers, waiting on a person and
 // approvals pending (/api/load), then the tasks behind the first, from what this page already
 // has: the running tasks a worker waits on (a prompt, an answer) or parked, and the snapshot's
@@ -6142,7 +6149,9 @@ try{const v=JSON.parse(localStorage.getItem('dash-app-collapsed')||'[]');if(Arra
 APP.task='';
 // appMine: the snapshot with my tasks only, for the status bar's and the bell's counts.
 function appMine(d){const l=d.handoff_list||[];return l.some(h=>h.mine===false)?{...d,handoff_list:l.filter(h=>h.mine!==false)}:d}
-function appSpend(h){const a=(h.attempts||[]).filter(x=>typeof x.usd==='number');return a.length?a.reduce((s,x)=>s+x.usd,0):null}
+// appSpend: dollars over a task's attempts, a running one's so far included (usd_so_far); appSoFar says one is.
+function appSpend(h){const a=(h.attempts||[]).filter(x=>typeof x.usd==='number'||typeof x.usd_so_far==='number');return a.length?a.reduce((s,x)=>s+(typeof x.usd==='number'?x.usd:x.usd_so_far),0):null}
+function appSoFar(h){return (h.attempts||[]).some(x=>typeof x.usd!=='number'&&typeof x.usd_so_far==='number')}
 const APP_DOTS={needs_you:'Needs you',failed:'Failed',working:'Working',waiting:'Waiting',done:'Done',idle:'Not started'};
 function appDot(mark){return Object.hasOwn(APP_DOTS,mark)?mark:'idle'}
 function appIcon(d,size){const NS='http://www.w3.org/2000/svg',svg=document.createElementNS(NS,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:size||14,height:size||14,fill:'none',stroke:'currentColor','stroke-width':'2','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(k,v);
@@ -6161,7 +6170,7 @@ function appOwner(r){return r.h.mirror&&r.h.mirror.person||r.h.from_user||r.h.cl
 function appTaskRow(r){const h=r.h,usd=appSpend(h),dot=appDot(r.mark),meta=h.host&&h.origin==='host'?appOwner(r)+' · act on host '+h.host:r.mine?h.branch||agentsState(r):[appOwner(r),h.branch||r.project].filter(Boolean).join(' · ');
   return el('button',{type:'button',class:'app-task','data-task-id':r.id,'data-mark':r.mark,'data-done':r.done?'':null,'data-readonly':r.mine?null:'','aria-current':APP.task===r.id?'true':null,title:r.full+'\n'+APP_DOTS[dot]+(r.mine?'':' · read only: '+appOwner(r)+'’s task')},
     el('span',{class:'app-lane'},el('span',{class:'app-dot','data-dot':dot,role:'img','aria-label':APP_DOTS[dot]},dot==='needs_you'?'?':null)),
-    el('span',{class:'app-tbody'},el('span',{class:'app-trow'},el('span',{class:'app-ttitle'},r.title),usd!==null?el('span',{class:'app-tspend',title:'Spent by its workers'},'$'+usd.toFixed(2)):null),
+    el('span',{class:'app-tbody'},el('span',{class:'app-trow'},el('span',{class:'app-ttitle'},r.title),usd!==null?el('span',{class:'app-tspend',title:'Spent by its workers'},'$'+usd.toFixed(2)+(appSoFar(h)?' so far':'')):null),
       el('span',{class:'app-tmeta'},el('span',{},meta),r.mine?null:el('span',{class:'app-tro'},appIcon(APP_ICONS.lock,10),'Read only'))))}
 function appRepoRow(key,name,icon,note){const open=!APPS.collapsed.has(key);
   return el('button',{type:'button',class:'app-repo','data-repo':key,'aria-expanded':String(open),title:name},appIcon(icon,14),el('span',{class:'app-rname'},name),note?el('span',{class:'app-rnote'},note):null,el('span',{class:'app-chev'},appIcon(APP_ICONS.chev,14)))}
@@ -6202,7 +6211,7 @@ function appTasksPage(){const p=$('app-page');if(!p||APPS.page!=='tasks')return;
   const rows=matches.filter(({h})=>{if(lastDash&&lastDash.attention_version){if(h.other_mirror){const owner=h.mirror&&h.mirror.person||'Unknown owner';if(!mirrors.has(owner))mirrors.set(owner,[]);mirrors.get(owner).push(h);return false}if(h.attention_status==='stale'){stale.push(h);return false}}return true});
   const tr=r=>{const usd=appSpend(r.h),dot=appDot(r.mark);return el('tr',{'data-task-id':r.id,tabindex:'0',title:r.full},el('td',{class:'app-pid'},r.id),el('td',{class:'app-pt'},r.title,el('small',{},[r.project||'No repository',r.h.branch].filter(Boolean).join(' · '))),
     el('td',{class:'app-pcol-opt'},r.mine?'You':appOwner(r)+' · read only'),el('td',{},el('span',{class:'app-pstatus'},el('span',{class:'app-dot','data-dot':dot,'aria-hidden':'true'},dot==='needs_you'?'?':null),APP_DOTS[dot])),
-    el('td',{class:'app-pcol-opt'},usd===null?'—':'$'+usd.toFixed(2)),el('td',{class:'app-pcol-opt'},r.h.updated_ago||r.h.age||''))};
+    el('td',{class:'app-pcol-opt'},usd===null?'—':'$'+usd.toFixed(2)+(appSoFar(r.h)?' so far':'')),el('td',{class:'app-pcol-opt'},r.h.updated_ago||r.h.age||''))};
   p.replaceChildren(appPageHead('Tasks',f),el('div',{class:'app-pcard'},rows.length?el('table',{class:'app-ptable'},el('thead',{},el('tr',{},['ID','Title / context','From','Status','Spend','Updated'].map((h,i)=>el('th',{class:i===2||i>3?'app-pcol-opt':null,scope:'col'},h)))),el('tbody',{},rows.map(tr)))
     :matches.length?null:el('div',{class:'app-pempty'},el('b',{},q?'No task matches':'No tasks yet'),q?'Clear the filter to see every task.':'Start one with + in Projects, or libraos-core new "GOAL" in a terminal.')),...attentionGroups('app-tasks',stale,mirrors));
   f.addEventListener('input',()=>appTasksPage());if(at){const n=p.querySelector('.app-pfilter');n.focus();n.setSelectionRange(q.length,q.length)}}
@@ -7055,7 +7064,7 @@ function apNeedRow(x,inTask){const failed=x.kind==='failed',text=failed&&x.failu
 function apInbox(d,md){const box=$('ap-inbox'),xs=apNeeds(d).filter(x=>!AP.hid||x.handoff!==AP.hid);box.hidden=!xs.length;if(!xs.length){box.replaceChildren();return}
   const count=d.attention_version?new Set(xs.map(x=>x.handoff||inboxKey(x))).size:xs.length;
   box.replaceChildren(el('h2',{class:'ap-h'},'Needs you',el('span',{class:'ap-count'},String(count))),...xs.map(x=>apNeedRow(x,false)))}
-function apSpend(h){const v=appSpend(h);return v===null?'':'$'+v.toFixed(2)}
+function apSpend(h){const v=appSpend(h);return v===null?'':'$'+v.toFixed(2)+(appSoFar(h)?' so far':'')}
 function apCheck(s){return el('span',{class:'ap-check','data-check':s||'none'},AP_CHECK[s]||AP_CHECK.none)}
 function apRow(r){const dot=appDot(r.mark),usd=apSpend(r.h);
   return el('button',{type:'button',class:'ap-row','data-ap-open':r.id,'data-mark':r.mark,title:r.full},el('span',{class:'app-dot','data-dot':dot,role:'img','aria-label':APP_DOTS[dot]},dot==='needs_you'?'?':null),
