@@ -4524,7 +4524,9 @@ const HOME_GROUPS=[['working','Working','Workers and sessions on it now.'],['nee
 function homeMe(d){return APP.on&&d&&d.user?'person:'+d.user:''}
 function homeBy(d){return HOME.by===null?homeMe(d):HOME.by}
 // homeGroupOf: which of the five groups an item is in, '' for To do that waits on nothing.
-function homeGroupOf(i){const s=i.status,x=i.src||{};if(s==='needs'||s==='failed')return 'needs';if(s==='progress')return 'working';if(s==='review')return 'review';if(FINISHED.has(s))return 'done';
+// An open task the server marks failed or needs_you (its last worker failed, it waits for the person) is in Needs, as its chip and
+// the sidebar say, even while its status is still To do; one it marks working is in Working.
+function homeGroupOf(i){const s=i.status,x=i.src||{};if(s==='needs'||s==='failed')return 'needs';if(!FINISHED.has(s)&&(i.mark==='failed'||i.mark==='needs_you'))return 'needs';if(!FINISHED.has(s)&&i.mark==='working')return 'working';if(s==='progress')return 'working';if(s==='review')return 'review';if(FINISHED.has(s))return 'done';
   if(s==='todo'&&(x.state==='blocked'||(x.handoffs||[]).some(h=>h&&h.state==='blocked')))return 'blocked';return ''}
 // homeCreatorOf: person:USER or source:SOURCE for a handoff row, '' when neither is known.
 function homeCreatorOf(x){if(!x)return '';const src=x.source||'';if(!HOME_PERSON_SOURCES.has(src))return 'source:'+src;const s=x.from&&sessionRow(x.from),p=x.from_user||(x.mirror&&x.mirror.person)||(s&&s.user)||'';return p?'person:'+p:''}
