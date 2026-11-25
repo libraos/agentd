@@ -43,8 +43,8 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
 (async()=>{
  await settle();w.__samePage=true;
  assert(!doc.getElementById('page-chat').hidden,'Chat did not open');
- // The Agents list gives way to the conversation list on Chat (desktop: collapsed; phone: a closed drawer).
- if(!phone)assert(doc.body.classList.contains('agents-collapsed'),'the Agents list still shows on Chat');
+ // Agents is a page of its own (#agents): Chat shows only its conversation list beside it.
+ assert(doc.getElementById('page-agents').hidden&&!doc.getElementById('agents-list'),'the Agents list shows on Chat');
  // 1. Conversations are listed and switch in place; New starts one.
  const side=doc.getElementById('panel-chat');
  assert.deepEqual([...side.querySelectorAll('h3.chat-group,summary.chat-group')].map(n=>n.textContent),['Recent','Roles']);
