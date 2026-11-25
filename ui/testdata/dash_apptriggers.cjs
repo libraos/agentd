@@ -71,7 +71,7 @@ const submit=async()=>{dialog().querySelector('form').dispatchEvent(new w.Event(
  assert(/On\. A red PR/.test(tx)&&/acme\/web#12/.test(tx)&&/libraos-engine config set triggers\.enabled false/.test(tx),'on: '+tx);
  assert(btn('[data-appt-action="trigger_edit"]').disabled,'Edit is enabled while triggers are on');assert.equal(btn('[data-appt-action="trigger_edit"]').textContent,'Edit trigger');
  assert(/pause them to edit/.test(page().querySelector('[data-appt="edit-why"]').textContent),'disabled Edit gives no reason on the page');
- {const t=page().querySelector('[data-contextual-tour-target="triggers-runs"] time');assert(t&&t.title&&t.getAttribute('datetime')===t.title,'a run time has no exact time in its tooltip')}
+ {const t=page().querySelector('[data-contextual-tour-target="triggers-runs"] time');assert(t&&/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d UTC$/.test(t.title)&&!isNaN(Date.parse(t.getAttribute('datetime'))),'a run time has no exact time in its tooltip')}
  assert(!page().querySelector('img'),'text became markup');assert(tx.includes('Update deps '+evil)&&tx.includes('over the cap '+evil),'evil text not shown as text');
  btn('[data-appt-action="trigger_pause"]').click();await tick();assert(dialog(),'Pause asks first');await submit();
  assert.deepEqual(posts.pop(),{action:'trigger_pause'});

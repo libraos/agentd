@@ -41,6 +41,8 @@ const dom=new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'/../dash.html','
   return {ok:true,status:200,json:async()=>JSON.parse(JSON.stringify(body)),text:async()=>JSON.stringify(body)}}}});
 const w=dom.window,doc=w.document,tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6;i++)await tick()};
 const $=id=>doc.getElementById(id),q=(s,n)=>(n||doc).querySelector(s),qa=(s,n)=>[...(n||doc).querySelectorAll(s)];
+// cliText: the text and the commands behind copy icons (data-cli, review M5) of a part.
+const cliText=n=>n.textContent+'\n'+qa('[data-cli]',n).map(x=>x.dataset.cli).join('\n');
 const tabs=()=>qa('#app-tabs [role=tab]'),tabText=()=>tabs().map(t=>t.querySelector('.app-tlabel').textContent),cur=()=>q('#app-tabs [aria-selected="true"]');
 const panel=n=>$('app-panel-'+n),click=n=>{assert(n,'nothing to click');n.dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true}))};
 const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return false;return true};
@@ -67,7 +69,7 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  // Changes: branch → base, CHANGES 2 with +N and M/U, Push and open a draft PR; a click opens the diff tab.
  const ch=panel('changes');assert(/agentd\/hof-w1/.test(q('.app-branch',ch).textContent)&&/master/.test(q('.app-base',ch).textContent),'no branch → base');
  assert.equal(q('.app-chead [data-n]',ch).textContent,'2');const rows=qa('.app-crow',ch);assert.deepEqual(rows.map(r=>r.dataset.mark),['M','U']);assert.deepEqual(rows.map(r=>q('.app-n.add',r).textContent),['+1','+1']);
- const pr=q('[data-act="open_pr"]',ch);assert(pr&&/Push and open a draft PR/.test(pr.textContent)&&/libraos-engine handoff pr hof-w1/.test(ch.textContent),'no Push and open a draft PR');
+ const pr=q('[data-act="open_pr"]',ch);assert(pr&&/Push and open a draft PR/.test(pr.textContent)&&/libraos-engine handoff pr hof-w1/.test(cliText(ch)),'no Push and open a draft PR');
  click(pr);await settle();const sh=q('dialog[open]');assert(sh&&/Open a draft pull request/.test(sh.textContent),'no confirm before the push');assert(!posts.some(p=>p.action==='open_pr'),'pushed without a confirm');
  const cancel=qa('button',sh).find(b=>/^Cancel$/.test(b.textContent.trim()));if(cancel)click(cancel);else doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await settle();
  click(rows[0]);await settle();assert.equal(tabText().pop(),'a.txt (diff)');assert.equal(cur().dataset.mark,'M');assert.equal(q('.app-tmark',cur()).textContent,'M');
@@ -83,14 +85,14 @@ const shown=n=>{for(let x=n;x&&x!==doc;x=x.parentElement)if(x.hidden)return fals
  // Details: at 90% the budget warns; agent and model; delivery with its reason.
  const dt=panel('details');assert(q('[data-sec="budget"][data-warn]',dt)&&q('[data-k="budget-warn"]',dt),'no 85% warning at 90%');assert(/85%/.test(dt.textContent));
  assert.equal(q('.app-meter',dt).getAttribute('aria-valuenow'),'90');assert(/Claude/.test(dt.textContent)&&/Claude Opus 5\.5/.test(dt.textContent)&&/agentd\/hof-w1/.test(dt.textContent),'no agent');
- assert(/judged once it ends/.test(dt.textContent)&&/agentd handoff budget hof-w1 --budget 10m/.test(dt.textContent),'no delivery or raise');assert(q('[data-task-act="editor"]',dt),'no Open in editor');
+ assert(/judged once it ends/.test(dt.textContent)&&/agentd handoff budget hof-w1 --budget 10m/.test(cliText(dt)),'no delivery or raise');assert(q('[data-task-act="editor"]',dt),'no Open in editor');
  // #948: approvals the worker decided itself or that lapsed, as handoff wait prints them.
  assert(q('[data-sec="approvals"] [data-k="approval-record"]',dt)&&/decided by worker: A/.test(dt.textContent),'no approval record');
  // Command: actions by state, each with its command.
  click(cmd);await tick();const m=q('.app-menu[data-menu="command"]');assert(m,'no Command menu');
  for(const k of ['stop','takeover','retry','set_check','cancel','open_editor'])assert(q('[data-act="'+k+'"]',m),'Command has no '+k);
- assert.equal(q('[data-act="takeover"]',m).dataset.cli,'agentd handoff claim hof-w1 --takeover');assert(/libraos-engine handoff dispatch hof-w1 --tool claude --cwd \/r\/demo/.test(q('[data-act="retry"]',m).textContent));
- assert(/--run-check/.test(q('[data-act="retry_check"]',m).textContent),'retry check names no command');
+ assert.equal(q('[data-act="takeover"]',m).dataset.cli,'agentd handoff claim hof-w1 --takeover');assert.equal(q('[data-act="retry"]',m).dataset.cli,'libraos-engine handoff dispatch hof-w1 --tool claude --cwd /r/demo');
+ assert(/--run-check/.test(cliText(q('[data-act="retry_check"]',m))),'retry check names no command');
  click(q('[data-act="stop"]',m));await settle();const st=q('dialog[open]');assert(st&&/Stop this worker/.test(st.textContent),'Stop asks no confirm');
  const keep=qa('button',st).find(b=>/^Cancel$/.test(b.textContent.trim()));if(keep)click(keep);else doc.dispatchEvent(new w.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await settle();
  // No merge control in app mode, anywhere in the frame or a menu.
