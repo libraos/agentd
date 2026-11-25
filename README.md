@@ -16,16 +16,16 @@ LibraOS Engine runs Claude Code, Codex and opencode as a team on your developmen
 
 It works with the coding agents you already use and the logins you already have. Everything runs on your machine.
 
-It installs as **LibraOS Core**, with the command `libraos-core`. The product, its dashboard and the rest of this page use that name.
+The command is `libraos-core`.
 
-[![Measured on 2026-11-03: 8 screens in 3.8 min with LibraOS Core (4 Claude + 4 Codex workers) vs 9.5 min in one Claude session, 2.5x faster, 8 of 8 checked](docs/before-after.png)](https://libraos.com/docs/agentd/)
+[![Measured on 2026-11-03: 8 screens in 3.8 min with LibraOS Engine (4 Claude + 4 Codex workers) vs 9.5 min in one Claude session, 2.5x faster, 8 of 8 checked](docs/before-after.png)](https://libraos.com/docs/agentd/)
 
 ## What You Can Do
 
 - Run several Claude Code, Codex and opencode workers at once from one terminal, without juggling sessions.
-- Give each task a budget and a check. LibraOS Core runs the check itself and records the result.
+- Give each task a budget and a check. LibraOS Engine runs the check itself and records the result.
 - Read a result card for every task: check, changed files, minutes and dollars.
-- Open a draft pull request only when you say so. Workers never push, and LibraOS Core never merges.
+- Open a draft pull request only when you say so. Workers never push, and LibraOS Engine never merges.
 - Plan work in the dashboard's Chat, watch each worker live, and answer approvals from the Inbox.
 - Let every agent session on the machine share one task ledger: who is working on what, handoffs and results.
 
@@ -38,13 +38,13 @@ It installs as **LibraOS Core**, with the command `libraos-core`. The product, i
 
 The installer needs no login. It checks every file against the release's `SHA256SUMS`, then installs `libraos-core`, with `agentd` kept as a second name for it, and two Skills, `agentd` and `agentd-setup`. It changes no client configuration. To pin a version, set `AGENTD_VERSION` to its tag first. You can also download the binaries and both installers from the [latest release](https://github.com/libraos/engine/releases/latest) and read the script before running it.
 
-**Earlier names.** LibraOS Core was called agentd, and this repository, LibraOS Engine, was `libraos/libraos-core` until 2026-11-24. The command is `libraos-core`; `agentd` still works, so existing scripts, services, MCP settings and the data directory keep working, and links to the old repository name redirect here.
+**Earlier names.** LibraOS Engine was called AgentD, then LibraOS Core, and this repository was `libraos/libraos-core` until 2026-11-24. The command is `libraos-core`; `agentd` still works, so existing scripts, services, MCP settings and the data directory keep working, and links to the old repository name redirect here.
 
 **Requirements:**
 
-- Linux with systemd user services, macOS (services are LaunchAgents) or Windows, new in v0.1.7 (services are Task Scheduler tasks; LibraOS Core needs [Git for Windows](https://git-scm.com/download/win) for its shell: `winget install --id Git.Git -e`).
+- Linux with systemd user services, macOS (services are LaunchAgents) or Windows, new in v0.1.7 (services are Task Scheduler tasks; LibraOS Engine needs [Git for Windows](https://git-scm.com/download/win) for its shell: `winget install --id Git.Git -e`).
 - git 2.25 or newer, with `user.name` and `user.email` set, because workers commit.
-- Claude Code or Codex, installed and signed in **before** LibraOS Core, so the installer finds it and adds the Skills. One is enough. Claude Code: `curl -fsSL https://claude.ai/install.sh | bash` on Linux and macOS, `irm https://claude.ai/install.ps1 | iex` in PowerShell on Windows. Codex: `npm install -g @openai/codex` (Node.js 18 or newer). On Linux, Codex workers also need `bwrap` (bubblewrap); Windows has no equivalent, see [the docs](https://libraos.com/docs/agentd/).
+- Claude Code or Codex, installed and signed in **before** LibraOS Engine, so the installer finds it and adds the Skills. One is enough. Claude Code: `curl -fsSL https://claude.ai/install.sh | bash` on Linux and macOS, `irm https://claude.ai/install.ps1 | iex` in PowerShell on Windows. Codex: `npm install -g @openai/codex` (Node.js 18 or newer). On Linux, Codex workers also need `bwrap` (bubblewrap); Windows has no equivalent, see [the docs](https://libraos.com/docs/agentd/).
 - Optional: the GitHub CLI, signed in (`gh auth login`), to sync pull requests and issues and open draft PRs. Install it with `sudo apt install -y gh`, `brew install gh` or `winget install --id GitHub.cli`.
 
 On Windows, open a new terminal after each install so the new PATH applies.
@@ -53,7 +53,7 @@ On Windows, open a new terminal after each install so the new PATH applies.
 
 1. **Set up your repository.** Start a Claude Code or Codex session in it and paste:
 
-   > Set up LibraOS Core for this repository. Connect my coding agents, initialize shared project knowledge, and help me run my first verified development task.
+   > Set up LibraOS Engine for this repository. Connect my coding agents, initialize shared project knowledge, and help me run my first verified development task.
 
    The setup Skill runs the steps below and asks before it starts a paid worker. By hand:
 
@@ -63,7 +63,7 @@ On Windows, open a new terminal after each install so the new PATH applies.
    libraos-core doctor    # each failure prints the command that fixes it
    ```
 
-   `init` connects every installed client, trusts the repository for Claude Code and adds you as its owner. It is safe to run again, and `--dry-run` shows what it would change. `libraos-core connect --repo-rule` optionally adds an untracked rule telling your sessions to send implementation work through LibraOS Core.
+   `init` connects every installed client, trusts the repository for Claude Code and adds you as its owner. It is safe to run again, and `--dry-run` shows what it would change. `libraos-core connect --repo-rule` optionally adds an untracked rule telling your sessions to send implementation work through LibraOS Engine.
 
    No activation code or invitation is needed. Cloud Workers and the hosted knowledge base need only their key file from Console. `libraos-core activate` optionally links this machine to your LibraOS account, for sending feedback and diagnostics; get the code at [console.libraos.com/agentd](https://console.libraos.com/agentd).
 
@@ -88,7 +88,7 @@ This release serves the dashboard to one person, on this machine only. A dashboa
 
 ## Install in Claude Code and Codex
 
-LibraOS Core is a program on your machine, not an extension installed from inside a client. Install it once, then `libraos-core init` adds it to every client it finds. A client reads its MCP servers when a session starts, so close running sessions and start new ones afterwards.
+LibraOS Engine is a program on your machine, not an extension installed from inside a client. Install it once, then `libraos-core init` adds it to every client it finds. A client reads its MCP servers when a session starts, so close running sessions and start new ones afterwards.
 
 **From a Claude Code session.** Run the installer in the session with the `!` prefix, then start a new session in your repository and paste the setup prompt from [Get Started](#get-started):
 
@@ -96,7 +96,7 @@ LibraOS Core is a program on your machine, not an extension installed from insid
 ! curl -fsSL https://console.libraos.com/agentd/install.sh | sh
 ```
 
-**From Codex.** Run the installer in a terminal, then start a new Codex session in your repository and paste the same prompt. Install Codex before LibraOS Core, or run the installer again afterwards, so the Skills are added for it.
+**From Codex.** Run the installer in a terminal, then start a new Codex session in your repository and paste the same prompt. Install Codex before LibraOS Engine, or run the installer again afterwards, so the Skills are added for it.
 
 What each step adds:
 
@@ -104,11 +104,11 @@ What each step adds:
 | --- | --- | --- |
 | Skills `agentd-setup` and `agentd` (installer) | `~/.claude/skills/` (`$CLAUDE_CONFIG_DIR/skills/` when set) | `~/.agents/skills/` |
 | MCP server (`init`, `connect`) | User scope, in `~/.claude.json` | `[mcp_servers.agentd]` in `~/.codex/config.toml` (`$CODEX_HOME` when set), with `default_tools_approval_mode = "approve"` so Codex workers, which run without approval prompts, can call it |
-| Hooks (`init`, `connect`) | `libraos-core hook` (`agentd hook` in installs from before the rename) on `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `Stop` and `PostCompact`, in `~/.claude/settings.json` | None. Codex gets LibraOS Core's rules from the MCP server's instructions |
+| Hooks (`init`, `connect`) | `libraos-core hook` (`agentd hook` in installs from before the rename) on `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `Stop` and `PostCompact`, in `~/.claude/settings.json` | None. Codex gets LibraOS Engine's rules from the MCP server's instructions |
 | Repository trust (`init`) | The repository is marked trusted for Claude Code | Not needed |
 | Check | `claude mcp get agentd` | `codex mcp get agentd` |
 
-`libraos-core doctor` checks both. To connect one client only, run `libraos-core connect claude` or `libraos-core connect codex`. If you install a client after LibraOS Core, run the installer again for its Skills, then `libraos-core connect`.
+`libraos-core doctor` checks both. To connect one client only, run `libraos-core connect claude` or `libraos-core connect codex`. If you install a client after LibraOS Engine, run the installer again for its Skills, then `libraos-core connect`.
 
 By hand, the MCP registration is:
 
@@ -117,7 +117,7 @@ claude mcp add --scope user agentd -- "$(command -v libraos-core)" mcp --tool cl
 codex mcp add agentd -- "$(command -v libraos-core)" mcp --tool codex --label codex
 ```
 
-For Codex, also add `default_tools_approval_mode = "approve"` under `[mcp_servers.agentd]` in `~/.codex/config.toml`. Without it, `codex exec` blocks every LibraOS Core call.
+For Codex, also add `default_tools_approval_mode = "approve"` under `[mcp_servers.agentd]` in `~/.codex/config.toml`. Without it, `codex exec` blocks every LibraOS Engine call.
 
 `init` and `connect` back up every file they change, and `libraos-core uninstall` and the steps in [Upgrade and Uninstall](#upgrade-and-uninstall) undo them.
 
@@ -125,7 +125,7 @@ For Codex, also add `default_tools_approval_mode = "approve"` under `[mcp_server
 
 ## Models and Billing
 
-LibraOS Core brings no model access of its own. Each worker uses its client's own Claude or ChatGPT login or API key, billed by that provider.
+LibraOS Engine brings no model access of its own. Each worker uses its client's own Claude or ChatGPT login or API key, billed by that provider.
 
 Or use one [LibraOS](https://console.libraos.com) model API key for both clients and the dashboard's Chat, billed in LibraOS credits or a Token Plan. Save the key alone in a file only you can read, then let `init` write the settings:
 
@@ -137,9 +137,9 @@ libraos-core init --model-key ~/.config/agentd/libraos.key
 
 ## Privacy
 
-LibraOS Core is local-first. Your ledger, transcripts and worker output stay on your machine. Code and prompts go only to the model provider you choose: your coding agents' own, or LibraOS if you use a LibraOS model key. `libraos-core feedback` sends only the text you give it.
+LibraOS Engine is local-first. Your ledger, transcripts and worker output stay on your machine. Code and prompts go only to the model provider you choose: your coding agents' own, or LibraOS if you use a LibraOS model key. `libraos-core feedback` sends only the text you give it.
 
-With reporting on, the default in the beta, LibraOS Core registers the machine once and sends a daily report: install id, version, platform, and counts of tasks, workers, sessions and users. It never sends code, prompts, paths, repository names or emails. To turn it off:
+With reporting on, the default in the beta, LibraOS Engine registers the machine once and sends a daily report: install id, version, platform, and counts of tasks, workers, sessions and users. It never sends code, prompts, paths, repository names or emails. To turn it off:
 
 ```sh
 DO_NOT_TRACK=1    # or: libraos-core config set telemetry.enabled false
@@ -149,7 +149,7 @@ DO_NOT_TRACK=1    # or: libraos-core config set telemetry.enabled false
 
 ### Search and Memory with a LibraOS Runtime
 
-Everything above works with the LibraOS Core binary alone. A LibraOS Runtime on your machine turns the ledger into knowledge your agents can query:
+Everything above works with the LibraOS Engine binary alone. A LibraOS Runtime on your machine turns the ledger into knowledge your agents can query:
 
 - **Search past work.** `libraos-core search` finds earlier handoffs, runs and results, with citations, so a new session looks up what happened instead of rereading logs.
 - **Ask in plain language.** `libraos-core ask "which tasks failed and why?"` answers from the ledger and cites the records it used.
