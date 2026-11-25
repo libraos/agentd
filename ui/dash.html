@@ -1274,6 +1274,16 @@ select.appnt-input{height:34px;padding-right:28px}
 .app-mitem small{display:block;font-weight:400;color:var(--o-mfg);line-height:16px}.app-mitem code{display:block;margin-top:2px;font:11px/16px var(--o-mono);color:var(--o-mfg);overflow-wrap:anywhere}
 .app-mitem[data-danger]{color:var(--o-red)}
 .app-msep{height:1px;margin:4px -4px;background:var(--o-border)}.app-mnote{padding:6px 8px;color:var(--o-mfg);line-height:16px}
+/* region:css-cli-same (review M5): a command behind "Same in a terminal" or a copy icon; the tokens fall back for a page outside the app shell */
+.cli-copy{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:24px;height:24px;margin:0 0 0 4px;padding:0;vertical-align:middle;border:1px solid transparent;border-radius:6px;background:none;color:var(--o-mfg,var(--mute,#696969));cursor:pointer}
+.cli-copy:hover{background:var(--o-accent,rgba(0,0,0,.06));color:var(--o-fg,inherit)}.cli-copy:focus-visible{outline:2px solid var(--o-ring,#a1a1a1);outline-offset:1px}
+.cli-same{margin:6px 0 0;font-size:11px;color:var(--o-mfg,var(--mute,#696969))}.cli-same>summary{cursor:pointer;width:fit-content;line-height:20px;font-size:11px}.cli-same>summary:hover{color:var(--o-fg,inherit)}
+.cli-same>p{margin:4px 0}.cli-line{display:flex;align-items:flex-start;gap:2px;margin-top:4px}.cli-line>code{flex:1;min-width:0;padding:3px 6px;border-radius:5px;background:var(--o-muted,rgba(0,0,0,.05));color:var(--o-fg,inherit);font:11px/16px var(--o-mono,ui-monospace,Menlo,Consolas,monospace);overflow-wrap:anywhere;white-space:pre-wrap;user-select:all}
+.cli-inline{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-top:6px}.cli-inline>p{margin:0 0 2px}.cli-code{font:11px/16px var(--o-mono,ui-monospace,Menlo,Consolas,monospace);color:var(--o-mfg,inherit);overflow-wrap:anywhere}
+.app-mrow{display:flex;align-items:flex-start;gap:2px}.app-mrow>.app-mitem{flex:1;min-width:0}.app-mrow>.cli-copy{margin:4px 4px 0 0}
+.app-psec h4{display:flex;align-items:center;gap:4px}.app-psec h4>.cli-copy{margin-left:auto;width:22px;height:22px}
+.appnt-same>summary{cursor:pointer;width:fit-content}.appnt-cmdrow{display:flex;align-items:flex-start;gap:4px;margin-top:6px}.appnt-cmdrow>.appnt-cmd{flex:1;min-width:0}
+@media(max-width:860px){.cli-copy,.app-psec h4>.cli-copy{width:44px;height:44px}.cli-same>summary{line-height:44px}}
 /* the tab body: Session, Terminal, Log, a file, a diff */
 .app-tabbody>.app-pane{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;background:var(--o-bg)}
 .app-sess{flex:1;min-height:0;overflow:auto;padding:12px 16px 16px}
@@ -1809,6 +1819,34 @@ function brandApply(){for(const n of document.querySelectorAll('[data-brand]')){
  if(/LibraOS/.test(document.title))document.title=SERVER_NAME}
 brandApply();
 // end:brand
+// region:cli-same (review M5): in the personal app a terminal command is not the main text. It sits
+// behind a "Same in a terminal" disclosure (cliSame) or a copy icon whose tooltip names it (cliCopy,
+// cliAt). One preference, Settings > Terminal commands, shows them inline again as before. It is kept
+// per viewer in localStorage (dash-cli-inline, .USER when signed in by name); where storage is refused
+// it lasts for the page. Callers build each command from CLI and quote its words as they always have
+// (or pass the server's own line); these helpers show and copy it exactly as given.
+const CLI_SAME={mem:{}},CLI_COPY_SVG=['M8 8h11a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z','M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3'];
+function cliInlineKey(){return 'dash-cli-inline'+(USER?'.'+USER:'')}
+function cliInline(){const k=cliInlineKey();if(Object.hasOwn(CLI_SAME.mem,k))return CLI_SAME.mem[k];let v=false;try{v=localStorage.getItem(k)==='1'}catch(e){}return CLI_SAME.mem[k]=v}
+function cliInlineSet(on){const k=cliInlineKey();CLI_SAME.mem[k]=!!on;try{if(on)localStorage.setItem(k,'1');else localStorage.removeItem(k)}catch(e){}}
+function cliIcon(){const NS='http://www.w3.org/2000/svg',s=document.createElementNS(NS,'svg');for(const [k,v] of Object.entries({viewBox:'0 0 24 24',width:'13',height:'13',fill:'none',stroke:'currentColor','stroke-width':'1.75','stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))s.setAttribute(k,v);
+  for(const d of CLI_COPY_SVG){const p=document.createElementNS(NS,'path');p.setAttribute('d',d);s.append(p)}return s}
+// cliCopyNow copies a command, or, where the page may not use the clipboard, shows it to copy by hand.
+function cliCopyNow(cmd){const shown=()=>toast('In a terminal: '+cmd,true);
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(cmd).then(()=>toast('Copied: '+cmd,true),shown);return}}catch(e){}shown()}
+// cliCopy: the copy icon; its tooltip and name say what it is the same as ("Same in a terminal: CMD").
+function cliCopy(cmd,what){const say=(what||'Same in a terminal')+': '+cmd;
+  return el('button',{type:'button',class:'cli-copy','data-cli':cmd,title:say+' (click to copy)','aria-label':'Copy. '+say,onclick:e=>{e.preventDefault();e.stopPropagation();cliCopyNow(cmd)}},cliIcon())}
+// cliAt: the command where it stood, inline as code when the viewer asked for that, else its copy icon.
+function cliAt(cmd,what,cls){if(!cmd)return null;return cliInline()?el('code',{class:cls||'cli-code',title:what||'The same from a terminal'},cmd):cliCopy(cmd,what)}
+// cliSame: one or more commands behind a "Same in a terminal" disclosure (o.label names it otherwise),
+// each with its copy icon, o.note above them; inline, the commands as code after o.note and o.lead in a box of
+// class o.cls (the place's own, as before).
+function cliSame(cmds,o={}){cmds=[].concat(cmds).filter(Boolean);if(!cmds.length)return null;
+  if(cliInline())return el('div',{class:'cli-inline '+(o.cls||''),'data-cli-same':'inline'},o.note?el('p',{},o.note):null,o.lead?el('span',{},o.lead):null,cmds.map(c=>el('code',{},c)));
+  return el('details',{class:'cli-same','data-cli-same':''},el('summary',{},o.label||'Same in a terminal'),o.note?el('p',{},o.note):null,
+    cmds.map(c=>el('div',{class:'cli-line'},el('code',{},c),cliCopy(c))))}
+// end:cli-same
 const $=id=>document.getElementById(id);
 // A password sign-in an owner set (or reset) is restricted until its person picks a
 // new password: every call but reading Settings, password_change and logout answers
@@ -6456,12 +6494,22 @@ async function appTrigLoad(){const seq=++APPT.seq;
   appTrigRender()}
 function appTrigReadOnly(why){const p=$('app-page');if(!p||APPS.page!=='triggers')return;
   p.replaceChildren(appPageHead('Triggers',el('span',{class:'app-navnote'},'Read only')),el('section',{'data-appt':'readonly'},
-    el('p',{},(why?why+'. ':'')+'Only an owner creates, edits, pauses or runs a trigger. See what is set:'),
-    el('code',{},CLI+' trigger status'),el('code',{},CLI+' schedule list'),
-    el('p',{},'An owner turns triggers on from a terminal, and enables or runs a schedule:'),el('code',{},CLI+' config set triggers.enabled true'),el('code',{},CLI+' schedule enable NAME'),el('code',{},CLI+' schedule run NAME')))}
+    el('p',{},(why?why+'. ':'')+'Only an owner creates, edits, pauses or runs a trigger. Anyone can see what is set from a terminal.'),
+    cliSame([CLI+' trigger status',CLI+' schedule list'],{label:'See what is set from a terminal'}),
+    cliSame([CLI+' config set triggers.enabled true',CLI+' schedule enable NAME',CLI+' schedule run NAME'],{label:'What an owner runs',note:'An owner turns triggers on from a terminal, and enables or runs a schedule:'})))}
 // appTrigAct: one write, with its toast; the page reloads either way.
 async function appTrigAct(body,ok){try{const r=await settingsAPI(body);toast(ok(r||{}),true)}catch(e){toast(e)}appTrigLoad()}
-function appTrigCmd(text){return el('code',{class:'appt-cmd',title:'The same from a terminal'},text)}
+// appTrigWhen: a run's time as people say it; its UTC value is the tooltip (region:time), never the ISO text on the page.
+function appTrigWhen(t){const d=tmDate(t);return d?el('time',{datetime:d.toISOString(),title:utcTitle(d)},whenText(d)):t||''}
+// appTrigNext: a schedule's next run in the viewer's zone, "today 03:00 GMT+8", "tomorrow ...", else its date; UTC in the tooltip (review m5).
+function appTrigNext(t){const d=tmDate(t);if(!d)return String(t||'');const day=x=>{const y=new Date(x);y.setHours(0,0,0,0);return y.getTime()},n=Math.round((day(d)-day(Date.now()))/864e5);
+  const lead=n===0?'today':n===1?'tomorrow':n===-1?'yesterday':d.toLocaleDateString([],{month:'short',day:'numeric',year:d.getFullYear()===new Date().getFullYear()?undefined:'numeric'});
+  return el('time',{datetime:d.toISOString(),title:utcTitle(d),'data-appt':'next-run'},lead+' '+fmtTime(d,'minute',true))}
+// appTrigRunState: a schedule run that started a task reads as that task does in the task list (Working, Done,
+// Needs you, ...), not as the run's own "offered" (Unassigned); the Why column then keeps only the run's reason (review m5).
+const APPT_TASK={offered:'Not started',blocked:'Waiting',claimed:'Working',done:'Done',cancelled:'Cancelled',declined:'Declined'};
+function appTrigRunState(r){if(!r.handoff)return word(r.status);const h=((lastDash||{}).handoff_list||[]).find(x=>x.id===r.handoff);
+  if(h&&h.mark&&Object.hasOwn(APP_DOTS,h.mark))return APP_DOTS[h.mark];return r.handoff_state?APPT_TASK[r.handoff_state]||word(r.handoff_state):'Task started'}
 function appTrigTask(id){return id?el('span',{class:'appt-task'},id):'—'}
 // appTrigOpen: a task other than the row's own (a triage's fix task), as a link that opens it over the page.
 function appTrigOpen(id){return el('button',{type:'button',class:'linkish appt-task','data-open-task':id,title:'Open '+id},id)}
@@ -6493,10 +6541,10 @@ function appTrigSchedule(s){const def=s.definition||{},on=s.enabled===true,runs=
     el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?s.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},name),el('small',{},[def.cron&&def.cron+' ('+(def.timezone||'UTC')+')',dir].filter(Boolean).join(' · '))),
       el('div',{class:'appt-acts'},on?[btn('Run now','schedule_run',r=>'Due now: the next watchdog pass runs it.'),btn('Pause','schedule_disable',()=>'Schedule paused.')]:btn('Enable','schedule_enable',()=>'Schedule enabled.',{class:'primary'}))),
     el('p',{class:'appt-goal'},def.goal||''),
-    el('p',{class:'appt-state'},on?(s.next_run?'Next run '+whenText(s.next_run)+' ('+(fmtTime(s.next_run,'dtminute',true)||s.next_run)+')':'Enabled')+(s.waiting_on?' · a run is open: '+s.waiting_on:''):'Off. Enabling it pins this definition and commit; a later change waits for an owner.',
+    el('p',{class:'appt-state'},on?[s.next_run?['Next run ',appTrigNext(s.next_run)]:'Enabled',s.waiting_on?' · a run is open: '+s.waiting_on:'']:'Off. Enabling it pins this definition and commit; a later change waits for an owner.',
       s.problem?el('span',{class:'appt-problem'},' '+s.problem):null),
-    el('div',{class:'appt-cli'},appTrigCmd(CLI+' schedule '+(on?'run':'enable')+' '+name+' --repo '+dir)),
-    appTrigRuns(null,['Due','Status','Task','Why'],runs.map(r=>({task:r.handoff||'',cells:[r.scheduled_for?settingsWhen(r.scheduled_for):'',word(r.status),appTrigTask(r.handoff),r.reason||r.handoff_state||'']})),'Each run lists here, with the task it started.'))}
+    cliSame(CLI+' schedule '+(on?'run':'enable')+' '+name+' --repo '+dir,{cls:'appt-cli'}),
+    appTrigRuns(null,['Due','Status','Task','Why'],runs.map(r=>({task:r.handoff||'',cells:[r.scheduled_for?appTrigWhen(r.scheduled_for):'',appTrigRunState(r),appTrigTask(r.handoff),r.reason||(r.handoff?'':r.handoff_state)||'']})),'Each run lists here, with the task it started.'))}
 function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')return;const d=APPT.data;
   if(!d){p.replaceChildren(appPageHead('Triggers'),APPT.error?el('p',{class:'appt-problem',role:'alert'},APPT.error):el('p',{class:'appt-state'},'Loading triggers…'));return}
   const st=d.status||{},on=st.enabled===true,has=(st.repos||[]).length>0,offers=Array.isArray(st.offers)?st.offers:[],tri=trigHasTriage(offers),held=trigHeldList(st);
@@ -6510,10 +6558,10 @@ function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')ret
     el('div',{class:'appt-head'},el('i',{class:'appt-dot'+(on?st.problem?' bad':' on':''),'aria-hidden':'true'}),el('div',{class:'appt-title'},el('b',{},hostsShown?'This server’s triggers':'Red CI and labelled issues'),el('small',{},hostsShown?'Red CI and labelled issues: [triggers] in this server’s config.toml':'[triggers] in config.toml'))),
     el('p',{class:'appt-state','data-appt':'state'},state,!on&&st.problem_when_enabled?el('span',{class:'appt-problem'},' Would still not fire: '+st.problem_when_enabled):null),
     has?el('dl',{class:'appt-dl'},[['Repositories',(st.repos||[]).join(', ')],['Authors',(st.authors||[]).join(', ')],['Issue label',st.label||'Not set: issues start nothing'],...trigIssuePairs(st),['Budget',st.budget],['Most a day',st.max_per_day]].map(([k,v])=>[el('dt',{},k),el('dd',{},v===''||v==null?'Not set':v instanceof Node?v:String(v))])):null,
-    el('div',{class:'appt-cli'},on?[el('span',{},'Pause from a terminal:'),appTrigCmd(CLI+' config set triggers.enabled false')]:[el('span',{},'Turn on from a terminal:'),appTrigCmd(d.enable||CLI+' config set triggers.enabled true')]),
+    on?cliSame(CLI+' config set triggers.enabled false',{cls:'appt-cli',lead:'Pause from a terminal:'}):cliSame(d.enable||CLI+' config set triggers.enabled true',{cls:'appt-cli',label:'Turn on from a terminal',lead:'Turn on from a terminal:'}),
     on?el('p',{class:'appt-state','data-appt':'edit-why'},'Edit trigger is off while triggers are on: pause them to edit.'):null,
     held?[el('h3',{},'Held back'),el('div',{class:'app-pcard appt-held','data-appt':'held'},held)]:null,
-    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||'']})),'Each run lists here, with the task it started.'));
+    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[appTrigWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||'']})),'Each run lists here, with the task it started.'));
   const sch=((d.schedules||{}).schedules)||[];
   const rest=wh?trigWhereRest(wh):'';
   const where=hostsShown?el('div',{class:'app-pcard appt-card','data-appt':'where'},
@@ -6577,11 +6625,14 @@ function appNewTaskBuild(){const d=lastDash||{},dirs=d.checkouts||[],ui={inputs:
   const close=el('button',{type:'button',class:'appnt-x','aria-label':'Close',title:'Close (Escape)'},appSvg('M18 6 6 18M6 6l12 12'));
   ui.inputs.tool=tool;ui.submit=create;ui.error=error;
   const form=el('form',{class:'appnt-form',novalidate:true},
-    el('div',{class:'appnt-head'},el('h2',{id:'appnt-title',class:'appnt-title'},'New task'),el('p',{id:'appnt-desc',class:'appnt-sr'},'Write the goal; choose the repository, agent and budget. It runs the '+CLI+' new command shown below.')),
+    el('div',{class:'appnt-head'},el('h2',{id:'appnt-title',class:'appnt-title'},'New task'),el('p',{id:'appnt-desc',class:'appnt-sr'},'Write the goal; choose the repository, agent and budget. It runs the same '+CLI+' new command a terminal would.')),
     el('div',{class:'appnt-body'},field('goal','Goal',goal),field('cwd','Repository',repo),
       el('div',{class:'appnt-field appnt-tool'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-tool-label'},'Agent')),chips,tool),
       field('budget','Budget',budget,{hint:'Minutes, dollars or both: 90m,$5. The worker stops at it.'}),advBtn,adv,
-      el('div',{class:'appnt-field'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-cmd-label'},'Same as')),cmd)),
+      // The same command for a terminal (review M5): folded under "Same in a terminal" with Copy, or shown as before when the viewer chose inline.
+      cliInline()?el('div',{class:'appnt-field','data-cli-same':'inline'},el('div',{class:'appnt-labelrow'},el('span',{class:'appnt-label',id:'appnt-cmd-label'},'Same as')),cmd)
+        :el('details',{class:'appnt-field appnt-same','data-cli-same':''},el('summary',{class:'appnt-label',id:'appnt-cmd-label'},'Same in a terminal'),
+          el('div',{class:'appnt-cmdrow'},cmd,el('button',{type:'button',class:'cli-copy','data-cli-copy':'appnt',title:'Copy this command','aria-label':'Copy the command','onclick':e=>{e.preventDefault();cliCopyNow(cmd.textContent)}},cliIcon())))),
     why,error,el('div',{class:'appnt-foot'},create));
   const dlg=el('dialog',{class:'appnt',id:'app-newtask','aria-labelledby':'appnt-title','aria-describedby':'appnt-desc'},close,form);
   cmd.setAttribute('aria-labelledby','appnt-cmd-label');
@@ -6901,11 +6952,17 @@ function appSettingsPage(){const p=$('app-page');if(!APP.on||APPS.page!=='settin
       row('agent','Default agent',st.defaultAgent==='blank'?'Blank terminal':OB_AGENTS[st.defaultAgent]||'Not chosen'),
       row('integrations','Integrations',OB.facts.gh==='connected'?'GitHub connected':OB.facts.gh==='sign_in'?'GitHub sign-in needed':'GitHub CLI not installed'),
       row('notifications','Notifications',(notifyOn()?'On in this browser':'Off in this browser')+' · '+(OB_SOUNDS.find(([v])=>v===st.sound)||OB_SOUNDS[0])[1]),
-      el('p',{class:'app-pref-note'},'Worker defaults and connections are set from a terminal:'),
-      el('code',{},CLI+' config set dispatch.default_tool '+(OB_AGENTS[st.defaultAgent]?st.defaultAgent:'TOOL')),el('code',{},CLI+' connect TOOL'),
-      OB.facts.os==='windows'?row('windows_terminal','Windows terminal','Uses the shell of the account running '+CLI+' app'):null
-    ]:[el('p',{role:appSettingsError?'alert':'status'},appSettingsError||'Loading personal preferences…'),el('button',{type:'button',class:'app-btn',disabled:appSettingsLoading,onclick:appSettingsLoad},'Try again')]));
+      OB.facts.os==='windows'?row('windows_terminal','Windows terminal','Uses the shell of the account running '+CLI+' app'):null,
+      el('p',{class:'app-pref-note'},'Worker defaults and connections are set from a terminal.'),
+      cliSame([CLI+' config set dispatch.default_tool '+(OB_AGENTS[st.defaultAgent]?st.defaultAgent:'TOOL'),CLI+' connect TOOL'],{cls:'app-pref-cli'})
+    ]:[el('p',{role:appSettingsError?'alert':'status'},appSettingsError||'Loading personal preferences…'),el('button',{type:'button',class:'app-btn',disabled:appSettingsLoading,onclick:appSettingsLoad},'Try again')],
+    appCliPref()));
   if(keep){const n=p.querySelector('[data-app-pref="'+keep+'"]');if(n)n.focus({preventScroll:true})}}
+// appCliPref (review M5): the one preference that shows terminal commands inline again, kept in this browser for this viewer.
+function appCliPref(){const on=cliInline();
+  return el('div',{class:'app-pref','data-pref':'cli'},el('div',{},el('h3',{},'Terminal commands'),el('p',{},on?'Shown inline, under each action':'Behind “Same in a terminal” and copy buttons')),
+    el('button',{type:'button',class:'app-btn','data-app-pref':'cli','aria-pressed':String(on),'aria-label':on?'Hide terminal commands behind Same in a terminal':'Show terminal commands inline',onclick:()=>appCliToggle()},on?'Hide':'Show inline'))}
+function appCliToggle(){cliInlineSet(!cliInline());appSettingsPage();const b=document.querySelector('#app-page [data-app-pref="cli"]');if(b)b.focus({preventScroll:true});if(AW.hid){awBody();awPanels(false)}}
 async function appSettingsLoad(){if(appSettingsLoading)return;appSettingsLoading=true;appSettingsError='';appSettingsPage();
   const ok=await obLoad();appSettingsLoading=false;if(!ok)appSettingsError='Could not load personal preferences. Try again.';appSettingsPage()}
 const appSettingsButton=document.querySelector('#app-shell [data-app-action="settings"]');
@@ -7034,7 +7091,7 @@ function awSession(hid){const h=awTask(hid),feed=el('div',{class:'app-feed','ari
   fill(c);awLogLoad(hid).then(c=>{if(feed.isConnected)fill(c)});
   const accept=Array.isArray(h.accept)?h.accept.join('\n'):h.accept||'';
   const meta=[h.state?word(h.state):'',toolName(h.worker_tool||h.worker),h.worker_branch||h.branch?el('code',{},h.worker_branch||h.branch):null,h.updated_ago?'updated '+h.updated_ago+' ago':''].filter(Boolean).map(x=>el('span',{},x));
-  const sess=el('div',{class:'app-sess'},head,el('div',{class:'app-smeta'},...meta,el('code',{title:'The same from a terminal'},CLI+' handoff show '+hid)),
+  const sess=el('div',{class:'app-sess'},head,el('div',{class:'app-smeta'},...meta,cliAt(CLI+' handoff show '+hid)),
     h.goal?el('div',{class:'app-sblock'},el('b',{},'Goal'),h.goal):null,accept?el('div',{class:'app-sblock'},el('b',{},'Done when'),accept):null,
     h.report?el('div',{class:'app-sblock','data-k':'latest-report'},el('b',{},'Latest report'),h.report):null,awStartFailure(h),h.issue_refusal&&!h.dispatched?el('div',{class:'app-sblock','data-k':'issue-refusal'},issueRefusalBox({...h.issue_refusal,may_anyway:h.issue_refusal.may_anyway&&!AW.ro},h.id,h.worker_cwd||'')):null,
     el('b',{class:'app-shead'},'Conversation'),awConv(hid),el('b',{class:'app-shead'},'History'),feed);
@@ -7109,9 +7166,11 @@ function awMenu(kind,anchor,items){if(AW.menu){AW.menu.remove();AW.menu=null}if(
   // Inside #app-shell, not body: the --o-* tokens (card, fg, border, mono) and the frame's font are defined there,
   // so outside it the menu had no background and its text sat on the page (review B1).
   $('app-shell').append(m);AW.menu=m;const f=m.querySelector('.app-mitem:not([aria-disabled="true"])');if(f)f.focus()}
-function awItem(icon,label,cli,run,o={}){const why=o.why||'';
-  return el('button',{type:'button',class:'app-mitem',role:'menuitem','data-act':o.key||null,'data-cli':cli||null,'data-danger':o.danger?'':null,'aria-disabled':why?'true':null,title:why||null,onclick:()=>{if(why)return;awMenu(null);run()}},
-    awIcon(icon,14),el('span',{},label,o.note?el('small',{},o.note):null,why?el('small',{},why):null,cli?el('code',{},cli):null))}
+// An item's command (review M5): its copy icon beside it, or, with Settings > Terminal commands inline, under its label as before.
+function awItem(icon,label,cli,run,o={}){const why=o.why||'',inline=!!cli&&cliInline();
+  const b=el('button',{type:'button',class:'app-mitem',role:'menuitem','data-act':o.key||null,'data-cli':cli||null,'data-danger':o.danger?'':null,'aria-disabled':why?'true':null,title:why||null,onclick:()=>{if(why)return;awMenu(null);run()}},
+    awIcon(icon,14),el('span',{},label,o.note?el('small',{},o.note):null,why?el('small',{},why):null,inline?el('code',{},cli):null));
+  return cli&&!inline?el('div',{class:'app-mrow',role:'none'},b,cliCopy(cli)):b}
 function awNewTabItems(hid){const s=awState(hid),used=s.tabs.filter(t=>t.kind==='term').map(t=>t.n),free=[1,2,3].find(n=>!used.includes(n)),items=[];
   if(!termOffered())items.push(el('div',{class:'app-mnote'},'No terminal here: the server offers one only to an owner, where [dash] terminal is on.'));
   else items.push(awItem('term','New terminal','',()=>awOpen({key:'term:'+free,kind:'term',n:free}),{key:'terminal',why:free?'':'Up to '+AW_TERMS+' terminals per task. Close one first.',note:free?'Terminal '+free+', in the worker directory':''}));
@@ -7124,10 +7183,10 @@ function awCommandItems(hid){const d=lastDash||{},h=awTask(hid),items=[],live=h.
   if(h.takeover)items.push(awItem('hand','Take over',h.takeover.cli,()=>takeoverTask(h),{key:'takeover',why:h.takeover.may===false?h.takeover.why_not||'You cannot take this task over.':''}));
   if(d.dispatch&&h.dispatched&&h.retry)items.push(awItem('again','Start again',CLI+' handoff dispatch '+hid+(h.retry.tool?' --tool '+h.retry.tool:'')+(h.retry.cwd?' --cwd '+awQ(h.retry.cwd):''),()=>retryHandoff(h),{key:'retry',why:h.retry.may===false?h.retry.why_not||'You cannot start this task again.':'',note:'A new worker on its branch, with the same goal, check and budget'}));
   if(h.check&&/^(offered|blocked|claimed)$/.test(h.state||''))items.push(awItem('check','Change check',CLI+' handoff check '+hid+' --check '+awQ(h.check),()=>changeCheck(h),{key:'set_check',why:ROLE==='owner'?'':'Only an owner changes a check.'}),
-    el('div',{class:'app-mnote','data-act':'retry_check'},'Re-run only the check: not from the page. Its claimer runs it with ',el('code',{},CLI+' handoff done '+hid+' --run-check'),'.'));
+    el('div',{class:'app-mnote','data-act':'retry_check'},'Re-run only the check: not from the page. Its claimer runs it in a terminal.',cliInline()?' ':null,cliAt(CLI+' handoff done '+hid+' --run-check','Its claimer runs')));
   const ed=d.editor||{};if(h.editor&&h.editor.dir&&ed.local){const cli=(ed.argv||['$VISUAL']).map(awQ).join(' ')+' '+awQ(h.editor.dir);items.push(awItem('edit','Open in editor',cli,()=>openTaskInEditor(h),{key:'open_editor',why:h.editor.may===false?h.editor.why_not||'You cannot open this task.':ed.why_not||''}))}
   if(h.cancel)items.push(el('div',{class:'app-msep'}),awItem('ban','Cancel task',h.cancel.cli,()=>cancelTask(h),{key:'cancel',danger:true,why:h.cancel.may===false?h.cancel.why_not||'You cannot cancel this task.':''}));
-  if(!items.length)items.push(el('div',{class:'app-mnote'},/^(done|cancelled|declined)$/.test(h.state||'')?'This task has ended: nothing to act on. ':'Nothing to act on in this state. ','From a terminal: ',el('code',{},CLI+' handoff show '+hid)));
+  if(!items.length)items.push(el('div',{class:'app-mnote'},/^(done|cancelled|declined)$/.test(h.state||'')?'This task has ended: nothing to act on.':'Nothing to act on in this state.',cliInline()?' From a terminal: ':null,cliAt(CLI+' handoff show '+hid)));
   return items}
 $('app-center').addEventListener('click',e=>{const b=e.target.closest('[data-app-action="new-tab"],[data-app-action="command"]');if(!b||!AW.hid)return;if(AW.ro||b.getAttribute('aria-disabled')==='true')return;
   const kind=b.dataset.appAction==='command'?'command':'new';if(AW.menu&&AW.menu.dataset.menu===kind){awMenu(null);return}e.stopPropagation();awMenu(kind,b,kind==='command'?awCommandItems(AW.hid):awNewTabItems(AW.hid))});
@@ -7211,7 +7270,7 @@ function awChanges(hid,load){const box=awSec('changes');
     const branch=d.branch?el('div',{class:'app-branch'},el('span',{},awIcon('branch',12),el('code',{},d.branch)),el('span',{class:'app-base'},awIcon('arrow',12),el('code',{},d.base_branch||'main'))):null;
     const pr=d.pr?el('p',{class:'app-why'},'Pull request ',el('a',{href:ghHref(d.pr.ref,'PR'),target:'_blank',rel:'noopener noreferrer'},d.pr.ref),d.pr.state?' '+String(d.pr.state).toLowerCase():'',': it is merged on GitHub by a person, never from here.'):null;
     const push=AW.ro||!files.length||d.pr?null:el('div',{'data-app-write':''},el('button',{type:'button',class:'app-btn','data-act':'open_pr','aria-disabled':why?'true':null,title:why||'Same as: '+CLI+' handoff pr '+hid,onclick:()=>{if(!why)openPRConfirm(d)}},awIcon('push',13),'Push and open a draft PR'),
-      el('p',{class:'app-why'},why||'Asks first. '+PRODUCT+' pushes the worker’s branch and opens a draft pull request; it never merges. Same as: ',why?null:el('code',{},CLI+' handoff pr '+hid)),
+      el('p',{class:'app-why'},why||'Asks first. '+PRODUCT+' pushes the worker’s branch and opens a draft pull request; it never merges.',why?null:[cliInline()?' Same as: ':null,cliAt(CLI+' handoff pr '+hid)]),
       // #660: a refusal that has a fix (agentd init in the checkout, or the branch's own push) offers it to copy.
       why&&d.may_fix&&why===d.may_why?el('p',{class:'app-why app-fix','data-k':'fix'},'Fix: ',el('code',{},d.may_fix),' ',el('button',{type:'button',class:'app-btn-link','data-act':'copy_fix',onclick:()=>copyCmd(d.may_fix)},'Copy')):null);
     const rows=files.map(f=>{const mark=awMark(f);return el('button',{type:'button',class:'app-crow','data-path':f.path,'data-mark':mark,'data-current':String(f.path===cur),title:f.path,onclick:()=>awOpen({key:'diff:'+f.path,kind:'diff',path:f.path,mark})},
@@ -7234,19 +7293,22 @@ function awDetails(hid,load){const box=awSec('details');
   const draw=c=>{if(AW.hid!==hid)return;const d=c&&c.data;if(c&&c.error&&!d){box.replaceChildren(el('div',{class:'app-empty'},'The details could not be read: '+c.error));return}
     if(!d){box.replaceChildren(el('div',{class:'app-empty'},'Loading the details…'));return}
     const h=awTask(hid),b=d.budget||{},dl=d.delivery||{},cost=d.cost||{},dt=(k,v)=>v===null||v===undefined||v===''?[]:[el('dt',{},k),el('dd',{},v)];
-    const agent=el('section',{class:'app-psec','data-sec':'agent'},el('h4',{},'Agent'),el('dl',{},...dt('Agent',toolName(d.tool)||'none yet'),...dt('Model',d.model?modelName(d.model):''),...dt('Branch',d.branch?el('code',{},d.branch):''),...dt('State',word(d.state))),
-      AW.ro?null:el('div',{style:'margin-top:8px','data-app-write':''},...taskActions(lastDash||{},h).filter(n=>n.dataset&&n.dataset.taskAct==='editor').map(n=>{n.className='app-btn';return n})),el('code',{class:'app-cli'},d.show));
+    // A section's command (the server's line, review M5): a copy icon in its heading, or inline as code where it stood.
+    const inline=cliInline(),h4=(t,cmd,what)=>el('h4',{},t,cmd&&!inline?cliCopy(cmd,what):null),code=(cmd,what)=>cmd&&inline?el('code',{class:'app-cli',title:what||null},cmd):null;
+    const report=dl.report||CLI+' factory report';
+    const agent=el('section',{class:'app-psec','data-sec':'agent'},h4('Agent',d.show),el('dl',{},...dt('Agent',toolName(d.tool)||'none yet'),...dt('Model',d.model?modelName(d.model):''),...dt('Branch',d.branch?el('code',{},d.branch):''),...dt('State',word(d.state))),
+      AW.ro?null:el('div',{style:'margin-top:8px','data-app-write':''},...taskActions(lastDash||{},h).filter(n=>n.dataset&&n.dataset.taskAct==='editor').map(n=>{n.className='app-btn';return n})),code(d.show));
     const pct=Math.max(0,Math.min(1,Number(b.fraction)||0)),money=v=>'$'+Number(v||0).toFixed(2);
-    const budget=b.none?el('section',{class:'app-psec','data-sec':'budget'},el('h4',{},'Cost and budget'),el('dl',{},...dt('Spent',cost.usd!=null?(cost.floor?'≥ ':'')+money(cost.usd):cost.minutes?fmtMin(cost.minutes):'nothing yet')),el('p',{class:'app-note'},b.none),el('code',{class:'app-cli'},b.set)):
-      el('section',{class:'app-psec','data-sec':'budget','data-warn':b.warn?'':null,'data-over':b.over?'':null},el('h4',{},'Cost and budget'),
+    const budget=b.none?el('section',{class:'app-psec','data-sec':'budget'},h4('Cost and budget',b.set,'Set a budget in a terminal'),el('dl',{},...dt('Spent',cost.usd!=null?(cost.floor?'≥ ':'')+money(cost.usd):cost.minutes?fmtMin(cost.minutes):'nothing yet')),el('p',{class:'app-note'},b.none),code(b.set)):
+      el('section',{class:'app-psec','data-sec':'budget','data-warn':b.warn?'':null,'data-over':b.over?'':null},h4('Cost and budget',b.raise,'Raise it in a terminal'),
         el('dl',{},...dt('Spent',cost.usd!=null?(cost.floor?'≥ ':'')+money(cost.usd)+(cost.minutes?' · '+fmtMin(cost.minutes):''):cost.minutes?fmtMin(cost.minutes):'nothing yet'),...dt('Budget',b.cap),...dt('Used',b.used)),
         el('div',{class:'app-meter',role:'meter','aria-label':'Budget used','aria-valuemin':'0','aria-valuemax':'100','aria-valuenow':String(Math.round(pct*100))},el('i',{style:'width:'+Math.round(pct*100)+'%'})),
         b.user_cap?el('p',{class:'app-note','data-k':'budget-user-cap'},'Counted against '+b.user_cap.user+'’s cap of '+money(b.user_cap.cap_usd)+' for all their workers, which binds before this task’s own budget.'):null,
         b.unpriced?el('p',{class:'app-note','data-k':'budget-unpriced'},'Its dollar cap cannot be counted: model '+b.unpriced+' has no price, so the watchdog refuses it.'):null,
         b.running===false?(b.over||b.warn?el('p',{class:'app-note','data-k':'budget-ended'},'The worker is no longer running; its time stopped counting when it ended.'):null):
         b.over?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-over'},'At its cap: the watchdog stops the worker. Raise the '+(b.user_cap?'cap':'budget')+' to go on.'):b.warn?el('p',{class:'app-bwarn',role:'alert','data-k':'budget-warn'},'Past '+Math.round((b.warn_at||0.85)*100)+'% of its budget: the worker has been told to commit its best working state and finish.'):null,
-        b.error?el('p',{class:'app-note'},b.error):null,b.raise?el('code',{class:'app-cli',title:'Raise it from a terminal'},b.raise):null);
-    const delivery=el('section',{class:'app-psec','data-sec':'delivery'},el('h4',{},'Delivery'),el('span',{class:'app-verdict','data-outcome':dl.outcome||''},AW_OUTCOME[dl.outcome]||word(dl.outcome)),el('p',{style:'margin:6px 0 0'},dl.reason||''),el('code',{class:'app-cli'},dl.report||CLI+' factory report'));
+        b.error?el('p',{class:'app-note'},b.error):null,code(b.raise,'Raise it from a terminal'));
+    const delivery=el('section',{class:'app-psec','data-sec':'delivery'},h4('Delivery',report,'Delivery figures in a terminal'),el('span',{class:'app-verdict','data-outcome':dl.outcome||''},AW_OUTCOME[dl.outcome]||word(dl.outcome)),el('p',{style:'margin:6px 0 0'},dl.reason||''),code(report));
     // Approvals its worker decided itself or left to lapse (#948): the same lines handoff wait prints.
     const apr=(d.approval_lines||[]).length?el('section',{class:'app-psec','data-sec':'approvals'},el('h4',{},'Approvals closed without an answer'),...d.approval_lines.map(l=>el('p',{class:'app-note','data-k':'approval-record'},l))):null;
     box.replaceChildren(agent,budget,delivery,...(apr?[apr]:[]))};
