@@ -42,7 +42,7 @@ const change=async value=>{const s=select();s.focus();s.value=value;s.dispatchEv
 (async()=>{
  await settle();assert(!errors.length,errors.join('\n'));
  const link=view().querySelector('a[href="#team/member/alice"]');assert(link,'the user name is not a detail link');link.click();await settle();
- assert(calls.some(c=>c.path==='/api/team'&&c.query==='?member=alice&since=7d'),'detail does not request a period');
+ assert(calls.some(c=>c.path==='/api/team'&&c.query.split('&tz=')[0]==='?member=alice&since=7d'),'detail does not request a period');
  const report=view().querySelector('[data-person-detail="alice"]');assert(report,'no person report');
  assert(doc.getElementById('team-head').textContent.includes('Ledger role: dev'),'role not shown');
  for(const text of ['Finished on their machines','Recorded commits','Pull requests','Worker time','Spend','≥ $1.25','1 attempt has no price.','Handoffs sent or claimed','Permissions','project:acme/app','developer','Nodes and devices','Host: box.lan','Last IP: 192.0.2.5','worker:finish','hof-finished'])assert(report.textContent.includes(text),'report lacks '+text);
