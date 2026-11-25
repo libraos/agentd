@@ -28,7 +28,7 @@
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
   /* layout, radii and type sizes for the shell and the pages built on it.
      --top follows the top bar's real height (set in the shell's script). */
-  --rail-w:68px;--agents-w:264px;--side-w:236px;--top:44px;--bar-h:56px;--r-s:6px;--r-m:10px;--fs-xs:11px;--fs-s:12px;--fs-m:13px;--fs-l:15px;
+  --rail-w:68px;--side-w:236px;--top:44px;--bar-h:56px;--r-s:6px;--r-m:10px;--fs-xs:11px;--fs-s:12px;--fs-m:13px;--fs-l:15px;
   --scrim:rgba(10,10,14,.45);color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -93,17 +93,16 @@ button.stat{background:none;border:0;padding:0;font:inherit;cursor:pointer}butto
 .perm-acts{display:flex;gap:8px;margin-top:10px}.perm-reload{margin:4px 0 0}.tm-rows>.working-table{border:0;border-radius:inherit}.perm-form [data-perm-error]{margin:8px 0 0}.perm-form [data-perm-error][hidden]{display:none}.working-table.perm-table th:nth-child(n){width:auto}
 @media(max-width:860px){.tm-tabs-more{margin-left:0}.perm-field,.perm-field input,.perm-field select{width:100%;min-width:0}.working-table.perm-table table,.working-table.perm-table tbody,.working-table.perm-table tr,.working-table.perm-table td{display:block;width:auto}.working-table.perm-table thead{display:none}.working-table.perm-table tr{border-bottom:1px solid var(--line);padding:6px 0}.working-table.perm-table td{border:0;padding:3px 12px;display:grid;grid-template-columns:84px minmax(0,1fr);gap:8px}.working-table.perm-table td::before{content:attr(data-label);color:var(--mute);font-size:var(--fs-s)}}
 /* end:css-permissions */
-/* region:css-shell: left rail | Agents list | second panel | top bar over the page.
-   On a phone the rail is a bottom bar, and the Agents list and the second panel drawers. */
-.shell{--ag-col:var(--agents-w);flex:1;display:grid;grid-template-columns:var(--rail-w) var(--ag-col) var(--side-w) minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0}
-body.agents-collapsed .shell{--ag-col:0px}
-body.no-panel .shell{grid-template-columns:var(--rail-w) var(--ag-col) minmax(0,1fr)}body.no-panel aside.side{display:none}
+/* region:css-shell: left rail | second panel | top bar over the page.
+   On a phone the rail is a bottom bar and the second panel a drawer. Agents is a rail item and page (#agents), not a column. */
+.shell{flex:1;display:grid;grid-template-columns:var(--rail-w) var(--side-w) minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0}
+body.no-panel .shell{grid-template-columns:var(--rail-w) minmax(0,1fr)}body.no-panel aside.side{display:none}
 .rail{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:10px 6px;background:var(--sunk);border-right:1px solid var(--line);min-height:0;overflow-y:auto}
 .rail-mark{display:grid;place-items:center;width:32px;height:32px;margin:0 auto 10px;border-radius:var(--r-m);background:var(--panel);border:1px solid var(--line);color:var(--fg);font-weight:600;text-decoration:none}.rail-mark:hover{text-decoration:none;background:var(--hover)}
 .brand-mark{display:block;flex:none}.rail-mark .brand-mark{width:22px;height:22px}.app-logo .brand-mark{width:14px;height:14px}.appob-logo .brand-mark{width:20px;height:20px}
 .rail-item,.rail-aux{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 0 5px;border-radius:var(--r-m);color:var(--mute);font-size:var(--fs-xs);line-height:1.2;text-decoration:none}
 .rail-item:hover,.rail-aux:hover{background:var(--hover);color:var(--fg);text-decoration:none}.rail-item[aria-current="page"],.rail-aux[aria-current="page"]{background:var(--sel);color:var(--fg);font-weight:500}.rail-item:focus-visible,.rail-aux:focus-visible{outline-offset:-2px}
-/* Help is the foot's small link beside Settings, not a rail item (#907: at most six, seven for an owner with Triggers) */
+/* Help is the foot's small link beside Settings, not a rail item (#907: at most seven with Agents, eight for an owner with Triggers) */
 .rail-aux{padding:4px 0 3px}
 .rail-icon{position:relative;display:block;height:20px}.rail-icon svg{display:block}
 .rail-badge{position:absolute;top:-6px;left:12px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent-fill);color:var(--accent-ink);font-size:11px;line-height:16px;font-weight:500;text-align:center;font-variant-numeric:tabular-nums}.rail-badge[hidden]{display:none}
@@ -134,42 +133,25 @@ header>.stats{flex:0 1 auto;margin-left:auto;font-size:var(--fs-s)}header>.stats
 /* Settings, Help and Triggers are on the rail on a desktop, so the account menu does not repeat them; the phone's bar has no room for them, so it keeps them */
 @media(min-width:861px){.acct-card .acct-links>a[href="#settings"],.acct-card .acct-links>a[href="#help"],.acct-card .acct-links>a[href="#triggers"]{display:none}}
 /* end:css-shell */
-/* region:css-agents-list: the persistent Agents list (#479): Needs you first, then open
-   tasks by repository; one row is a mark, the title, and agent and state under it.
-   Collapsed it takes no width; on a phone it is a drawer above the bottom bar. */
-aside.agents{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;background:var(--sidebar);border-right:1px solid var(--line)}
-aside.agents:focus{outline:none}
-body.agents-collapsed aside.agents{visibility:hidden;border-right:0}
-.ag-head{display:flex;align-items:center;gap:8px;padding:12px 12px 6px 16px}.ag-head h2{flex:1}.ag-head button{min-height:30px}
-.ag-close{display:none}.ag-head [hidden]{display:none}
-.ag-counts{display:flex;flex-wrap:wrap;gap:4px 10px;padding:0 16px 8px;font-size:var(--fs-s);color:var(--mute)}.ag-counts b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
-.ag-rows{flex:1;overflow-y:auto;min-height:0;padding:0 6px 8px}
+/* region:css-agents-list: the Agents page (#agents; #479's list, now a page of its own): counts and New task,
+   then Needs you, then open tasks by repository; one row is a mark, the title, and agent and state under it. */
+#page-agents{max-width:880px}
+.ag-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}.ag-head h2{flex:1;margin:0}.ag-head button{min-height:30px}
+.ag-counts{display:flex;flex-wrap:wrap;gap:4px 12px;margin:0 0 10px;font-size:var(--fs-s);color:var(--mute)}.ag-counts b{color:var(--fg);font-weight:500;font-variant-numeric:tabular-nums}
+.ag-rows{border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);padding:4px 6px 8px}
 .ag-group{font-size:var(--fs-xs);letter-spacing:.04em;text-transform:uppercase;color:var(--mute);padding:10px 10px 4px;display:flex;justify-content:space-between;gap:6px}.ag-group span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none;letter-spacing:0;font-size:var(--fs-s)}.ag-group.ag-need span:first-child{color:var(--red)}
 .ag-row{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:var(--r-s);color:var(--fg);text-decoration:none;min-width:0}
-.ag-row:hover{background:var(--hover);text-decoration:none}.ag-row[aria-current="page"]{background:var(--sel)}.ag-row:focus-visible{outline-offset:-2px}
+.ag-row:hover{background:var(--hover);text-decoration:none}.ag-row:focus-visible{outline-offset:-2px}
 /* the mark's word stays for a screen reader; the state line under the title says it in words */
 .ag-row .tmark{margin-top:2px;gap:0;font-size:0}.ag-row .tmark .tm-g{font-size:12px}
 .ag-text{display:flex;flex-direction:column;min-width:0;flex:1}
 .ag-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .ag-sub,.ag-act{font-size:var(--fs-s);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ag-act{font-style:italic}
 .ag-rows .empty{padding:10px;color:var(--mute);font-size:var(--fs-s)}
-.ag-add{display:block;padding:10px 16px;border-top:1px solid var(--line);font-size:var(--fs-s)}
-/* Hide is on the list's own header (dash-review REQUIRED 2); the handle (#agents-show) brings the list back:
-   a tab at the content's left edge under the top bar on a desktop, a labelled button in the top bar on a phone. */
-.ag-hide{display:inline-flex;align-items:center;gap:4px;flex:none;background:none;border:0;padding:3px 6px;border-radius:var(--r-s);color:var(--mute);font-size:var(--fs-s);font-weight:400;box-shadow:none;cursor:pointer}.ag-hide:hover{background:var(--hover);color:var(--fg)}
-.agents-show{display:inline-flex;align-items:center;gap:6px;flex:none;color:var(--mute);background:var(--panel);border:1px solid var(--line);font-size:var(--fs-s);font-weight:400;box-shadow:none;cursor:pointer}.agents-show:hover{color:var(--fg);background:var(--hover)}.agents-show[hidden]{display:none}
-.agents-show-n{min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent-fill);color:var(--accent-ink);font-size:11px;line-height:16px;font-weight:500;text-align:center;font-variant-numeric:tabular-nums}.agents-show-n:empty{display:none}
-@media(min-width:861px){body.agents-handle #main{padding-left:48px}.agents-show{position:absolute;left:0;top:calc(100% + 16px);z-index:4;writing-mode:vertical-rl;padding:10px 3px;border-left:0;border-radius:0 var(--r-m) var(--r-m) 0}.agents-show-n,.agents-show-go{writing-mode:horizontal-tb}}
-/* the counts on one line; a notice with no task has a mark where a task row has its own */
-.ag-counts{flex-wrap:nowrap;gap:0 10px;white-space:nowrap;overflow:hidden}.ag-row .ag-mark{flex:none;width:12px;margin-top:1px;text-align:center;font-size:12px;color:var(--mute)}
-.agents-scrim[hidden]{display:none}
-@media(max-width:860px){
-  aside.agents,body.agents-collapsed aside.agents{position:fixed;top:0;left:0;bottom:calc(var(--bar-h) + env(safe-area-inset-bottom));width:min(320px,88vw);z-index:7;border-right:1px solid var(--line);transform:translateX(-105%);visibility:hidden;transition:transform .2s ease,visibility .2s}
-  body.agents-open aside.agents{transform:none;visibility:visible;transition:transform .2s ease,visibility 0s}
-  .agents-scrim{position:fixed;inset:0 0 calc(var(--bar-h) + env(safe-area-inset-bottom)) 0;background:var(--scrim);z-index:6}
-  .ag-close{display:inline-flex}.ag-row{min-height:44px;align-items:center}.ag-add{min-height:44px}
-  .ag-hide{display:none}.agents-show{min-height:44px;padding:0 8px;border:0;background:none;color:var(--fg);border-radius:var(--r-s)}.agents-show-go{display:none}}
-@media(prefers-reduced-motion:reduce){aside.agents{transition:none}}
+.ag-add{display:inline-block;padding:10px 4px;font-size:var(--fs-s)}
+/* a notice with no task has a mark where a task row has its own */
+.ag-row .ag-mark{flex:none;width:12px;margin-top:1px;text-align:center;font-size:12px;color:var(--mute)}
+@media(max-width:860px){.ag-row{min-height:44px;align-items:center}.ag-add{min-height:44px;display:flex;align-items:center}}
 /* end:css-agents-list */
 /* region:css-inbox */
 .ib-board{flex-basis:100%;font-size:var(--fs-s);color:var(--mute);text-decoration:none}.ib-board:hover{color:var(--fg)}
@@ -633,7 +615,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 @media(max-width:640px){.wf-row{grid-template-columns:80px 1fr 52px}.wf-axis{margin:4px 60px 0 88px}.wf-split{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}.wf-steps{border-right:0;border-bottom:1px solid var(--line)}.wf-detail{max-height:38%}}
 @media(max-width:860px){
   body{display:block;height:auto}.shell,body.no-panel .shell{display:block}.column{display:block;padding-bottom:calc(var(--bar-h) + env(safe-area-inset-bottom))}
-  /* the rail is a bottom bar with five items (Overview, Tasks, Team, Insights, Chat); Settings, Triggers (an owner's) and Help are in the account menu */
+  /* the rail is a bottom bar with six items (Overview, Agents, Tasks, Team, Insights, Chat); Settings, Triggers (an owner's) and Help are in the account menu */
   .rail{position:fixed;left:0;right:0;bottom:0;z-index:8;flex-direction:row;gap:0;height:calc(var(--bar-h) + env(safe-area-inset-bottom));padding:4px 4px env(safe-area-inset-bottom);border-right:0;border-top:1px solid var(--line);overflow:visible}
   .rail-item{flex:1 1 0;min-width:0;justify-content:center}.rail-mark,.rail-foot,.rail-item[data-rail="triggers"]{display:none}
   /* the second panel is a drawer above the bar, so the bar stays usable */
@@ -1395,23 +1377,15 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 <nav class="rail" id="rail" aria-label="Server">
   <a class="rail-mark" href="#overview" title="LibraOS Core Server" aria-label="LibraOS Core Server, go to Overview" data-brand-mark></a>
   <a class="rail-item" data-rail="overview" href="#overview"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 14.5a6.5 6.5 0 1 1 13 0"/><path d="m10 14.5 3-4"/><path d="M3.5 16.5h13"/></svg></span><span class="rail-label">Overview</span></a>
+  <a class="rail-item" data-rail="agents" href="#agents"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="6" width="13" height="10" rx="3"/><path d="M10 6V3.5"/><path d="M7.5 10.5v1M12.5 10.5v1"/></svg></span><span class="rail-label">Agents</span></a>
   <a class="rail-item" data-rail="issues" href="#issues"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="13" height="13" rx="3"/><path d="m7 10.2 2.2 2.2L13.2 8"/></svg><span class="rail-badge" id="inbox-badge" hidden></span></span><span class="rail-label">Tasks</span></a>
   <a class="rail-item" data-rail="team" href="#team"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="7.5" cy="7.5" r="2.7"/><path d="M2.8 16c.4-2.8 2.3-4.3 4.7-4.3s4.3 1.5 4.7 4.3"/><path d="M12.6 5.1a2.7 2.7 0 0 1 0 4.8M14.3 11.9c1.6.5 2.6 1.9 2.9 4.1"/></svg></span><span class="rail-label">Team</span></a>
   <a class="rail-item" data-rail="insights" href="#insights"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 16.5h13"/><path d="M6 13.5v-3M10 13.5v-9M14 13.5v-6"/></svg></span><span class="rail-label">Insights</span></a>
-  <a class="rail-item" data-rail="chat" href="#chat"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-3.5 2.8V14a2 2 0 0 1-2-2z"/></svg></span><span class="rail-label">Chat</span></a>
   <a class="rail-item" data-rail="triggers" href="#triggers" data-owner-only hidden><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.2 2.8 4.8 11.2h4.7l-.8 6 6.5-8.4H10.4z"/></svg><span class="rail-badge rail-off" id="triggers-badge" hidden>Off</span></span><span class="rail-label">Triggers</span></a>
+  <a class="rail-item" data-rail="chat" href="#chat"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H9l-3.5 2.8V14a2 2 0 0 1-2-2z"/></svg></span><span class="rail-label">Chat</span></a>
   <div class="rail-foot"><a class="rail-item" data-rail="settings" href="#settings"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6h6.2M13.7 6h2.8M3.5 14h2.8M10.3 14h6.2"/><circle cx="11.7" cy="6" r="2"/><circle cx="8.3" cy="14" r="2"/></svg></span><span class="rail-label">Settings</span></a><a class="rail-aux" data-rail="help" title="Help" href="#help"><span class="rail-icon"><svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="10" r="6.8"/><path d="M8 8a2 2 0 1 1 3.1 1.7c-.7.5-1.1.9-1.1 1.8"/><path d="M10 14h.01"/></svg></span><span class="rail-label">Help</span></a></div>
 </nav>
 <!-- end:rail -->
-<!-- region:agents-list: the persistent Agents list beside the rail (#479); drawn by region:agents-list in the script -->
-<aside class="agents" id="agents-list" aria-labelledby="agents-title" tabindex="-1">
-  <div class="ag-head"><h2 id="agents-title">Agents</h2><button type="button" class="primary" id="agents-new" data-write title="Start a worker on a new task">New task</button><button type="button" class="ag-hide" id="agents-toggle" aria-controls="agents-list" aria-expanded="true" aria-label="Hide the Agents list" title="Hide the Agents list"><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="2"/><path d="M8 3.5v13"/><path d="m13.5 8-2 2 2 2"/></svg><span>Hide</span></button><button type="button" class="ag-close" id="agents-close" aria-label="Close the Agents list">Close</button></div>
-  <div class="ag-counts" id="agents-counts" aria-label="Tasks by state"></div>
-  <nav class="ag-rows" id="agents-rows" aria-label="Tasks that need you, then open tasks by repository"><div class="empty">Loading…</div></nav>
-  <a class="ag-add" id="agents-add" href="#settings/repositories">+ Add a repository</a>
-</aside>
-<div class="agents-scrim" id="agents-scrim" hidden></div>
-<!-- end:agents-list -->
 <div class="panel-scrim" id="panel-scrim" hidden></div>
 <aside class="side" id="side" aria-labelledby="side-title" tabindex="-1">
   <div class="side-head"><h2 id="side-title"></h2><button type="button" class="side-close" id="side-close" aria-label="Close this panel">Close</button></div>
@@ -1450,9 +1424,6 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
 </aside>
 <div class="column" id="column">
 <header>
-  <!-- region:agents-show: the hidden Agents list's handle (dash-review REQUIRED 2): on a desktop a tab at the content's left edge, under the top bar; on a phone the labelled button that opens the drawer. Only on pages with the list (agentsHas). -->
-  <button type="button" class="agents-show" id="agents-show" aria-controls="agents-list" aria-expanded="false" aria-label="Show the Agents list" title="Show the Agents list" hidden><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="3" y="3.5" width="14" height="13" rx="2"/><path d="M8 3.5v13"/></svg><span class="agents-show-label">Agents</span><span class="agents-show-n" id="agents-show-n"></span><span class="agents-show-go" aria-hidden="true">›</span></button>
-  <!-- end:agents-show -->
   <button type="button" class="panel-toggle" id="panel-toggle" aria-controls="side" aria-expanded="false" aria-label="Open this page's panel"><svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13"/></svg></button>
   <h1 id="page-title">Tasks</h1>
   <div class="stats" id="stats"></div>
@@ -1477,6 +1448,14 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <div id="ov-body"><div class="empty">Loading…</div></div>
 </div>
 <!-- end:page-overview -->
+<!-- region:page-agents: Agents (#agents), a rail item and page of its own on the team server; drawn by region:agents-list in the script -->
+<div id="page-agents" class="page" hidden>
+  <div class="ag-head"><h2 id="agents-title">Agents</h2><button type="button" class="primary" id="agents-new" data-write title="Start a worker on a new task">New task</button></div>
+  <div class="ag-counts" id="agents-counts" aria-label="Tasks by state"></div>
+  <nav class="ag-rows" id="agents-rows" aria-label="Tasks that need you, then open tasks by repository"><div class="empty">Loading…</div></nav>
+  <a class="ag-add" id="agents-add" href="#settings/repositories">+ Add a repository</a>
+</div>
+<!-- end:page-agents -->
 <!-- region:page-home: the landing page (libraos/core#850), drawn by region:home -->
 <div id="page-home" class="page" hidden>
   <div class="ib-head"><h2 id="home-title">Work by status</h2><p class="ib-note">The team's tasks from the same list Tasks shows, grouped by where they stand. A row opens its task.</p></div>
@@ -1978,10 +1957,6 @@ function hostOf(id){const s=((lastDash||{}).sessions||[]).find(x=>x.id===id);ret
 //                  being what follows NAME, so #team/builder has rest ['builder']
 //   render(d)      every /api/dash snapshot, whatever page is showing
 //   unlock(route)  the token changed while this page shows
-//   agents   true or false: the Agents list shown on this page by default (see
-//            region:agents-list; default: Inbox, Tasks and Triggers; Chat shows its conversations instead)
-//   agentsSelected(route)  the data-agent-id of the Agents list row this route
-//            shows, when the page shows a task under its own address
 // Its panel is #panel-NAME, its rail link data-rail="NAME" in region:rail, and a
 // link in a panel is a plain <a class="pitem" href="#NAME/VIEW">.
 //   rail     the rail item this page sits under when it has none of its own (#907 step 4:
@@ -2012,11 +1987,11 @@ function showRoute(){const raw=location.hash.slice(1);if(ALIASES[raw])history.re
   const sub=r.view&&def.viewTitle?def.viewTitle[r.view]:def.sub||'';
   $('side-title').textContent=({home:'Filters',inbox:'Filters',issues:'Views and projects',team:'Browse team',chat:'Conversations',insights:'Explore'})[r.item]||def.title;$('page-title').replaceChildren(def.title,...(sub?[el('span',{},' / '+sub)]:[]));document.title=(sub||def.title)+' · LibraOS Core Server';
   if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}
-  $('stats').hidden=r.item==='notfound';agentsApply();if(lastDash)agentsDraw(lastDash);
+  $('stats').hidden=r.item==='notfound';if(r.item==='agents'&&lastDash)agentsDraw(lastDash);
   if(def.enter)def.enter(r);syncDrawerRoute(r)}
 // On a phone the second panel is a drawer: Escape, the scrim or Close shut it, and
 // the page behind is inert while it is open (the bottom bar stays usable).
-function setPanel(open){open=!!(open&&PHONE.matches&&PAGES[ROUTE.item]&&PAGES[ROUTE.item].panel!==false);const body=document.body,was=body.classList.contains('panel-open');if(open===was)return;if(open)agentsDrawer(false);
+function setPanel(open){open=!!(open&&PHONE.matches&&PAGES[ROUTE.item]&&PAGES[ROUTE.item].panel!==false);const body=document.body,was=body.classList.contains('panel-open');if(open===was)return;
   body.classList.toggle('panel-open',open);$('panel-scrim').hidden=!open;$('panel-toggle').setAttribute('aria-expanded',String(open));$('column').inert=open;
   if(open){panelOpener=document.activeElement;$('side').focus();return}
   const a=document.activeElement,back=panelOpener;panelOpener=null;if($('side').contains(a)||a===body)focusBack(back&&back.isConnected?back:$('panel-toggle'))}
@@ -2229,52 +2204,23 @@ $('theme-pick').addEventListener('change',e=>setTheme(e.target.value));
 dashPage('help',{title:'Help',panel:false,enter(){if(!$('help-docs'))$('page-help').append(el('p',{id:'help-docs'},el('a',{href:'https://github.com/libraos/engine#readme',target:'_blank',rel:'noopener noreferrer'},'Documentation ↗'))) }});
 dashPage('notfound',{title:'Page not found',panel:false});
 // end:shell
-// region:agents-list: the persistent Agents list beside the rail (#479). It reads the
-// same /api/dash snapshot as every page, so it refreshes with them (render calls
-// agentsDraw): "Needs you" first (a task whose mark is Needs you or Failed, or with an
-// Inbox row its person can answer), then open tasks grouped by repository, each a row
-// with its mark, title, and agent and state under it. A row is a link to the task's
-// own page (#issues/ID): it opens in the main area with the rail and this list kept,
-// so the address names it and reload and back keep it; that row is marked
-// aria-current. A session working with no task (Team's Working now listed it) is a
-// row of its repository linking to its session page.
-// Shown by default on Inbox, Tasks and Triggers, collapsed elsewhere; Hide (#agents-toggle,
-// on the list's own header) and Show (#agents-show, the handle at the content's edge)
-// are remembered per page in this browser (localStorage dash-agents). The handle is only
-// on pages that have the list (agentsHas): Overview, Team, Settings, Help and the rest
-// have no toggle (dash-review REQUIRED 2). On a phone the list is a drawer, like the
-// second panel, opened from the handle (labelled Agents and its count) and shut by its Close.
-// A page hooks in from its dashPage() without touching this region: agents (shown by
-// default or not) and agentsSelected(route) (which row its route shows). A row is
-// <a class="ag-row" data-agent-id=ID href=...>; agentsSet(true|false) shows or hides
-// the list for the current page, agentsDraw(lastDash) redraws it.
-const AGENTS_PAGES=['inbox','issues','triggers'],AGENTS={open:{},drawer:false,opener:null};
-try{const v=JSON.parse(localStorage.getItem('dash-agents')||'{}');if(v&&typeof v==='object')AGENTS.open=v}catch(e){}
-function agentsShown(item){item=item||ROUTE.item;const v=AGENTS.open[item],def=PAGES[item];return typeof v==='boolean'?v:def&&typeof def.agents==='boolean'?def.agents:AGENTS_PAGES.includes(item)}
-// agentsHas: the page has the list, so it gets the handle: Inbox, Tasks, Triggers, or a page whose dashPage says agents:true.
-function agentsHas(item){item=item||ROUTE.item;const def=PAGES[item];return AGENTS_PAGES.includes(item)||!!def&&def.agents===true}
-function agentsSet(open){if(PHONE.matches){agentsDrawer(open);return}const a=document.activeElement,from=$('agents-list').contains(a)||a===$('agents-show');
-  AGENTS.open[ROUTE.item]=!!open;try{localStorage.setItem('dash-agents',JSON.stringify(AGENTS.open))}catch(e){}agentsApply();if(open&&lastDash)agentsDraw(lastDash);
-  // Focus follows the control that took the place of the one pressed: Hide on the list, or the handle.
-  if(from)focusBack(open?$('agents-toggle'):$('agents-show').hidden?null:$('agents-show'))}
-function agentsApply(){const phone=PHONE.matches,shown=phone?AGENTS.drawer:agentsShown(),t=$('agents-toggle'),s=$('agents-show');
-  document.body.classList.toggle('agents-collapsed',!phone&&!shown);document.body.classList.toggle('agents-open',phone&&AGENTS.drawer);$('agents-scrim').hidden=!(phone&&AGENTS.drawer);$('agents-list').inert=!shown;
-  t.setAttribute('aria-expanded',String(shown));s.setAttribute('aria-expanded',String(shown));s.hidden=!agentsHas()||!phone&&shown;document.body.classList.toggle('agents-handle',!s.hidden&&!phone);
-  s.setAttribute('aria-label',(phone?'Open':'Show')+' the Agents list');s.title=s.getAttribute('aria-label');
-  // Tasks has New task in its own toolbar, so the list's copy is for the other pages and the phone drawer.
-  $('agents-new').hidden=!phone&&ROUTE.item==='issues'}
-// On a phone the list is a drawer over the page, which is inert while it is open.
-function agentsDrawer(open){open=!!(open&&PHONE.matches);if(open===AGENTS.drawer)return;if(open)setPanel(false);AGENTS.drawer=open;$('column').inert=open;agentsApply();
-  if(open){AGENTS.opener=document.activeElement;if(lastDash)agentsDraw(lastDash);$('agents-list').focus();return}
-  const a=document.activeElement,back=AGENTS.opener;AGENTS.opener=null;if($('agents-list').contains(a)||a===document.body)focusBack(back&&back.isConnected&&!back.closest('[hidden]')?back:$('agents-show'))}
-$('agents-toggle').onclick=()=>agentsSet(false);$('agents-show').onclick=()=>agentsSet(true);
-$('agents-close').onclick=()=>agentsDrawer(false);$('agents-scrim').onclick=()=>agentsDrawer(false);
+// region:agents-list: Agents (#agents), a rail item and page of its own on the team server
+// (#479's list beside the rail, which no other page shows now). It reads the same /api/dash
+// snapshot as every page, so it refreshes with them (render calls agentsDraw): counts by
+// state and New task, then "Needs you" (a task whose mark is Needs you or Failed, or with
+// an Inbox row its person can answer), then open tasks grouped by repository, each a row
+// with its mark, title, and agent and state under it, and + Add a repository. A row is a
+// link to the task's own page (#issues/ID), so the address names it and reload and back
+// keep it. A session working with no task (Team's Working now listed it) is a row of its
+// repository linking to its session page. Old addresses that opened the list land here:
+// #agents/... and a saved dash-agents choice that showed it (agentsLegacy). A row is
+// <a class="ag-row" data-agent-id=ID href=...>; agentsDraw(lastDash) redraws the page.
+// agentsLegacy: #agents/ANYTHING (no such address had a meaning) is #agents; the list's old
+// per-page show or hide choice (localStorage dash-agents) has nothing left to say, so it goes.
+function agentsLegacy(r){try{localStorage.removeItem('dash-agents')}catch(e){}if(r&&r.rest&&r.rest.length)history.replaceState(null,'','#agents'+(r.params&&String(r.params)?'?'+r.params:''))}
+agentsLegacy();
+dashPage('agents',{title:'Agents',panel:false,enter(r){agentsLegacy(r);if(lastDash)agentsDraw(lastDash)}});
 $('agents-new').onclick=()=>keysNew();
-$('agents-list').addEventListener('click',e=>{if(PHONE.matches&&e.target.closest('a'))agentsDrawer(false)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&AGENTS.drawer)agentsDrawer(false)});
-PHONE.addEventListener('change',()=>{AGENTS.drawer=false;$('column').inert=false;agentsApply()});
-// agentsSelected: the task or session the route shows, as a row's data-agent-id.
-function agentsSelected(r){r=r||ROUTE;const def=PAGES[r.item];if(def&&def.agentsSelected)return def.agentsSelected(r)||'';if(r.item==='issues')return routeItem(r);if(r.item==='team'){const t=teamTarget(r);return t&&t.kind==='session'?t.name:''}return ''}
 const AGENTS_RANK={needs_you:0,failed:1,working:2,waiting:3,not_started:4,done:5};
 // agentsModel: the rows and counts from one snapshot; the page test reads it too.
 function agentsModel(d){const items=needItems(d),{rows}=items,attention=d.attention_version?attentionModel(d,items):null,
@@ -2296,23 +2242,22 @@ function agentsState(r){if(r.h&&r.h.attention_status==='stale')return 'stale';if
   return r.h?(r.mark==='not_started'?'not started':r.h.state==='blocked'?'waiting for another task':(markOf(r.mark)||{word:word(r.h.state)}).word.toLowerCase()):'working'}
 // hostTag names the member host a mirrored handoff (#848) came from.
 function hostTag(x){return x&&x.origin==='host'&&x.host?el('span',{class:'host-tag',title:'Mirrored from host '+x.host+(x.mirror&&x.mirror.person?' ('+x.mirror.person+')':'')+'; read only here'},'on '+x.host):null}
-function agentsRow(r,sel){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).pop(),sid=r.who||'',act=TEAM.activity&&TEAM.activity[sid],agent=h?toolName(h.worker||toolOf(sid))||(h.state==='offered'?'Unassigned':sessLabel(sid)):toolName(r.session.tool)||'Agent',
+function agentsRow(r){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).pop(),sid=r.who||'',act=TEAM.activity&&TEAM.activity[sid],agent=h?toolName(h.worker||toolOf(sid))||(h.state==='offered'?'Unassigned':sessLabel(sid)):toolName(r.session.tool)||'Agent',
     num=r.issue?(isLinearRef(r.issue)?r.issue.slice(7):'#'+r.issue.split('#')[1]):'',
     sub=[agent,agentsState(r),num,run&&run.minutes!==undefined?fmtMin(run.minutes):'',run&&run.usd!==undefined?'$'+run.usd.toFixed(2):''].filter(Boolean).join(' · '),
     tip=[r.full,[modelName(act&&act.model||run&&run.model||''),r.session&&r.session.user||h&&h.claimer_user||''].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
-  return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,'aria-current':sel?'page':null,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub,h?hostTag(h):null),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
-function agentsDraw(d){if(!d)return;const box=$('agents-rows'),m=agentsModel(d),sel=agentsSelected(),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'',isSel=r=>!!sel&&(r.id===sel||r.issue===sel);
+  return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub,h?hostTag(h):null),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
+function agentsDraw(d){if(!d||APP.on)return;const box=$('agents-rows'),m=agentsModel(d),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'';
   // Tasks, each once: not the Inbox's number (items: approvals, blocked or failed workers and others), nor the board strip's (its view and filters).
   $('agents-counts').replaceChildren(...[[m.counts.need,d.attention_version?'need attention':m.counts.need===1?'task needs you':'tasks need you',d.attention_version?'Each task counts once, even with several Inbox notices.':'Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
   // Inbox notices with no task are their own group, last, each row with a mark like a task's (dash-review A, M).
-  const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...m.need.map(r=>agentsRow(r,isSel(r))));
-  for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...g.rows.map(r=>agentsRow(r,isSel(r))));
+  const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...m.need.map(r=>agentsRow(r)));
+  for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...g.rows.map(r=>agentsRow(r)));
   if(m.standalone.length)kids.push(el('div',{class:'ag-group ag-need','data-ag-inbox':''},el('span',{},'Inbox'),el('span',{},m.standalone.length)),...m.standalone.map(x=>{const a=attentionInboxLink(x);a.classList.add('ag-notice');a.prepend(el('span',{class:'ag-mark','aria-hidden':'true'},'✉'));return a}));
-  $('agents-show-n').textContent=m.counts.need?String(m.counts.need):'';$('agents-show-n').title=m.counts.need?m.counts.need+(d.attention_version?' need attention':m.counts.need===1?' task needs you':' tasks need you'):'';
   box.replaceChildren(...(kids.length?kids:[el('div',{class:'empty'},'No open tasks. Start one with New task.')]));
   if(keep){const n=box.querySelector('[data-agent-id="'+CSS.escape(keep)+'"]');if(n)n.focus({preventScroll:true})}
-  // Latest activity (Team's Working now showed it) for the sessions working on these rows, while the list shows.
-  if((PHONE.matches?AGENTS.drawer:agentsShown())&&Date.now()-TEAM.activityAt>8000&&teamWorking(d).some(w=>w.session))teamLoadActivity(d)}
+  // Latest activity (Team's Working now showed it) for the sessions working on these rows, while the page shows.
+  if(ROUTE.item==='agents'&&Date.now()-TEAM.activityAt>8000&&teamWorking(d).some(w=>w.session))teamLoadActivity(d)}
 // end:agents-list
 /* header: the two counts that change; the rest is under Insights */
 function stats(d){
@@ -3517,9 +3462,7 @@ function inboxDraw(d){
   box.replaceChildren(...(open?list.map(inboxRow):[el('div',{class:'empty'},ROLE==='viewer'?'Nothing is assigned to you. Your account is read-only; owners may have other items waiting.':INBOX_EMPTY[inboxFilter],el('div',{class:'field-hint'},inboxFilter==='needs'?'New approvals and worker updates appear here. Browse Tasks to see all work.':el('a',{href:'#inbox'},'Show all inbox items')))]),...(more?[el('a',{class:'ib-more',href:'#inbox/expired'},more+' expired, kept under Expired')]:[]));
   inboxDetailDraw(d);
   if(id){const n=[...box.querySelectorAll('[data-id]')].find(n=>n.dataset.id===id),target=n&&[...n.querySelectorAll('button,a,summary')].find(c=>c.textContent===name&&!c.disabled);focusBack(target||n&&n.querySelector('button,a,summary'))}}
-// agentsSelected: the Agents list marks the task the open item is about.
-function inboxAgentsSelected(r){const id=r.params.get('item');if(!id||!lastDash)return '';const x=inboxSets(lastDash).needs.concat(inboxSets(lastDash).expired).find(y=>inboxKey(y)===id);return x&&x.handoff||''}
-dashPage('inbox',{title:'Tasks',sub:'Needs me',rail:'issues',panel:false,agentsSelected:inboxAgentsSelected,enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter,item=r.params.get('item')||'';inboxFilter=f;inboxPicked=!!item;const opened=item&&item!==inboxSel;inboxSel=item;if(lastDash){inboxDraw(lastDash);lockState()}
+dashPage('inbox',{title:'Tasks',sub:'Needs me',rail:'issues',panel:false,enter(r){const f=Object.hasOwn(INBOX_NAMES,r.rest[0]||'')?r.rest[0]:'needs',moved=f!==inboxFilter,item=r.params.get('item')||'';inboxFilter=f;inboxPicked=!!item;const opened=item&&item!==inboxSel;inboxSel=item;if(lastDash){inboxDraw(lastDash);lockState()}
   if(opened&&PHONE.matches){const t=$('inbox-detail').querySelector('h3');if(t)focusBack(t)}if(moved){const m=document.querySelector('main');if(m)m.scrollTop=0;if(PHONE.matches)scrollTo(0,0)}},render(d){inboxBadge(d);inboxDraw(d)}});
 // end:inbox
 // region:newtask: the new task sheet's two kinds (Implement, Review a PR), its
@@ -3686,7 +3629,7 @@ function ntEnter(r){const role=(r.params&&r.params.get('role'))||'';for(const n 
   NT.waiting=!lastDash;if(!lastDash){$('page-new').replaceChildren(el('div',{class:'empty'},'Loading…'));return}
   if(NT.busy)return;ntBuild(role);
   if(!TEAM.lists&&!TEAM.ntAsked){TEAM.ntAsked=true;teamLoadLists().then(()=>{if(ROUTE.item==='new'&&TEAM.lists&&(TEAM.lists.roles||[]).length&&!NT.busy){ntDraftSave();ntBuild(role)}})}}
-dashPage('new',{title:'New task',panel:false,agents:true,enter:ntEnter,unlock(r){if(!NT.busy){ntDraftSave();ntEnter(r)}},render(){if(ROUTE.item==='new'&&NT.waiting)ntEnter(ROUTE)},leave(){ntDraftSave();NT.ui=null}});
+dashPage('new',{title:'New task',panel:false,enter:ntEnter,unlock(r){if(!NT.busy){ntDraftSave();ntEnter(r)}},render(){if(ROUTE.item==='new'&&NT.waiting)ntEnter(ROUTE)},leave(){ntDraftSave();NT.ui=null}});
 // end:new
 // region:issues
 function newHandoff(d){$('new-handoff-box').hidden=true}
@@ -4453,7 +4396,7 @@ function homeWorkers(d){const c=d&&d.nodes;if(!c||typeof c!=='object')return nul
     off?el('span',{class:'home-workers-off',role:'status'},(off===1?'A node is':off+' nodes are')+' offline'):null)}
 function homeDraw(){if(APP.on||ROUTE.item!=='home'||!lastDash)return;const box=$('home-body'),a=document.activeElement,keep=a&&box.contains(a)&&a.id?a.id:'';
   box.replaceChildren(...homeView(lastDash,false));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
-dashPage('home',{title:'Home',panel:false,agents:false,enter(r){homeRead(r.params);homeDraw();if(lastDash&&!APP.on)loadIssues()},
+dashPage('home',{title:'Home',panel:false,enter(r){homeRead(r.params);homeDraw();if(lastDash&&!APP.on)loadIssues()},
   render(){if(ROUTE.item!=='home')return;homeDraw();loadIssues()}});
 // appHomePage: the same view as agentd app's Home page (region:app-sidebar's appPage).
 function appHomePage(){const p=$('app-page');if(!p||!APP.on||APPS.page!=='home'||!lastDash)return;const a=document.activeElement,keep=a&&p.contains(a)&&a.id?a.id:'';
@@ -4642,7 +4585,7 @@ function ovView(){const out=[],load=feedFresh(LOAD),run=feedFresh(RUNNING);let h
 function ovDraw(){if(ROUTE.item!=='overview'||APP.on)return;ovRangeSync();const box=$('ov-body'),a=document.activeElement,keep=a&&box.contains(a)?(a.closest('[data-feed-stale],[data-feed-error],[data-ov-range],[data-ov-table],[data-ov-chart]')||{}).dataset:null;
   OV.observers.forEach(ro=>ro.disconnect());OV.observers=[];box.replaceChildren(...ovView());if(keep){const k=keep.feedStale||keep.feedError,n=k?box.querySelector('[data-feed-stale="'+k+'"] button,[data-feed-error="'+k+'"] button'):keep.ovRange?box.querySelector('[data-ov-range="'+keep.ovRange+'"]'):keep.ovTable?box.querySelector('[data-ov-table="'+keep.ovTable+'"] summary'):box.querySelector('[data-ov-chart="'+keep.ovChart+'"] svg');if(n)n.focus({preventScroll:true})}}
 $('ov-body').addEventListener('pointerdown',e=>{for(const tip of $('ov-body').querySelectorAll('.ov-plot .mtip'))if(!tip.parentElement.contains(e.target))tip.hidden=true});
-dashPage('overview',{title:'Overview',panel:false,agents:false,
+dashPage('overview',{title:'Overview',panel:false,
   enter(){clearInterval(OV.timer);OV.timer=setInterval(()=>ovPoll(false),OV_EVERY);ovDraw();ovPoll(true)},
   unlock(){ovPoll(true)},
   render(){if(ROUTE.item!=='overview')return;ovPoll(false);ovDraw()},
@@ -6060,7 +6003,7 @@ function setupRender(){const page=$('setup-body');if(!page)return;
 async function setupLater(){try{SETUP.data=await setupAPI({action:'later'});toast('Set up later: open it again from Help.',true);location.hash='#issues'}catch(e){toast(errorText(e),false)}}
 // Help keeps a way back to it.
 {const help=$('page-help');if(help&&!$('help-setup'))help.querySelector('section')?.before(el('section',{class:'runs',id:'help-setup','aria-label':'Set up this host','data-owner-only':'',hidden:!settingsOwner()},el('div',{class:'colhead'},el('h2',{},'Set up this host')),el('p',{class:'mute'},'The four first-run steps: check this host, connect agents, add a repository, run a first task. ',el('a',{href:'#setup'},'Open setup'))))}
-dashPage('setup',{title:'Set up',panel:false,agents:false,
+dashPage('setup',{title:'Set up',panel:false,
   enter(){SETUP.picked=false;SETUP.data=null;setupRender();if(setupOwner()){setupLoad();setupDoctor()}},
   unlock(){if(setupOwner()){setupLoad();setupDoctor()}else setupRender()},
   // On landing, an owner whose install is not set up is taken to it, once a page load. On a team
@@ -7639,7 +7582,7 @@ function chatProposalNewTask(p){const t=p.task||{},d=lastDash||{},checkouts=[...
   return sheet({title:'New task',description:'Filled in from this conversation. Nothing starts until you press Start worker.',action:'Start worker',pending:'Starting…',fields,content:note,setup:ui=>{if(typeof depsNote==='function'&&ui.inputs.cwd&&ui.inputs.tool)depsNote(ui,t.check||'')},
     onSubmit:async v=>{if(seq!==CHAT.authSeq)throw new Error('Your sign-in changed. Close this sheet and review the task again.');const edits={goal:v.goal,accept:v.accept,check:v.check,state:v.state,budget:v.budget,cwd:v.cwd};if(!t.role)edits.worker=v.tool;await chatProposalAction(id,p,'confirm',edits);toast('Worker requested: '+v.goal,true)}})}
 function chatRouted(r){let want='';try{want=decodeURIComponent(r.rest[0]||'')}catch(e){want=r.rest[0]}return want}
-dashPage('chat',{title:'Chat',agents:false,leave(){chatVoiceCancel()},render(){if(ROUTE.item==='chat'){chatComposerState();chatRenderCards()}},enter(r){const want=chatRouted(r);if(r.params&&r.params.get('role')&&!CHAT.id){CHAT.draft=r.params.get('role');CHAT.chat={role:CHAT.draft,title:'New conversation'}}chatRenderThread();chatHint();chatLoad();if(want){if(!(CHAT.live&&CHAT.id===want))chatOpen(want,CHAT.id===want);return}if(CHAT.id)history.replaceState(null,'','#chat/'+encodeURIComponent(CHAT.id));else if(CHAT.missing){CHAT.missing=false;chatRenderThread()}},unlock(r){chatLoad();const want=chatRouted(r)||CHAT.id;if(want)chatOpen(want,true)}});
+dashPage('chat',{title:'Chat',leave(){chatVoiceCancel()},render(){if(ROUTE.item==='chat'){chatComposerState();chatRenderCards()}},enter(r){const want=chatRouted(r);if(r.params&&r.params.get('role')&&!CHAT.id){CHAT.draft=r.params.get('role');CHAT.chat={role:CHAT.draft,title:'New conversation'}}chatRenderThread();chatHint();chatLoad();if(want){if(!(CHAT.live&&CHAT.id===want))chatOpen(want,CHAT.id===want);return}if(CHAT.id)history.replaceState(null,'','#chat/'+encodeURIComponent(CHAT.id));else if(CHAT.missing){CHAT.missing=false;chatRenderThread()}},unlock(r){chatLoad();const want=chatRouted(r)||CHAT.id;if(want)chatOpen(want,true)}});
 // end:chat
 // region:install: an installed dash's window bar follows the page's theme (#465). The
 // two theme-color tags in region:install-head follow the system; a theme chosen in

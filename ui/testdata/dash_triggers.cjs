@@ -51,12 +51,12 @@ const button=(root,text)=>[...root.querySelectorAll('button')].find(b=>b.textCon
  await settle();assert(!errors.length,errors.join('\n'));
  // Settings links to it.
  assert(doc.querySelector('#set-triggers a[href="#triggers"]'),'Settings has no link to Triggers');
- // An owner's rail item: a link with an icon and a label, before Settings, not current yet, no badge
+ // An owner's rail item: a link with an icon and a label, just above Chat, not current yet, no badge
  // before the page has read anything (no request is made for it).
  const railTrig=()=>doc.querySelector('#rail [data-rail="triggers"]'),badge=()=>doc.getElementById('triggers-badge'),acctTrig=()=>doc.querySelector('#account .acct-links a[href="#triggers"]');
  assert(railTrig()&&!railTrig().hidden,'an owner has no Triggers rail item');assert.equal(railTrig().tagName,'A');assert.equal(railTrig().getAttribute('href'),'#triggers');
  assert.equal(railTrig().querySelector('.rail-label').textContent,'Triggers');assert(railTrig().querySelector('.rail-icon svg[aria-hidden="true"]'),'the rail item has no icon');
- assert.equal(railTrig().nextElementSibling.className,'rail-foot','Triggers is not just before Settings');assert(!railTrig().hasAttribute('aria-current'));
+ assert.equal(railTrig().nextElementSibling.dataset.rail,'chat','Triggers is not just above Chat');assert(!railTrig().hasAttribute('aria-current'));
  assert(badge().hidden,'the Off badge shows before anything was read');assert.equal(triggerGets.length,0,'the rail read /api/triggers');
  assert(acctTrig()&&!acctTrig().hidden,'an owner has no Triggers in the account menu');
  // On, and cannot fire: the CLI's settings, reason and latest offers. Opened from the rail.
