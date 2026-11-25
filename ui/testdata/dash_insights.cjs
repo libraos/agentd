@@ -102,7 +102,7 @@ const cells=sel=>[...doc.querySelectorAll(sel+' tbody tr')].map(r=>[...r.cells].
  assert.equal(doc.getElementById('ins-causes-n').textContent,'2 of 5 tasks not delivered');
  assert.equal(doc.querySelectorAll('#ins-causes tbody .itip').length,11,'a cause has no explanation');assert(doc.querySelector('#ins-causes-tip .itip').dataset.tip.includes('fixed list'),'the table has no explanation');
  assert(doc.querySelector('#ins-causes tr.ins-unclassified .itip').dataset.tip.includes('Nobody named a cause'));
- const causeNote=doc.querySelector('#ins-causes .mute').textContent;assert(causeNote.includes('Set 1 by agentd.')&&causeNote.includes('1 of the unclassified finished with no check.')&&causeNote.includes('Delivered by hand: 0 of 5, not counted in the delivery rate.'),causeNote);
+ const causeNote=doc.querySelector('#ins-causes .mute').textContent;assert(causeNote.includes('Set 1 by LibraOS Engine.')&&causeNote.includes('1 of the unclassified finished with no check.')&&causeNote.includes('Delivered by hand: 0 of 5, not counted in the delivery rate.'),causeNote);
  // By agent and model; what was not recorded is "not measured" or a floor.
  assert.deepEqual([...doc.querySelectorAll('#ins-agents thead th')].map(c=>c.textContent),['Agent','Model','Tasks','Accepted','First pass','Median minutes','Tokens','Spend']);
  assert.equal(doc.querySelectorAll('#ins-agents thead .itip').length,1,'First pass has no explanation');

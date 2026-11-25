@@ -2,7 +2,7 @@
   "name": "agentd-dash",
   "version": "0.1.4",
   "private": true,
-  "description": "The agentd dashboard: one HTML document, no build step.",
+  "description": "The LibraOS Engine dashboard: one HTML document, no build step.",
   "license": "SEE LICENSE IN LICENSE",
   "scripts": { "test": "node test.cjs" },
   "devDependencies": { "jsdom": "30.1.2" }
