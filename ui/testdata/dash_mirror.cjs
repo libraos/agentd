@@ -126,7 +126,7 @@ const evalJS=s=>w.eval(s);
  dialog=doc.querySelector('dialog.sheet[open]');dialog.querySelector('textarea').value='Fixture retirement reason';
  dialog.querySelector('form').dispatchEvent(new w.Event('submit',{bubbles:true,cancelable:true}));await settle();
  assert.deepEqual(actions,[{action:'cancel',id:old.id,reason:'Fixture retirement reason'}]);
- dash={...dash,mode:'app'};await show('#home');evalJS("appPage('home')");equalNumber('[data-home-count="needs"]',3);
+ dash={...dash,mode:'app'};await show('#home');evalJS("HOME.by='';appPage('home')");equalNumber('[data-home-count="needs"]',3);
  evalJS("appPage('tasks')");assert(fold('#app-page','stale')&&!fold('#app-page','stale').open);assert(fold('#app-page','owner:fixture-other-person'));
  assert.deepEqual(errors,[]);
  console.log('dash_mirror: ok');process.exit(0)

@@ -56,15 +56,15 @@ const openLeft=async()=>{if(phone&&!body.classList.contains('app-left-open')){do
  assert.deepEqual(under('acme/web').sort(),['hof-d1','hof-n1','hof-w1'],'acme/web: '+under('acme/web'));
  assert.deepEqual(under('Other people’s').sort(),['hof-b1','hof-b2','hof-bd'],'others: '+under('Other people’s'));
  assert(/Read only/.test(box().querySelector('.app-repo[data-repo="others"]').textContent),'the others group does not say read only');
- // A row: dot, title, the branch on the second line, the spend; the title stays text.
+ // A row: dot, title, its state word (the one vocabulary, region:marks) and branch on the second line, the spend; the title stays text.
  const w1=row('hof-w1');assert.equal(w1.querySelector('.app-ttitle').textContent,'Task hof-w1');
- assert.equal(w1.querySelector('.app-tmeta').textContent,'agentd/hof-w1','branch line: '+w1.querySelector('.app-tmeta').textContent);
+ assert.equal(w1.querySelector('.app-tmeta').textContent,'Working · agentd/hof-w1','state and branch line: '+w1.querySelector('.app-tmeta').textContent);
  assert.equal(w1.querySelector('.app-tspend').textContent,'$0.75','spend sums the attempts');
  assert.equal(row('hof-d1').querySelector('.app-tspend').textContent,'$2.00');
  assert(!row('hof-o1').querySelector('.app-tspend'),'a task with no spend shows one');
  assert.equal(row('hof-n1').querySelector('.app-ttitle').textContent,'Fix login '+evil);assert(!box().querySelector('img'),'a title became markup');
  // Others' rows say whose they are, and read only.
- const b1=row('hof-b1');assert(b1.hasAttribute('data-readonly')&&/bob · agentd\/hof-b1/.test(b1.textContent)&&/Read only/.test(b1.textContent),'others row: '+b1.textContent);
+ const b1=row('hof-b1');assert(b1.hasAttribute('data-readonly')&&/bob · Working · agentd\/hof-b1/.test(b1.textContent)&&/Read only/.test(b1.textContent),'others row: '+b1.textContent);
  assert(!w1.hasAttribute('data-readonly')&&!/Read only/.test(w1.textContent),'my row reads as read only');
  // Status dots, one per state, as the reference app's: working, needs you (with its question mark), failed, waiting, not started, done.
  const dot=id=>row(id).querySelector('.app-dot');
