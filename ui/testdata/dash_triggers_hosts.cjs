@@ -4,7 +4,7 @@
 // mirrored task page, held back with the reason, an error) and its triage. A host on an older release that sends
 // no activity says so. A host's section has no control: edit and pause stay for this server's own [triggers].
 // An owner sees every host; a person who is not an owner, on a team server (host_triggers), opens Triggers and
-// sees only their own person's hosts (scope own), with nothing of the server's own settings and no control. Host
+// sees only their own user's devices (scope own), with nothing of the server's own settings and no control. Host
 // text is shown as text, never markup. Fixture names are neutral. Runs in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_triggers_hosts.cjs dash.html
 const fs=require('fs'),assert=require('assert');
@@ -46,7 +46,7 @@ const noJunk=()=>{const t=$('page-triggers').textContent;assert(!/undefined|NaN|
  await open();
  const secs=[...body().querySelectorAll('[data-trig=hosts] section.trig-host')];
  assert.deepEqual(secs.map(s=>s.dataset.host),['alice-desk','bob-laptop','carol-box']);
- for(const s of secs){const h=s.querySelector('h4.trig-host-head');assert(h,'a host section has no title');assert.equal(s.getAttribute('aria-label'),'Host '+s.dataset.host)}
+ for(const s of secs){const h=s.querySelector('h4.trig-host-head');assert(h,'a device section has no title');assert.equal(s.getAttribute('aria-label'),'Device '+s.dataset.host)}
  {const h=host('alice-desk').querySelector('h4');assert.equal(h.querySelector('b').textContent,'alice-desk');assert(/alice/.test(h.textContent));assert(/Last contact 1 min ago/.test(h.querySelector('[data-host-seen]').textContent),'title: '+h.textContent)}
  // Its settings line stays, then what it processed, newest first.
  assert(host('alice-desk').querySelector('dl'),'the settings went');
@@ -75,13 +75,13 @@ const noJunk=()=>{const t=$('page-triggers').textContent;assert(!/undefined|NaN|
  const rail=doc.querySelector('#rail [data-rail="triggers"]');assert(!rail.hidden,'no Triggers in the rail for a person with hosts on a team server');
  assert(!doc.querySelector('#account .acct-links a[href="#triggers"]').hidden,'no Triggers in the account menu');
  await open();assert.equal(gets.at(-1),'bob','the page did not read /api/triggers');
- assert.equal($('trig-meta').textContent,'Your hosts');assert($('trig-intro').hidden,'the owner intro shows');
+ assert.equal($('trig-meta').textContent,'Your devices');assert($('trig-intro').hidden,'the owner intro shows');
  assert.deepEqual([...body().querySelectorAll('[data-host]')].map(n=>n.dataset.host),['bob-laptop']);
- assert(/An owner sees every host/.test(q('[data-trig=own-scope]').textContent));
+ assert(/An owner sees every device/.test(q('[data-trig=own-scope]').textContent));
  for(const sel of ['[data-trig=state]','[data-trig=settings]','[data-trig=templates]','[data-trig=offers]','[data-trig=improve]','[data-trig=signals]','[data-trig=owner-only]'])assert(!q(sel),'a non-owner sees '+sel);
  assert(!body().querySelector('button,input,select,textarea,form,[data-write]'),'a non-owner has a control');noControl('bob-laptop');
  // With none of their own: a line, not an owner-only refusal.
- answer={scope:'own',nodes:[]};await open();assert.equal(q('[data-trig=no-hosts]').textContent,'None of your hosts has reported to this server.');
+ answer={scope:'own',nodes:[]};await open();assert.equal(q('[data-trig=no-hosts]').textContent,'None of your devices has reported to this server.');
  noJunk();
  // Not on a team server (no host_triggers): the page stays an owner's, as before.
  dash={...dash,host_triggers:false};w.eval('refresh()');await settle();assert(rail.hidden,'Triggers in the rail away from a team server');

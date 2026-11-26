@@ -1507,7 +1507,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
   <span id="now">Loading…</span>
   <details class="row-more account" id="account"><summary aria-label="Account and settings" title="Account"><span id="account-name">Account</span></summary><div class="menu-items acct-card">
     <div class="tokenbox acct-who"><span id="userstate"></span><span id="tokstate">Read-only</span><button id="tokset" class="primary">Unlock</button></div>
-    <div class="tokenbox" id="account-nodes" aria-label="Your hosts" hidden></div>
+    <div class="tokenbox" id="account-nodes" aria-label="Your nodes" hidden></div>
     <div class="stats" id="account-stats"></div>
     <div class="acct-links"><a href="#settings">Settings</a><a href="#triggers" data-trig-link hidden>Triggers</a><a href="#help">Help</a><button type="button" id="keys-open" aria-keyshortcuts="Shift+?">Keyboard shortcuts</button></div>
     <div class="acct-foot"><button id="tokclear" hidden>Sign out</button></div>
@@ -1704,7 +1704,7 @@ body.panel-mode #appwatchdog,body.panel-mode #dashrestart{display:none}
     <dl>
       <dt><a href="#overview">Overview</a></dt><dd>Where the server opens: how loaded the server, its tasks and its agents are, every task running now, and what needs a person.</dd>
       <dt><a href="#issues">Tasks</a></dt><dd><span>The board of work, and the New handoff form when dispatch is on. <a href="#inbox">Needs me</a> (the Inbox) is there too: approvals, blocked and failed workers waiting on you.</span></dd>
-      <dt><a href="#team">Team</a></dt><dd>Users (an owner invites, resets and disables them there), Permissions (who has which role where; an owner or admin changes them with their password), Hosts and devices, and Activity.</dd>
+      <dt><a href="#team">Team</a></dt><dd>Users (an owner invites, resets and disables them there), Permissions (who has which role where; an owner or admin changes them with their password), Nodes and devices, and Activity.</dd>
       <dt><a href="#insights">Insights</a></dt><dd>Success, Cost, Usage, Metrics, History and Worker usage as tabs, with the period and Whose work under them; each says what it covers.</dd>
       <dt><a href="#chat">Chat</a></dt><dd>Conversations with a role.</dd>
       <dt><a href="#settings">Settings</a></dt><dd>Server (agents, models, workers, connections, repositories, roles, sessions on this host<span data-owner-only> and Triggers</span>), Access, and your Personal settings.</dd>
@@ -2506,14 +2506,14 @@ function deviceRevokeButton(v){const name=v.label||v.id;
   return el('button',{type:'button','data-write':true,'data-device-action':'revoke',onclick:()=>nodeAct({title:'Revoke '+name+'?',
       description:'Device '+v.id+(v.person?' of '+v.person:'')+(v.worker?' (worker '+v.worker+')':'')+' is refused from its next request and its open connections close. It cannot be undone: the device enrolls again with a new ticket. The same as '+CLI+' server devices revoke '+v.id+'; recorded in the audit log.',
       action:'Revoke'},'device:'+v.id,{action:'device_revoke',device:v.id},name+' revoked')},'Revoke')}
-function queueRow(q){return el('div',{class:'tm-row','data-queue':q.id},el('span',{class:'dot stale',title:'waiting for a host'}),
+function queueRow(q){return el('div',{class:'tm-row','data-queue':q.id},el('span',{class:'dot stale',title:'waiting for a node'}),
     el('div',{class:'tm-main'},el('b',{},q.goal||q.id),el('span',{class:'tm-why'},[q.id,q.project,q.worker,q.stage].filter(Boolean).join(' · ')),
       el('span',{class:'tm-why','data-queue-reason':''},q.queue_reason||'awaiting eligible worker poll')),
     el('span',{class:'tm-fig',title:q.created||''},q.waiting?'waiting '+q.waiting:''))}
 function queueSection(){feedFresh(QUEUE);if(QUEUE.missing||!QUEUE.data&&!QUEUE.err)return [];
-  const list=QUEUE.data||[],body=QUEUE.err&&!QUEUE.data?[el('div',{class:'state error',role:'alert'},'Could not load the queue: '+QUEUE.err)]:list.length?list.map(queueRow):[el('div',{class:'empty'},'Nothing is waiting for a host.')];
+  const list=QUEUE.data||[],body=QUEUE.err&&!QUEUE.data?[el('div',{class:'state error',role:'alert'},'Could not load the queue: '+QUEUE.err)]:list.length?list.map(queueRow):[el('div',{class:'empty'},'Nothing is waiting for a node.')];
   const st=feedStale(QUEUE,'queue',queueLoad);
-  return [el('section',{'data-queue-group':''},...teamSec('Waiting for a host',list.length,[...(st?[st]:[]),...body]))]}
+  return [el('section',{'data-queue-group':''},...teamSec('Waiting for a node',list.length,[...(st?[st]:[]),...body]))]}
 function nodesPoll(){feedFresh(NODES);feedFresh(DEVICES);if(nodesTabShown()&&Date.now()-QUEUE.at>8000)queueLoad();if((USER||nodesTabShown())&&Date.now()-NODES.at>8000)nodesLoad();if((nodesTabShown()||teamUsersShown())&&Date.now()-DEVICES.at>8000)devicesLoad();nodesAccount()}
 // nodeState: one word for a node, the first that holds: drained, offline, not
 // accepting server work, busy, not ready (cannot commit), idle.
@@ -2524,11 +2524,11 @@ function nodeState(n){const word=n.drained?'drained':n.offline?'offline':n.accep
 // with no version (an older worker reports none) is never marked.
 function releaseParts(v){const m=/^v?(\d+)\.(\d+)\.(\d+)/.exec(typeof v==='string'?v.trim():'');return m?m.slice(1).map(Number):null}
 function nodeOlder(n,server){const a=releaseParts(n&&n.version),b=releaseParts(server);if(!a||!b)return false;for(let i=0;i<3;i++)if(a[i]!==b[i])return a[i]<b[i];return false}
-function nodeLoad(n){return el('span',{class:'tm-fig',title:'Server leases running of its capacity (--max)'+(n.local_workers?'; '+n.local_workers+' started on the host itself':'')},(n.leases||0)+'/'+(n.capacity||1))}
+function nodeLoad(n){return el('span',{class:'tm-fig',title:'Server leases running of its capacity (--max)'+(n.local_workers?'; '+n.local_workers+' started on the node itself':'')},(n.leases||0)+'/'+(n.capacity||1))}
 function nodesAccount(){const box=$('account-nodes');if(!box)return;box.hidden=!USER;if(!USER){box.replaceChildren();return}
   const mine=(NODES.data||[]).filter(n=>n.person===USER).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
-  box.replaceChildren(el('b',{},'Your hosts'),...(feedIsStale(NODES)?[el('span',{class:'mute','data-feed-stale':'account-nodes',title:NODES.err},'Couldn\u2019t refresh · last updated '+fmtTime(NODES.okAt,'time',true))]:[]),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Hosts could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
-    return el('a',{href:'#team/nodes','data-node':n.name,title:s.why||s.word,onclick:()=>{$('account').open=false}},el('span',{class:'dot '+s.dot}),' ',n.name,el('span',{class:'tm-why'},s.word+' · '+(n.leases||0)+'/'+(n.capacity||1)))}):[el('span',{class:'mute'},NODES.data?'No hosts yet':'Loading…')]))}
+  box.replaceChildren(el('b',{},'Your nodes'),...(feedIsStale(NODES)?[el('span',{class:'mute','data-feed-stale':'account-nodes',title:NODES.err},'Couldn\u2019t refresh · last updated '+fmtTime(NODES.okAt,'time',true))]:[]),...(NODES.err&&!NODES.data?[el('span',{class:'mute'},'Nodes could not load.')]:mine.length?mine.map(n=>{const s=nodeState(n);
+    return el('a',{href:'#team/nodes','data-node':n.name,title:s.why||s.word,onclick:()=>{$('account').open=false}},el('span',{class:'dot '+s.dot}),' ',n.name,el('span',{class:'tm-why'},s.word+' · '+(n.leases||0)+'/'+(n.capacity||1)))}):[el('span',{class:'mute'},NODES.data?'No nodes yet':'Loading…')]))}
 function termCmd(label,cmd){return el('span',{class:'tm-why tm-cmd'},label+' at the server: ',el('code',{},cmd))}
 function nodeAddress(n){return el('span',{class:'tm-why node-address'},'Host: '+(n.host||'not reported'),ROLE==='owner'&&USER?' · Last IP: '+(n.last_ip||'not recorded'):null)}
 // A matching worker identity and person bind a device beneath its node. Host
@@ -2544,8 +2544,8 @@ function nodeRow(n){const s=nodeState(n),about=[n.kind,(n.tools||[]).join(', '),
       n.drained&&n.leases?el('span',{class:'tm-why','data-draining':''},'draining: '+n.leases+' lease'+(n.leases>1?'s':'')+' still running'):null,
       nodeManage()?null:termCmd(n.drained?'Undrain':'Drain',CLI+' server workers '+(n.drained?'undrain ':'drain ')+n.name)),
     el('span',{class:'tm-figs'},el('span',{class:'tm-fig'},s.word,s.why?el('span',{class:'tm-why'},s.why):null),nodeLoad(n),
-    el('span',{class:'tm-fig','data-node-version':ver||null,title:ver?'The release this host\'s '+PRODUCT+' worker reports'+(NODES.serverVersion?'; the server runs '+NODES.serverVersion:''):'This host\'s worker reports no release (an older '+PRODUCT+')'},ver||'release unknown',
-      older?el('span',{class:'tm-flag','data-older':'',title:'Older than the server\'s '+NODES.serverVersion+': upgrade '+PRODUCT+' on this host ('+CLI+' upgrade)'},' older release'):null),
+    el('span',{class:'tm-fig','data-node-version':ver||null,title:ver?'The release this node\'s '+PRODUCT+' worker reports'+(NODES.serverVersion?'; the server runs '+NODES.serverVersion:''):'This node\'s worker reports no release (an older '+PRODUCT+')'},ver||'release unknown',
+      older?el('span',{class:'tm-flag','data-older':'',title:'Older than the server\'s '+NODES.serverVersion+': upgrade '+PRODUCT+' on this node ('+CLI+' upgrade)'},' older release'):null),
     el('span',{class:'tm-fig',title:n.seen||''},n.seen_ago?'seen '+n.seen_ago+' ago':'never seen',n.mirrored?el('span',{class:'tm-why',title:n.mirrored},'mirrored '+whenText(n.mirrored)):null)),
     el('span',{class:'tm-act'},nodeManage()?nodeDrainButton(n):null))}
 function deviceRow(v){const revoked=v.state==='revoked',seen=v.last_seen?whenText(v.last_seen):'',made=v.created?whenText(v.created):'';
@@ -2555,21 +2555,21 @@ function deviceRow(v){const revoked=v.state==='revoked',seen=v.last_seen?whenTex
     el('span',{class:'tm-figs'},el('span',{class:'tm-fig'},revoked?'revoked':'active',revoked&&(v.revoked||v.revoked_by)?el('span',{class:'tm-why',title:v.revoked||''},[v.revoked?whenText(v.revoked):'',v.revoked_by?'by '+v.revoked_by:''].filter(Boolean).join(' ')):null),
     el('span',{class:'tm-fig tm-fig-blank'}),el('span',{class:'tm-fig',title:v.created||''},made?'created '+made:'created at an unknown time'),
     el('span',{class:'tm-fig',title:v.last_seen||''},seen?'seen '+seen:'never seen')),el('span',{class:'tm-act'},!revoked&&nodeManage()?deviceRevokeButton(v):null))}
-function nodesBody(){feedFresh(NODES);feedFresh(DEVICES);if(!NODES.at)nodesLoad();if(!DEVICES.at)devicesLoad();if(!QUEUE.at)queueLoad();if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load hosts: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
+function nodesBody(){feedFresh(NODES);feedFresh(DEVICES);if(!NODES.at)nodesLoad();if(!DEVICES.at)devicesLoad();if(!QUEUE.at)queueLoad();if(NODES.err&&!NODES.data)return [el('div',{class:'state error',role:'alert'},'Could not load nodes: '+NODES.err)];if(!NODES.data)return [el('div',{class:'state'},'Loading…')];
   const who=x=>x.person===null||x.person===undefined||x.person===''?'':String(x.person),groups=new Map(),add=(p,k,x)=>{if(!groups.has(p))groups.set(p,{nodes:[],devices:[]});groups.get(p)[k].push(x)};
   const devices=DEVICES.data||[];for(const n of NODES.data)add(who(n),'nodes',n);for(const v of devices)add(who(v),'devices',v);
   const byName=(a,b)=>String(a.name).localeCompare(String(b.name)),active=(a,b)=>(a.state==='revoked')-(b.state==='revoked');
   const sec=(key,label,g)=>el('section',{'data-node-group':key},...teamSec(label,nodeDeviceCount(g.nodes,g.devices),nodeDeviceCards(g.nodes,g.devices)));
-  const out=[el('p',{class:'mute tm-intro'},'Machines and enrolled devices, grouped by person. A worker host and its enrolled device share one card; Server is dedicated workers an owner enrolled. '+(nodeManage()?'As an owner you drain a host and revoke a device here; each is recorded in the audit log.':'Draining and revoking are an owner\'s: each row shows the command for the server\'s terminal.')+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':'')),
-    el('p',{class:'mute tm-intro','data-enroll-note':''},'Add a host at a person\'s own terminal, not here: ',el('code',{},CLI+' server enroll --worker NAME'),' on the server, then ',el('code',{},CLI+' worker --server URL --ticket'),' on the host; a person joins with ',el('code',{},CLI+' join LINK'),'.'),...queueSection()];
+  const out=[el('p',{class:'mute tm-intro'},'Machines and enrolled devices, grouped by person. A worker node and its enrolled device share one card; Server is dedicated workers an owner enrolled. '+(nodeManage()?'As an owner you drain a node and revoke a device here; each is recorded in the audit log.':'Draining and revoking are an owner\'s: each row shows the command for the server\'s terminal.')+(NODES.serverVersion?' This server runs '+NODES.serverVersion+'.':'')),
+    el('p',{class:'mute tm-intro','data-enroll-note':''},'Add a node at a person\'s own terminal, not here: ',el('code',{},CLI+' server enroll --worker NAME'),' on the server, then ',el('code',{},CLI+' worker --server URL --ticket'),' on the node; a person joins with ',el('code',{},CLI+' join LINK'),'.'),...queueSection()];
   for(const c of NODES.copies||[])out.push(el('p',{class:'state error tm-intro',role:'alert','data-mirror-copy':String(c.person)+'/'+String(c.node)},String(c.warning||'')));
   const ns=feedStale(NODES,'nodes',()=>{nodesLoad();devicesLoad()});if(ns)out.push(ns);
-  if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'You see every host, and only your own devices; an owner sees everyone\'s devices and manages hosts.'));
+  if(DEVICES.scope==='own')out.push(el('p',{class:'mute tm-intro','data-devices-note':'own'},'You see every node, and only your own devices; an owner sees everyone\'s devices and manages nodes.'));
   if(feedIsStale(DEVICES)){const n=feedStale(DEVICES,'devices',devicesLoad);n.dataset.devicesNote='error';out.push(n)}
   else if(DEVICES.err)out.push(el('p',{class:'mute tm-intro','data-devices-note':'error',role:'alert'},'Devices could not load: '+DEVICES.err));
   else if(DEVICES.missing)out.push(el('p',{class:'mute tm-intro','data-devices-note':'missing'},'This server does not list devices (an older '+PRODUCT+'); '+CLI+' server devices does, at its terminal.'));
   for(const p of [...groups.keys()].filter(Boolean).sort())out.push(sec(p,p,groups.get(p)));if(groups.has(''))out.push(sec('Server','Server',groups.get('')));
-  if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No hosts. A host registers when '+CLI+' worker starts against this server.'));return out}
+  if(!NODES.data.length&&!devices.length)out.push(el('div',{class:'empty'},'No nodes. A node registers when '+CLI+' worker starts against this server.'));return out}
 // end:nodes
 // region:presence
 /* Who is on what (libraos/core#849), read only, from GET /api/presence: every
@@ -2687,7 +2687,7 @@ function teamOn(){return ROUTE.item==='team'||ROUTE.item==='settings'&&!!SET_TEA
 function teamUsersShown(){return ROUTE.item==='team'&&!teamTarget()&&teamTab()==='users'&&!APP.on}
 function teamTabs(){const l=TEAM.lists,tab=teamTab(),n=v=>v===undefined||v===null?'':String(v),link=([k,name,c])=>el('a',{href:'#team/'+k,'data-tk':'tab-'+k,'data-tab':k,'aria-current':tab===k?'page':null},name,n(c)!==''?el('span',{class:'n'},n(c)):null);
   $('team-tabs').hidden=ROUTE.item==='settings';if(ROUTE.item==='settings'){$('team-tabs').replaceChildren();if(tab==='repositories'&&!REPOS.data&&!REPOS.err&&reposStale())reposLoad();return}
-  const tabs=[['users','Users',l?teamUserList().length:''],['permissions','Permissions',''],['nodes','Hosts and devices',NODES.data?nodeDeviceCount(NODES.data,DEVICES.data||[]):''],['activity','Activity',PRESENCE.data?PRESENCE.data.sessions.length:'']];
+  const tabs=[['users','Users',l?teamUserList().length:''],['permissions','Permissions',''],['nodes','Nodes and devices',NODES.data?nodeDeviceCount(NODES.data,DEVICES.data||[]):''],['activity','Activity',PRESENCE.data?PRESENCE.data.sessions.length:'']];
   teamKeep($('team-tabs'),tabs.map(link))}
 
 /* figures: a missing price or token count stays missing, a partial total is a floor */
@@ -2720,7 +2720,7 @@ function personDetailView(d){const p=d.period||{},m=d.member||{},states=p.states
       el('dl',{class:'person-metrics'},metric('Finished on their machines',String(p.finished_on_machines||0),'Completed on their enrolled worker devices or mirrored member hosts.'),metric('Recorded commits',String(p.commits||0),'Distinct reported result commits; repository history is not scanned.'),metric('Pull requests',String(p.prs||0),'Recorded task links and PRs attributed by branch or GitHub author.'),metric('Worker time',fmtMin(p.minutes||0),'Finished attempts attributed to this person, including member hosts.'),metric('Spend',money,p.unpriced?p.unpriced+' attempt'+(p.unpriced===1?' has':'s have')+' no price.':'Recorded prices for finished attempts.')),
       ...teamSec('Handoffs sent or claimed','',[Object.keys(states).length?el('div',{class:'person-states'},Object.entries(states).map(([k,v])=>el('span',{'data-person-state':k},el('b',{},v),' '+word(k))),p.failed?el('small',{class:'mute'},p.failed+' of these have a failed latest result.'):null):el('p',{class:'empty'},'No handoffs in this period.')]),
       ...teamSec('Permissions',grants.length,[grants.length?settingsTable(['Where','Role','Granted by'],grants.map(g=>[g.scope,g.role,g.granted_by])):el('p',{class:'empty'},'No scoped grants. The ledger role above still applies.')]),
-      ...teamSec('Hosts and devices',cards.length,cards.length?cards:[el('p',{class:'empty'},'No hosts or devices recorded.')]),
+      ...teamSec('Nodes and devices',cards.length,cards.length?cards:[el('p',{class:'empty'},'No nodes or devices recorded.')]),
       el('p',{class:'mute'},d.ip_visible?'Last IP is the authenticated connection’s peer address.':'IP addresses are visible to owners only.'),
       ...teamSec('Recent audit activity',activity.length,activity.length?activity.map(a=>el('div',{class:'tm-row'},el('div',{class:'tm-main'},el('b',{},a.action),el('span',{class:'tm-why'},[a.actor,a.target,a.project].filter(Boolean).join(' · '))),el('span',{class:'tm-fig'},a.result),el('time',{class:'tm-fig',datetime:a.ts,title:a.ts},whenText(a.ts)))):[el('p',{class:'empty'},'No recorded activity in this period.')]))}}
 function teamDetailView(d){if(d.kind==='member'&&d.period)return personDetailView(d);const dash=lastDash||{},u=d.runs_7d,runs=u&&u.workers?String(u.workers):'0';const common=[['Runs (7d)',runs],['Success',teamRate(u)],['Spend (7d)',teamUsd(u)],['Tokens (7d)',teamTok(u)]];
@@ -3112,7 +3112,7 @@ function wlogLoad(hid){const c=WLOG[hid]||(WLOG[hid]={});if(c.loading)return c.l
   c.loading=fetch('/api/log?id='+encodeURIComponent(hid),{cache:'no-store',headers:auth()}).then(async r=>{if(r.status===401)dropToken();if(r.status===404)throw new Error('You cannot see this task’s log.');if(!r.ok)throw new Error((await r.text())||'HTTP '+r.status);c.data=await r.json();c.error=''}).catch(e=>{c.error=errorText(e)}).then(()=>{c.at=Date.now();c.loading=null;return c});return c.loading}
 // A worker leased on another node (#851) sends its output to the server: remote, node, attempt say so.
 function wlogStatus(d){const n=(d.lines||[]).length;
-  return [d.remote&&d.node?'From the worker on host '+d.node+(d.attempt>1?', attempt '+d.attempt:'')+'.':'',
+  return [d.remote&&d.node?'From the worker on node '+d.node+(d.attempt>1?', attempt '+d.attempt:'')+'.':'',
     d.running?'Live: new lines appear while the worker runs.':d.lines&&n?'The worker is not running; this is the end of its log.':'',
     d.dropped_bytes?d.dropped_bytes+' bytes of output were not kept.':'',
     n?(d.truncated?'Last '+n+' lines.':n+(n===1?' line.':' lines.')):'',d.redacted?d.redacted+(d.redacted===1?' secret':' secrets')+' hidden.':''].filter(Boolean).join(' ')}
@@ -4669,8 +4669,8 @@ function homeWorkers(d){const c=d&&d.nodes;if(!c||typeof c!=='object')return nul
   const parts=[num('idle')+' idle',num('busy')+' busy',num('drained')+' drained'];for(const [k,w] of [['offline','offline'],['not_accepting','not accepting'],['not_ready','not ready']])if(num(k))parts.push(num(k)+' '+w);
   const text=num('total')||parts.some(x=>!/^0 /.test(x))?'Workers: '+parts.join(' · '):'Workers: none connected';
   return el('p',{class:'home-workers'+(off?' off':''),'data-home-workers':'','data-offline':off?String(off):null},
-    el('a',{href:'#team/nodes',title:'Worker hosts on this server, in Team > Hosts and devices'},text),
-    off?el('span',{class:'home-workers-off',role:'status'},(off===1?'A host is':off+' hosts are')+' offline'):null)}
+    el('a',{href:'#team/nodes',title:'Worker nodes on this server, in Team > Nodes and devices'},text),
+    off?el('span',{class:'home-workers-off',role:'status'},(off===1?'A node is':off+' nodes are')+' offline'):null)}
 function homeDraw(){if(APP.on||ROUTE.item!=='home'||!lastDash)return;const box=$('home-body'),a=document.activeElement,keep=a&&box.contains(a)&&a.id?a.id:'';
   box.replaceChildren(...homeView(lastDash,false));if(keep&&$(keep))$(keep).focus({preventScroll:true})}
 dashPage('home',{title:'Home',panel:false,enter(r){homeRead(r.params);homeDraw();if(lastDash&&!APP.on)loadIssues()},
@@ -4729,8 +4729,8 @@ function ovTasks(d){const t=d.tasks||{},sp=t.split||{},own=sp.server||{},hs=sp.h
   // It is a footnote under the number, so the six numbers stay on one line.
   const zone=t.day_tz||answerZone(d),finished=n('finished_today');if(finished)finished.querySelector('.tm-why').prepend(el('span',{'data-ov-day-tz':zone},'since midnight ('+zone+') · '));
   // Where Running's workers are is in its tooltip: on a laptop the line wrapped to four (dash-review P).
-  const where=loc?' Now: '+(loc.server||0)+' server workers · '+(loc.leased||0)+' host leases · '+(loc.member_hosts||0)+' workers on users’ devices.':'';
-  return [['Running',n('running'),'Confirmed live workers or valid host leases; work on users’ devices does not use this server’s lease slots.'+where,'running'],
+  const where=loc?' Now: '+(loc.server||0)+' server workers · '+(loc.leased||0)+' node leases · '+(loc.member_hosts||0)+' workers on users’ devices.':'';
+  return [['Running',n('running'),'Confirmed live workers or valid node leases; work on users’ devices does not use this server’s lease slots.'+where,'running'],
     ['Queued',n('queued'),'Non-stale offers on the server ledger and recently heard users’ devices.','queued'],
     ['Unconfirmed / stale workers',String(t.stale_running||0),'Previously dispatched tasks without live evidence, including quiet hosts; excluded from Running.','stale-running'],
     ['Stale offers',String(t.stale_queued||0),'Expired offers or offers on quiet hosts; excluded from Queued.','stale-queued'],
@@ -4740,8 +4740,8 @@ function ovTasks(d){const t=d.tasks||{},sp=t.split||{},own=sp.server||{},hs=sp.h
     ['Finished today',finished,'Tasks marked done since midnight in '+zone+(t.day_since?' ('+t.day_since+')':'')+'.','finished']]}
 function ovAgents(d){const a=d.agents||{},nodes=a.nodes||{},c=k=>Math.max(0,ovNum(nodes[k])||0),per=Array.isArray(a.sessions_per_person)?a.sessions_per_person:[];
   const nodeText=ovNum(a.nodes_total)===0?'none connected':[c('idle')+' idle',c('busy')+' busy',c('not_ready')+' not ready',c('offline')+' offline'].join(' · ');
-  return [['Hosts',nodeText,(ovNum(a.nodes_total)===null?'':a.nodes_total+' hosts total. ')+'Host availability: busy means the person is working there; leases are counted below. Offline after 5 minutes.','nodes'],
-    ['Leases',ovNum(a.leases)!==null?a.leases+' of '+(ovNum(a.capacity)||0):null,'Valid server leases against total online host capacity; excludes member hosts’ own workers.'+(a.leases_on_offline_nodes?' '+a.leases_on_offline_nodes+' leases remain on offline hosts.':'')+(a.leases_without_node?' '+a.leases_without_node+' leases have no current host card.':''),'leases'],
+  return [['Nodes',nodeText,(ovNum(a.nodes_total)===null?'':a.nodes_total+' nodes total. ')+'Node availability: busy means the person is working there; leases are counted below. Offline after 5 minutes.','nodes'],
+    ['Leases',ovNum(a.leases)!==null?a.leases+' of '+(ovNum(a.capacity)||0):null,'Valid server leases against total online node capacity; excludes member hosts’ own workers.'+(a.leases_on_offline_nodes?' '+a.leases_on_offline_nodes+' leases remain on offline nodes.':'')+(a.leases_without_node?' '+a.leases_without_node+' leases have no current node card.':''),'leases'],
     ['Live sessions',ovNum(a.sessions)!==null?String(a.sessions):null,a.session_definition||'Agent connections seen within 2 minutes; excludes the dashboard.','sessions'],
     per.length?['Per user',el('span',{class:'ov-people'},per.map((p,i)=>el('span',{'data-ov-person':p.person||''},(i?', ':'')+(p.person||(p.kind==='worker_control'?'Worker control connections':'Unattributed agent connections'))+' '+(ovNum(p.sessions)||0)))),'The same live connections, grouped by person or connection type.','people']:null]}
 const OV_EVENTS=[['created','Created','ov-created'],['done','Done','ov-done'],['failed','Failed attempts','ov-failed']];
@@ -4796,7 +4796,7 @@ function ovElapsed(r){const m=ovNum(r.elapsed_min),cap=ovNum((r.budget||{}).minu
 // ovState: a worker's state as a person reads it; blocked is a worker waiting on a prompt, not a task waiting on others.
 const OV_STATES={running:'running',blocked:'waiting on a prompt',waiting_answer:'waiting on an answer',stalled:'quiet',exited:'exited'};
 function ovState(r){if(r.stale)return 'unconfirmed: '+(r.stale_reason||'no recent worker evidence');if(r.parked)return 'parked';const s=r.worker_state||'running';return OV_STATES[s]||String(s).replace(/_/g,' ')}
-function ovRunning(stale=false){const rs=RUNNING.data.running.filter(r=>!!r.stale===stale),cols=['Task','User','Project','Host','Tool and model','Elapsed','Spend','State'];
+function ovRunning(stale=false){const rs=RUNNING.data.running.filter(r=>!!r.stale===stale),cols=['Task','User','Project','Node','Tool and model','Elapsed','Spend','State'];
   if(!rs.length)return el('div',{class:'empty','data-ov-empty':''},'Nothing is running now.');
   return el('div',{class:'working-table ov-table'},el('table',{},el('thead',{},el('tr',{},cols.map(c=>el('th',{scope:'col'},c)))),
     el('tbody',{},rs.map(r=>{const href='#issues/'+encodeURIComponent(r.id),warn=r.stale||r.parked||r.worker_state&&r.worker_state!=='running';
@@ -4849,7 +4849,7 @@ function ovView(){const out=[],load=feedFresh(LOAD),run=feedFresh(RUNNING);let h
     // The stale counts are the Tasks card's footnote, apart from its active totals.
     out.push(el('div',{class:'ov-cards'},ovCard('tasks','Tasks',LOAD,load.at,['running','queued','waiting','blocked','approvals','finished'].map(byId),
         el('dl',{class:'ov-quiet','data-ov-stale-counts':''},ovFigures(['stale-running','stale-queued'].map(byId))),'ov-stats'),
-      ovCard('agents','Agents',LOAD,null,ovAgents(load),el('a',{class:'ov-more',href:'#team/nodes'},'Hosts and devices'),'ov-agents')));
+      ovCard('agents','Agents',LOAD,null,ovAgents(load),el('a',{class:'ov-more',href:'#team/nodes'},'Nodes and devices'),'ov-agents')));
     health=el('div',{class:'ov-cards ov-health'},ovCard('server','Server health',LOAD,null,ovServer(load)))}
   const head=el('div',{class:'ov-shead'},el('h3',{id:'ov-running-h'},'Running tasks'),run?el('span',{class:'n','data-ov-count':''},String(run.running.filter(r=>!r.stale).length)):null,run?ovFresh(RUNNING,run.at):null);
   const sec=el('section',{class:'ov-running','aria-labelledby':'ov-running-h'},head);
@@ -6016,7 +6016,7 @@ function trigHostSync(t){const one=(name,v)=>[name+' ',v?settingsWhen(v):'never'
 // page), held back with the reason, an error, or reserved with no task yet.
 function trigEventWhat(e){if(e.result==='offered'&&e.handoff)return el('span',{'data-event':'offered'},'Offered as task ',trigTask(String(e.handoff)));
   if(e.result==='held')return el('span',{'data-event':'held'},'Held back'+(e.reason?': '+words(String(e.reason)):''));
-  if(e.result==='error')return el('span',{'data-event':'error',class:'trig-problem'},'Error: '+(e.error?String(e.error):'the host did not say'));
+  if(e.result==='error')return el('span',{'data-event':'error',class:'trig-problem'},'Error: '+(e.error?String(e.error):'the device did not say'));
   return el('span',{'data-event':'pending',class:'mute'},'Reserved, no task yet')}
 // trigHostActivity: what a host's triggers processed, newest first: when, the issue or PR linked to GitHub, its
 // kind, what happened and its triage. Display only: no control. A host on an older release sends none.
@@ -6044,7 +6044,7 @@ function trigHost(n,problemClass,activity){const st=TRIG_HOST_STATES[n.state]?n.
     ...(today!==null||max!==null?[['Offers today',(today??0)+(max!==null?' of '+max+' a day':'')]]:[]),
     ['Last sync',trigHostSync(t)]]:[];
   const name=String(n.node||'Unnamed host');
-  return el(activity?'section':'li',{class:'trig-host','data-host':String(n.node||''),'data-state':st,...(activity?{'aria-label':'Host '+name}:{})},
+  return el(activity?'section':'li',{class:'trig-host','data-host':String(n.node||''),'data-state':st,...(activity?{'aria-label':'Device '+name}:{})},
     el(activity?'h4':'div',{class:'trig-host-head'},el('b',{},name),n.person?el('span',{class:'trig-host-person'},String(n.person)):null,
       el('span',{class:'trig-host-state','data-host-state':st},el('span',{class:'trig-host-mark','aria-hidden':'true'},mark),word_),
       activity?el('span',{class:'trig-host-person','data-host-seen':''},'Last contact ',n.last_seen?settingsWhen(n.last_seen):'unknown'):null),
@@ -6053,7 +6053,7 @@ function trigHost(n,problemClass,activity){const st=TRIG_HOST_STATES[n.state]?n.
 // with what its triggers processed (the team page).
 function trigHosts(d,problemClass,activity){const nodes=(Array.isArray(d.nodes)?d.nodes:[]).filter(n=>n&&typeof n==='object');
   return [el('p',{class:'trig-small trig-hosts-note','data-trig':'hosts-note'},'Each joined host runs the [triggers] in its own config.toml and reports a summary here. A host’s triggers are changed on that host, from a terminal there (',el('code',{},CLI+' config set triggers.enabled true'),' or false), not from this page.'),
-    nodes.length?el(activity?'div':'ul',{class:'trig-hosts'},nodes.map(n=>trigHost(n,problemClass,activity))):el('p',{class:'trig-small','data-trig':'no-hosts'},d.scope==='own'?'None of your hosts has reported to this server.':'No joined host has reported to this server.')]}
+    nodes.length?el(activity?'div':'ul',{class:'trig-hosts'},nodes.map(n=>trigHost(n,problemClass,activity))):el('p',{class:'trig-small','data-trig':'no-hosts'},d.scope==='own'?'None of your devices has reported to this server.':'No joined host has reported to this server.')]}
 // trigReason: a fixed gh reason code in words, or the code itself when it is a new one.
 function trigReason(r){return r?TRIG_GH_REASONS[r]||words(String(r)):''}
 // trigOutcomeLine: an issue run's label and whether it is on GitHub (applied), waiting for the next sync
@@ -6166,9 +6166,9 @@ function trigSignals(d){const m=d.signals;if(!m)return null;
 // trigRenderOwn: the page to a person who is not an owner on a team server (scope own): only their own
 // person's joined hosts and what each one's triggers processed. Nothing of this server's own [triggers], and no
 // control: a host's triggers are changed on that host.
-function trigRenderOwn(d){$('trig-meta').textContent='Your hosts';$('trig-meta').dataset.on='';$('trig-intro').hidden=true;trigBadge();
-  $('trig-body').replaceChildren(el('section',{class:'trig-col','data-trig':'hosts','aria-label':'Your hosts'},el('h3',{},'Your hosts'),
-    el('p',{class:'trig-small','data-trig':'own-scope'},'What the triggers on your own joined hosts processed. An owner sees every host, and this server’s own triggers.'),
+function trigRenderOwn(d){$('trig-meta').textContent='Your devices';$('trig-meta').dataset.on='';$('trig-intro').hidden=true;trigBadge();
+  $('trig-body').replaceChildren(el('section',{class:'trig-col','data-trig':'hosts','aria-label':'Your devices'},el('h3',{},'Your devices'),
+    el('p',{class:'trig-small','data-trig':'own-scope'},'What the triggers on your own devices processed. An owner sees every device, and this server’s own triggers.'),
     el('div',{class:'trig-card'},trigHosts(d,'trig-problem',true))));
   lockState()}
 function trigRender(){const d=TRIG.data;if(!d)return;if(d.scope==='own'){trigRenderOwn(d);return}const st=d.status||{},on=st.enabled===true,dirs=Object.entries(st.dirs||{});
@@ -6216,7 +6216,7 @@ function trigBadge(on){const b=$('triggers-badge'),a=document.querySelector('[da
 // trigDenied: the page to anyone else (or when the server refuses): one card, as Settings' owner-only sections have, in place of the intro.
 function trigDenied(){TRIG.request++;TRIG.data=null;trigBadge();$('trig-meta').textContent='';$('trig-status').textContent='';$('trig-error').hidden=true;$('trig-intro').hidden=true;$('trig-body').replaceChildren(el('div',{class:'state','data-trig':'owner-only'},'Triggers are owner-only. Ask '+settingsWho()+' to change them.'))}
 // trigReadable: whether this person may open Triggers: an owner, or on a team server anyone signed in, who sees
-// only their own person's hosts there (host_triggers in /api/dash).
+// only their own user's devices there (host_triggers in /api/dash).
 function trigReadable(){return settingsOwner()||!!USER&&!!(lastDash&&lastDash.host_triggers)}
 function trigEnter(){if(lastDash&&!trigReadable())trigDenied();else trigLoad()}
 dashPage('triggers',{title:'Triggers',panel:false,enter:trigEnter,unlock:trigEnter,render(){if(ROUTE.item!=='triggers'||!TRIG.data)return;if(!trigReadable())trigDenied();else if((TRIG.data.scope==='own')===settingsOwner())trigLoad()},leave(){TRIG.request++}});
