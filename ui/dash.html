@@ -4117,15 +4117,24 @@ function relayQuote(text){return el('blockquote',{class:'relay-quote','data-rela
 // relayAsks: the relayed question to answer, or null when there is none or its text is empty or only spaces: a
 // worker that waits with no question gets a line saying so and no Answer button or sheet.
 function relayAsks(rv){const q=rv&&rv.question;return q&&String(q.text||'').trim()?q:null}
+// relaySameAsk (#1165): the worker's question is its pending approval asked again (the same text, or naming the
+// approval's id), so the approval's buttons answer it and the question gets no buttons of its own.
+function relaySameAsk(rv){const q=relayAsks(rv);if(!q)return false;const t=String(q.text).trim();
+  return (rv.approvals||[]).some(a=>(a.text&&String(a.text).trim()===t)||(a.id&&t.includes(a.id)))}
+// relayOverride (#1165): the device refused the person's Approve of approval a as their own request, so the
+// page offers Approve anyway (owner override) in its place; the device still checks they are an owner there.
+function relayOverride(rv,a){return (rv.actions||[]).some(x=>x.kind==='approval_answer'&&x.approval===a.id&&x.override)}
 function relayNonce(){const b=new Uint8Array(16);(window.crypto||crypto).getRandomValues(b);return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const RELAY_KIND={approval_answer:'Answer to an approval',handoff_answer:'Answer to its worker',cancel:'Cancel',unpark:'Unpark'};
 const RELAY_STATE={pending:'Waiting for the device',taken:'Sent to the device',done:'Done',refused:'Refused',expired:'Expired'};
 function relaySend(id,rv,kind,o,fields,body,done){const nonce=relayNonce(),host=rv.host||'its device';
   return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',lead:o.quote!=null?relayQuote(o.quote):null,action:o.action,danger:!!o.danger,pending:'Sending…',fields},
     'relay:'+id+':'+kind+':'+(o.key||''),v=>({action:'relay',id,kind,nonce,...body(v||{})}),done||'Sent to '+host)}
-function relayApprove(id,rv,a,decision){const reject=decision==='reject';
-  return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':'Approve this request?',description:'The request is above your '+(reject?'reason':'note')+'.',quote:a.text||'',action:reject?'Reject':'Approve',danger:reject,key:a.id},
-    [{name:'note',label:reject?'Reason':'Note',required:reject,multiline:true}],v=>({approval:a.id,attempt:a.attempt||'',subject:a.digest,decision,note:v.note||''}),reject?'Rejection sent to '+(rv.host||'the device'):'Approval sent to '+(rv.host||'the device'))}
+function relayApprove(id,rv,a,decision,force){const reject=decision==='reject';force=!!force&&!reject;
+  return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':force?'Approve your own request?':'Approve this request?',description:(force?'This is your own request: as an owner you approve it anyway, and the owner override is recorded in the task history. ':'')+'The request is above your '+(reject?'reason':'note')+'.',quote:a.text||'',action:reject?'Reject':force?'Approve anyway':'Approve',danger:reject,key:a.id+(force?':force':'')},
+    [{name:'note',label:reject?'Reason':'Note',required:reject,multiline:true}],v=>({approval:a.id,attempt:a.attempt||'',subject:a.digest,decision,note:v.note||'',...(force?{force:true}:{})}),reject?'Rejection sent to '+(rv.host||'the device'):'Approval sent to '+(rv.host||'the device'))}
+// relayApproveBtn: Approve, or Approve anyway (owner override) once the device refused it as the person's own.
+function relayApproveBtn(id,rv,a){return relayOverride(rv,a)?relayBtn('Approve anyway (owner override)','approve-override',()=>relayApprove(id,rv,a,'approve',true),'primary'):relayBtn('Approve','approve',()=>relayApprove(id,rv,a,'approve'),'primary')}
 function relayAnswer(id,rv){const q=relayAsks(rv);if(!q)return null;
   return relaySend(id,rv,'handoff_answer',{title:'Answer the worker?',description:'Its question is above your answer.',quote:q.text||'',action:'Send answer'},
     [{name:'text',label:'Your answer',required:true,multiline:true}],v=>({attempt:q.attempt||'',subject:q.digest,text:v.text||''}),'Answer sent to '+(rv.host||'the device'))}
@@ -4134,30 +4143,37 @@ function relayCancel(id,rv){return relaySend(id,rv,'cancel',{title:'Cancel this 
 function relayUnpark(id,rv){return relaySend(id,rv,'unpark',{title:'Unpark this task?',description:'Its park is cleared on '+(rv.host||'its device')+', so a worker takes it again.',action:'Unpark'},
     [],()=>({version:rv.unpark.version}),'Unpark sent to '+(rv.host||'the device'))}
 function relayBtn(label,act,on,cls){return el('button',{type:'button',class:cls||'','data-write':true,'data-relay':act,disabled:!CAN(),onclick:on},label)}
+// relayFold (#1165): refused actions alike (the same kind, approval, decision, override and reason) fold into the newest
+// one, with how many there were.
+function relayFold(xs){const out=[],seen=new Map();
+  for(const a of xs){if(a.state!=='refused'){out.push(a);continue}const k=[a.kind,a.approval||'',a.decision||'',a.force?1:0,a.reason||''].join('|'),f=seen.get(k);
+    if(f){f.n++;continue}const c={...a,n:1};seen.set(k,c);out.push(c)}
+  return out}
 // relayLog: the relayed actions on this task, newest first, each with its state and why.
-function relayLog(rv){const xs=rv.actions||[];if(!xs.length)return null;
-  return el('ul',{class:'relay-log','aria-label':'Sent from here'},xs.map(a=>el('li',{'data-relay-id':a.id,'data-relay-state':a.state},
-    el('span',{class:'relay-state','data-state':a.state},RELAY_STATE[a.state]||word(a.state)),
-    el('span',{},(a.kind==='approval_answer'&&a.decision?capFirst(a.decision)+(a.decision==='approve'?'d':'ed'):RELAY_KIND[a.kind]||a.kind)+(a.person?' by '+a.person:'')+(a.age?', '+a.age+' ago':'')),
+function relayLog(rv){const xs=relayFold(rv.actions||[]);if(!xs.length)return null;
+  return el('ul',{class:'relay-log','aria-label':'Sent from here'},xs.map(a=>el('li',{'data-relay-id':a.id,'data-relay-state':a.state,...(a.n>1?{'data-relay-count':a.n}:{})},
+    el('span',{class:'relay-state','data-state':a.state},(RELAY_STATE[a.state]||word(a.state))+(a.n>1?' ('+a.n+' times)':'')),
+    el('span',{},(a.kind==='approval_answer'&&a.decision?capFirst(a.decision)+(a.decision==='approve'?'d':'ed')+(a.force?' (owner override)':''):RELAY_KIND[a.kind]||a.kind)+(a.person?' by '+a.person:'')+(a.age?', '+a.age+' ago':'')),
     a.reason?el('span',{class:'mute'},a.reason):null)))}
 // relayPanel: what the signed-in person can do here for task id, from its relay view rv.
 function relayPanel(id,rv){if(!rv)return null;const kids=[],host=rv.host||'its device';
   if(!rv.may){kids.push(el('p',{class:'mute','data-relay-why':''},rv.why||'You cannot act on this task from here.'));const log=relayLog(rv);if(log)kids.push(log);
     return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here')),...kids)}
   for(const a of rv.approvals||[])kids.push(el('div',{class:'relay-ask','data-relay-approval':a.id},el('span',{class:'mute'},'Approval requested'+(a.required_role?' (needs '+a.required_role+')':'')),el('p',{class:'relay-text'},a.text||''),
-    el('div',{class:'relay-btns'},relayBtn('Approve','approve',()=>relayApprove(id,rv,a,'approve'),'primary'),relayBtn('Reject','reject',()=>relayApprove(id,rv,a,'reject'),'danger'))));
-  if(relayAsks(rv))kids.push(el('div',{class:'relay-ask','data-relay-question':''},el('span',{class:'mute'},'Its worker asks'),el('p',{class:'relay-text'},rv.question.text),
+    el('div',{class:'relay-btns'},relayApproveBtn(id,rv,a),relayBtn('Reject','reject',()=>relayApprove(id,rv,a,'reject'),'danger'))));
+  // A question that is the pending approval asked again is answered by its buttons above: no second set.
+  if(relayAsks(rv)&&!relaySameAsk(rv))kids.push(el('div',{class:'relay-ask','data-relay-question':''},el('span',{class:'mute'},'Its worker asks'),el('p',{class:'relay-text'},rv.question.text),
     el('div',{class:'relay-btns'},relayBtn('Answer','answer',()=>relayAnswer(id,rv),'primary'))));
-  else if(rv.question)kids.push(el('div',{class:'relay-ask','data-relay-noquestion':''},el('span',{class:'mute'},'Its worker waits'),el('p',{class:'relay-text'},'The worker is waiting but sent no question.')));
+  else if(rv.question&&!relayAsks(rv))kids.push(el('div',{class:'relay-ask','data-relay-noquestion':''},el('span',{class:'mute'},'Its worker waits'),el('p',{class:'relay-text'},'The worker is waiting but sent no question.')));
   const more=[rv.unpark?relayBtn('Unpark','unpark',()=>relayUnpark(id,rv)):null,rv.cancel?relayBtn('Cancel task','cancel',()=>relayCancel(id,rv),'danger'):null].filter(Boolean);
   if(more.length)kids.push(el('div',{class:'relay-btns'},...more));
   const log=relayLog(rv);if(log)kids.push(log);
   const say='Your click goes to '+host+', which applies it as you on its next contact.'+(rv.waits?' '+capFirst(rv.waits)+'.':'');
   return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here'),' ',el('span',{class:'mute'},say)),...kids)}
 // relayQuick: one-click Approve, Reject and Answer under a row (the Agents list's Needs you), opening the same sheets.
-function relayQuick(h){const rv=h&&h.relay;if(!rv||!rv.may)return null;const a=(rv.approvals||[])[0],q=relayAsks(rv);if(!a&&!q)return null;
+function relayQuick(h){const rv=h&&h.relay;if(!rv||!rv.may)return null;const a=(rv.approvals||[])[0],q=relaySameAsk(rv)?null:relayAsks(rv);if(!a&&!q)return null;
   return el('div',{class:'ag-relay','data-relay-quick':h.id,'aria-label':'Answer from here'},
-    a?relayBtn('Approve','approve',()=>relayApprove(h.id,rv,a,'approve'),'primary'):null,a?relayBtn('Reject','reject',()=>relayApprove(h.id,rv,a,'reject'),'danger'):null,
+    a?relayApproveBtn(h.id,rv,a):null,a?relayBtn('Reject','reject',()=>relayApprove(h.id,rv,a,'reject'),'danger'):null,
     q?relayBtn('Answer','answer',()=>relayAnswer(h.id,rv),'primary'):null)}
 // relayInbox: the Inbox's part for tasks mirrored from the user's devices with something to answer or a
 // relayed action on its way (the snapshot's relay_inbox).
