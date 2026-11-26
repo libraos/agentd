@@ -50,7 +50,7 @@ const mineNames=()=>[...mine().querySelectorAll('[data-node]')].map(n=>n.dataset
  await settle();assert(!errors.length,errors.join('\n'));
  assert(requests.includes('GET /api/nodes'),'the dash never asks for /api/nodes');
  // Account > Your nodes: alice's two, not bob's nor the Server's.
- assert(mine()&&!mine().hidden,'no Your nodes in the Account menu');assert(mine().textContent.includes('Your hosts'));
+ assert(mine()&&!mine().hidden,'no Your nodes in the Account menu');assert(mine().textContent.includes('Your nodes'));
  assert.deepEqual(mineNames().sort(),['alice-desk','alice-laptop']);
  const laptop=mine().querySelector('[data-node="alice-laptop"]');assert(laptop.textContent.includes('busy'),'state missing: '+laptop.textContent);assert(laptop.textContent.includes('0/1'),'leases/capacity missing: '+laptop.textContent);
  assert(mine().querySelector('[data-node="alice-desk"]').textContent.includes('not accepting'));
@@ -81,7 +81,7 @@ const mineNames=()=>[...mine().querySelectorAll('[data-node]')].map(n=>n.dataset
  nodes=nodes.map(n=>n.name==='c2-03'?{...n,leases:2}:n);w.eval('NODES.at=0;refresh()');await settle();
  assert(row('c2-03').querySelector('[data-draining]').textContent.includes('2 leases still running'),'a draining node does not show its leases');
  // A server without /api/devices: says so, nodes as before; the tab is renamed.
- assert.equal(tab.firstChild.textContent,'Hosts and devices');
+ assert.equal(tab.firstChild.textContent,'Nodes and devices');
  assert(view().querySelector('[data-devices-note="missing"]'),'a 404 from /api/devices is not explained');assert(!view().querySelector('[data-device]'));
  // Versions: older than the server's is marked; null, equal (with a suffix) or newer is not.
  nodes=nodes.map(n=>({...n,version:{'alice-laptop':'v0.1.12','alice-desk':null,'bob-host':'0.1.13','zed-box':'v0.1.15','c2-03':'v0.1.14-rc1'}[n.name]}));
@@ -121,7 +121,7 @@ const mineNames=()=>[...mine().querySelectorAll('[data-node]')].map(n=>n.dataset
  assert(mineNames().includes('alice-new'),'Your nodes did not refresh');assert(row('alice-new'),'Team > Nodes did not refresh');
  // Another person: only their nodes in the menu; none: No nodes yet.
  dash={...dash,user:'carol',role:'dev'};w.eval('NODES.at=0;refresh()');await settle();
- assert.deepEqual(mineNames(),[]);assert(mine().textContent.includes('No hosts yet'));
+ assert.deepEqual(mineNames(),[]);assert(mine().textContent.includes('No nodes yet'));
  devices={scope:'own',devices:devices.devices.filter(v=>v.person==='carol')};w.eval('DEVICES.at=0;refresh()');await settle();
  assert(view().querySelector('[data-devices-note="own"]'),'a person\'s own list does not say so');assert(dev('dev-c1')&&!dev('dev-a1'));
  // Not an owner: the commands show, no button.
