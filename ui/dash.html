@@ -2401,10 +2401,11 @@ function agentsModel(d){const items=needItems(d),{rows}=items,attention=d.attent
 // Agents, agentd app's sidebar and /panel all say it so (review M3): a running task reads Working there, never
 // "worker starting" in one place and "In progress" in another.
 function agentsState(r){const w=markWord(r.mark)||(r.h?word(r.h.state):markWord('working')),x=agentsDetail(r);return x?w+' · '+x:w}
-function agentsDetail(r){const h=r.h,n=r.needs&&r.needs[0],l=r.live;if(h&&h.attention_status==='stale')return 'stale';
-  if(n)return n.kind==='failed'?(r.mark==='failed'?'':'could not finish'):n.kind==='blocked'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':n.kind==='question'?'question':'';
+// A task mirrored from the user's device whose worker waits on a question with no text says so (no Answer is offered).
+function agentsDetail(r){const h=r.h,n=r.needs&&r.needs[0],l=r.live,noq=!!(h&&h.relay&&h.relay.question&&!relayAsks(h.relay));if(h&&h.attention_status==='stale')return 'stale';
+  if(n)return n.kind==='failed'?(r.mark==='failed'?'':'could not finish'):n.kind==='blocked'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':n.kind==='question'?(noq?'worker waits, sent no question':'question'):'';
   if(l)return l.key==='working'?'':l.key==='wait'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):l.text;
-  return h&&h.state==='blocked'?'on another task':''}
+  return noq?'worker waits, sent no question':h&&h.state==='blocked'?'on another task':''}
 // hostTag names the member host a mirrored handoff (#848) came from.
 function hostTag(x){return x&&x.origin==='host'&&x.host?el('span',{class:'host-tag',title:'Mirrored from host '+x.host+(x.mirror&&x.mirror.person?' ('+x.mirror.person+')':'')+'; read only here'},'on '+x.host):null}
 function agentsRow(r){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).pop(),sid=r.who||'',act=TEAM.activity&&TEAM.activity[sid],agent=h?toolName(h.worker||toolOf(sid))||(h.state==='offered'?'Unassigned':sessLabel(sid)):toolName(r.session.tool)||'Agent',
@@ -2417,7 +2418,7 @@ function agentsRow(r){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).p
 function agentsPreview(r){if(!r)return [el('p',{class:'mute'},'Point at or focus a task to see it here.')];const h=r.h;
   return [el('h3',{},el('a',{href:r.href},r.title)),el('p',{class:'ag-pv-sub'},agentsState(r),h?hostTag(h):null),
     r.full&&r.full!==r.title?el('p',{class:'ag-pv-text'},r.full):null,
-    h&&h.worker_wait&&!(h.relay&&h.relay.question)?el('p',{class:'ag-pv-text'},el('b',{},'Its worker waits: '),h.worker_wait):null,
+    h&&h.worker_wait&&!relayAsks(h.relay)?el('p',{class:'ag-pv-text'},el('b',{},'Its worker waits: '),h.worker_wait):null,
     h&&h.relay?relayPanel(h.id,h.relay):null,el('a',{href:r.href},'Open the task')].filter(Boolean)}
 const AGENTS_PV={id:''};
 function agentsDraw(d){if(!d||APP.on)return;const box=$('agents-rows'),m=agentsModel(d),a=document.activeElement,keep=box.contains(a)&&a.dataset?a.dataset.agentId:'';
@@ -4113,6 +4114,9 @@ function mirrorNote(d){const t=d.mirrored?new Date(d.mirrored):null,when=t&&!isN
 // relayQuote: an approval's or question's whole text in a confirm sheet, line breaks kept, scrolling when long;
 // a host clips it only past relayTextMax (relay.go), and then it ends with "…".
 function relayQuote(text){return el('blockquote',{class:'relay-quote','data-relay-quote':''},text||'(no text was sent)')}
+// relayAsks: the relayed question to answer, or null when there is none or its text is empty or only spaces: a
+// worker that waits with no question gets a line saying so and no Answer button or sheet.
+function relayAsks(rv){const q=rv&&rv.question;return q&&String(q.text||'').trim()?q:null}
 function relayNonce(){const b=new Uint8Array(16);(window.crypto||crypto).getRandomValues(b);return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const RELAY_KIND={approval_answer:'Answer to an approval',handoff_answer:'Answer to its worker',cancel:'Cancel',unpark:'Unpark'};
 const RELAY_STATE={pending:'Waiting for the device',taken:'Sent to the device',done:'Done',refused:'Refused',expired:'Expired'};
@@ -4122,7 +4126,7 @@ function relaySend(id,rv,kind,o,fields,body,done){const nonce=relayNonce(),host=
 function relayApprove(id,rv,a,decision){const reject=decision==='reject';
   return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':'Approve this request?',description:'The request is above your '+(reject?'reason':'note')+'.',quote:a.text||'',action:reject?'Reject':'Approve',danger:reject,key:a.id},
     [{name:'note',label:reject?'Reason':'Note',required:reject,multiline:true}],v=>({approval:a.id,attempt:a.attempt||'',subject:a.digest,decision,note:v.note||''}),reject?'Rejection sent to '+(rv.host||'the device'):'Approval sent to '+(rv.host||'the device'))}
-function relayAnswer(id,rv){const q=rv.question||{};
+function relayAnswer(id,rv){const q=relayAsks(rv);if(!q)return null;
   return relaySend(id,rv,'handoff_answer',{title:'Answer the worker?',description:'Its question is above your answer.',quote:q.text||'',action:'Send answer'},
     [{name:'text',label:'Your answer',required:true,multiline:true}],v=>({attempt:q.attempt||'',subject:q.digest,text:v.text||''}),'Answer sent to '+(rv.host||'the device'))}
 function relayCancel(id,rv){return relaySend(id,rv,'cancel',{title:'Cancel this task?',description:'It is closed as cancelled on '+(rv.host||'its device')+', with your reason in its history.',action:'Cancel task',danger:true},
@@ -4142,15 +4146,16 @@ function relayPanel(id,rv){if(!rv)return null;const kids=[],host=rv.host||'its d
     return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here')),...kids)}
   for(const a of rv.approvals||[])kids.push(el('div',{class:'relay-ask','data-relay-approval':a.id},el('span',{class:'mute'},'Approval requested'+(a.required_role?' (needs '+a.required_role+')':'')),el('p',{class:'relay-text'},a.text||''),
     el('div',{class:'relay-btns'},relayBtn('Approve','approve',()=>relayApprove(id,rv,a,'approve'),'primary'),relayBtn('Reject','reject',()=>relayApprove(id,rv,a,'reject'),'danger'))));
-  if(rv.question)kids.push(el('div',{class:'relay-ask','data-relay-question':''},el('span',{class:'mute'},'Its worker asks'),el('p',{class:'relay-text'},rv.question.text||''),
+  if(relayAsks(rv))kids.push(el('div',{class:'relay-ask','data-relay-question':''},el('span',{class:'mute'},'Its worker asks'),el('p',{class:'relay-text'},rv.question.text),
     el('div',{class:'relay-btns'},relayBtn('Answer','answer',()=>relayAnswer(id,rv),'primary'))));
+  else if(rv.question)kids.push(el('div',{class:'relay-ask','data-relay-noquestion':''},el('span',{class:'mute'},'Its worker waits'),el('p',{class:'relay-text'},'The worker is waiting but sent no question.')));
   const more=[rv.unpark?relayBtn('Unpark','unpark',()=>relayUnpark(id,rv)):null,rv.cancel?relayBtn('Cancel task','cancel',()=>relayCancel(id,rv),'danger'):null].filter(Boolean);
   if(more.length)kids.push(el('div',{class:'relay-btns'},...more));
   const log=relayLog(rv);if(log)kids.push(log);
   const say='Your click goes to '+host+', which applies it as you on its next contact.'+(rv.waits?' '+capFirst(rv.waits)+'.':'');
   return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here'),' ',el('span',{class:'mute'},say)),...kids)}
 // relayQuick: one-click Approve, Reject and Answer under a row (the Agents list's Needs you), opening the same sheets.
-function relayQuick(h){const rv=h&&h.relay;if(!rv||!rv.may)return null;const a=(rv.approvals||[])[0],q=rv.question;if(!a&&!q)return null;
+function relayQuick(h){const rv=h&&h.relay;if(!rv||!rv.may)return null;const a=(rv.approvals||[])[0],q=relayAsks(rv);if(!a&&!q)return null;
   return el('div',{class:'ag-relay','data-relay-quick':h.id,'aria-label':'Answer from here'},
     a?relayBtn('Approve','approve',()=>relayApprove(h.id,rv,a,'approve'),'primary'):null,a?relayBtn('Reject','reject',()=>relayApprove(h.id,rv,a,'reject'),'danger'):null,
     q?relayBtn('Answer','answer',()=>relayAnswer(h.id,rv),'primary'):null)}

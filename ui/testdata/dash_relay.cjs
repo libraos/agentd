@@ -105,6 +105,7 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   const quick=doc.querySelector('#agents-rows [data-relay-quick="'+ID+'"]');assert(quick,'no quick buttons under the Needs you row: '+doc.getElementById('agents-rows').innerHTML.slice(0,400));
   assert(!quick.closest('a'),'buttons inside the row link');assert.equal(quick.previousElementSibling&&quick.previousElementSibling.dataset.agentId,ID,'the buttons are not under their row');
   assert.deepEqual([...quick.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve','reject','answer'],'quick buttons');
+  assert(!doc.querySelector('#agents-rows [data-agent-id="'+ID+'"] .ag-sub').textContent.includes('sent no question'),'a question with text reads as none');
   quick.querySelector('[data-relay=approve]').click();await settle();const d=doc.querySelector('dialog.sheet');assert(d&&d.textContent.includes('Approve this request?'),'quick Approve opens no confirm sheet');
   [...d.querySelectorAll('.sheet-foot button')].find(b=>b.textContent==='Approve').click();await settle();
   const p=posts.pop();assert.equal(p.kind,'approval_answer');assert.equal(p.subject,approval.digest);assert.equal(p.decision,'approve');
@@ -120,6 +121,31 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   // No relay view, or one that may not act: no quick buttons.
   assert.equal(w.eval('relayQuick('+JSON.stringify({...row,relay:{may:false,why:'x'}})+')'),null);assert.equal(w.eval('relayQuick('+JSON.stringify({...row,relay:undefined})+')'),null);
   assert(!errors.length,errors.join('\n'))}
+ // A question with empty or whitespace-only text: no Answer button or sheet anywhere; the row and panel still say the worker waits.
+ for(const text of ['','  \n\t ',undefined]){const rv={...relay,approvals:[],question:{...question,text}},er={...row,relay:rv};
+  const says='The worker is waiting but sent no question.';
+  // The task page: the waiting line, no Answer; Unpark and Cancel stay.
+  {const dash={...base,user:'alice',role:'dev',handoff_list:[er],relay_inbox:[]};const {doc,errors}=page('http://127.0.0.1:21620/#issues/'+ID,dash,rv);await settle();
+   const panel=doc.querySelector('#issue-detail [data-relay-panel="'+ID+'"]');assert(panel,'no relay panel for an empty question');
+   assert.deepEqual([...panel.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['unpark','cancel'],'buttons for an empty question ('+JSON.stringify(text)+')');
+   assert(!panel.querySelector('[data-relay-question]'),'an empty question is drawn as a question');
+   assert.equal(panel.querySelector('[data-relay-noquestion] .relay-text').textContent,says,'the panel does not say the worker waits');
+   assert(!errors.length,errors.join('\n'))}
+  // The Inbox: the same.
+  {const dash={...base,user:'alice',role:'dev',handoff_list:[er],relay_inbox:[{handoff:ID,goal:row.goal,host:'alice-desk',person:'alice',state:'claimed',updated_ago:'2m',relay:rv}]};
+   const {doc,errors}=page('http://127.0.0.1:21620/#inbox',dash,rv);await settle();const box=doc.querySelector('#inbox-rows [data-relay-inbox]');assert(box,'no From your devices for an empty question');
+   assert(!box.querySelector('[data-relay=answer]'),'an Answer button in the Inbox for an empty question');assert(box.textContent.includes(says),'the Inbox does not say the worker waits');assert(!errors.length,errors.join('\n'))}
+  // The Agents list: the row stays under Needs you and still says it waits, with no quick Answer under it; the preview says it waits.
+  {const dash={...base,user:'alice',role:'dev',handoff_list:[er],relay_inbox:[]};const {w,doc,errors}=page('http://127.0.0.1:21620/#agents',dash,rv);await settle();
+   const rowEl=doc.querySelector('#agents-rows [data-agent-id="'+ID+'"]');assert(rowEl,'the waiting task has no row');assert.equal(rowEl.dataset.mark,'needs_you','the row does not need you');
+   assert(rowEl.querySelector('.ag-sub').textContent.includes('worker waits, sent no question'),'the row does not say the worker waits: '+rowEl.querySelector('.ag-sub').textContent);
+   assert(!doc.querySelector('#agents-rows [data-relay-quick="'+ID+'"]'),'quick buttons for an empty question');assert(!doc.querySelector('#agents-rows [data-relay=answer]'),'a quick Answer for an empty question');
+   const pv=doc.getElementById('agents-preview');assert(pv.textContent.includes(says),'the preview does not say the worker waits');assert(!pv.querySelector('[data-relay=answer]'),'an Answer in the preview');
+   // With an approval too, only Approve and Reject under the row.
+   const both=w.eval('relayQuick('+JSON.stringify({...er,relay:{...rv,approvals:[approval]}})+')');assert.deepEqual([...both.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve','reject'],'quick buttons with an approval and an empty question');
+   // No sheet opens, even when called directly.
+   assert.equal(w.eval('relayAnswer('+JSON.stringify(ID)+','+JSON.stringify(rv)+')'),null,'relayAnswer opened for an empty question');await settle();
+   assert(!doc.querySelector('dialog.sheet[open]'),'an Answer sheet opened for an empty question');assert(!errors.length,errors.join('\n'))}}
  // On a phone the buttons are tap-sized.
  assert(/@media\(max-width:860px\)\{\.relay-btns button,\.ag-relay button\{min-height:44px\}\}/.test(html),'relay buttons are not tap-sized on a phone');
  console.log('relay: task page, Inbox, Agents rows, states, sheets and the terminal disclosure passed'+(phone?' (phone)':''));process.exit(0)
