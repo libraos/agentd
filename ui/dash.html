@@ -843,7 +843,7 @@ input[type=checkbox]{appearance:none;width:30px;height:18px;min-width:30px;borde
 .trig-card dl{display:grid;grid-template-columns:minmax(90px,max-content) minmax(0,1fr);gap:6px 12px;margin:0}.trig-card dd{margin:0;overflow-wrap:anywhere}.trig-card td{overflow-wrap:anywhere}
 .trig-tpl{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--sunk)}.trig-tpl>*{min-width:0}.trig-tpl h3,.trig-tpl p{margin:0}
 .trig-tpl pre{margin:0;padding:8px;overflow-x:auto;white-space:pre;font:12px/1.5 ui-monospace,monospace;background:var(--panel);border:1px solid var(--line);border-radius:6px;color:var(--fg)}
-.trig-actions,.trig-fill{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trig-fill{align-items:flex-end}.trig-actions>[data-write-why]{flex-basis:100%}.trig-fill label{display:grid;gap:4px;flex:1 1 180px;min-width:0}.trig-fill input{min-width:0}
+.trig-cancel{margin-top:10px}.trig-cancel>[data-trig=cancel-result]{flex-basis:100%;font-size:13px}.trig-cancel>[data-trig=cancel-result] ul{margin:4px 0 0;padding-left:18px}[data-trig=cancel-list]{margin-bottom:12px}.trig-actions,.trig-fill{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.trig-fill{align-items:flex-end}.trig-actions>[data-write-why]{flex-basis:100%}.trig-fill label{display:grid;gap:4px;flex:1 1 180px;min-width:0}.trig-fill input{min-width:0}
 .trig-problem{color:var(--red);overflow-wrap:anywhere}.trig-ok{color:var(--green,var(--fg))}
 /* Where triggers run: each joined host a row, its state a word with a mark (never colour alone); a stale or unreported host's pill is dashed and muted, never green. Shared with the app's page. */
 .trig-hosts{list-style:none;margin:0;padding:0;display:grid;min-width:0}.trig-host{display:grid;gap:4px;padding:8px 0;border-bottom:1px solid var(--line);min-width:0;overflow-wrap:anywhere}.trig-host:first-child{padding-top:0}.trig-host:last-child{border-bottom:0;padding-bottom:0}
@@ -5997,6 +5997,29 @@ async function trigLoad(){const seq=++TRIG.request,q=new URLSearchParams();if(TR
     if(r.status===403){trigDenied();return}if(!r.ok)throw new Error(d.error||'Could not read triggers (HTTP '+r.status+').');TRIG.data=d;trigRender();$('trig-status').textContent=''}
   catch(e){if(seq!==TRIG.request)return;TRIG.data=null;trigBadge();$('trig-body').replaceChildren();$('trig-meta').textContent='';$('trig-error').textContent=errorText(e);$('trig-error').hidden=false;$('trig-status').textContent=''}}
 function trigList(v){return Array.isArray(v)&&v.length?v.join(', '):''}
+// region:trigger-cancel: "Cancel open tasks (N)" under a Triggers page's runs, on the team page and the app's
+// (trigger_cancel.go). GET /api/triggers gives open_tasks {count, tasks (the first limit), limit, note}: the
+// open handoffs triggers made. The dialog lists each (id, issue or PR, state, worker running), asks a reason
+// (required) and a cause, says a cancel does not queue the issue again, and sends trigger_cancel with each id
+// at the version listed; the answer's per-id result stays under the button until the page is left.
+let TRIGC_RESULT=null;
+function trigCancelBlock(d,reload){const o=d&&d.open_tasks,n=o?Number(o.count)||0:0,res=TRIGC_RESULT?trigCancelResult(TRIGC_RESULT):null;
+  if(!n&&!res)return null;
+  return el('div',{class:'trig-actions trig-cancel','data-trig':'cancel'},n?el('button',{type:'button','data-write':'','data-trig-action':'cancel-open',onclick:()=>trigCancelOpen(o,reload)},'Cancel open tasks ('+n+')'):null,res)}
+function trigCancelResult(r){const rows=Array.isArray(r.results)?r.results:[];
+  return el('div',{'data-trig':'cancel-result',role:'status'},el('p',{},(r.cancelled||0)+' cancelled'+(r.refused?', '+r.refused+' refused':'')+'.'),
+    el('ul',{},rows.map(x=>el('li',{'data-task':x.id||'','data-ok':String(!!x.ok)},el('code',{},x.id||'(no id)'),' ',x.ok?'Cancelled':'Refused: '+(x.error||'')))),r.cli?taskCliNote(r.cli):null)}
+function trigCancelOpen(o,reload){const limit=Number(o.limit)||200,tasks=(Array.isArray(o.tasks)?o.tasks:[]).slice(0,limit),more=(Number(o.count)||tasks.length)-tasks.length,n=tasks.length;if(!n)return;
+  const lead=el('div',{'data-trig':'cancel-list'},settingsTable(['Task','For','State','Worker running'],tasks.map(t=>[el('code',{},t.id),t.ref||'',t.state||'',t.worker_running?'Yes':'No'])),
+    more>0?el('p',{class:'field-hint','data-trig':'cancel-more'},'Only these '+n+' are cancelled now ('+limit+' at a time); '+more+' more stay open.'):null);
+  return sheet({title:'Cancel '+n+' open trigger task'+(n===1?'':'s')+'?',description:'Each is closed as cancelled, with your reason in its history. A running worker is stopped and its branch kept. '+(o.note||'Cancelling does not queue the issue or PR again.'),
+    action:'Cancel '+n+' task'+(n===1?'':'s'),cancel:'Keep them',danger:true,pending:'Cancelling…',lead,
+    fields:[{name:'reason',label:'Reason',value:'',required:true,multiline:true,maxlength:500,hint:'Why they are retired: shown on each task and in handoff show.'},
+      {name:'cause',label:'Cause',value:'',options:[{value:'',label:'Not chosen: '+PRODUCT+' fills it where the record says it'},...CAUSES.map(([k,name])=>({value:k,label:name}))],hint:'Why the work was not delivered, from a fixed list, so Insights can count it. Recorded as yours.'}],
+    content:taskCliNote(CLI+' trigger cancel --reason TEXT [--cause CAUSE]'),
+    onSubmit:async v=>{const body={action:'trigger_cancel',tasks:tasks.map(t=>({id:t.id,version:t.version})),reason:v.reason};if(v.cause)body.cause=v.cause;
+      const j=await act(body);TRIGC_RESULT=j;toast((j.cancelled||0)+' cancelled'+(j.refused?', '+j.refused+' refused':''),!j.refused);reload()}})}
+// end:trigger-cancel
 function trigWrite(t){const d=TRIG.data;return sheet({title:'Write “'+t.title+'”',description:'Writes repos, authors, label, budget, max_per_day and the checkout under [triggers] in config.toml, with a backup and a history entry. enabled is not written: nothing fires until someone runs '+d.enable+' in a terminal.',action:'Write to config.toml',
   onSubmit:async()=>{await settingsAPI({action:'trigger_template',template:t.name,repo:d.repo,author:d.author});toast('Template written. Triggers are still off.',true);trigLoad()}})}
 // trigState is a mechanism's one line: on, on but cannot act (problem), or off
@@ -6204,7 +6227,7 @@ function trigRender(){const d=TRIG.data;if(!d)return;if(d.scope==='own'){trigRen
   const runsTitle=hostsShown?'Latest runs on this server':'Latest runs';
   const runs=el('section',{class:'trig-col trig-runs','data-trig':'offers','aria-label':runsTitle,tabindex:'-1'},el('h3',{},runsTitle),offers.length?
     el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),...(tri?[trigTriage(o,st,trigTask)]:[]),o.error||'']))):
-    el('div',{class:'trig-card'},el('p',{class:'mute','data-trig':'empty'},'Nothing recorded yet. Each run links to the task it started.')));
+    el('div',{class:'trig-card'},el('p',{class:'mute','data-trig':'empty'},'Nothing recorded yet. Each run links to the task it started.')),trigCancelBlock(d,()=>trigLoad()));
   const ownCmd=on?['Turned off from a terminal: ',el('code',{},CLI+' config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire');
   const rest=wh?trigWhereRest(wh):'',bad=whHead?false:on&&!!st.problem;
   const state=el('div',{class:'trig-card trig-state','data-trig':'state'},el('i',{class:'trig-dot'+(whHead?' on':on?st.problem?' bad':' on':''),'aria-hidden':'true'}),
@@ -6662,7 +6685,7 @@ function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')ret
     on?cliSame(CLI+' config set triggers.enabled false',{cls:'appt-cli',lead:'Pause from a terminal:'}):cliSame(d.enable||CLI+' config set triggers.enabled true',{cls:'appt-cli',label:'Turn on from a terminal',lead:'Turn on from a terminal:'}),
     on?el('p',{class:'appt-state','data-appt':'edit-why'},'Edit trigger is off while triggers are on: pause them to edit.'):null,
     held?[el('h3',{},'Held back'),el('div',{class:'app-pcard appt-held','data-appt':'held'},held)]:null,
-    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[appTrigWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||'']})),'Each run lists here, with the task it started.'));
+    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[appTrigWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||'']})),'Each run lists here, with the task it started.'),trigCancelBlock(d,()=>appTrigLoad()));
   const sch=((d.schedules||{}).schedules)||[];
   const rest=wh?trigWhereRest(wh):'';
   const where=hostsShown?el('div',{class:'app-pcard appt-card','data-appt':'where'},
