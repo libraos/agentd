@@ -146,6 +146,39 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
    // No sheet opens, even when called directly.
    assert.equal(w.eval('relayAnswer('+JSON.stringify(ID)+','+JSON.stringify(rv)+')'),null,'relayAnswer opened for an empty question');await settle();
    assert(!doc.querySelector('dialog.sheet[open]'),'an Answer sheet opened for an empty question');assert(!errors.length,errors.join('\n'))}}
+ // #1165: once the device refused the person's own Approve, Approve anyway (owner override) takes its place (posting force);
+ // the refusals alike fold into one line with their count; a question that is the pending approval asked again gets no
+ // second set of buttons.
+ {const why='this is your own handoff hof-rl1, so on a team someone else answers it; as an owner you may use Approve anyway (owner override), which is recorded in the task history';
+  const own={...approval,text:'May I push to main?'};
+  const rv={...relay,approvals:[own],question:{...question,text:'May I push to main?'},unpark:undefined,
+   actions:[{id:'rel-0000000c03',person:'alice',kind:'approval_answer',approval:own.id,decision:'approve',state:'refused',reason:why,override:true,age:'1m'},
+    {id:'rel-0000000c02',person:'alice',kind:'approval_answer',approval:own.id,decision:'approve',state:'refused',reason:why,override:true,age:'2m'},
+    {id:'rel-0000000c01',person:'alice',kind:'cancel',state:'refused',reason:'refused: hof-rl1 changed on alice-desk',age:'9m'}]};
+  const er={...row,relay:rv},dash={...base,user:'alice',role:'owner',handoff_list:[er],relay_inbox:[]};
+  const {w,doc,errors,posts}=page('http://127.0.0.1:21620/#issues/'+ID,dash,rv);await settle();
+  const panel=doc.querySelector('#issue-detail [data-relay-panel="'+ID+'"]');assert(panel,'no relay panel');
+  assert.deepEqual([...panel.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve-override','reject','cancel'],'buttons after a self-approval refusal');
+  const ov=panel.querySelector('[data-relay=approve-override]');assert.equal(ov.textContent,'Approve anyway (owner override)');
+  assert(!panel.querySelector('[data-relay-question]')&&!panel.querySelector('[data-relay-noquestion]'),'the approval asked again as a question has its own block');
+  const lis=[...panel.querySelectorAll('[data-relay-state]')];assert.equal(lis.length,2,'the refusals did not fold: '+lis.map(l=>l.textContent).join(' | '));
+  assert.equal(lis[0].dataset.relayCount,'2');assert(lis[0].textContent.includes('Refused (2 times)'),'no count: '+lis[0].textContent);assert(!lis[1].dataset.relayCount,'an unlike refusal folded in');
+  const dialog=()=>doc.querySelector('dialog.sheet'),foot=l=>[...dialog().querySelectorAll('.sheet-foot button')].find(b=>b.textContent===l);
+  ov.click();await settle();assert(dialog()&&dialog().textContent.includes('Approve your own request?'),'Approve anyway opens no confirm sheet');
+  assert(dialog().textContent.includes('owner override is recorded in the task history'),'the sheet does not say the override is recorded');
+  foot('Approve anyway').click();await settle();let p=posts.pop();delete p.nonce;
+  assert.deepEqual(p,{action:'relay',id:ID,kind:'approval_answer',approval:own.id,attempt:own.attempt,subject:own.digest,decision:'approve',note:'',force:true});
+  // Reject stays a plain reject.
+  panel.querySelector('[data-relay=reject]').click();await settle();const tr=dialog().querySelector('textarea');tr.value='no';tr.dispatchEvent(new w.Event('input'));foot('Reject').click();await settle();
+  p=posts.pop();assert.equal(p.decision,'reject');assert(!('force' in p),'a reject carries force');
+  // The row's one-click buttons: one set, the override in place of Approve, no Answer.
+  const quick=w.eval('relayQuick('+JSON.stringify(er)+')');assert.deepEqual([...quick.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve-override','reject'],'quick buttons after a refusal');
+  // A question naming the approval's id is the same ask; one that differs keeps its Answer.
+  assert.equal(w.eval('relaySameAsk('+JSON.stringify({...rv,question:{...question,text:'Waiting on '+own.id+' before I push'}})+')'),true);
+  assert.equal(w.eval('relaySameAsk('+JSON.stringify({...rv,question})+')'),false);
+  // With no such refusal: plain Approve.
+  assert.deepEqual([...w.eval('relayQuick('+JSON.stringify({...er,relay:{...rv,actions:[]}})+')').querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve','reject']);
+  assert(!errors.length,errors.join('\n'))}
  // On a phone the buttons are tap-sized.
  assert(/@media\(max-width:860px\)\{\.relay-btns button,\.ag-relay button\{min-height:44px\}\}/.test(html),'relay buttons are not tap-sized on a phone');
  console.log('relay: task page, Inbox, Agents rows, states, sheets and the terminal disclosure passed'+(phone?' (phone)':''));process.exit(0)
