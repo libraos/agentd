@@ -6301,7 +6301,7 @@ function trigRender(){const d=TRIG.data;if(!d)return;if(d.scope==='own'){trigRen
   const offers=Array.isArray(st.offers)?st.offers:[],tri=trigHasTriage(offers);
   const runsTitle=hostsShown?'Latest runs on this server':'Latest runs';
   const runs=el('section',{class:'trig-col trig-runs','data-trig':'offers','aria-label':runsTitle,tabindex:'-1'},el('h3',{},runsTitle),offers.length?
-    el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),...(tri?[trigTriage(o,st,trigTask)]:[]),o.error||'']))):
+    el('div',{class:'trig-card'},settingsTable(['When','Kind','For','Commit','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>[settingsWhen(o.created),trigKind(o),o.repo+'#'+o.number,o.head_sha?String(o.head_sha).slice(0,12):'',trigTask(o.handoff),...(tri?[trigTriage(o,st,trigTask)]:[]),o.error||(o.skipped?words(o.skipped):'')]))):
     el('div',{class:'trig-card'},el('p',{class:'mute','data-trig':'empty'},'Nothing recorded yet. Each run links to the task it started.')),trigCancelBlock(d,()=>trigLoad()));
   const ownCmd=on?['Turned off from a terminal: ',el('code',{},CLI+' config set triggers.enabled false'),'.']:trigState('triggers',false,'',st.problem_when_enabled,d.enable,'fire');
   const rest=wh?trigWhereRest(wh):'',bad=whHead?false:on&&!!st.problem;
@@ -6760,7 +6760,7 @@ function appTrigRender(){const p=$('app-page');if(!p||APPS.page!=='triggers')ret
     on?cliSame(CLI+' config set triggers.enabled false',{cls:'appt-cli',lead:'Pause from a terminal:'}):cliSame(d.enable||CLI+' config set triggers.enabled true',{cls:'appt-cli',label:'Turn on from a terminal',lead:'Turn on from a terminal:'}),
     on?el('p',{class:'appt-state','data-appt':'edit-why'},'Edit trigger is off while triggers are on: pause them to edit.'):null,
     held?[el('h3',{},'Held back'),el('div',{class:'app-pcard appt-held','data-appt':'held'},held)]:null,
-    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[appTrigWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||'']})),'Each run lists here, with the task it started.'),trigCancelBlock(d,()=>appTrigLoad()));
+    el('h3',{},'Runs'),appTrigRuns('triggers-runs',['When','Kind','For','Task',...(tri?['Triage']:[]),'Error'],offers.map(o=>({task:o.handoff||'',cells:[appTrigWhen(o.created),trigKind(o),o.repo+'#'+o.number,appTrigTask(o.handoff),...(tri?[trigTriage(o,st,appTrigOpen)]:[]),o.error||(o.skipped?words(o.skipped):'')]})),'Each run lists here, with the task it started.'),trigCancelBlock(d,()=>appTrigLoad()));
   const sch=((d.schedules||{}).schedules)||[];
   const rest=wh?trigWhereRest(wh):'';
   const where=hostsShown?el('div',{class:'app-pcard appt-card','data-appt':'where'},
