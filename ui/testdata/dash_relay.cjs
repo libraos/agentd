@@ -6,7 +6,10 @@
 // Each relayed action shows its state (waiting for the device, done, refused, expired) and why. The commands
 // to run on the device stay, as a visible list headed "Same in a terminal", each with its command (#1186: never
 // a closed disclosure whose items read empty). A task stopped at its budget offers Raise budget with an editable
-// suggested amount and Dispatch again where the device would start it again, with Cancel task last and plain. A person who may not act sees why, and
+// suggested amount and Dispatch again where the device would start it again, with Cancel task last and plain. While an
+// action of a kind is on its way (pending or taken), that kind's buttons give way to its state in place, at once after the
+// send (before any poll), with Withdraw while it is pending and the view marks it withdrawable; done, refused, expired or
+// withdrawn brings the buttons back as the view offers them. A person who may not act sees why, and
 // no button; a server that sends no relay view keeps the read-only page. Run in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_relay.cjs dash.html
 const fs=require('fs'),assert=require('assert');
@@ -19,12 +22,12 @@ const question={text:'Postgres or SQLite?',digest:'fedcba9876543210fedcba9876543
 const relay={host:'alice-desk',may:true,offline:false,approvals:[approval],question,cancel:{version:5},unpark:{version:5},
  actions:[{id:'rel-0000000a01',person:'alice',kind:'approval_answer',decision:'approve',state:'done',age:'5m'},
   {id:'rel-0000000a02',person:'alice',kind:'cancel',state:'refused',reason:'refused: hof-rl1 changed on alice-desk since the page showed it; reload and look again',age:'3m'},
-  {id:'rel-0000000a03',person:'alice',kind:'handoff_answer',state:'pending',reason:'waits for alice-desk to connect',age:'1m'}]};
+  {id:'rel-0000000a03',person:'alice',kind:'dispatch',state:'pending',reason:'waits for alice-desk to connect',age:'1m'}]};
 const row={id:ID,state:'claimed',from_user:'alice',goal:'Ship the parser '+evil,updated_ago:'2m',worker:'claude',worker_state:'waiting_answer',dispatched:true,attempts:[],origin:'host',host:'alice-desk',
  mirror:{node:'alice-desk',person:'alice',read_only:true},read_only:true,project:'acme/app',attention_status:'needs',mark:'needs_you',other_mirror:false,relay};
 const detail=(rv,r=row)=>({kind:'handoff',ref:ID,title:r.goal,mirror:true,read_only:true,node:'alice-desk',person:'alice',mirrored:'2026-11-25T06:00:00Z',mirrored_ago:'2m',state:'claimed',issues:[],body:{goal:row.goal},
  tree:[{...r,focus:true,log:[],attempts:[]}],...(rv?{relay:rv}:{})});
-function page(url,dash,rv,r){const errors=[],posts=[];let failNext='';
+function page(url,dash,rv,r){const errors=[],posts=[],loads=[];let failNext='',seq=0;
  const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
  const json=(body,status=200)=>({ok:status<300,status,json:async()=>body,text:async()=>JSON.stringify(body)});
  const dom=new JSDOM(html,{url,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
@@ -35,13 +38,14 @@ function page(url,dash,rv,r){const errors=[],posts=[];let failNext='';
    if(u.pathname==='/api/auth')return {ok:true,status:204};
    if(u.pathname==='/api/dash')return json(dash);
    if(u.pathname==='/api/issues')return json({issues:[]});
-   if(u.pathname==='/api/issue')return json(detail(rv,r));
+   if(u.pathname==='/api/issue'){loads.push(Date.now());return json(detail(rv,r))}
    if(u.pathname==='/api/action'){const b=JSON.parse(opt.body);posts.push(b);if(failNext){const e=failNext;failNext='';return json({ok:false,error:e},400)}
-    return json({ok:true,relay:'rel-0000000b01',state:'pending',host:'alice-desk',note:'alice-desk applies it on its next contact'})}
+    if(b.action==='relay_withdraw')return json({ok:true,relay:b.relay,state:'withdrawn',host:'alice-desk'});
+    return json({ok:true,relay:'rel-00000b'+String(++seq).padStart(4,'0'),state:'pending',host:'alice-desk',note:'alice-desk applies it on its next contact'})}
    if(u.pathname==='/api/load')return json({at:now,tasks:{}});
    if(u.pathname==='/api/chat')return json({chats:[],roles:[],gateway_ready:false});
    return json({})}}});
- return {w:dom.window,doc:dom.window.document,errors,posts,fail:e=>{failNext=e}}}
+ return {w:dom.window,doc:dom.window.document,errors,posts,loads,fail:e=>{failNext=e}}}
 // assertSteps: every step listed has its command (or its link) as text; none is an empty bullet (#1186).
 function assertSteps(box){const lis=[...box.querySelectorAll('li[data-need]')];assert(lis.length,'no step listed');
  for(const li of lis){const c=li.querySelector('.need-cli code,[data-need-link]'),label=li.querySelector('.need-label');
@@ -52,7 +56,7 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<8
 const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],waiting:[],claims:[],messages:[],inbox:[],checkouts:[],attention_version:1};
 (async()=>{
  // The task page: buttons for the approval, the question, unpark and cancel; the relayed actions with their state.
- {const dash={...base,user:'alice',role:'dev',handoff_list:[row],relay_inbox:[]};const {w,doc,errors,posts,fail}=page('http://127.0.0.1:21620/#issues/'+ID,dash,relay);await settle();
+ {const dash={...base,user:'alice',role:'dev',handoff_list:[row],relay_inbox:[]};const {w,doc,errors,posts,loads,fail}=page('http://127.0.0.1:21620/#issues/'+ID,dash,relay);await settle();
   const det=doc.getElementById('issue-detail'),panel=det.querySelector('[data-relay-panel="'+ID+'"]');assert(panel,'no Act from here on the mirrored page: '+det.textContent.slice(0,300));
   assert(/Act on it here: alice-desk applies what you send on its next contact\.$/.test(det.querySelector('.mirror-note').textContent),'note: '+det.querySelector('.mirror-note').textContent);
   assert.deepEqual([...panel.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve','reject','answer','unpark','cancel'],'buttons on the task page');
@@ -66,28 +70,89 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   const term=det.querySelector('section.need-term');assert(term,'no Same in a terminal list');assert.equal(term.querySelector('.need-h b').textContent,'Same in a terminal');
   assert(!det.querySelector('details'),'the commands are in a closed disclosure');assertSteps(term);
   const dialog=()=>doc.querySelector('dialog.sheet'),foot=l=>[...dialog().querySelectorAll('.sheet-foot button')].find(b=>b.textContent===l),btn=k=>det.querySelector('[data-relay-panel] [data-relay="'+k+'"]');
+  // A refusal stays in the sheet, with the server's reason, and changes no button.
+  btn('approve').click();await settle();fail('alice-desk\'s owner turned relayed actions off ([server] relay_actions = false in its config.toml); act on the task there');foot('Approve').click();await settle();
+  assert(dialog()&&/relay_actions = false/.test(dialog().querySelector('.sheet-error').textContent),'the refusal is not shown');posts.pop();foot('Cancel').click();await settle();
+  assert(btn('approve')&&btn('reject'),'a refused send took the buttons away');
   // Approve: a confirm sheet; closing it writes nothing; Approve posts the binding and a nonce.
   btn('approve').click();await settle();assert(dialog(),'Approve has no confirm sheet');assert(dialog().textContent.includes('alice-desk applies it on its next contact'),'the sheet does not say where it goes');
   foot('Cancel').click();await settle();assert.equal(posts.length,0,'closing the sheet wrote something');
+  const loads0=loads.length;
   btn('approve').click();await settle();const ta=dialog().querySelector('textarea');ta.value='go ahead';ta.dispatchEvent(new w.Event('input'));foot('Approve').click();await settle();
   let p=posts.pop();assert(/^[0-9a-f]{32}$/.test(p.nonce),'nonce: '+p.nonce);const n1=p.nonce;delete p.nonce;
   assert.deepEqual(p,{action:'relay',id:ID,kind:'approval_answer',approval:'apr-aa11bb',attempt:ID+'#2',subject:approval.digest,decision:'approve',note:'go ahead'});
+  // Right after the send, with no poll: the approval's buttons give way to its state, with Withdraw; the page
+  // reloads the server's view of the task.
+  const appr=()=>det.querySelector('[data-relay-approval="apr-aa11bb"]'),busy=k=>det.querySelector('[data-relay-panel] [data-relay-busy="'+k+'"]');
+  assert(!btn('approve')&&!btn('reject'),'Approve and Reject stay while the approval is on its way');
+  let b=appr().querySelector('[data-relay-busy=approval_answer]');assert(b,'no state in place of the approval buttons');assert.equal(b.dataset.relayBusyState,'pending');
+  assert(/Approval sent to alice-desk, waiting for it \(sent just now by alice\)/.test(b.textContent),'the in-flight line: '+b.textContent);
+  assert(b.querySelector('[data-relay=withdraw]'),'no Withdraw for a pending action of ones own');assert(loads.length>loads0,'the page did not reload the server view after the send');
+  // Withdraw: a confirm sheet, posts relay_withdraw with the action's id; the buttons come back at once.
+  b.querySelector('[data-relay=withdraw]').click();await settle();assert(dialog()&&dialog().textContent.includes('Withdraw this action?'),'Withdraw has no confirm sheet');
+  assert(dialog().textContent.includes('alice-desk never applies it'),'the sheet does not say the device never applies it');foot('Cancel').click();await settle();assert.equal(posts.length,0,'closing the withdraw sheet wrote something');
+  const rid=b.dataset.relayBusyId;b.querySelector('[data-relay=withdraw]').click();await settle();foot('Withdraw').click();await settle();
+  p=posts.pop();assert.deepEqual(p,{action:'relay_withdraw',id:ID,relay:rid});
+  assert(btn('approve')&&btn('reject'),'the buttons did not come back after the withdraw');assert(!appr().querySelector('[data-relay-busy]'),'the withdrawn action still shows in place');
+  assert(det.querySelector('[data-relay-id="'+rid+'"][data-relay-state=withdrawn]'),'the log does not show the action withdrawn');
   // Reject needs a reason; each click has its own nonce.
   btn('reject').click();await settle();foot('Reject').click();await settle();assert(dialog(),'a reject without a reason closed the sheet');assert.equal(posts.length,0,'a reject without a reason was posted');
   const tr=dialog().querySelector('textarea');tr.value='not today';tr.dispatchEvent(new w.Event('input'));foot('Reject').click();await settle();
   p=posts.pop();assert.equal(p.decision,'reject');assert.equal(p.note,'not today');assert.notEqual(p.nonce,n1,'two clicks shared a nonce');
-  // Answer: the text is required and posted with the question's binding.
+  b=appr().querySelector('[data-relay-busy=approval_answer]');assert(b&&b.textContent.startsWith('Waiting for the deviceRejection sent to alice-desk'),'no rejection state in place: '+(b&&b.textContent));
+  // A refused withdraw (the device took it meanwhile) stays in the sheet with why.
+  b.querySelector('[data-relay=withdraw]').click();await settle();fail('alice-desk already took rel-x, so it can no longer be withdrawn; its result comes back on its next contact');foot('Withdraw').click();await settle();
+  assert(dialog()&&/can no longer be withdrawn/.test(dialog().querySelector('.sheet-error').textContent),'a refused withdraw is not shown');posts.pop();foot('Cancel').click();await settle();
+  assert(appr().querySelector('[data-relay-busy=approval_answer]')&&!btn('approve'),'a refused withdraw brought the buttons back');
+  // Answer: the text is required and posted with the question's binding; then its state replaces Answer.
   btn('answer').click();await settle();assert(dialog().textContent.includes('Postgres or SQLite?'),'the answer sheet does not quote the question');
   const tq=dialog().querySelector('textarea');tq.value='SQLite';tq.dispatchEvent(new w.Event('input'));foot('Send answer').click();await settle();
   p=posts.pop();delete p.nonce;assert.deepEqual(p,{action:'relay',id:ID,kind:'handoff_answer',attempt:ID+'#2',subject:question.digest,text:'SQLite'});
-  // Unpark and Cancel task carry the version the page showed; cancel needs a reason.
+  assert(!btn('answer'),'Answer stays while the answer is on its way');assert(det.querySelector('[data-relay-question] [data-relay-busy=handoff_answer]').textContent.includes('Answer sent to alice-desk'),'no answer state in place');
+  // Unpark and Cancel task carry the version the page showed; cancel needs a reason; each is replaced by its state.
   btn('unpark').click();await settle();foot('Unpark').click();await settle();p=posts.pop();delete p.nonce;assert.deepEqual(p,{action:'relay',id:ID,kind:'unpark',version:5});
+  assert(!btn('unpark')&&busy('unpark'),'Unpark is not replaced by its state');assert(btn('cancel'),'another kind lost its button');
   btn('cancel').click();await settle();foot('Cancel task').click();await settle();assert(dialog(),'a cancel without a reason closed');
   const tc=dialog().querySelector('textarea');tc.value='not needed';tc.dispatchEvent(new w.Event('input'));foot('Cancel task').click();await settle();
   p=posts.pop();delete p.nonce;assert.deepEqual(p,{action:'relay',id:ID,kind:'cancel',version:5,reason:'not needed'});
-  // A refusal stays in the sheet, with the server's reason.
-  btn('approve').click();await settle();fail('alice-desk\'s owner turned relayed actions off ([server] relay_actions = false in its config.toml); act on the task there');foot('Approve').click();await settle();
-  assert(dialog()&&/relay_actions = false/.test(dialog().querySelector('.sheet-error').textContent),'the refusal is not shown');posts.pop();foot('Cancel').click();await settle();
+  assert(!btn('cancel')&&busy('cancel')&&busy('cancel').textContent.includes('Cancel sent to alice-desk'),'Cancel task is not replaced by its state');
+  assert.deepEqual([...panel.isConnected?panel.querySelectorAll('[data-relay]'):det.querySelectorAll('[data-relay-panel] [data-relay]')].map(x=>x.dataset.relay),['withdraw','withdraw','withdraw','withdraw'],'only Withdraw left while every kind is on its way');
+  assert(!errors.length,errors.join('\n'))}
+ // The server's view: for every kind, an action pending or taken replaces that kind's buttons with its state;
+ // Withdraw only on a pending one the view marks withdrawable (its sender or an owner), never on a taken one; once
+ // done, refused, expired or withdrawn, the buttons are back as the view offers them, the owner override included.
+ {const ap2={...approval,id:'apr-cc22dd',text:'May I also tag it?',digest:'abcdefabcdefabcdefabcdefabcdef01'};
+  const inflight=[{id:'rel-00000e0001',person:'alice',kind:'approval_answer',approval:approval.id,decision:'approve',state:'taken',reason:'alice-desk took it and is applying it',age:'1m',created:now},
+   {id:'rel-00000e0002',person:'alice',kind:'handoff_answer',state:'pending',reason:'x',age:'2m',withdraw:true,created:now},
+   {id:'rel-00000e0003',person:'bob',kind:'cancel',state:'pending',reason:'x',age:'2m',created:now},
+   {id:'rel-00000e0004',person:'alice',kind:'unpark',state:'pending',reason:'x',age:'3m',withdraw:true},
+   {id:'rel-00000e0005',person:'alice',kind:'budget',budget:'2h,$20',state:'pending',reason:'x',age:'3m',withdraw:true},
+   {id:'rel-00000e0006',person:'alice',kind:'dispatch',state:'taken',reason:'x',age:'4m'}];
+  const rv={...relay,approvals:[approval,ap2],raise:{version:5,suggest:'60m,$10'},dispatch:{version:5},actions:inflight};
+  const dash={...base,user:'alice',role:'dev',handoff_list:[{...row,relay:rv}],relay_inbox:[]};const {w,doc,errors}=page('http://127.0.0.1:21620/#issues/'+ID,dash,rv);await settle();
+  const panel=doc.querySelector('#issue-detail [data-relay-panel="'+ID+'"]');assert(panel,'no relay panel');
+  // Only the other approval keeps its buttons; every other kind shows its state.
+  assert.deepEqual([...panel.querySelectorAll('.relay-btns [data-relay]')].map(b=>b.dataset.relay),['approve','reject'],'buttons while every kind but one approval is on its way');
+  assert(panel.querySelector('[data-relay-approval="apr-cc22dd"] [data-relay=approve]'),'the other approval lost its buttons');
+  const st={};for(const x of panel.querySelectorAll('[data-relay-busy]'))st[x.dataset.relayBusy]=[x.dataset.relayBusyState,!!x.querySelector('[data-relay=withdraw]')];
+  assert.deepEqual(st,{approval_answer:['taken',false],handoff_answer:['pending',true],cancel:['pending',false],unpark:['pending',true],budget:['pending',true],dispatch:['taken',false]},'in-flight states and Withdraw');
+  assert(panel.querySelector('[data-relay-busy=approval_answer]').textContent.includes('Approval taken by alice-desk, which is applying it (sent 1m ago by alice)'),'taken text');
+  assert(panel.querySelector('[data-relay-busy=budget]').textContent.includes('Raise budget to 2h,$20 sent to alice-desk'),'budget text');
+  assert(panel.querySelector('[data-relay-busy=approval_answer]').title.startsWith('Sent '),'no time sent');
+  // The Agents list's one-click buttons: the approval on its way shows its state, no Approve.
+  const quick=w.eval('relayQuick('+JSON.stringify({...row,relay:{...rv,approvals:[approval]}})+')');assert.deepEqual([...quick.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['withdraw'],'quick buttons while the approval and answer are on their way (only the pending answer withdrawable)');
+  assert(quick.querySelector('[data-relay-busy=approval_answer]')&&quick.querySelector('[data-relay-busy=handoff_answer] [data-relay=withdraw]'),'quick row does not show what is on its way');
+  // Finished: done, refused, expired, withdrawn: the buttons are back as the view offers them.
+  for(const end of ['done','refused','expired','withdrawn']){const acts=inflight.map(a=>({...a,state:end,withdraw:false}));
+   const el2=w.eval('relayPanel('+JSON.stringify(ID)+','+JSON.stringify({...rv,actions:acts})+')');
+   assert(!el2.querySelector('[data-relay-busy]'),end+': a finished action still shows in place');
+   assert.deepEqual([...el2.querySelectorAll('.relay-btns [data-relay]')].map(b=>b.dataset.relay),['approve','reject','approve','reject','answer','budget','dispatch','unpark','cancel'],end+': buttons not back')}
+  // A refused Approve still offers the owner override in its place.
+  const ov=w.eval('relayPanel('+JSON.stringify(ID)+','+JSON.stringify({...rv,actions:[{...inflight[0],state:'refused',override:true}]})+')');
+  assert(ov.querySelector('[data-relay-approval="'+approval.id+'"] [data-relay=approve-override]'),'no owner override after the refusal');
+  // A raise the view no longer offers (the device has not reported yet) still shows on its way, withdrawable.
+  const gone=w.eval('relayPanel('+JSON.stringify(ID)+','+JSON.stringify({...rv,raise:undefined,actions:[inflight[4]]})+')');
+  assert(gone.querySelector('[data-relay-busy=budget] [data-relay=withdraw]'),'a raise on its way vanished with the offer');
   assert(!errors.length,errors.join('\n'))}
  // Someone who may not act sees why, and no button; the commands are out in the open as before.
  {const rv={host:'alice-desk',may:false,why:'only alice, whose device alice-desk mirrors this task, its own person or an owner may act on it from here',actions:[]};
@@ -211,11 +276,16 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   assert(dialog().textContent.includes('owner override is recorded in the task history'),'the sheet does not say the override is recorded');
   foot('Approve anyway').click();await settle();let p=posts.pop();delete p.nonce;
   assert.deepEqual(p,{action:'relay',id:ID,kind:'approval_answer',approval:own.id,attempt:own.attempt,subject:own.digest,decision:'approve',note:'',force:true});
+  // The override on its way replaces the approval's buttons, shown as such; withdrawn, they come back.
+  const live=()=>doc.querySelector('#issue-detail [data-relay-panel="'+ID+'"]'),ob=live().querySelector('[data-relay-busy=approval_answer]');
+  assert(ob&&ob.textContent.includes('Approval (owner override) sent to alice-desk'),'the override on its way does not show: '+(ob&&ob.textContent));assert(!live().querySelector('[data-relay=reject]'),'Reject stays while the override is on its way');
+  ob.querySelector('[data-relay=withdraw]').click();await settle();foot('Withdraw').click();await settle();assert.equal(posts.pop().action,'relay_withdraw');
+  assert(live().querySelector('[data-relay=approve-override]'),'the owner override did not come back after the withdraw');
   // Reject stays a plain reject.
-  panel.querySelector('[data-relay=reject]').click();await settle();const tr=dialog().querySelector('textarea');tr.value='no';tr.dispatchEvent(new w.Event('input'));foot('Reject').click();await settle();
+  live().querySelector('[data-relay=reject]').click();await settle();const tr=dialog().querySelector('textarea');tr.value='no';tr.dispatchEvent(new w.Event('input'));foot('Reject').click();await settle();
   p=posts.pop();assert.equal(p.decision,'reject');assert(!('force' in p),'a reject carries force');
-  // The row's one-click buttons: one set, the override in place of Approve, no Answer.
-  const quick=w.eval('relayQuick('+JSON.stringify(er)+')');assert.deepEqual([...quick.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve-override','reject'],'quick buttons after a refusal');
+  // The row's one-click buttons: one set, the override in place of Approve, no Answer (with nothing sent from this page).
+  w.eval('for(const k in RELAY_LOCAL)delete RELAY_LOCAL[k]');const quick=w.eval('relayQuick('+JSON.stringify(er)+')');assert.deepEqual([...quick.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve-override','reject'],'quick buttons after a refusal');
   // A question naming the approval's id is the same ask; one that differs keeps its Answer.
   assert.equal(w.eval('relaySameAsk('+JSON.stringify({...rv,question:{...question,text:'Waiting on '+own.id+' before I push'}})+')'),true);
   assert.equal(w.eval('relaySameAsk('+JSON.stringify({...rv,question})+')'),false);
@@ -224,5 +294,6 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   assert(!errors.length,errors.join('\n'))}
  // On a phone the buttons are tap-sized.
  assert(/@media\(max-width:860px\)\{\.relay-btns button,\.ag-relay button\{min-height:44px\}\}/.test(html),'relay buttons are not tap-sized on a phone');
+ assert(/@media\(max-width:860px\)\{\.relay-busy button\{min-height:44px\}\}/.test(html),'Withdraw is not tap-sized on a phone');
  console.log('relay: task page, Inbox, Agents rows, states, sheets, raise budget, dispatch again and the terminal list passed'+(phone?' (phone)':''));process.exit(0)
 })().catch(e=>{console.error(e);process.exit(1)});
