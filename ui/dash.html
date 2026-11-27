@@ -432,7 +432,7 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .relay-log{list-style:none;margin:0;padding:0;display:grid;gap:4px}.relay-log li{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;overflow-wrap:anywhere}
 .relay-state{font-size:12px;border-radius:999px;padding:0 8px;border:1px solid var(--line)}.relay-state[data-state=done]{color:var(--green,inherit)}.relay-state[data-state=refused],.relay-state[data-state=expired]{color:var(--red,inherit)}
 .ag-relay{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 8px 34px}.ag-relay button{min-height:28px;font-size:12px}
-details.need-term>summary{cursor:pointer;color:var(--mute)}
+.need-acts.need-term{border-left-color:var(--line)}
 @media(max-width:860px){.relay-btns button,.ag-relay button{min-height:44px}}
 .need-acts{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-m);background:var(--panel);padding:10px 12px;display:grid;gap:8px;min-width:0}
 .need-h{margin:0;font-size:var(--fs-s)}.need-h b{color:var(--fg)}
@@ -4125,10 +4125,10 @@ function relaySameAsk(rv){const q=relayAsks(rv);if(!q)return false;const t=Strin
 // page offers Approve anyway (owner override) in its place; the device still checks they are an owner there.
 function relayOverride(rv,a){return (rv.actions||[]).some(x=>x.kind==='approval_answer'&&x.approval===a.id&&x.override)}
 function relayNonce(){const b=new Uint8Array(16);(window.crypto||crypto).getRandomValues(b);return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
-const RELAY_KIND={approval_answer:'Answer to an approval',handoff_answer:'Answer to its worker',cancel:'Cancel',unpark:'Unpark'};
+const RELAY_KIND={approval_answer:'Answer to an approval',handoff_answer:'Answer to its worker',cancel:'Cancel',unpark:'Unpark',budget:'Raise budget',dispatch:'Dispatch again'};
 const RELAY_STATE={pending:'Waiting for the device',taken:'Sent to the device',done:'Done',refused:'Refused',expired:'Expired'};
 function relaySend(id,rv,kind,o,fields,body,done){const nonce=relayNonce(),host=rv.host||'its device';
-  return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',lead:o.quote!=null?relayQuote(o.quote):null,action:o.action,danger:!!o.danger,pending:'Sending…',fields},
+  return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',lead:o.quote!=null?relayQuote(o.quote):null,action:o.action,danger:!!o.danger,pending:'Sending…',fields,validate:o.validate},
     'relay:'+id+':'+kind+':'+(o.key||''),v=>({action:'relay',id,kind,nonce,...body(v||{})}),done||'Sent to '+host)}
 function relayApprove(id,rv,a,decision,force){const reject=decision==='reject';force=!!force&&!reject;
   return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':force?'Approve your own request?':'Approve this request?',description:(force?'This is your own request: as an owner you approve it anyway, and the owner override is recorded in the task history. ':'')+'The request is above your '+(reject?'reason':'note')+'.',quote:a.text||'',action:reject?'Reject':force?'Approve anyway':'Approve',danger:reject,key:a.id+(force?':force':'')},
@@ -4142,6 +4142,14 @@ function relayCancel(id,rv){return relaySend(id,rv,'cancel',{title:'Cancel this 
     [{name:'reason',label:'Reason',required:true,multiline:true}],v=>({version:rv.cancel.version,reason:v.reason||''}),'Cancel sent to '+(rv.host||'the device'))}
 function relayUnpark(id,rv){return relaySend(id,rv,'unpark',{title:'Unpark this task?',description:'Its park is cleared on '+(rv.host||'its device')+', so a worker takes it again.',action:'Unpark'},
     [],()=>({version:rv.unpark.version}),'Unpark sent to '+(rv.host||'the device'))}
+// relayRaise (#1186): Raise budget for a worker stopped at its budget; the amount is the person's own, prefilled
+// with the server's suggestion (twice its budget) and checked here, on the server and on the device.
+function relayRaise(id,rv){const r=rv.raise,host=rv.host||'its device';
+  return relaySend(id,rv,'budget',{title:'Raise its budget?',description:'Its worker was stopped at its budget'+(r.budget?' of '+r.budget:'')+'. The new budget is applied on '+host+' as handoff budget does there, and its worker starts again on its branch.',action:'Raise budget',validate:budgetInvalid},
+    [budgetField(r.suggest)],v=>({version:r.version,budget:v.budget}),'Raise sent to '+(rv.host||'the device'))}
+// relayDispatch (#1186): Dispatch again, offered only where the device's own dash would start the worker again.
+function relayDispatch(id,rv){return relaySend(id,rv,'dispatch',{title:'Dispatch it again?',description:'A new worker starts on '+(rv.host||'its device')+' on the same task, with its goal, check and budget, as Start again does there.',action:'Dispatch again'},
+    [],()=>({version:rv.dispatch.version}),'Dispatch sent to '+(rv.host||'the device'))}
 function relayBtn(label,act,on,cls){return el('button',{type:'button',class:cls||'','data-write':true,'data-relay':act,disabled:!CAN(),onclick:on},label)}
 // relayFold (#1165): refused actions alike (the same kind, approval, decision, override and reason) fold into the newest
 // one, with how many there were.
@@ -4153,7 +4161,7 @@ function relayFold(xs){const out=[],seen=new Map();
 function relayLog(rv){const xs=relayFold(rv.actions||[]);if(!xs.length)return null;
   return el('ul',{class:'relay-log','aria-label':'Sent from here'},xs.map(a=>el('li',{'data-relay-id':a.id,'data-relay-state':a.state,...(a.n>1?{'data-relay-count':a.n}:{})},
     el('span',{class:'relay-state','data-state':a.state},(RELAY_STATE[a.state]||word(a.state))+(a.n>1?' ('+a.n+' times)':'')),
-    el('span',{},(a.kind==='approval_answer'&&a.decision?capFirst(a.decision)+(a.decision==='approve'?'d':'ed')+(a.force?' (owner override)':''):RELAY_KIND[a.kind]||a.kind)+(a.person?' by '+a.person:'')+(a.age?', '+a.age+' ago':'')),
+    el('span',{},(a.kind==='approval_answer'&&a.decision?capFirst(a.decision)+(a.decision==='approve'?'d':'ed')+(a.force?' (owner override)':''):(RELAY_KIND[a.kind]||a.kind)+(a.kind==='budget'&&a.budget?' to '+a.budget:''))+(a.person?' by '+a.person:'')+(a.age?', '+a.age+' ago':'')),
     a.reason?el('span',{class:'mute'},a.reason):null)))}
 // relayPanel: what the signed-in person can do here for task id, from its relay view rv.
 function relayPanel(id,rv){if(!rv)return null;const kids=[],host=rv.host||'its device';
@@ -4165,7 +4173,10 @@ function relayPanel(id,rv){if(!rv)return null;const kids=[],host=rv.host||'its d
   if(relayAsks(rv)&&!relaySameAsk(rv))kids.push(el('div',{class:'relay-ask','data-relay-question':''},el('span',{class:'mute'},'Its worker asks'),el('p',{class:'relay-text'},rv.question.text),
     el('div',{class:'relay-btns'},relayBtn('Answer','answer',()=>relayAnswer(id,rv),'primary'))));
   else if(rv.question&&!relayAsks(rv))kids.push(el('div',{class:'relay-ask','data-relay-noquestion':''},el('span',{class:'mute'},'Its worker waits'),el('p',{class:'relay-text'},'The worker is waiting but sent no question.')));
-  const more=[rv.unpark?relayBtn('Unpark','unpark',()=>relayUnpark(id,rv)):null,rv.cancel?relayBtn('Cancel task','cancel',()=>relayCancel(id,rv),'danger'):null].filter(Boolean);
+  // A worker that can be resumed (#1186): Raise budget and Dispatch again come first, and Cancel task is not the loudest.
+  const resume=!!(rv.raise||rv.dispatch);
+  const more=[rv.raise?relayBtn('Raise budget','budget',()=>relayRaise(id,rv),'primary'):null,rv.dispatch?relayBtn('Dispatch again','dispatch',()=>relayDispatch(id,rv),rv.raise?'':'primary'):null,
+    rv.unpark?relayBtn('Unpark','unpark',()=>relayUnpark(id,rv)):null,rv.cancel?relayBtn('Cancel task','cancel',()=>relayCancel(id,rv),resume?'':'danger'):null].filter(Boolean);
   if(more.length)kids.push(el('div',{class:'relay-btns'},...more));
   const log=relayLog(rv);if(log)kids.push(log);
   const say='Your click goes to '+host+', which applies it as you on its next contact.'+(rv.waits?' '+capFirst(rv.waits)+'.':'');
@@ -4371,8 +4382,25 @@ function taskActions(d,h){if(!h||h.read_only)return [];if(PENDING[h.id+':task'])
   if(h.takeover)out.push(taskActButton('takeover','Take over',h.takeover.may===false?h.takeover.why_not||'You cannot take this task over.':null,h.takeover.cli,()=>takeoverTask(h)));
   if(h.editor&&h.editor.dir&&ed.local){const cli=(ed.argv||['$VISUAL']).map(taskShellWord).join(' ')+' '+taskShellWord(h.editor.dir);
     out.push(taskActButton('editor','Open in editor',h.editor.may===false?h.editor.why_not||'You cannot open this task.':ed.why_not||null,cli,()=>openTaskInEditor(h)))}
-  if(h.cancel)out.push(taskActButton('cancel','Cancel task',h.cancel.may===false?h.cancel.why_not||'You cannot cancel this task.':null,h.cancel.cli,()=>cancelTask(h),'no'));
+  // Raise budget (#1186): a worker stopped at its budget resumes; while it is offered, Cancel task is not the loudest.
+  if(h.raise)out.push(taskActButton('budget','Raise budget',h.raise.may===false?h.raise.why_not||'You cannot raise this task’s budget.':null,h.raise.cli,()=>raiseTask(h),'primary'));
+  if(h.cancel)out.push(taskActButton('cancel','Cancel task',h.cancel.may===false?h.cancel.why_not||'You cannot cancel this task.':null,h.cancel.cli,()=>cancelTask(h),h.raise&&h.raise.may!==false?null:'no'));
   return out}
+// budgetCheck (#1186): a budget the person typed, read as handoff budget reads one: at most one duration (90m, 2h,
+// 1h30m) and one dollar amount ($10), comma-separated, at most 64 characters. The server checks it again.
+function budgetCheck(v){v=String(v||'').trim();if(!v)return 'Give a budget, such as 90m, $10 or 90m,$10.';if(v.length>64)return 'A budget is at most 64 characters.';let mins=0,usd=0;
+  for(const raw of v.split(',')){const p=raw.trim().toLowerCase();
+    if(/^\$\d+(\.\d+)?$|^\d+(\.\d+)?usd$/.test(p)&&Number(p.replace(/[$a-z]/g,''))>0){if(usd++)return 'Give at most one dollar amount, such as $10.';continue}
+    if(/^(\d+(\.\d+)?(h|m|s))+$/.test(p)&&/[1-9]/.test(p)){if(mins++)return 'Give at most one duration, such as 90m.';continue}
+    return '“'+raw.trim()+'” is not a budget: give a duration such as 90m or 2h and/or a dollar amount such as $10.'}
+  return ''}
+function budgetInvalid(v){const e=budgetCheck(v.budget);return e?['budget',e]:null}
+function budgetField(suggest){return {name:'budget',label:'New budget',value:suggest||'',required:true,maxlength:64,hint:'Suggested: twice its budget. A duration such as 90m and/or a dollar amount such as $10.'}}
+function raiseTask(h){const r=h.raise;if(!r||r.may===false||h.read_only||h.origin==='host')return;const note=taskCliNote(r.cli),code=note.querySelector('code');
+  return sheet({title:'Raise its budget?',description:'Its worker was stopped at its budget'+(r.budget?' of '+r.budget:'')+'. A higher budget starts it again on its branch.',action:'Raise budget',pending:'Raising…',fields:[budgetField(r.suggest)],validate:budgetInvalid,content:note,
+    setup:api=>api.inputs.budget.addEventListener('input',()=>{code.textContent=String(r.cli).replace(/--budget .*$/,'--budget '+taskShellWord(api.inputs.budget.value.trim()||r.suggest||''))}),
+    onSubmit:async v=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Raising…';
+      try{const j=await act({action:'budget',id:h.id,budget:v.budget,version:r.version});toast(j.unchanged?'The budget is already '+j.budget:j.resumed?'Budget raised to '+j.budget+': its worker starts again':'Budget raised to '+j.budget,true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 function takeoverTask(h){return sheet({title:'Take this task over?',description:'Its worker has stopped. You take the task’s claim: the worker’s branch, commits and results stay, and you finish the work yourself, in its directory, with its check.',action:'Take over',pending:'Taking over…',content:taskCliNote(h.takeover.cli),
   onSubmit:async()=>{const ref=h.id+':task';if(PENDING[ref])return 'This action is already running.';PENDING[ref]='Taking over…';try{const j=await act({action:'takeover',id:h.id});toast(j.next?'Taken over. Next: '+j.next:'Taken over',true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 function cancelTask(h){if(!h.cancel||!h.cancel.may||h.read_only||h.origin==='host')return;return sheet({title:'Cancel this task?',description:'“'+(h.title||h.goal||h.id)+'” is closed as cancelled, with your reason in its history. A running worker is stopped. This cannot be undone.',action:'Cancel task',cancel:'Keep task',danger:true,pending:'Cancelling…',
@@ -4384,16 +4412,16 @@ async function openTaskInEditor(h){const j=await pending(h.id+':task','Opening�
 // region:need-actions: a task that reads Needs you always says what the person can do. The steps the
 // server has an /api/action for are the buttons in the top bar (have: their keys: dispatch for Dispatch,
 // Start again and Start anyway, takeover, cancel); this block lists the others: a step with no button for
-// this task (no API, as raising a budget, or not offered on this dash), as its exact command with Copy,
+// this task (no API, or not offered on this dash), as its exact command with Copy,
 // and each linked pull request as a link. A mirrored task (read only on this server) gets every step as
 // a command to run on its device. It is never empty on a task that needs a person: with nothing else,
 // handoff show says why. needsPerson reads the server's mark first, then attention_status, then the row.
 const NEED_STOP_ENDS=new Set(['budget_stopped','dash_stopped','failed_to_start','exited_before_claim','exited_holding_claim','lost','hung_stopped','finish_check_died']);
 function needLast(h){const a=(h&&h.attempts)||[];return a[a.length-1]||null}
 function needStopped(h){if(!h||!/^(offered|claimed)$/.test(h.state||''))return false;
-  if(h.takeover||h.retry||/^(stopped|gone)$/.test(h.worker_state||'')||/^(stopped|stop_failed)$/.test(h.budget_state||''))return true;
+  if(h.takeover||h.retry||h.raise||/^(stopped|gone)$/.test(h.worker_state||'')||/^(stopped|stop_failed|budget_exceeded)$/.test(h.budget_state||''))return true;
   const l=needLast(h);return !!(h.dispatched&&l&&!l.running&&NEED_STOP_ENDS.has(l.end_reason||''))}
-function needBudgetStop(h){const l=needLast(h);return /^(stopped|stop_failed)$/.test(h.budget_state||'')||!!(l&&!l.running&&l.end_reason==='budget_stopped')}
+function needBudgetStop(h){const l=needLast(h);return /^(stopped|stop_failed|budget_exceeded)$/.test(h.budget_state||'')||!!(h.raise)||!!(l&&!l.running&&l.end_reason==='budget_stopped')}
 function needsPerson(h){if(!h||!h.id||/^(done|cancelled|declined)$/.test(h.state||''))return false;
   if(markOf(h.mark))return h.mark==='needs_you'||h.mark==='failed';
   if(h.attention_status)return h.attention_status==='needs'||h.attention_status==='failed';
@@ -4402,30 +4430,32 @@ function needsPerson(h){if(!h||!h.id||/^(done|cancelled|declined)$/.test(h.state
 function needBudget(h){const b=String(h.budget||(h.retry&&h.retry.budget)||'').trim(),parts=b?b.split(','):[],out=[];
   for(const p of parts){const m=/^\s*(\$?)(\d+(?:\.\d+)?)(m|h)?\s*$/.exec(p);if(!m||(!m[1]&&!m[3]))return '60m';const n=Number(m[2])*2;out.push(m[1]+(Number.isInteger(n)?n:n.toFixed(2))+(m[3]||''))}
   return out.length?out.join(','):'60m'}
-function needWhat(h,have,mirror,rows){const id=h.id,ws=h.worker_state||'',out=[],cmd=CLI+' handoff ';
+function needWhat(h,have,mirror,rows,relay){const id=h.id,ws=h.worker_state||'',out=[],cmd=CLI+' handoff ';
+  const raise=(relay&&relay.raise)||h.raise||null,budgetStop=needBudgetStop(h)||!!raise,stopped=needStopped(h)||budgetStop;
   const add=(key,label,cli,hint)=>{if(!have.has(key)&&!out.some(x=>x.key===key))out.push({key,label,cli,hint})};
   if(ws==='waiting_answer')add('answer','Answer its question',cmd+'answer '+id+' --text "..."','The worker waits for your answer, its budget paused.');
   if(ws==='blocked')add('show','See what it waits on',cmd+'show '+id,'Its worker is blocked: answer it'+(mirror?' on its device':' with the message box under History')+', or take it over.');
   if(h.parked)add('resume','Resume it',cmd+'resume '+id,'An owner or the project’s lead, at their own terminal.');
   const ask=(rows||[]).find(x=>(x.what==='approval'||x.kind==='approval')&&x.can_answer===false);
   if(ask)add('approval','See who may answer',CLI+' approval list',capFirst(ask.answer_hint||'An approval waits for '+(ask.required_role?'a '+ask.required_role:'an owner')+': your role cannot answer it.'));
-  if(needStopped(h)||ws==='blocked'){
+  if(stopped||ws==='blocked'){
     // Only an offered handoff is dispatched; a claimed one is taken over or cancelled.
-    if(needStopped(h)&&h.state==='offered')add('dispatch','Dispatch again',cmd+'dispatch '+id,'A new worker on the same task, with its goal, check and budget.');
-    if(needBudgetStop(h))add('budget','Raise budget',cmd+'budget '+id+' --budget '+taskShellWord(needBudget(h)),'Its worker was stopped at its budget: a higher budget starts it again. No button does this yet.');
+    if(stopped&&h.state==='offered'||relay&&relay.dispatch)add('dispatch','Dispatch again',cmd+'dispatch '+id,'A new worker on the same task, with its goal, check and budget.');
+    if(budgetStop)add('budget','Raise budget',cmd+'budget '+id+' --budget '+taskShellWord((raise&&raise.suggest)||needBudget(h)),'Its worker was stopped at its budget: a higher budget starts it again on its branch.');
     add('takeover','Take over',(!mirror&&h.takeover&&h.takeover.cli)||cmd+'claim '+id+' --takeover','You take the claim and finish the work yourself, with its branch and check.');
     add('cancel','Cancel',(!mirror&&h.cancel&&h.cancel.cli)||cmd+'done '+id+' --cancel --reason TEXT','Closed as cancelled, with your reason in its history.')}
   for(const p of [...new Set(h.prs||[])].filter(p=>typeof p==='string'&&p.includes('#')))out.push({key:'pr',label:'Open the pull request',href:ghHref(p,'PR'),text:p});
   if(!out.length&&!have.size)add('show','See why it needs you',cmd+'show '+id,'Its history and the last worker’s result say what it waits on.');
   return out}
 function needCli(cli){return el('span',{class:'need-cli'},el('code',{},cli),el('button',{type:'button',class:'need-copy','data-copy':cli,'aria-label':'Copy the command: '+cli,title:'Copy the command',onclick:()=>chatCopy(cli)},'Copy'))}
-function needBlock(h,have,o={}){if(!needsPerson(h))return null;const xs=needWhat(h,have||new Set(),!!o.mirror,o.rows);if(!xs.length)return null;
+function needBlock(h,have,o={}){if(!needsPerson(h)&&!(o.relay&&(o.relay.raise||o.relay.dispatch)))return null;const xs=needWhat(h,have||new Set(),!!o.mirror,o.rows,o.relay);if(!xs.length)return null;
   const relayed=!!(o.mirror&&o.relay&&o.relay.may);
   const say=relayed?'Or run these on '+(o.where||'its device')+'.':o.mirror?'This task lives on '+(o.where||'its device')+', so this server cannot act on it: run these there.':have&&have.size?'The buttons above act here. These have no button for this task: run them where '+PRODUCT+' runs.':'No button acts on this task here: run these where '+PRODUCT+' runs.';
   const viewer=ROLE==='viewer'?' You have read-only access, so an owner or the task’s sender runs them.':'';
   const list=el('ul',{class:'need-list'},xs.map(x=>el('li',{'data-need':x.key},el('span',{class:'need-label'},x.label),
       x.href?el('a',{href:x.href,target:'_blank',rel:'noopener noreferrer','data-need-link':''},x.text):needCli(x.cli),x.hint?el('span',{class:'field-hint'},x.hint):null)));
-  if(relayed)return el('details',{class:'need-acts need-term','data-need-actions':h.id},el('summary',{},'Same in a terminal'),el('p',{class:'mute'},say+viewer),list);
+  if(relayed)return el('section',{class:'need-acts need-term','data-need-actions':h.id,'aria-label':'Same in a terminal'},
+    el('p',{class:'need-h'},el('b',{},'Same in a terminal'),' ',el('span',{class:'mute'},say+viewer)),list);
   return el('section',{class:'need-acts','data-need-actions':h.id,'aria-label':'What you can do'},
     el('p',{class:'need-h'},el('b',{},'What you can do'),' ',el('span',{class:'mute'},say+viewer)),list)}
 // needHave: which of the steps the page already offers as a button for h (enabled or with its reason): the top
@@ -4433,7 +4463,7 @@ function needBlock(h,have,o={}){if(!needsPerson(h))return null;const xs=needWhat
 function needHave(dash,h,rows){const have=new Set();if(!h||h.read_only||!(dash.handoff_list||[]).some(y=>y.id===h.id))return have;
   if((rows||[]).some(x=>x.what!=='issue'&&x.kind!=='stale'&&x.can_answer!==false))have.add('inbox');
   if(handoffWorkerActions(dash,h).length&&(h.retry||!h.dispatched))have.add('dispatch');
-  if(h.takeover)have.add('takeover');if(h.cancel)have.add('cancel');return have}
+  if(h.takeover)have.add('takeover');if(h.cancel)have.add('cancel');if(h.raise)have.add('budget');return have}
 // end:need-actions
 // #603: a worker's commits since dispatch are its change whatever branch it worked on. A branch agentd
 // did not make (foreign) is shown, and only publishing says why it is not pushed; "has not committed"

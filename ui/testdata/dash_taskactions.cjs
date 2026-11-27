@@ -3,7 +3,9 @@
 // h.cancel on an open task, h.editor where the worker's directory is on this host and the server may
 // start a program here: dash.editor.local), is disabled with the server's reason for a person who may
 // not, carries its CLI command, and posts its action: takeover and cancel after a confirmation, cancel
-// only with a reason. Run in every mode:
+// only with a reason. Raise budget (#1186) on a worker stopped at its budget: before Cancel task, primary, with Cancel
+// task plain; its sheet prefills the suggested amount, checks the person's own, shows the command for it and posts it
+// with the version shown; disabled with the server's reason for someone who may not. Run in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_taskactions.cjs dash.html
 const fs=require('fs'),assert=require('assert');
 const {JSDOM,VirtualConsole}=require(process.env.DASH_UI_DOM_MODULE||'jsdom');
@@ -18,8 +20,13 @@ const bobs={...base,id:'hof-bob',goal:'Bob\'s stopped task '+evil,from:'s-bob',f
  takeover:{may:false,why_not:'only the handoff\'s sender or an owner may take it over',cli:cmd('hof-bob','claim ID --takeover')},
  cancel:{may:false,why_not:'only the handoff\'s sender or an owner may cancel it',cli:cmd('hof-bob','done ID --cancel --reason TEXT')},
  editor:{may:false,why_not:'only the handoff sender, claimer or an owner may open it in an editor',dir:'/srv/wt/hof-bob'}};
+const budgeted={...base,id:'hof-bud',goal:'A worker stopped at its budget',state:'claimed',claimer:'s-w2',worker:'codex',dispatched:true,budget:'30m,$5',budget_state:'stopped',mark:'needs_you',
+ raise:{may:true,cli:cmd('hof-bud',"budget ID --budget '60m,$10'"),suggest:'60m,$10',version:4,budget:'30m,$5'},
+ takeover:{may:true,cli:cmd('hof-bud','claim ID --takeover')},cancel:{may:true,cli:cmd('hof-bud','done ID --cancel --reason TEXT')}};
+const bobBudget={...budgeted,id:'hof-bob-bud',from:'s-bob',from_user:'bob',raise:{...budgeted.raise,may:false,why_not:'only the handoff\'s sender or an owner may raise its budget',cli:cmd('hof-bob-bud',"budget ID --budget '60m,$10'")},
+ takeover:{...budgeted.takeover,may:false,why_not:'only the handoff\'s sender or an owner may take it over'},cancel:{...budgeted.cancel,may:false,why_not:'only the handoff\'s sender or an owner may cancel it'}};
 const done={...base,id:'hof-done',goal:'Finished',state:'done',claimer:'s-d',worker:'codex',dispatched:true,mark:'done'};
-let dash={user:'alice',role:'dev',now,handoff_list:[stopped,running,bobs],done:[{...done,title:done.goal}],sessions:[],left:[],waiting:[],claims:[],messages:[],inbox:[],dispatch:true,checkouts:['/srv/alpha'],terminal:false,editor:{local:true,argv:['code','-n']}};
+let dash={user:'alice',role:'dev',now,handoff_list:[stopped,running,bobs,budgeted,bobBudget],done:[{...done,title:done.goal}],sessions:[],left:[],waiting:[],claims:[],messages:[],inbox:[],dispatch:true,checkouts:['/srv/alpha'],terminal:false,editor:{local:true,argv:['code','-n']}};
 const errors=[],posts=[];let failNext='';
 const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
 const json=(body,status=200)=>({ok:status<300,status,json:async()=>body,text:async()=>JSON.stringify(body)});
@@ -33,6 +40,7 @@ function load(url){return new JSDOM(fs.readFileSync(process.argv[2]||__dirname+'
   if(u.pathname==='/api/issues')return json({issues:[]});
   if(u.pathname==='/api/action'){const b=JSON.parse(opt.body);posts.push(b);if(failNext){const e=failNext;failNext='';return json({ok:false,error:e},400)}
    if(b.action==='takeover')return json({ok:true,handoff:b.id,won:true,cli:cmd(b.id,'claim ID --takeover'),next:'work in /srv/wt, then finish it: agentd handoff done '+b.id+' --run-check --session s-dash'});
+   if(b.action==='budget')return json({ok:true,handoff:b.id,budget:b.budget,resumed:true,cli:cmd(b.id,'budget ID --budget '+b.budget)});
    if(b.action==='open_editor')return json({ok:true,handoff:b.id,editor:'code',dir:'/srv/wt/hof-run',cli:'code -n /srv/wt/hof-run'});
    return json({ok:true,handoff:b.id})}
   if(u.pathname==='/api/issue'){const ref=u.searchParams.get('ref'),h=[...dash.handoff_list,...dash.done].find(x=>x.id===ref);return json({kind:'handoff',ref,title:h.goal,body:{goal:h.goal},tree:[{...h,focus:true,log:[]}],prs:[]})}
@@ -88,6 +96,24 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<6
  for(const b of acts()){assert.equal(b.getAttribute('aria-disabled'),'true',b.dataset.taskAct+' is not disabled for bob\'s task');assert(/only the handoff/.test(b.title),'no reason on '+b.dataset.taskAct);b.click();await settle()}
  assert(!dialog(),'a disabled action opened a sheet');assert.equal(posts.length,0,'a disabled action wrote something');
  assert(!doc.querySelector('#issue-detail img'),'the goal became markup');
+ // Raise budget (#1186): before Cancel task, the primary action; Cancel task is plain while a raise is possible.
+ await go('#issues/hof-bud');
+ assert.deepEqual(keys(),['takeover','budget','cancel'],'a worker stopped at its budget');assert.equal(btn('budget').textContent,'Raise budget');
+ assert(btn('budget').classList.contains('primary'),'Raise budget is not primary');assert(!btn('cancel').classList.contains('no'),'Cancel task is red while a raise is possible');
+ assert.equal(btn('budget').dataset.cli,"agentd handoff budget hof-bud --budget '60m,$10'");
+ // Every step is a button here, so no step is listed again as an empty bullet.
+ for(const li of doc.querySelectorAll('#issue-detail li[data-need]'))assert(li.querySelector('.need-cli code,[data-need-link]').textContent.trim(),'an empty step: '+li.dataset.need);
+ assert(!doc.querySelector('#issue-detail li[data-need=budget]'),'Raise budget is listed as a command beside its button');
+ btn('budget').click();await settle();assert(dialog(),'Raise budget has no sheet');const inp=dialog().querySelector('input');assert.equal(inp.value,'60m,$10','the suggestion is not prefilled');
+ assert.equal(dialog().querySelector('.task-cli code').textContent,"agentd handoff budget hof-bud --budget '60m,$10'");
+ for(const bad of ['lots','90m,2h','0m','$1,$2']){inp.value=bad;inp.dispatchEvent(new w.Event('input'));foot('Raise budget').click();await settle();assert(dialog()&&!dialog().querySelector('.field-error').hidden,'no error for '+bad);assert.equal(posts.length,0,'posted '+bad)}
+ inp.value='2h';inp.dispatchEvent(new w.Event('input'));assert.equal(dialog().querySelector('.task-cli code').textContent,'agentd handoff budget hof-bud --budget 2h','the command does not follow the amount');
+ foot('Raise budget').click();await settle();assert.deepEqual(posts.pop(),{action:'budget',id:'hof-bud',budget:'2h',version:4});assert(!dialog(),'the raise sheet stayed open');
+ assert(/Budget raised to 2h: its worker starts again/.test(doc.getElementById('toast').textContent),'the toast does not say the worker starts again');
+ // Someone who may not: disabled with the server's reason; Cancel task stays plain red then.
+ await go('#issues/hof-bob-bud');
+ assert.equal(btn('budget').getAttribute('aria-disabled'),'true');assert(/sender or an owner may raise/.test(btn('budget').title),'no reason on Raise budget');
+ btn('budget').click();await settle();assert(!dialog(),'a disabled Raise budget opened a sheet');assert.equal(posts.length,0);
  // A dash that may not start a program here (not on loopback): no Open in editor at all.
  dash={...dash,editor:{local:false,why_not:'open in editor works only on a dash on loopback'}};await w.eval('refresh()');await go('#issues/hof-stop');
  assert.deepEqual(keys(),['takeover','cancel'],'Open in editor offered off loopback');

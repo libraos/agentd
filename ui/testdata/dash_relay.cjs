@@ -4,7 +4,9 @@
 // confirm sheet, as local approvals do, and post action relay bound to what the page showed (the approval and
 // its text's digest, the worker's attempt and the question's digest, the task's version) with a fresh nonce.
 // Each relayed action shows its state (waiting for the device, done, refused, expired) and why. The commands
-// to run on the device stay, under a "Same in a terminal" disclosure. A person who may not act sees why, and
+// to run on the device stay, as a visible list headed "Same in a terminal", each with its command (#1186: never
+// a closed disclosure whose items read empty). A task stopped at its budget offers Raise budget with an editable
+// suggested amount and Dispatch again where the device would start it again, with Cancel task last and plain. A person who may not act sees why, and
 // no button; a server that sends no relay view keeps the read-only page. Run in every mode:
 // DASH_UI_DOM_MODULE=/path/to/jsdom DASH_UI_PHONE=0|1 DASH_UI_THEME=light|dark node testdata/dash_relay.cjs dash.html
 const fs=require('fs'),assert=require('assert');
@@ -20,9 +22,9 @@ const relay={host:'alice-desk',may:true,offline:false,approvals:[approval],quest
   {id:'rel-0000000a03',person:'alice',kind:'handoff_answer',state:'pending',reason:'waits for alice-desk to connect',age:'1m'}]};
 const row={id:ID,state:'claimed',from_user:'alice',goal:'Ship the parser '+evil,updated_ago:'2m',worker:'claude',worker_state:'waiting_answer',dispatched:true,attempts:[],origin:'host',host:'alice-desk',
  mirror:{node:'alice-desk',person:'alice',read_only:true},read_only:true,project:'acme/app',attention_status:'needs',mark:'needs_you',other_mirror:false,relay};
-const detail=rv=>({kind:'handoff',ref:ID,title:row.goal,mirror:true,read_only:true,node:'alice-desk',person:'alice',mirrored:'2026-11-25T06:00:00Z',mirrored_ago:'2m',state:'claimed',issues:[],body:{goal:row.goal},
- tree:[{...row,focus:true,log:[],attempts:[]}],...(rv?{relay:rv}:{})});
-function page(url,dash,rv){const errors=[],posts=[];let failNext='';
+const detail=(rv,r=row)=>({kind:'handoff',ref:ID,title:r.goal,mirror:true,read_only:true,node:'alice-desk',person:'alice',mirrored:'2026-11-25T06:00:00Z',mirrored_ago:'2m',state:'claimed',issues:[],body:{goal:row.goal},
+ tree:[{...r,focus:true,log:[],attempts:[]}],...(rv?{relay:rv}:{})});
+function page(url,dash,rv,r){const errors=[],posts=[];let failNext='';
  const vc=new VirtualConsole();vc.on('jsdomError',e=>{if(!/Could not parse CSS|Not implemented:.*(scroll|navigation)/.test(e.message))errors.push(e.message)});
  const json=(body,status=200)=>({ok:status<300,status,json:async()=>body,text:async()=>JSON.stringify(body)});
  const dom=new JSDOM(html,{url,runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
@@ -33,13 +35,19 @@ function page(url,dash,rv){const errors=[],posts=[];let failNext='';
    if(u.pathname==='/api/auth')return {ok:true,status:204};
    if(u.pathname==='/api/dash')return json(dash);
    if(u.pathname==='/api/issues')return json({issues:[]});
-   if(u.pathname==='/api/issue')return json(detail(rv));
+   if(u.pathname==='/api/issue')return json(detail(rv,r));
    if(u.pathname==='/api/action'){const b=JSON.parse(opt.body);posts.push(b);if(failNext){const e=failNext;failNext='';return json({ok:false,error:e},400)}
     return json({ok:true,relay:'rel-0000000b01',state:'pending',host:'alice-desk',note:'alice-desk applies it on its next contact'})}
    if(u.pathname==='/api/load')return json({at:now,tasks:{}});
    if(u.pathname==='/api/chat')return json({chats:[],roles:[],gateway_ready:false});
    return json({})}}});
  return {w:dom.window,doc:dom.window.document,errors,posts,fail:e=>{failNext=e}}}
+// assertSteps: every step listed has its command (or its link) as text; none is an empty bullet (#1186).
+function assertSteps(box){const lis=[...box.querySelectorAll('li[data-need]')];assert(lis.length,'no step listed');
+ for(const li of lis){const c=li.querySelector('.need-cli code,[data-need-link]'),label=li.querySelector('.need-label');
+  assert(label&&label.textContent.trim(),'a step with no label');assert(c&&c.textContent.trim(),'an empty step: '+li.dataset.need);
+  if(c.matches('code'))assert.equal(li.querySelector('.need-copy').dataset.copy,c.textContent,'Copy copies another command: '+li.dataset.need)}
+ return lis.map(li=>li.dataset.need)}
 const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<8;i++)await tick()};
 const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],waiting:[],claims:[],messages:[],inbox:[],checkouts:[],attention_version:1};
 (async()=>{
@@ -54,9 +62,9 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   const log=[...panel.querySelectorAll('[data-relay-state]')].map(li=>li.dataset.relayState);assert.deepEqual(log,['done','refused','pending'],'relayed action states');
   assert(panel.querySelector('[data-relay-state=refused]').textContent.includes('reload and look again'),'a refusal does not say why');
   assert(panel.querySelector('[data-relay-state=pending]').textContent.includes('waits for alice-desk to connect'),'a pending action does not say what it waits for');
-  // The commands stay, under Same in a terminal.
-  const term=det.querySelector('details.need-term');assert(term,'no Same in a terminal disclosure');assert.equal(term.querySelector('summary').textContent,'Same in a terminal');assert(!term.open,'the disclosure is open');
-  assert(term.querySelector('.need-cli code'),'no command under the disclosure');assert(!det.querySelector('section.need-acts'),'the commands are still out in the open');
+  // The commands stay, as a visible list headed Same in a terminal, every step with its command (#1186).
+  const term=det.querySelector('section.need-term');assert(term,'no Same in a terminal list');assert.equal(term.querySelector('.need-h b').textContent,'Same in a terminal');
+  assert(!det.querySelector('details'),'the commands are in a closed disclosure');assertSteps(term);
   const dialog=()=>doc.querySelector('dialog.sheet'),foot=l=>[...dialog().querySelectorAll('.sheet-foot button')].find(b=>b.textContent===l),btn=k=>det.querySelector('[data-relay-panel] [data-relay="'+k+'"]');
   // Approve: a confirm sheet; closing it writes nothing; Approve posts the binding and a nonce.
   btn('approve').click();await settle();assert(dialog(),'Approve has no confirm sheet');assert(dialog().textContent.includes('alice-desk applies it on its next contact'),'the sheet does not say where it goes');
@@ -86,7 +94,42 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   const dash={...base,user:'bob',role:'dev',handoff_list:[{...row,relay:undefined}],relay_inbox:[]};const {doc,errors}=page('http://127.0.0.1:21620/#issues/'+ID,dash,rv);await settle();
   const det=doc.getElementById('issue-detail'),panel=det.querySelector('[data-relay-panel]');assert(panel&&panel.querySelector('[data-relay-why]').textContent.includes('only alice'),'no reason for bob: '+det.textContent.slice(0,300));
   assert(!panel.querySelector('button'),'bob got a button');assert(det.querySelector('.mirror-note').textContent.endsWith('Act on it on that device.'),'the note offers acting here');
-  assert(det.querySelector('section.need-acts'),'the commands are hidden for someone who cannot act here');assert(!errors.length,errors.join('\n'))}
+  assert(det.querySelector('section.need-acts'),'the commands are hidden for someone who cannot act here');assertSteps(det.querySelector('section.need-acts'));assert(!errors.length,errors.join('\n'))}
+ // #1186: a task stopped at its budget, mirrored from the person's device. Raise budget comes first (primary, its suggested
+ // amount editable and checked), then Dispatch again, and Cancel task last, not danger-styled; every step a terminal would
+ // take is listed with its command, none empty; each click carries the version shown and the person's own amount.
+ {const rv={host:'alice-desk',may:true,offline:false,cancel:{version:9},raise:{version:9,suggest:'60m,$10',budget:'30m,$5'},dispatch:{version:9},
+   actions:[{id:'rel-0000000d01',person:'alice',kind:'budget',budget:'45m,$8',state:'refused',reason:'refused: the budget raise policy of acme/app needs 2 approvals',age:'1m'}]};
+  const st={...row,state:'offered',worker_state:'',budget:'30m,$5',budget_state:'stopped',dispatched:true,relay:rv};
+  const dash={...base,user:'alice',role:'dev',handoff_list:[st],relay_inbox:[]};const {w,doc,errors,posts}=page('http://127.0.0.1:21620/#issues/'+ID,dash,rv,st);await settle();
+  const det=doc.getElementById('issue-detail'),panel=det.querySelector('[data-relay-panel="'+ID+'"]');assert(panel,'no relay panel on the budget-stopped task: '+det.textContent.slice(0,300));
+  const bs=[...panel.querySelectorAll('.relay-btns [data-relay]')];assert.deepEqual(bs.map(b=>b.dataset.relay),['budget','dispatch','cancel'],'buttons on a budget-stopped task');
+  assert.deepEqual(bs.map(b=>b.textContent),['Raise budget','Dispatch again','Cancel task']);
+  assert(bs[0].classList.contains('primary'),'Raise budget is not the primary action');assert(!bs[2].classList.contains('danger')&&!bs[2].classList.contains('primary'),'Cancel task is the loudest action while a resume is possible');
+  assert(panel.querySelector('[data-relay-state=refused]').textContent.includes('Raise budget to 45m,$8'),'the log does not name the raise and its amount: '+panel.querySelector('[data-relay-state=refused]').textContent);
+  const term=det.querySelector('section.need-term');assert(term,'no Same in a terminal list');const keys=assertSteps(term);
+  for(const k of ['dispatch','budget','takeover','cancel'])assert(keys.includes(k),'no '+k+' step: '+keys.join(','));
+  const bc=term.querySelector('li[data-need=budget] code').textContent;assert.equal(bc,"libraos-engine handoff budget "+ID+" --budget '60m,$10'",'the budget step does not use the suggestion');
+  assert(!term.textContent.includes('No button'),'a step still says no button does it');
+  const dialog=()=>doc.querySelector('dialog.sheet'),foot=l=>[...dialog().querySelectorAll('.sheet-foot button')].find(b=>b.textContent===l);
+  // Raise budget: the suggestion is prefilled and editable; an amount that is not a budget is refused in the sheet.
+  bs[0].click();await settle();assert(dialog()&&dialog().textContent.includes('alice-desk applies it on its next contact'),'Raise budget has no confirm sheet');
+  const inp=dialog().querySelector('input');assert.equal(inp.value,'60m,$10','the suggested amount is not prefilled');assert.equal(inp.getAttribute('maxlength'),'64');
+  for(const bad of ['lots','90m,2h','$5,$6','0m','$0','90m; rm -rf /']){inp.value=bad;inp.dispatchEvent(new w.Event('input'));foot('Raise budget').click();await settle();
+   assert(dialog(),'a bad amount closed the sheet: '+bad);assert(!dialog().querySelector('.field-error').hidden,'no error for '+bad);assert.equal(posts.length,0,'a bad amount was posted: '+bad)}
+  inp.value='';inp.dispatchEvent(new w.Event('input'));foot('Raise budget').click();await settle();assert.equal(posts.length,0,'an empty amount was posted');
+  inp.value=' 2h,$20 ';inp.dispatchEvent(new w.Event('input'));foot('Raise budget').click();await settle();
+  let p=posts.pop();assert(/^[0-9a-f]{32}$/.test(p.nonce),'nonce: '+p.nonce);delete p.nonce;assert.deepEqual(p,{action:'relay',id:ID,kind:'budget',version:9,budget:'2h,$20'});assert(!dialog(),'the sheet stayed open');
+  // Dispatch again: a confirm sheet, then the version shown.
+  panel.querySelector('[data-relay=dispatch]').click();await settle();assert(dialog().textContent.includes('Dispatch it again?'),'Dispatch again has no confirm sheet');
+  foot('Dispatch again').click();await settle();p=posts.pop();delete p.nonce;assert.deepEqual(p,{action:'relay',id:ID,kind:'dispatch',version:9});
+  assert(!errors.length,errors.join('\n'))}
+ // The same budget-stopped task, mirrored with no relay view (a server on an older release): every step as a command, none empty.
+ {const st={...row,state:'offered',worker_state:'',budget:'30m',budget_state:'stopped',dispatched:true,relay:undefined};
+  const dash={...base,user:'alice',role:'dev',handoff_list:[st]};const {doc,errors}=page('http://127.0.0.1:21620/#issues/'+ID,dash,null,st);await settle();
+  const box=doc.querySelector('#issue-detail section.need-acts');assert(box,'no steps on the read-only page');const keys=assertSteps(box);
+  for(const k of ['dispatch','budget','takeover','cancel'])assert(keys.includes(k),'no '+k+' step: '+keys.join(','));
+  assert.equal(box.querySelector('li[data-need=budget] code').textContent,'libraos-engine handoff budget '+ID+' --budget 60m');assert(!errors.length,errors.join('\n'))}
  // A server that sends no relay view: the read-only page, no control but Copy.
  {const dash={...base,user:'alice',role:'dev',handoff_list:[{...row,relay:undefined}]};const {doc,errors}=page('http://127.0.0.1:21620/#issues/'+ID,dash,null);await settle();
   const det=doc.getElementById('issue-detail');assert(!det.querySelector('[data-relay-panel]'),'a relay panel with no relay view');
@@ -181,5 +224,5 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   assert(!errors.length,errors.join('\n'))}
  // On a phone the buttons are tap-sized.
  assert(/@media\(max-width:860px\)\{\.relay-btns button,\.ag-relay button\{min-height:44px\}\}/.test(html),'relay buttons are not tap-sized on a phone');
- console.log('relay: task page, Inbox, Agents rows, states, sheets and the terminal disclosure passed'+(phone?' (phone)':''));process.exit(0)
+ console.log('relay: task page, Inbox, Agents rows, states, sheets, raise budget, dispatch again and the terminal list passed'+(phone?' (phone)':''));process.exit(0)
 })().catch(e=>{console.error(e);process.exit(1)});
