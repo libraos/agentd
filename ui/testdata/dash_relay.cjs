@@ -211,7 +211,7 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
  // The Agents list's Needs you row: one-click Approve, Reject and Answer under the row (not inside its link).
  {const dash={...base,user:'alice',role:'dev',handoff_list:[row],relay_inbox:[]};const {w,doc,errors,posts}=page('http://127.0.0.1:21620/#agents',dash,relay);await settle();
   const quick=doc.querySelector('#agents-rows [data-relay-quick="'+ID+'"]');assert(quick,'no quick buttons under the Needs you row: '+doc.getElementById('agents-rows').innerHTML.slice(0,400));
-  assert(!quick.closest('a'),'buttons inside the row link');assert.equal(quick.previousElementSibling&&quick.previousElementSibling.dataset.agentId,ID,'the buttons are not under their row');
+  assert(!quick.closest('a'),'buttons inside the row link');{const prev=quick.previousElementSibling,refs=prev&&prev.matches('[data-task-refs]')?prev:null,above=refs?refs.previousElementSibling:prev;assert(refs&&refs.querySelector('[data-task-id="'+ID+'"]'),'the row has no line with its id over its buttons');assert.equal(above&&above.dataset.agentId,ID,'the buttons are not under their row')}
   assert.deepEqual([...quick.querySelectorAll('[data-relay]')].map(b=>b.dataset.relay),['approve','reject','answer'],'quick buttons');
   assert(!doc.querySelector('#agents-rows [data-agent-id="'+ID+'"] .ag-sub').textContent.includes('sent no question'),'a question with text reads as none');
   quick.querySelector('[data-relay=approve]').click();await settle();const d=doc.querySelector('dialog.sheet');assert(d&&d.textContent.includes('Approve this request?'),'quick Approve opens no confirm sheet');

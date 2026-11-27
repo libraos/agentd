@@ -82,7 +82,9 @@ const tick=()=>new Promise(r=>setTimeout(r,25)),settle=async()=>{for(let i=0;i<5
  for(const r of rows())assert.equal(r.querySelectorAll('.tmark').length,1,'a row without its one mark: '+r.textContent);
  assert.equal(row('hof-ask').querySelector('.tmark').dataset.mark,'needs_you');assert.equal(row('hof-fail').querySelector('.tmark').dataset.mark,'failed');
  assert(row('hof-ask').textContent.includes(evil),'the title is not the task text');assert(!doc.querySelector('#agents-rows img'),'a title became markup');
- const sub=row('hof-work').querySelector('.ag-sub').textContent;for(const want of ['Codex','Working','#12','12 min','$0.40'])assert(sub.includes(want),'the row lacks '+want+': '+sub);
+ const sub=row('hof-work').querySelector('.ag-sub').textContent;for(const want of ['Codex','Working','12 min','$0.40'])assert(sub.includes(want),'the row lacks '+want+': '+sub);
+ {const refs=row('hof-work').nextElementSibling;assert(refs&&refs.matches('[data-task-refs]'),'the row has no line of its id and links under it');assert.equal(refs.querySelector('[data-task-id]').textContent,'hof-work');
+  const is=refs.querySelector('a[data-ref-kind="issue"]');assert(is&&is.textContent==='alpha#12'&&is.getAttribute('href')==='https://github.com/acme/alpha/issues/12','the issue is not a link by its short name: '+refs.innerHTML)}
  assert(row('hof-ask').querySelector('.ag-sub').textContent.includes('Claude · Needs you'),row('hof-ask').textContent);
  assert.equal(row('s-solo').getAttribute('href'),'#team/session/s-solo');assert(row('s-solo').textContent.includes('Exploring the gamma repo'));
  assert.equal(doc.querySelector('#agents-add').getAttribute('href'),'#settings/repositories','Add a repository does not lead to Settings > Repositories');

@@ -154,6 +154,13 @@ header>.stats{flex:0 1 auto;margin-left:auto;font-size:var(--fs-s)}header>.stats
 .ag-text{display:flex;flex-direction:column;min-width:0;flex:1}
 .ag-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .ag-sub,.ag-act{font-size:var(--fs-s);color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ag-act{font-style:italic}
+/* region:task-refs' line: the task id and its issue and PR links, under a card's title */
+.tlead{font-variant-numeric:tabular-nums;font-weight:600}.tw-goal{margin:4px 0 8px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg)}
+.trefs{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;min-width:0;font-size:var(--fs-xs);color:var(--mute)}
+.trefs .tref{font:12px/1.5 ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere;min-width:0}
+.trefs button.tref{background:none;border:0;padding:0;margin:0;color:var(--mute);cursor:copy;box-shadow:none;min-height:0;min-width:0}.trefs button.tref:hover{color:var(--fg);text-decoration:underline}
+.ag-refs{padding:0 10px 6px 30px;margin-top:-6px}.ib-refs{padding:0 16px 10px 124px;margin-top:-8px}.tw-refs{margin:2px 0 6px}.ov-needs>.ov-need-rows li.has-refs{flex-wrap:wrap}.ov-need-rows li>.trefs{flex-basis:100%}
+@media(max-width:860px){.trefs{gap:4px 12px}.trefs .tref{min-height:32px;display:inline-flex;align-items:center}.ib-refs{padding-left:12px;padding-right:12px}.ag-refs{padding-left:30px}}
 .ag-rows .empty{padding:10px;color:var(--mute);font-size:var(--fs-s)}
 .ag-add{display:inline-block;padding:10px 4px;font-size:var(--fs-s)}
 /* a notice with no task has a mark where a task row has its own */
@@ -2389,7 +2396,7 @@ function agentsModel(d){const items=needItems(d),{rows}=items,attention=d.attent
   for(const h of d.handoff_list||[]){const who=h.state==='held'?h.from:h.claimer,ended=attention&&h.attention_status==='stale',live=ended?null:liveOf(who,h),needs=(rows.get(h.id)||[]).filter(x=>x.kind!=='stale'&&x.can_answer!==false),
       entry=attention&&attention.needs.get(h.id),status=entry?entry.status:statusOf(h,needs,openPR),
       mark=handoffMark(h,status,attention,entry),
-      r={id:h.id,h,who,live,needs,status,mark,project:projectOf(h),title:cardTitle(h.title||h.goal||h.id),full:h.title||h.goal||h.id,href:itemHash(null,h.id),issue:h.issue||''};
+      r={id:h.id,h,who,live,needs,status,mark,project:projectOf(h),title:taskTitle(h),full:[h.title,h.goal].filter(Boolean).join('\n')||h.id,href:itemHash(null,h.id),issue:h.issue||''};
     // A task that needs you whose dispatched worker is still alive (the server's worker_running) is working too (#604).
     if(attention?!!entry:mark==='needs_you'||mark==='failed'||needs.length||live&&live.key==='wait'){counts.need++;if(h.worker_running)counts.working++;need.push(r);continue}
     if(mark==='working')counts.working++;else if(mark==='waiting')counts.waiting++;add(r.project,r)}
@@ -2411,10 +2418,9 @@ function agentsDetail(r){const h=r.h,n=r.needs&&r.needs[0],l=r.live,noq=!!(h&&h.
 // hostTag names the member host a mirrored handoff (#848) came from.
 function hostTag(x){return x&&x.origin==='host'&&x.host?el('span',{class:'host-tag',title:'Mirrored from host '+x.host+(x.mirror&&x.mirror.person?' ('+x.mirror.person+')':'')+'; read only here'},'on '+x.host):null}
 function agentsRow(r){const h=r.h,run=h&&(h.attempts||[]).filter(a=>a.running).pop(),sid=r.who||'',act=TEAM.activity&&TEAM.activity[sid],agent=h?toolName(h.worker||toolOf(sid))||(h.state==='offered'?'Unassigned':sessLabel(sid)):toolName(r.session.tool)||'Agent',
-    num=r.issue?(isLinearRef(r.issue)?r.issue.slice(7):'#'+r.issue.split('#')[1]):'',
-    sub=[agent,agentsState(r),num,run&&run.minutes!==undefined?fmtMin(run.minutes):'',run&&run.usd!==undefined?'$'+run.usd.toFixed(2):''].filter(Boolean).join(' · '),
+    sub=[agent,agentsState(r),run&&run.minutes!==undefined?fmtMin(run.minutes):'',run&&run.usd!==undefined?'$'+run.usd.toFixed(2):''].filter(Boolean).join(' · '),
     tip=[r.full,[modelName(act&&act.model||run&&run.model||''),r.session&&r.session.user||h&&h.claimer_user||''].filter(Boolean).join(' · ')].filter(Boolean).join('\n');
-  return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},r.title),el('span',{class:'ag-sub'},sub,h?hostTag(h):null),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
+  return el('a',{class:'ag-row',href:r.href,'data-agent-id':r.id,'data-mark':r.mark,title:tip},markEl(r.mark),el('span',{class:'ag-text'},el('span',{class:'ag-title'},...(h?taskHead(h):[r.title])),el('span',{class:'ag-sub'},sub,h?hostTag(h):null),act&&act.text?el('span',{class:'ag-act',title:act.at?'Latest activity, recorded '+chatWhen(act.at):'Latest activity'},act.text):null))}
 // agentsPreview: the right side's view of row r (wide screens): its whole goal, its state, what its worker
 // waits on and, for a task mirrored from the user's device, the relay panel with the whole question or request.
 function agentsPreview(r){if(!r)return [el('p',{class:'mute'},'Point at or focus a task to see it here.')];const h=r.h;
@@ -2431,7 +2437,7 @@ function agentsDraw(d){if(!d||APP.on)return;const box=$('agents-rows'),m=agentsM
   $('agents-counts').replaceChildren(...[[m.counts.need,d.attention_version?'need attention':m.counts.need===1?'task needs you':'tasks need you',d.attention_version?'Each task counts once, even with several Inbox notices.':'Open tasks waiting on you, each counted once however many Inbox items it has. The Inbox badge counts Inbox items, not tasks.'],[m.counts.working,'working','Open tasks with a worker running, those that also need you included'],[m.counts.waiting,'waiting','Open tasks waiting on something else']].map(([n,l,t])=>el('span',{title:t},el('b',{},n),' '+l)));
   // Inbox notices with no task are their own group, last, each row with a mark like a task's (dash-review A, M).
   // A task mirrored from the user's device with an approval or a question gets one-click buttons under its row (relayQuick).
-  const rowsOf=rs=>rs.flatMap(r=>[agentsRow(r),relayQuick(r.h)].filter(Boolean));
+  const rowsOf=rs=>rs.flatMap(r=>[agentsRow(r),handoffRefs(r.h,'ag-refs'),relayQuick(r.h)].filter(Boolean));
   const kids=[];if(m.need.length)kids.push(el('div',{class:'ag-group ag-need'},el('span',{},'Needs you'),el('span',{},m.need.length)),...rowsOf(m.need));
   for(const g of m.groups)kids.push(el('div',{class:'ag-group','data-project':g.project},el('span',{title:g.project||'No repository'},g.project||'No repository'),el('span',{},g.rows.length)),...rowsOf(g.rows));
   if(m.standalone.length)kids.push(el('div',{class:'ag-group ag-need','data-ag-inbox':''},el('span',{},'Inbox'),el('span',{},m.standalone.length)),...m.standalone.map(x=>{const a=attentionInboxLink(x);a.classList.add('ag-notice');a.prepend(el('span',{class:'ag-mark','aria-hidden':'true'},'✉'));return a}));
@@ -3295,6 +3301,39 @@ function noteLinearURLs(items){for(const x of items||[])if(x&&isLinearRef(x.ref)
 function linearHref(ref){return linearURLs.get(ref)||null}
 function trackerName(ref){return isLinearRef(ref)?'Linear':'GitHub'}
 function linearTextNode(ref){const href=linearHref(ref);return el('div',{class:'itext mute linear-text'},'This issue is in Linear; '+PRODUCT+' keeps its title and state, not its text. ',href?el('a',{href,target:'_blank',rel:'noopener'},'Open it in Linear'):null)}
+// region:task-refs: which task a card is. A Needs you row, an Overview Needs attention row, an Inbox
+// row and a task's own page name it the same way: a short title, and under it the task's id (a
+// button that copies it) and its issues and PRs, each a link by its short name (next#313, ENG-4).
+// taskTitleText is the title before a card cuts it: the linked issue's own title (the server's
+// title, from the issue rows), else for a trigger's task, whose goal is the trigger's words and
+// not the issue's, "Issue next#320" or "CI went red on PR core#12", else the goal's first
+// sentence. The whole goal stays the tooltip.
+const TRIGGER_GOAL=/^(?:Issue (\S+) (?:was opened, and every new issue in \S+ is triaged|has the label |is open in )|CI went red on PR (\S+) at commit )/;
+function shortRef(ref){ref=String(ref||'');if(isLinearRef(ref))return ref.slice(7);const m=/^[\w.-]+\/([\w.-]+)#(\d+)$/.exec(ref);return m?m[1]+'#'+m[2]:ref}
+function firstSentence(t){t=String(t||'').split('\n').find(l=>l.trim())||'';const re=/[.!?](?=\s|$)/g;let m;
+  while((m=re.exec(t))){const head=t.slice(0,m.index+1).trim();if(head.length>=20&&!/\b(?:e\.g|i\.e|etc|vs|cf)\.$/i.test(head))return head}return t.trim()}
+function taskTitleText(h){h=h||{};const t=String(h.title||'');if(t&&!TRIGGER_GOAL.test(t))return t;const g=String(h.goal||t),m=TRIGGER_GOAL.exec(g);
+  if(m&&m[1])return 'Issue '+shortRef(h.issue||m[1]);if(m&&m[2])return 'CI went red on PR '+shortRef(m[2]);return firstSentence(g)||String(h.id||'')}
+function taskTitle(h){return cardTitle(taskTitleText(h))}
+// taskLead: what a card's title line starts with, so the number is seen first: its issue's short ref,
+// else its PR's, else its id. taskHead is that line's nodes: the lead, then the title (a trigger's task
+// whose issue is not synced says what kind of issue it is, not its number twice).
+function taskLead(h){h=h||{};const is=refList(h.issues&&h.issues.length?h.issues:h.issue),ps=refList(h.prs);return is.length?shortRef(is[0]):ps.length?shortRef(ps[0]):String(h.id||'')}
+const TRIGGER_KIND=[[/^Issue \S+ was opened/,'New issue'],[/^Issue \S+ has the label /,'Labelled issue'],[/^Issue \S+ is open in /,'Backlog issue']];
+function taskHead(h,title){h=h||{};const lead=taskLead(h);let t=title||taskTitle(h);if(lead&&t==='Issue '+lead){const g=String(h.goal||h.title||''),k=TRIGGER_KIND.find(([re])=>re.test(g));t=k?k[1]:'Issue'}
+  return lead?[el('span',{class:'tlead'},lead),' · ',t]:[t]}
+// refList: the refs of a list of PRs or issues, given as refs or as {ref} views, each once.
+function refList(xs){return [...new Set((Array.isArray(xs)?xs:xs?[xs]:[]).map(p=>typeof p==='string'?p:p&&p.ref).filter(p=>typeof p==='string'&&(/^[\w.-]+\/[\w.-]+#\d+$/.test(p)||isLinearRef(p))))]}
+function refLink(ref,what){const href=ghHref(ref,what),tip=(what==='PR'?'Pull request ':'Issue ')+ref,kind=what==='PR'?'pr':'issue';
+  return href?el('a',{class:'tref',href,target:'_blank',rel:'noopener','data-ref-kind':kind,'data-ref':ref,title:tip},shortRef(ref)):el('span',{class:'tref','data-ref-kind':kind,'data-ref':ref,title:tip},shortRef(ref))}
+function taskIdCopy(id){return el('button',{type:'button',class:'tref tref-id','data-task-id':id,title:'Copy '+id,'aria-label':'Copy the task id '+id,onclick:e=>{e.preventDefault();e.stopPropagation();chatCopy(id)}},id)}
+// taskRefs: the line of ids, issues and PRs; null when there is none. An issue that is a PR is listed once, as the PR.
+function taskRefs(ids,prs,issues,cls){ids=[...new Set((ids||[]).filter(x=>typeof x==='string'&&x))];const ps=refList(prs),is=refList(issues).filter(r=>!ps.includes(r));
+  if(!ids.length&&!ps.length&&!is.length)return null;
+  return el('span',{class:'trefs'+(cls?' '+cls:''),'data-task-refs':''},...ids.map(taskIdCopy),...is.map(r=>refLink(r,'issue')),...ps.map(r=>refLink(r,'PR')))}
+// handoffRefs: a handoff row's line (its id, its issues and PRs).
+function handoffRefs(h,cls){return h&&h.id?taskRefs([h.id],h.prs,h.issues&&h.issues.length?h.issues:h.issue,cls):null}
+// end:task-refs
 // region:shared-work: what Inbox, Issues and Team all draw with
 /* Projects and status: the board's two axes. A card's project is its
    handoff's project, else the checkout its session works in (last path
@@ -3558,7 +3597,7 @@ function attentionInboxLink(x){return el('a',{class:'ag-row',href:inboxHref('nee
 // approvals, blocked and failed down the page or inflate the badge.
 function inboxSets(d){
   const items=needItems(d),all=items.all.slice();
-  if(d.attention_version)for(const [id,{h,status,notice}] of attentionModel(d,items).needs)if(h&&!notice)all.push({synthetic:true,id:'attention:'+id,handoff:id,kind:status==='failed'?'failed':'attention',title:h.title||h.goal||id,read:true,mine:h.mine});
+  if(d.attention_version)for(const [id,{h,status,notice}] of attentionModel(d,items).needs)if(h&&!notice)all.push({synthetic:true,id:'attention:'+id,handoff:id,kind:status==='failed'?'failed':'attention',title:taskTitleText(h),read:true,mine:h.mine});
   const asked=new Set(all.filter(x=>x.what==='approval').map(x=>x.ref)),specs=new Set(all.filter(x=>x.kind==='spec').map(x=>x.approval)),
     tier=x=>x.kind==='blocked'?0:x.kind==='failed'?1:x.what==='approval'||x.kind==='spec'?2:x.what==='issue'?4:3,
     rows=all.filter(x=>!(x.kind==='spec'&&asked.has(x.approval))).map(x=>x.what==='approval'&&specs.has(x.ref)?{...x,spec:true}:x).map((x,i)=>[x,i]).sort((a,b)=>tier(a[0])-tier(b[0])||a[1]-b[1]).map(a=>a[0]),
@@ -3591,15 +3630,24 @@ function inboxKey(x){return x.what==='issue'?x.ref:needNorm(x).id}
 function inboxHref(f,id){return '#inbox'+(f&&f!=='needs'?'/'+f:'')+(id?'?item='+encodeURIComponent(id):'')}
 function inboxTag(x){if(x.what==='issue')return ['Issue',''];x=needNorm(x);if(x.kind==='lesson'&&x.suggest_retire)return ['Suggest retire','a'];return x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind]}
 // The tag says what kind of item it is, so the title names the task: its goal, else the item's own words.
-function inboxTitle(x){if(x.what==='issue')return x.title;x=needNorm(x);if(x.kind==='lesson'&&x.lesson_text&&x.lesson_text.title)return words((x.suggest_retire?'Retire? ':'')+x.lesson_text.title);if(x.kind==='lesson'&&x.suggest_retire&&x.suggest_retire.title)return words('Retire? '+x.suggest_retire.title);return words(x.goal&&(x.kind==='stale'||/^(failed|review|result)$/.test(x.kind))?x.goal:x.title)}
+function inboxTitle(x){if(x.what==='issue')return x.title;x=needNorm(x);if(x.kind==='lesson'&&x.lesson_text&&x.lesson_text.title)return words((x.suggest_retire?'Retire? ':'')+x.lesson_text.title);if(x.kind==='lesson'&&x.suggest_retire&&x.suggest_retire.title)return words('Retire? '+x.suggest_retire.title);if(x.goal&&(x.kind==='stale'||/^(failed|review|result)$/.test(x.kind))){const h=inboxHandoff(x);return words(taskTitleText({title:h&&h.title,goal:x.goal,issue:h&&h.issue,id:x.handoff}))}return words(x.title)}
+// inboxHandoff: the open (or today's done) handoff an Inbox item is about, for its title and its refs.
+function inboxHandoff(x){const id=x&&x.handoff,d=lastDash||{};return id?(d.handoff_list||[]).find(y=>y.id===id)||(x=>x?{...x,id}:null)((d.done||[]).find(y=>y.what==='handoff'&&y.ref===id)):null}
+// inboxHead: an Inbox row's title line, its task's number first (region:task-refs' taskHead).
+function inboxHead(raw,full){if(raw.what==='issue')return [el('span',{class:'tlead'},shortRef(raw.ref)),' · ',cardTitle(full)];const x=needNorm(raw),h=inboxHandoff(x);
+  return x.handoff?taskHead({...(h||{}),id:x.handoff,goal:(h&&h.goal)||x.goal},cardTitle(full)):[cardTitle(full)]}
+// inboxRefs: an Inbox item's line: its task's id, issues and PRs (an issue item has its own ref already).
+function inboxRefs(raw,cls){if(raw.what==='issue')return null;const x=needNorm(raw),h=inboxHandoff(x);if(!x.handoff)return x.prs&&x.prs.length?taskRefs([],x.prs,[],cls):null;
+  return taskRefs([x.handoff],[...refList(h&&h.prs),...refList(x.prs)],h?(h.issues&&h.issues.length?h.issues:h.issue):[],cls)}
 function inboxRow(raw){
   const key=inboxKey(raw),tag=inboxTag(raw),full=inboxTitle(raw),x=raw.what==='issue'?raw:needNorm(raw),on=key===inboxSel,h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff);
   return el('article',{class:'ib-row'+(raw.what!=='issue'&&!x.read?' unread':'')+(on?' on':''),'data-id':key},
     el('a',{class:'ib-pick',href:inboxHref(inboxFilter,key),'aria-current':on?'true':null,title:full,onclick:()=>{inboxPicked=true;if(raw.what!=='issue')inboxRead(x)}},
       el('span',{class:'ib-tag '+(tag[1]||'')},tag[0]),
       el('span',{class:'ib-main'},
-        el('span',{class:'ib-title'},raw.what!=='issue'&&inboxUnreadDot(x)?el('span',{class:'ib-dot',role:'img','aria-label':'Unread',title:'Unread'}):null,cardTitle(full)),
-        el('span',{class:'ib-sub'},raw.what==='issue'?el('span',{},raw.ref):h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLabel(x.from)):null,x.age?el('span',{},x.age+' ago'):null))))}
+        el('span',{class:'ib-title'},raw.what!=='issue'&&inboxUnreadDot(x)?el('span',{class:'ib-dot',role:'img','aria-label':'Unread',title:'Unread'}):null,...inboxHead(raw,full)),
+        el('span',{class:'ib-sub'},raw.what==='issue'?el('span',{},raw.ref):h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLabel(x.from)):null,x.age?el('span',{},x.age+' ago'):null))),
+    inboxRefs(raw,'ib-refs'))}
 // blockedHow: a blocked worker is answered in place (the answer box) or in its
 // session; the terminal command is for people at the host.
 function blockedHow(x){const cmd=x.worker==='claude'?'claude attach '+(hostOf(x.claimer)||x.claimer||''):'';
@@ -3645,7 +3693,7 @@ function inboxDetail(raw){
   const x=needNorm(raw),tag=inboxTag(raw),full=inboxTitle(raw),h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff),goal=h&&h.goal&&words(h.goal)!==full?words(h.goal):'';
   const head=el('div',{},el('h3',{},x.kind==='blocked'?'Worker asks: '+cardTitle(x.worker_wait||h&&h.worker_wait||full):cardTitle(full)),
     el('div',{class:'ib-dsub'},el('span',{class:'ib-tag '+(tag[1]||'')},tag[0]),goal?el('span',{},cardTitle(goal)):null,h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):null,
-      x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLink(x.from)):null,x.age?el('span',{},x.age+' ago'):null,(x.prs||[]).map(p=>el('a',{href:ghHref(p,'PR'),target:'_blank',rel:'noopener'},p+' ↗'))));
+      x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLink(x.from)):null,x.age?el('span',{},x.age+' ago'):null),inboxRefs(raw,'ib-drefs'));
   const ask=x.kind==='blocked'?[el('div',{class:'ib-msg'},x.worker_wait||h&&h.worker_wait||'The worker ended its turn and is waiting for a reply.'),workerReport(x)]:
     x.approvalOnly||x.kind==='spec'?[el('div',{class:'ib-msg'},x.title),inboxReleases(x)]:
     x.kind==='lesson'&&x.lesson?[lessonFacts(x)]:
@@ -4557,11 +4605,15 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
     if(!DET.d){box.replaceChildren(crumb,el('div',{class:'state'},'Loading…'));return}
     if(DET.d.mirror===true){box.replaceChildren(el('div',{class:'idetail mirror-detail'},crumb,mirrorDetail(DET.d)));return}
     const d=DET.d,dash=lastDash||{},ctx=issueStatusCtx(dash),tree=d.tree||[],issue=d.issue||null,focus=tree.find(x=>x.focus)||tree[0]||{},hLive=ctx.live.get(focus.id),body=d.body||{};
-    const title=d.title||(d.pr&&d.pr.title)||focus.goal||body.goal||ref;
+    const title=d.kind==='handoff'?taskTitleText({title:d.title,goal:focus.goal||body.goal,issue:(d.issues||[]).map(i=>i&&i.ref).find(Boolean),id:ref}):d.title||(d.pr&&d.pr.title)||focus.goal||body.goal||ref;
+    // The ids and links a person names the task by (region:task-refs): the handoff's id (an issue's or PR's: each handoff on it), its issues and PRs.
+    const refs=taskRefs(d.kind==='handoff'?[focus.id||ref]:tree.map(x=>x.id).slice(0,6),d.kind==='pr'?[ref,...refList(d.prs)]:d.prs,d.kind==='issue'?[ref,...refList(d.issues)]:d.issues,'tw-refs');
     const status=d.kind==='issue'?issueStatus({...issue,handoffs:tree,prs:d.prs},ctx):d.kind==='pr'?statusOf({what:'PR',state:d.pr&&d.pr.state!=='OPEN'?d.pr.state:''}):focus.id?statusOf({...(hLive||focus),prs:focus.prs},ctx.rows.get(focus.id)||[],ctx.openPR):null;
     const going=tree.filter(x=>{const h=ctx.live.get(x.id)||x;return /^(claimed|held)$/.test(h.state||'')}),on=going[going.length-1],onWho=on&&((ctx.live.get(on.id)||on).state==='held'?on.from:on.claimer),lastWho=!on&&tree.length?(tree[tree.length-1].claimer||''):'';
     // A handoff's text is its body's fields; the goal is left out when it is the title, and with nothing left no empty box is drawn.
-    const fields=d.kind==='handoff'?[['Goal',body.goal],['Acceptance criteria',body.accept],['Where it stands',body.state],['Decided',body.decisions],['Still open',body.open],['Paths',body.paths]].filter(([k,v])=>v&&(k!=='Goal'||String(v).trim()!==String(title).trim())):[];
+    // The whole goal is at the top, under the title and its links, never cut (the person's 'show the entire information').
+    const topGoal=d.kind==='handoff'&&body.goal&&String(body.goal).trim()!==String(title).trim()?String(body.goal):'';
+    const fields=d.kind==='handoff'?[['Goal',topGoal?'':body.goal],['Acceptance criteria',body.accept],['Where it stands',body.state],['Decided',body.decisions],['Still open',body.open],['Paths',body.paths]].filter(([k,v])=>v&&(k!=='Goal'||String(v).trim()!==String(title).trim())):[];
     const text=d.kind==='handoff'?fields.length?el('dl',{class:'itext ifields'},fields.map(([k,v])=>[el('dt',{},k),el('dd',{},v)])):null:d.kind==='issue'?DET.text:null;
     const ghState=issue&&issue.state?issue.state.toLowerCase():'';
     const props=propRows([
@@ -4588,14 +4640,14 @@ function drawDetail(){const box=$('issue-detail');if(!DET.ref){box.replaceChildr
     const sideTabs=[['changes','Changes',nChange?nChange.files:0],['files','Files'],['checks','Checks'],['details','Details']];
     const who=sh?(sh.state==='held'?sh.from:sh.claimer||sel.claimer):onWho||lastWho,sp=sel&&sel.spend,tool=sh&&toolName(sh.worker_tool||sh.worker);
     const stEl=status?d.kind==='issue'||d.kind==='pr'?statusEl(status):taskStatus(hLive&&hLive.mark?hLive:focus,status):null;
-    const statusLine=el('div',{class:'kmeta tw-status'},stEl,el('span',{},isIssue?ref:projectOf(hLive||focus)||''),tool?el('span',{},tool):null,who?whoLink(who):null,sel&&sel.branch?el('code',{},sel.branch):null,sel?changeEl(sel.change?sel:sh):null,
+    const statusLine=el('div',{class:'kmeta tw-status'},stEl,el('span',{},isIssue?ref:projectOf(hLive||focus)||''),hostTag(hLive||focus),tool?el('span',{},tool):null,who?whoLink(who):null,sel&&sel.branch?el('code',{},sel.branch):null,sel?changeEl(sel.change?sel:sh):null,
       sp?el('span',{title:'Spend so far'},fmtMin(sp.minutes)+(sp.usd!==undefined?', '+(sp.floor?'≥ ':'')+'$'+sp.usd.toFixed(2):', not priced')):null,(sel||focus).updated_ago?el('span',{class:'age'},'Updated '+(sel||focus).updated_ago+' ago'):null);
     const pick=worked.length>1?el('label',{class:'tw-pick'},el('span',{class:'mute'},'Tabs show '),el('select',{'aria-label':'Which handoff the tabs show',onchange:e=>{TW.sel[ref]=e.target.value;drawDetail()}},worked.map(x=>el('option',{value:x.id,selected:x.id===hid||null},(x.goal||x.id).slice(0,60)+' · '+x.id)))):null;
     const noWorker=el('p',{class:'mute tw-none'},'No worker has run on this yet.');
     // The task Needs you is about: the handoff the tabs show (its page row under its live row, as the top bar reads it), else the focus.
     const nh=sel?{...sel,...sh}:focus.id?{...focus,...(hLive||{})}:null;
     box.replaceChildren(el('div',{class:'idetail tw','data-phone':TW.phone||null},
-      el('div',{class:'tw-top'},crumb,el('h2',{class:'ititle'},title),el('div',{class:'tw-bar'},statusLine,pick,twActions(dash,sh,hid)),nh?needBlock(nh,needHave(dash,sh,ctx.rows.get(nh.id)||[]),{rows:ctx.rows.get(nh.id)||[]}):null),
+      el('div',{class:'tw-top'},crumb,el('h2',{class:'ititle',title:focus.goal||body.goal||null},title),refs,topGoal?el('p',{class:'tw-goal','data-tw-goal':''},topGoal):null,el('div',{class:'tw-bar'},statusLine,pick,twActions(dash,sh,hid)),nh?needBlock(nh,needHave(dash,sh,ctx.rows.get(nh.id)||[]),{rows:ctx.rows.get(nh.id)||[]}):null),
       el('div',{class:'tw-body'},
         el('section',{class:'idoc tw-main','aria-label':'Session'},
           twTabs('Task','main',term?TW_MAIN:TW_MAIN.slice(0,2),main,sideTabs),
@@ -4909,7 +4961,7 @@ function ovRunning(stale=false){const rs=RUNNING.data.running.filter(r=>!!r.stal
 const OV_NEEDS_CAP=5;
 // Only work a person can unblock now, as tasks.waiting_person counts it: an unconfirmed worker or a
 // quiet host's row is under Unconfirmed / stale workers, and an offered handoff has no worker left to wait.
-function ovNeedRows(){const seen=new Set(),out=[],add=(id,goal,why,person)=>{if(!id||seen.has(id))return;seen.add(id);out.push({id,goal,why,person})},run=(RUNNING.data&&RUNNING.data.running)||[];
+function ovNeedRows(){const seen=new Set(),out=[],byId=new Map(((lastDash&&lastDash.handoff_list)||[]).map(h=>[h.id,h])),add=(id,goal,why,person)=>{if(!id||seen.has(id))return;seen.add(id);out.push({id,goal,why,person,h:byId.get(id)})},run=(RUNNING.data&&RUNNING.data.running)||[];
   for(const r of run)if(r.stale)seen.add(r.id);
   const quiet=new Set((((LOAD.data||{}).tasks||{}).hosts||[]).filter(x=>x&&x.stale).map(x=>x.node)),staleHost=h=>h.stale||h.mirror&&h.mirror.stale||h.origin==='host'&&(quiet.has(h.host)||h.mirror&&quiet.has(h.mirror.node));
   for(const r of run)if(!r.stale&&(r.parked||r.worker_state==='blocked'||r.worker_state==='waiting_answer'))add(r.id,r.goal,ovState(r),r.person);
@@ -4918,7 +4970,7 @@ function ovNeedRows(){const seen=new Set(),out=[],add=(id,goal,why,person)=>{if(
 function ovNeeds(load){if(lastDash&&lastDash.attention_version)return ovAttention(lastDash);
   const t=(load&&load.tasks)||{},wait=ovNum(t.waiting_person),appr=ovNum(t.approvals_pending),rows=ovNeedRows(),mine=lastDash?inboxNeedCount(lastDash):0;
   const fig=(key,label,n,href,title)=>el('div',{class:'ov-need-fig','data-ov-need':key},href&&n?el('a',{href,title:title||null},el('b',{},String(n)),' ',label):[el('b',{},n===null?'—':String(n)),' ',label]);
-  const list=rows.length?el('ul',{class:'ov-need-rows'},rows.slice(0,OV_NEEDS_CAP).map(r=>el('li',{'data-ov-need-row':r.id},el('a',{href:'#issues/'+encodeURIComponent(r.id),title:r.goal||r.id},cardTitle(r.goal||r.id)),el('span',{class:'tm-why'},[r.why,r.person?'asked by '+r.person:''].filter(Boolean).join(' · '))))):
+  const list=rows.length?el('ul',{class:'ov-need-rows'},rows.slice(0,OV_NEEDS_CAP).map(r=>el('li',{'data-ov-need-row':r.id,class:'has-refs'},el('a',{href:'#issues/'+encodeURIComponent(r.id),title:r.goal||r.id},...taskHead(r.h||{goal:r.goal,id:r.id})),el('span',{class:'tm-why'},[r.why,r.person?'asked by '+r.person:''].filter(Boolean).join(' · ')),r.h?handoffRefs(r.h):taskRefs([r.id])))):
     el('p',{class:'mute','data-ov-need-empty':''},wait?'The tasks waiting are not in this page’s lists yet; they are under Needs attention in Tasks.':'No task waits on a person.');
   return el('section',{class:'ov-needs','aria-labelledby':'ov-needs-h','data-ov-needs':''},
     el('div',{class:'ov-shead'},el('h3',{id:'ov-needs-h'},'Needs a person'),load&&feedIsStale(LOAD)?ovFresh(LOAD,load.at):null),
@@ -4929,8 +4981,8 @@ function ovAttention(d){const {needs,stale,others}=attentionModel(d);
   return el('section',{class:'ov-needs','aria-labelledby':'ov-needs-h','data-ov-needs':''},
     el('div',{class:'ov-shead'},el('h3',{id:'ov-needs-h'},'Needs attention'),el('span',{class:'n','data-ov-need':'attention'},String(needs.size))),
     needs.size?el('ul',{class:'ov-need-rows'},[...needs].slice(0,OV_NEEDS_CAP).map(([id,{h,status,notice}])=>{
-      const title=h?h.title||h.goal||id:notice.title||notice.ref||notice.id,href=h?itemHash(null,id):inboxHref('needs',inboxKey(notice));
-      return el('li',{'data-ov-need-row':id},el('a',{href,title},cardTitle(title)),el('span',{class:'tm-why'},notice&&h?notice.title:h?STATUS[status]:''),hostTag(h));
+      const title=h?[h.title,h.goal].filter(Boolean).join('\n')||id:notice.title||notice.ref||notice.id,href=h?itemHash(null,id):inboxHref('needs',inboxKey(notice)),refs=h?handoffRefs(h):notice.handoff?taskRefs([notice.handoff],notice.prs):null;
+      return el('li',{'data-ov-need-row':id,class:refs?'has-refs':null},el('a',{href,title},...(h?taskHead(h):[cardTitle(title)])),el('span',{class:'tm-why'},notice&&h?notice.title:h?STATUS[status]:''),hostTag(h),refs);
     })):el('p',{class:'mute','data-ov-need-empty':''},'Nothing needs attention.'),
     needs.size>OV_NEEDS_CAP?el('a',{class:'ov-more',href:'#issues?view=needs','data-ov-need-all':''},'All that needs attention in Tasks'):null,
     ...attentionGroups('overview',stale,attentionOtherNeeds(others)));
