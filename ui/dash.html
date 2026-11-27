@@ -429,11 +429,13 @@ input,textarea,select{background:var(--panel);border:1px solid var(--edge);borde
 .relay-acts .relay-ask{display:grid;gap:6px;padding:8px 0;border-top:1px solid var(--line)}.relay-acts .relay-ask:first-of-type{border-top:0}
 .relay-acts .relay-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
 .relay-quote{margin:0;padding:8px 12px;max-height:40vh;overflow:auto;border-left:3px solid var(--line);background:var(--sunk);white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.relay-btns{display:flex;flex-wrap:wrap;gap:6px}.relay-btns button{min-height:32px}
+.relay-busy{display:flex;flex-wrap:wrap;gap:6px;align-items:center;overflow-wrap:anywhere}.relay-busy button{min-height:32px}
 .relay-log{list-style:none;margin:0;padding:0;display:grid;gap:4px}.relay-log li{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;overflow-wrap:anywhere}
-.relay-state{font-size:12px;border-radius:999px;padding:0 8px;border:1px solid var(--line)}.relay-state[data-state=done]{color:var(--green,inherit)}.relay-state[data-state=refused],.relay-state[data-state=expired]{color:var(--red,inherit)}
+.relay-state{font-size:12px;border-radius:999px;padding:0 8px;border:1px solid var(--line)}.relay-state[data-state=done]{color:var(--green,inherit)}.relay-state[data-state=refused],.relay-state[data-state=expired]{color:var(--red,inherit)}.relay-state[data-state=withdrawn]{color:var(--mute,inherit)}
 .ag-relay{display:flex;flex-wrap:wrap;gap:6px;padding:0 10px 8px 34px}.ag-relay button{min-height:28px;font-size:12px}
 .need-acts.need-term{border-left-color:var(--line)}
 @media(max-width:860px){.relay-btns button,.ag-relay button{min-height:44px}}
+@media(max-width:860px){.relay-busy button{min-height:44px}}
 .need-acts{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-m);background:var(--panel);padding:10px 12px;display:grid;gap:8px;min-width:0}
 .need-h{margin:0;font-size:var(--fs-s)}.need-h b{color:var(--fg)}
 .need-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}.need-list li{display:grid;grid-template-columns:minmax(120px,max-content) minmax(0,1fr);gap:2px 12px;align-items:center;min-width:0}
@@ -2077,7 +2079,7 @@ function issueRefusalBox(info,hid,cwd,done,opts){const box=el('div',{class:'issu
   return box}
 // end:issue-anyway
 async function pending(ref,label,body,done){if(PENDING[ref])return false;PENDING[ref]=label;if(lastDash)render(lastDash);let j=false;try{j=await act(body);if(done)toast(done,true)}catch(e){toast(errorText(e),false)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}return j}
-function actionSheet(o,ref,body,done){return sheet({...o,onSubmit:async values=>{if(PENDING[ref])return 'This action is already running.';PENDING[ref]=o.pending||'Saving…';if(lastDash)render(lastDash);try{try{await act(typeof body==='function'?body(values):body)}catch(e){if(o.refused)o.refused(e,values);throw e}if(done)toast(done,true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
+function actionSheet(o,ref,body,done){return sheet({...o,onSubmit:async values=>{if(PENDING[ref])return 'This action is already running.';PENDING[ref]=o.pending||'Saving…';if(lastDash)render(lastDash);try{let j;try{j=await act(typeof body==='function'?body(values):body)}catch(e){if(o.refused)o.refused(e,values);throw e}if(o.sent)o.sent(j,values);if(done)toast(done,true)}finally{delete PENDING[ref];if(lastDash)render(lastDash);refresh()}}})}
 function meter(ctx,win,text){
   if(ctx===undefined||ctx<0)return null;
   const scale=win>0?win:500000,pct=Math.min(100,Math.round(ctx/scale*100));
@@ -4110,7 +4112,12 @@ function mirrorNote(d){const t=d.mirrored?new Date(d.mirrored):null,when=t&&!isN
 // device takes it on its next contact, checks it again against its own users and applies it as that person.
 // rv is the server's relay view ({may, why, host, offline, waits, approvals, question, cancel, unpark,
 // actions}); with no rv (an older server) nothing changes. Each button opens a confirm sheet, as local
-// approvals do; each relayed action shows its state: pending (waits for the device), done, refused or expired.
+// approvals do; each relayed action shows its state: pending (waits for the device), taken, done, refused,
+// expired or withdrawn. While an action of a kind is on its way (pending or taken; for an approval, that
+// approval's), that kind's buttons give way to its state in place (relayInFlight), with Withdraw while it is
+// pending and the person may withdraw it (the server's withdraw flag: its sender or an owner); its buttons come
+// back once it is done, refused, expired or withdrawn, as the server's view then allows. A send or a withdraw
+// shows at once (RELAY_LOCAL), then the page reloads the server's view.
 // relayQuote: an approval's or question's whole text in a confirm sheet, line breaks kept, scrolling when long;
 // a host clips it only past relayTextMax (relay.go), and then it ends with "…".
 function relayQuote(text){return el('blockquote',{class:'relay-quote','data-relay-quote':''},text||'(no text was sent)')}
@@ -4126,9 +4133,37 @@ function relaySameAsk(rv){const q=relayAsks(rv);if(!q)return false;const t=Strin
 function relayOverride(rv,a){return (rv.actions||[]).some(x=>x.kind==='approval_answer'&&x.approval===a.id&&x.override)}
 function relayNonce(){const b=new Uint8Array(16);(window.crypto||crypto).getRandomValues(b);return [...b].map(x=>x.toString(16).padStart(2,'0')).join('')}
 const RELAY_KIND={approval_answer:'Answer to an approval',handoff_answer:'Answer to its worker',cancel:'Cancel',unpark:'Unpark',budget:'Raise budget',dispatch:'Dispatch again'};
-const RELAY_STATE={pending:'Waiting for the device',taken:'Sent to the device',done:'Done',refused:'Refused',expired:'Expired'};
+const RELAY_STATE={pending:'Waiting for the device',taken:'Sent to the device',done:'Done',refused:'Refused',expired:'Expired',withdrawn:'Withdrawn'};
+// RELAY_LOCAL: what this page sent or withdrew, by relayed action id ({hid,at,action}), shown before the server's
+// view has it; the server's view wins once it lists that action (a withdraw: once it no longer says pending), and
+// an entry it never lists is dropped after two minutes.
+const RELAY_LOCAL={},RELAY_LOCAL_MS=120000;
+function relayMerged(id,rv){if(!rv)return rv;const now=Date.now();let xs=(rv.actions||[]).slice();
+  for(const [k,l] of Object.entries(RELAY_LOCAL)){if(l.hid!==id)continue;const old=now-l.at>RELAY_LOCAL_MS,i=xs.findIndex(a=>a.id===k);
+    if(i>=0){if(l.action.state==='withdrawn'&&xs[i].state==='pending'&&!old)xs[i]={...xs[i],state:'withdrawn',withdraw:false,reason:l.action.reason};else delete RELAY_LOCAL[k]}
+    else if(old)delete RELAY_LOCAL[k];else xs.unshift(l.action)}
+  return {...rv,actions:xs}}
+// relayBusy: the newest action of kind on its way (pending or taken); for an approval, approval apr's.
+function relayBusy(rv,kind,apr){return (rv.actions||[]).find(x=>x.kind===kind&&(x.state==='pending'||x.state==='taken')&&(kind!=='approval_answer'||x.approval===apr))||null}
+function relayWhat(x){return x.kind==='approval_answer'?(x.decision==='reject'?'Rejection':'Approval'+(x.force?' (owner override)':'')):x.kind==='handoff_answer'?'Answer':x.kind==='budget'?'Raise budget'+(x.budget?' to '+x.budget:''):x.kind==='dispatch'?'Dispatch again':x.kind==='unpark'?'Unpark':x.kind==='cancel'?'Cancel':(RELAY_KIND[x.kind]||x.kind)}
+// relayAfter: once a send or a withdraw went through, show it now and reload the server's view of the task.
+function relayAfter(id){if(lastDash)render(lastDash);if(typeof DET!=='undefined'&&DET.ref===id)loadDetail(id,false)}
+// relayInFlight: an action on its way, in place of its kind's buttons: its state, when it was sent, and Withdraw.
+function relayInFlight(id,rv,x){const host=rv.host||'its device',t=x.created?new Date(x.created):null,when=x.age?'sent '+x.age+' ago':'sent just now';
+  const say=relayWhat(x)+(x.state==='taken'?' taken by '+host+', which is applying it':' sent to '+host+', waiting for it')+' ('+when+(x.person?' by '+x.person:'')+')';
+  return el('div',{class:'relay-busy',role:'status','data-relay-busy':x.kind,'data-relay-busy-id':x.id,'data-relay-busy-state':x.state,...(t&&!isNaN(t)?{title:'Sent '+fmtTime(t,'datetime',true)}:{})},
+    el('span',{class:'relay-state','data-state':x.state},RELAY_STATE[x.state]||word(x.state)),el('span',{},say),
+    x.state==='pending'&&x.withdraw?relayBtn('Withdraw','withdraw',()=>relayWithdraw(id,rv,x)):null)}
+// relayWithdraw: take back an action its device has not taken; the server refuses it once the device took it.
+function relayWithdraw(id,rv,x){const host=rv.host||'its device';
+  return actionSheet({title:'Withdraw this action?',description:relayWhat(x)+' is taken back before '+host+' takes it, and '+host+' never applies it. Once '+host+' has taken it, it can no longer be withdrawn.',action:'Withdraw',pending:'Withdrawing…',fields:[],
+    sent:()=>{RELAY_LOCAL[x.id]={hid:id,at:Date.now(),action:{...x,state:'withdrawn',withdraw:false,reason:'withdrawn by you before '+host+' took it'}};relayAfter(id)}},
+    'relay-withdraw:'+x.id,{action:'relay_withdraw',id,relay:x.id},'Withdrawn')}
 function relaySend(id,rv,kind,o,fields,body,done){const nonce=relayNonce(),host=rv.host||'its device';
-  return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',lead:o.quote!=null?relayQuote(o.quote):null,action:o.action,danger:!!o.danger,pending:'Sending…',fields,validate:o.validate},
+  // What was sent shows at once in place of its buttons (RELAY_LOCAL), withdrawable as its sender's own.
+  const sent=(j,v)=>{const b=body(v||{}),rid=j&&j.relay;if(rid)RELAY_LOCAL[rid]={hid:id,at:Date.now(),action:{id:rid,kind,state:j.state||'pending',person:(lastDash||{}).user||'',reason:j.note||'',withdraw:true,
+    ...(b.approval?{approval:b.approval}:{}),...(b.decision?{decision:b.decision}:{}),...(b.force?{force:true}:{}),...(b.budget?{budget:b.budget}:{}),created:new Date().toISOString()}};relayAfter(id)};
+  return actionSheet({title:o.title,description:o.description+' '+host+' applies it on its next contact'+(rv.offline?' (it is not connected now, so it waits for '+host+' to connect)':'')+', and checks again that you may.',lead:o.quote!=null?relayQuote(o.quote):null,action:o.action,danger:!!o.danger,pending:'Sending…',fields,validate:o.validate,sent},
     'relay:'+id+':'+kind+':'+(o.key||''),v=>({action:'relay',id,kind,nonce,...body(v||{})}),done||'Sent to '+host)}
 function relayApprove(id,rv,a,decision,force){const reject=decision==='reject';force=!!force&&!reject;
   return relaySend(id,rv,'approval_answer',{title:reject?'Reject this request?':force?'Approve your own request?':'Approve this request?',description:(force?'This is your own request: as an owner you approve it anyway, and the owner override is recorded in the task history. ':'')+'The request is above your '+(reject?'reason':'note')+'.',quote:a.text||'',action:reject?'Reject':force?'Approve anyway':'Approve',danger:reject,key:a.id+(force?':force':'')},
@@ -4164,28 +4199,38 @@ function relayLog(rv){const xs=relayFold(rv.actions||[]);if(!xs.length)return nu
     el('span',{},(a.kind==='approval_answer'&&a.decision?capFirst(a.decision)+(a.decision==='approve'?'d':'ed')+(a.force?' (owner override)':''):(RELAY_KIND[a.kind]||a.kind)+(a.kind==='budget'&&a.budget?' to '+a.budget:''))+(a.person?' by '+a.person:'')+(a.age?', '+a.age+' ago':'')),
     a.reason?el('span',{class:'mute'},a.reason):null)))}
 // relayPanel: what the signed-in person can do here for task id, from its relay view rv.
-function relayPanel(id,rv){if(!rv)return null;const kids=[],host=rv.host||'its device';
+function relayPanel(id,rv){if(!rv)return null;rv=relayMerged(id,rv);const kids=[],host=rv.host||'its device';
   if(!rv.may){kids.push(el('p',{class:'mute','data-relay-why':''},rv.why||'You cannot act on this task from here.'));const log=relayLog(rv);if(log)kids.push(log);
     return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here')),...kids)}
-  for(const a of rv.approvals||[])kids.push(el('div',{class:'relay-ask','data-relay-approval':a.id},el('span',{class:'mute'},'Approval requested'+(a.required_role?' (needs '+a.required_role+')':'')),el('p',{class:'relay-text'},a.text||''),
-    el('div',{class:'relay-btns'},relayApproveBtn(id,rv,a),relayBtn('Reject','reject',()=>relayApprove(id,rv,a,'reject'),'danger'))));
+  // An approval, question or action on its way shows its state in place of its buttons (relayInFlight).
+  for(const a of rv.approvals||[]){const busy=relayBusy(rv,'approval_answer',a.id);kids.push(el('div',{class:'relay-ask','data-relay-approval':a.id},el('span',{class:'mute'},'Approval requested'+(a.required_role?' (needs '+a.required_role+')':'')),el('p',{class:'relay-text'},a.text||''),
+    busy?relayInFlight(id,rv,busy):el('div',{class:'relay-btns'},relayApproveBtn(id,rv,a),relayBtn('Reject','reject',()=>relayApprove(id,rv,a,'reject'),'danger'))))}
   // A question that is the pending approval asked again is answered by its buttons above: no second set.
+  const answering=relayBusy(rv,'handoff_answer');
   if(relayAsks(rv)&&!relaySameAsk(rv))kids.push(el('div',{class:'relay-ask','data-relay-question':''},el('span',{class:'mute'},'Its worker asks'),el('p',{class:'relay-text'},rv.question.text),
-    el('div',{class:'relay-btns'},relayBtn('Answer','answer',()=>relayAnswer(id,rv),'primary'))));
+    answering?relayInFlight(id,rv,answering):el('div',{class:'relay-btns'},relayBtn('Answer','answer',()=>relayAnswer(id,rv),'primary'))));
   else if(rv.question&&!relayAsks(rv))kids.push(el('div',{class:'relay-ask','data-relay-noquestion':''},el('span',{class:'mute'},'Its worker waits'),el('p',{class:'relay-text'},'The worker is waiting but sent no question.')));
   // A worker that can be resumed (#1186): Raise budget and Dispatch again come first, and Cancel task is not the loudest.
-  const resume=!!(rv.raise||rv.dispatch);
-  const more=[rv.raise?relayBtn('Raise budget','budget',()=>relayRaise(id,rv),'primary'):null,rv.dispatch?relayBtn('Dispatch again','dispatch',()=>relayDispatch(id,rv),rv.raise?'':'primary'):null,
-    rv.unpark?relayBtn('Unpark','unpark',()=>relayUnpark(id,rv)):null,rv.cancel?relayBtn('Cancel task','cancel',()=>relayCancel(id,rv),resume?'':'danger'):null].filter(Boolean);
+  const busy={};for(const k of ['budget','dispatch','unpark','cancel'])busy[k]=relayBusy(rv,k);
+  const raise=rv.raise&&!busy.budget,dispatch=rv.dispatch&&!busy.dispatch,resume=!!(raise||dispatch);
+  const more=[raise?relayBtn('Raise budget','budget',()=>relayRaise(id,rv),'primary'):null,dispatch?relayBtn('Dispatch again','dispatch',()=>relayDispatch(id,rv),raise?'':'primary'):null,
+    rv.unpark&&!busy.unpark?relayBtn('Unpark','unpark',()=>relayUnpark(id,rv)):null,rv.cancel&&!busy.cancel?relayBtn('Cancel task','cancel',()=>relayCancel(id,rv),resume?'':'danger'):null].filter(Boolean);
   if(more.length)kids.push(el('div',{class:'relay-btns'},...more));
+  // An action on its way shows in place of its button while the view would offer it, and also once the view no
+  // longer offers it (a raise the device's next contact has not yet reported), so it can still be withdrawn.
+  for(const k of ['budget','dispatch','unpark','cancel'])if(busy[k])kids.push(relayInFlight(id,rv,busy[k]));
+  // An answer on its way to a question this view no longer shows (it is the approval asked again, or gone).
+  if(answering&&!(relayAsks(rv)&&!relaySameAsk(rv)))kids.push(relayInFlight(id,rv,answering));
   const log=relayLog(rv);if(log)kids.push(log);
   const say='Your click goes to '+host+', which applies it as you on its next contact.'+(rv.waits?' '+capFirst(rv.waits)+'.':'');
   return el('section',{class:'relay-acts','data-relay-panel':id,'aria-label':'Act from here'},el('p',{class:'need-h'},el('b',{},'Act from here'),' ',el('span',{class:'mute'},say)),...kids)}
 // relayQuick: one-click Approve, Reject and Answer under a row (the Agents list's Needs you), opening the same sheets.
-function relayQuick(h){const rv=h&&h.relay;if(!rv||!rv.may)return null;const a=(rv.approvals||[])[0],q=relaySameAsk(rv)?null:relayAsks(rv);if(!a&&!q)return null;
+// An approval or answer on its way shows its state there instead (relayInFlight).
+function relayQuick(h){let rv=h&&h.relay;if(!rv||!rv.may)return null;rv=relayMerged(h.id,rv);const a=(rv.approvals||[])[0],q=relaySameAsk(rv)?null:relayAsks(rv);if(!a&&!q)return null;
+  const ab=a&&relayBusy(rv,'approval_answer',a.id),qb=q&&relayBusy(rv,'handoff_answer');
   return el('div',{class:'ag-relay','data-relay-quick':h.id,'aria-label':'Answer from here'},
-    a?relayApproveBtn(h.id,rv,a):null,a?relayBtn('Reject','reject',()=>relayApprove(h.id,rv,a,'reject'),'danger'):null,
-    q?relayBtn('Answer','answer',()=>relayAnswer(h.id,rv),'primary'):null)}
+    ab?relayInFlight(h.id,rv,ab):null,a&&!ab?relayApproveBtn(h.id,rv,a):null,a&&!ab?relayBtn('Reject','reject',()=>relayApprove(h.id,rv,a,'reject'),'danger'):null,
+    qb?relayInFlight(h.id,rv,qb):q?relayBtn('Answer','answer',()=>relayAnswer(h.id,rv),'primary'):null)}
 // relayInbox: the Inbox's part for tasks mirrored from the user's devices with something to answer or a
 // relayed action on its way (the snapshot's relay_inbox).
 function relayInbox(d){const xs=(d&&d.relay_inbox)||[];if(!xs.length)return null;
