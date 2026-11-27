@@ -95,7 +95,7 @@ const base={now,team:true,dispatch:true,done:[],sessions:[],left:[],unlinked:[],
   const det=doc.getElementById('issue-detail'),panel=det.querySelector('[data-relay-panel]');assert(panel&&panel.querySelector('[data-relay-why]').textContent.includes('only alice'),'no reason for bob: '+det.textContent.slice(0,300));
   assert(!panel.querySelector('button'),'bob got a button');assert(det.querySelector('.mirror-note').textContent.endsWith('Act on it on that device.'),'the note offers acting here');
   assert(det.querySelector('section.need-acts'),'the commands are hidden for someone who cannot act here');assertSteps(det.querySelector('section.need-acts'));assert(!errors.length,errors.join('\n'))}
- // #1186: a task stopped at its budget, mirrored from the person's device. Raise budget comes first (primary, its suggested
+ // #1186: a task stopped at its budget, mirrored from a user's device. Raise budget comes first (primary, its suggested
  // amount editable and checked), then Dispatch again, and Cancel task last, not danger-styled; every step a terminal would
  // take is listed with its command, none empty; each click carries the version shown and the person's own amount.
  {const rv={host:'alice-desk',may:true,offline:false,cancel:{version:9},raise:{version:9,suggest:'60m,$10',budget:'30m,$5'},dispatch:{version:9},
