@@ -188,6 +188,8 @@ header>.stats{flex:0 1 auto;margin-left:auto;font-size:var(--fs-s)}header>.stats
 /* .tech: a quiet disclosure for what only someone at the host's terminal can use (paths, commands, IDs) */
 details.tech{font-size:var(--fs-s);color:var(--mute);min-width:0;overflow-wrap:anywhere}details.tech>summary{cursor:pointer;color:var(--mute)}details.tech code,details.tech pre{overflow-wrap:anywhere;white-space:pre-wrap}details.tech[open]>summary{margin-bottom:4px}
 .failure-detail{display:grid;gap:2px;margin-top:3px;font-size:var(--fs-s);overflow-wrap:anywhere}.failure-reason{color:var(--fg)}.failure-next{color:var(--mute)}.krow>.failure-detail{flex:1 0 100%}.worker-report{margin-top:3px;font-size:var(--fs-s);overflow-wrap:anywhere}.worker-report .report-text{white-space:pre-wrap}.worker-report .linkish{margin-left:4px}
+/* A foreman stop (region:foreman-stops): its next step's commands, each on its own line with Copy */
+.foreman-next{display:grid;gap:4px;font-size:var(--fs-s)}.foreman-cmd{min-width:0;overflow-wrap:anywhere}.foreman-cmd code{white-space:pre-wrap;overflow-wrap:anywhere}
 .ib-more{display:block;padding:10px 16px;border-top:1px solid var(--line);font-size:var(--fs-s)}.ib-list>.ib-more:first-child{border-top:0}
 /* Phone: one pane at a time. The list, until an item is opened; then its detail, with a link back. */
 @media(max-width:860px){.ib-panes{grid-template-columns:minmax(0,1fr)}.ib-panes.picked .ib-list,.ib-panes:not(.picked) .ib-detail{display:none}.ib-back{display:inline-block;min-height:36px}.ib-detail{position:static}.ib-pick{grid-template-columns:minmax(0,1fr)}.ib-detail .kact button,.ib-detail .kact a{min-height:36px}}
@@ -1062,7 +1064,7 @@ body.app-paged .app-center>.app-tabstrip,body.app-paged .app-center>.app-tabbody
 .app-iscope-n{font-variant-numeric:tabular-nums;font-weight:600}
 .app-inbox{display:flex;flex-direction:column;gap:8px;max-width:860px}
 .app-inbox .ap-need{min-width:0;padding:12px 14px;border:1px solid var(--o-border);border-left:3px solid var(--o-question);border-radius:10px;background:var(--o-card);color:var(--o-fg);font-size:13px;line-height:1.45}
-.app-inbox .ap-need[data-kind="failed"]{border-left-color:var(--o-red)}.app-inbox .ap-need[data-kind="lesson"]{border-left-color:var(--o-ring)}
+.app-inbox .ap-need[data-kind="failed"],.app-inbox .ap-need[data-kind="foreman-stopped"]{border-left-color:var(--o-red)}.app-inbox .ap-need[data-kind="lesson"]{border-left-color:var(--o-ring)}
 .app-inbox .ap-ntext{overflow-wrap:anywhere;white-space:pre-line}.app-inbox .ap-ntext b{font-weight:600}
 .app-inbox .ap-mute{margin-top:4px;font-size:12px;color:var(--o-mfg);overflow-wrap:anywhere}
 .app-inbox .ap-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
@@ -2412,7 +2414,7 @@ function agentsModel(d){const items=needItems(d),{rows}=items,attention=d.attent
 function agentsState(r){const w=markWord(r.mark)||(r.h?word(r.h.state):markWord('working')),x=agentsDetail(r);return x?w+' · '+x:w}
 // A task mirrored from the user's device whose worker waits on a question with no text says so (no Answer is offered).
 function agentsDetail(r){const h=r.h,n=r.needs&&r.needs[0],l=r.live,noq=!!(h&&h.relay&&h.relay.question&&!relayAsks(h.relay));if(h&&h.attention_status==='stale')return 'stale';
-  if(n)return n.kind==='failed'?(r.mark==='failed'?'':'could not finish'):n.kind==='blocked'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':n.kind==='question'?(noq?'worker waits, sent no question':'question'):'';
+  if(n)return n.kind==='failed'?(r.mark==='failed'?'':'could not finish'):n.kind==='blocked'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):n.what==='approval'||n.kind==='spec'?'approval waiting':n.kind==='review'?'ready for review':foremanStop(n)&&n.kind!=='spec'?{question:'foreman question',ready:'ready to merge',stopped:'foreman stopped'}[n.kind]:n.kind==='question'?(noq?'worker waits, sent no question':'question'):'';
   if(l)return l.key==='working'?'':l.key==='wait'?(h&&h.worker_wait?'worker asks: '+h.worker_wait:'worker blocked'):l.text;
   return noq?'worker waits, sent no question':h&&h.state==='blocked'?'on another task':''}
 // hostTag names the member host a mirrored handoff (#848) came from.
@@ -3480,6 +3482,56 @@ function lessonActs(x){const show=el('button',{type:'button',onclick:()=>lessonS
     el('button',{class:'primary','data-write':true,onclick:()=>actionSheet({title:'Approve lesson '+x.lesson+'?',description:'It is stored in the lessons collection as you see it'+(x.drafted_by?' (worded by a model)':'')+', for workers to be given later.',action:'Approve',pending:'Approving…',fields:[{name:'note',label:'Note',multiline:true}],content:lessonFacts(x)},x.id,v=>({action:'lesson_approve',id:x.lesson,note:v.note}),'Lesson approved')},'Approve'),
     el('button',{class:'no','data-write':true,onclick:()=>actionSheet({title:'Reject lesson '+x.lesson+'?',description:'It is not stored, and a source like it is not proposed again.',action:'Reject',danger:true,pending:'Rejecting…',fields:[{name:'note',label:'Reason',required:true,multiline:true}]},x.id,v=>({action:'lesson_reject',id:x.lesson,note:v.note}),'Lesson rejected')},'Reject')]}
 // end:lessons
+// region:foreman-stops: where a foreman item waits on a person (core #94), each its own Inbox row
+// kind. The server names the item's root as the row's handoff and sets foreman on it:
+//   question  the foreman's approval (approval) asking what a stage asked: Answer approves with
+//             the answer as its note and the stage runs again; Stop the item rejects.
+//   spec      the foreman's spec approval: Approve goes on to implement, Redo with my note rejects
+//             with the note (spec runs again), Stop the item rejects with none.
+//   ready     the item's branch waits for the person's own merge: Open work item, the branch.
+//   stopped   the item stopped: the reason, and its next_step's terminal commands to copy.
+// Only a person's click in the dash moves an approval stop: an answer a session relays from a
+// terminal moves nothing (core's foremanFileStop), so the app, which may not answer approvals,
+// sends the person to the dash rather than to a command.
+function foremanStop(x){return !!(x&&x.foreman&&/^(question|spec|ready|stopped)$/.test(x.kind||''))}
+function foremanAsk(x){return foremanStop(x)&&!!x.approval&&(x.kind==='question'||x.kind==='spec')}
+const FOREMAN_TAGS={question:['Foreman question','b'],spec:['Foreman spec','b'],ready:['Ready to merge','b'],stopped:['Stopped','r']};
+const FOREMAN_DASH_ONLY='Answer it in the dash: a foreman stop moves only on a person’s click there, and an answer relayed from a terminal moves nothing.';
+function foremanAnswerActs(x){const id=x.approval,send=(decision,note)=>({action:'approval_answer',id,decision,...(note?{note}:{})});
+  if(x.can_answer===false)return [el('span',{class:'mute'},x.self?capFirst(x.answer_hint||'waiting for someone else to answer'):'Waiting for '+(x.required_role?'a '+x.required_role:'an owner')+' to answer; your role cannot'+(x.answer_hint?': '+x.answer_hint:''))];
+  if(!pageMay('approval_answer'))return [el('span',{class:'mute','data-where':'foreman'},'The app does not answer approvals. '+FOREMAN_DASH_ONLY)];
+  const stop=(desc,fields)=>el('button',{class:'no','data-write':true,onclick:()=>actionSheet({title:'Stop this foreman item?',description:desc+' Its branch stays.',action:'Stop the item',danger:true,pending:'Stopping…',fields},id,v=>send('reject',v&&v.note),'Rejected: the item stops')},'Stop the item');
+  if(x.kind==='question')return [
+    el('button',{class:'primary','data-write':true,onclick:()=>actionSheet({title:'Answer the question?',description:x.title+' The stage runs again with your answer.',action:'Send answer',pending:'Answering…',fields:[{name:'note',label:'Your answer',required:true,multiline:true}]},id,v=>send('approve',v.note),'Answered')},'Answer'),
+    stop('Rejecting the question stops the item.',[{name:'note',label:'Reason',multiline:true}])];
+  return [
+    el('button',{class:'primary','data-write':true,onclick:()=>actionSheet({title:'Approve the spec?',description:x.title+' The foreman goes on to implement.',action:'Approve',pending:'Approving…',fields:[{name:'note',label:'Note',multiline:true}]},id,v=>send('approve',v.note),'Approved')},'Approve'),
+    el('button',{'data-write':true,onclick:()=>actionSheet({title:'Send the spec back?',description:'Spec runs again with your note.',action:'Send back',pending:'Sending back…',fields:[{name:'note',label:'What to change',required:true,multiline:true}]},id,v=>send('reject',v.note),'Sent back to spec')},'Redo with my note'),
+    stop('Rejecting the spec with no note stops the item.')]}
+// foremanCmds: the terminal commands in a stopped item's next_step, each to copy.
+function foremanCmds(next){return String(next||'').match(/\b[\w.-]+ foreman (?:retry|route|stop) \S+(?: --(?:to|reason) [A-Z]+)?/g)||[]}
+function foremanCmdRow(c){return el('div',{class:'foreman-cmd'},el('code',{},c),' ',el('button',{type:'button',class:'linkish','aria-label':'Copy: '+c,onclick:()=>chatCopy(c)},'Copy'))}
+// foremanFacts: what the detail pane says under the row's title, by kind.
+function foremanFacts(x){
+  if(foremanAsk(x))return [el('div',{class:'ib-msg'},x.title),x.can_answer!==false&&pageMay('approval_answer')?el('div',{class:'ib-goal'},'Only a click here passes this stop; an answer relayed from a terminal moves nothing.'):null];
+  const branch=x.branch?el('div',{class:'ib-dsub','data-foreman':'branch'},'Branch ',el('code',{},x.branch),x.head?el('span',{title:x.head},' at '+String(x.head).slice(0,12)):null,' ',el('button',{type:'button',class:'linkish','aria-label':'Copy: '+x.branch,onclick:()=>chatCopy(x.branch)},'Copy')):null;
+  if(x.kind==='ready')return [el('div',{class:'ib-msg'},x.title),branch,x.next_step?el('div',{class:'ib-goal','data-foreman':'next'},x.next_step):null];
+  const cmds=foremanCmds(x.next_step);
+  return [el('div',{class:'failure-reason','data-foreman':'why'},el('b',{},'Why: '),x.failure?capFirst(plainText(words(x.failure))):x.title),branch,
+    x.next_step?el('div',{class:'foreman-next','data-foreman':'next'},el('b',{},'Next, at your own terminal:'),...(cmds.length?cmds.map(foremanCmdRow):[el('div',{},x.next_step)])):null]}
+// foremanCardDetail: on a card the row already says the reason; what to do next waits under Details.
+function foremanCardDetail(x){if(!x.next_step&&!x.branch)return null;const cmds=x.kind==='stopped'?foremanCmds(x.next_step):[];
+  return el('div',{class:'failure-detail'},el('details',{class:'tech failure-next'},el('summary',{},'Details'),x.branch?el('div',{},el('b',{},'Branch: '),el('code',{},x.branch)):null,
+    cmds.length?el('div',{},el('b',{},'Next, at your own terminal:'),...cmds.map(foremanCmdRow)):x.next_step?el('div',{},el('b',{},'Next: '),x.next_step):null))}
+// apForeman: the app's Inbox row for a foreman stop: {acts, notes}, as apAnswer's. The app does not answer
+// approvals, and a foreman stop moves only on a click in the dash, so it says that, with no command to copy.
+function apForeman(x){const ap=bs=>{for(const b of bs)if(b&&b.tagName==='BUTTON'){b.classList.add('ap-btn');if(b.classList.contains('primary'))b.classList.add('ap-primary');if(b.classList.contains('no'))b.classList.add('ap-danger')}return bs};
+  if(foremanAsk(x)){if(PENDING[x.approval])return {acts:[el('span',{class:'ap-mute',role:'status'},PENDING[x.approval])],notes:[]};
+    if(x.can_answer!==false&&!pageMay('approval_answer'))return {acts:[],notes:[el('div',{class:'ap-where','data-where':'foreman'},el('span',{class:'ap-mute'},'The app does not answer approvals. '+FOREMAN_DASH_ONLY))]};
+    return {acts:ap(foremanAnswerActs(x)).map(b=>b&&b.tagName==='SPAN'?(b.className='ap-mute',b):b),notes:[]}}
+  if(x.kind==='ready')return {acts:[],notes:x.branch?[el('div',{class:'ap-mute','data-foreman':'branch'},'Branch '+x.branch+(x.head?' at '+String(x.head).slice(0,12):'')+'. Review and merge it yourself; '+PRODUCT+' never merges it.')]:[]};
+  const cmds=foremanCmds(x.next_step);return {acts:[],notes:cmds.length?[apWhere('foreman-stopped','Next, at your own terminal:',cmds)]:x.next_step?[el('div',{class:'ap-mute'},x.next_step)]:[]}}
+// end:foreman-stops
 // One row of what waits on the user: an inbox item, a pending approval or
 // an issue. The kind is a muted word before the text, the actions on the right.
 function needNorm(x){return x.what==='approval'?{kind:'approval',id:x.ref,approval:x.ref,title:x.title,from:x.from,handoff:x.handoff,about:x.about,age:x.age,read:true,approvalOnly:true,can_answer:x.can_answer,required_role:x.required_role,answer_hint:x.answer_hint,self:x.self===true,spec:x.spec,mine:x.mine}:x}
@@ -3493,9 +3545,11 @@ function needActs(x,extra){
   // A failed or expired item's next step is a button, not a command: the work item's own Start again or Dispatch.
   if(extra&&extra.inbox&&h&&(x.kind==='failed'||x.kind==='stale'))visible.push(...handoffWorkerActions(lastDash||{},h));
   if(x.approvalOnly&&x.can_answer===false)visible.push(el('span',{class:'mute'},x.self?capFirst(x.answer_hint||'waiting for someone else to answer'):'Waiting for '+(x.required_role?'a '+x.required_role:'an owner')+' to answer; your role cannot'+(x.answer_hint?': '+x.answer_hint:'')));
+  else if(foremanAsk(x))visible.push(...foremanAnswerActs(x));
   else if((x.approvalOnly||x.kind==='spec'&&x.approval)&&!pageMay('approval_answer'))visible.push(el('span',{class:'mute','data-where':'approval'},'The app does not answer approvals. Answer it in the dash, or at your own terminal: '+CLI+' approval answer '+x.approval+' --approve (or --reject)'));
   else if(x.approvalOnly||x.kind==='spec'&&x.approval){const [yes,no,own]=approvalActs(x.approval,x.title,x.from,x.approvalOnly?x.self:undefined);visible.push(yes,no);if(own)more.push(own)}
   if(x.kind==='blocked'){const h=((lastDash||{}).handoff_list||[]).find(h=>h.id===x.handoff),sid=x.claimer||h&&h.claimer;if(sid)visible.unshift(el('a',{href:teamHref('session',sid),onclick:()=>inboxRead(x)},'Open session'));else if(x.handoff)visible.unshift(el('a',{href:itemHash(null,x.handoff),onclick:()=>inboxRead(x)},'Open work item'))}
+  else if(x.kind==='ready'&&foremanStop(x)&&x.handoff)visible.unshift(el('a',{href:itemHash(null,x.handoff),onclick:()=>inboxRead(x)},'Open work item'));
   else if(x.handoff)more.push(el('a',{href:itemHash(null,x.handoff),onclick:()=>inboxRead(x)},'Open work item'));
   if(x.kind==='review'&&x.handoff){visible.push(...openPRInboxActs(x));more.unshift(el('button',{type:'button',onclick:()=>resultSheet(x.handoff,'Result: '+(x.goal||x.handoff))},'View result'))}
   if(x.kind==='result'&&x.handoff)visible.push(...resultInboxActs(x));
@@ -3544,18 +3598,21 @@ function workerReport(x){const t=String(x&&x.report_note||'').trim();if(!t)retur
 function needRow(x,extra,onCard){
   if(x.what==='issue')return el('div',{class:'krow'},el('span',{class:'why'},el('span',{class:'k'},'Issue '),el('a',{href:ghHref(x.ref,'issue'),target:'_blank',rel:'noopener'},x.ref),' ',x.title),el('span',{},x.age+' ago, reply on GitHub'));
   x=needNorm(x);const acts=needActs(x,extra);
-  const failed=x.kind==='failed',text=failed&&x.failure?capFirst(plainText(words(x.failure))):cardTitle(words(x.title));
-  const kind=x.kind==='blocked'?'worker blocked':failed?'Could not finish:':x.kind==='spec'?'spec approval':x.kind==='validator'?'validator waiting':x.kind==='linked_done'?'linked work finished':x.kind==='improve'?'proposal':x.kind==='review'?'ready for review':x.kind==='result'?'report ready':x.kind==='stale'?'expired':x.kind==='approval'?'approval':'answered';
+  const failed=x.kind==='failed',fstop=foremanStop(x),text=(failed||fstop&&x.kind==='stopped')&&x.failure?capFirst(plainText(words(x.failure))):cardTitle(words(x.title));
+  const kind=fstop?FOREMAN_TAGS[x.kind][0].toLowerCase()+(x.kind==='stopped'?':':''):x.kind==='blocked'?'worker blocked':failed?'Could not finish:':x.kind==='spec'?'spec approval':x.kind==='validator'?'validator waiting':x.kind==='linked_done'?'linked work finished':x.kind==='improve'?'proposal':x.kind==='review'?'ready for review':x.kind==='result'?'report ready':x.kind==='stale'?'expired':x.kind==='approval'?'approval':'answered';
   const path=x.transcript||x.log,from=x.from?[x.kind==='answered'?'by ':'from ',sessLink(x.from)]:null;
   // On a card the card says when; the row says who. A failure's reason is said in full, never cut.
   const age=onCard?'':x.age;
   return el('div',{class:'krow'+(x.read?'':' unread')},el('span',{class:'why'+(failed?' full':''),title:failed?'':x.title},el('span',{class:'k'},kind+' '),text),
-    from||age?el('span',{},from,age?' '+age+' ago':''):null,acts.length?el('div',{class:'kact'},acts):null,failed?failureDetail(x,true):failureDetail(x))}
+    from||age?el('span',{},from,age?' '+age+' ago':''):null,acts.length?el('div',{class:'kact'},acts):null,fstop?foremanCardDetail(x):failed?failureDetail(x,true):failureDetail(x))}
 function needItems(d){
   const open=new Map((d.handoff_list||[]).map(h=>[h.id,h])),done=new Set((d.done||[]).filter(x=>x.what==='handoff').map(x=>x.ref));
   const movedOn=x=>x.kind!=='failed'&&x.kind!=='blocked'?false:done.has(x.handoff)||(h=>!!h&&h.state==='claimed'&&!!h.dispatched&&!h.worker_state&&(h.attempts||[]).some(a=>a.running))(open.get(x.handoff));
   const current=x=>{const h=open.get(x.handoff);return !d.attention_version||!h||!h.other_mirror&&h.attention_status!=='stale'};
-  const inbox=(d.inbox||[]).filter(x=>!movedOn(x)&&current(x)),waiting=(d.waiting||[]).filter(x=>x.what!=='PR'&&current(x));
+  const inbox0=(d.inbox||[]).filter(x=>!movedOn(x)&&current(x)),waiting0=(d.waiting||[]).filter(x=>x.what!=='PR'&&current(x));
+  const apr=new Map(waiting0.filter(x=>x.what==='approval').map(x=>[x.ref,x])),fore=new Set(inbox0.filter(foremanAsk).map(x=>x.approval));
+  const inbox=inbox0.map(x=>{const a=foremanAsk(x)&&apr.get(x.approval);if(!a)return x;const y={...x,can_answer:a.can_answer};for(const k of ['self','answer_hint','required_role'])if(a[k]!==undefined&&a[k]!==null)y[k]=a[k];return y}),
+    waiting=waiting0.filter(x=>!(x.what==='approval'&&fore.has(x.ref)));
   const asked=new Set(waiting.filter(x=>x.what==='approval').map(x=>x.ref)),specs=new Set(inbox.filter(x=>x.kind==='spec').map(x=>x.approval));
   const all=[...waiting.map(x=>specs.has(x.ref)?{...x,spec:true}:x),...inbox.filter(x=>x.kind!=='spec'||!asked.has(x.approval))],rows=new Map();
   for(const x of all){const k=x.handoff||'';if(!rows.has(k))rows.set(k,[]);rows.get(k).push(x)}
@@ -3599,7 +3656,7 @@ function inboxSets(d){
   const items=needItems(d),all=items.all.slice();
   if(d.attention_version)for(const [id,{h,status,notice}] of attentionModel(d,items).needs)if(h&&!notice)all.push({synthetic:true,id:'attention:'+id,handoff:id,kind:status==='failed'?'failed':'attention',title:taskTitleText(h),read:true,mine:h.mine});
   const asked=new Set(all.filter(x=>x.what==='approval').map(x=>x.ref)),specs=new Set(all.filter(x=>x.kind==='spec').map(x=>x.approval)),
-    tier=x=>x.kind==='blocked'?0:x.kind==='failed'?1:x.what==='approval'||x.kind==='spec'?2:x.what==='issue'?4:3,
+    tier=x=>x.kind==='blocked'?0:x.kind==='failed'||x.kind==='stopped'&&foremanStop(x)?1:x.what==='approval'||x.kind==='spec'||foremanAsk(x)?2:x.what==='issue'?4:3,
     rows=all.filter(x=>!(x.kind==='spec'&&asked.has(x.approval))).map(x=>x.what==='approval'&&specs.has(x.ref)?{...x,spec:true}:x).map((x,i)=>[x,i]).sort((a,b)=>tier(a[0])-tier(b[0])||a[1]-b[1]).map(a=>a[0]),
     needs=rows.filter(x=>x.kind!=='stale'&&x.can_answer!==false),open=new Map((d.handoff_list||[]).map(h=>[h.id,h])),
     // An approval reaches whoever can answer it. On someone else's work it is not Mine; with nobody named on it, the server's mine stands.
@@ -3628,9 +3685,9 @@ let inboxFilter='needs',inboxSel='',inboxPicked=false;
 // keep it; with none, the first item shows (on a phone, the list does).
 function inboxKey(x){return x.what==='issue'?x.ref:needNorm(x).id}
 function inboxHref(f,id){return '#inbox'+(f&&f!=='needs'?'/'+f:'')+(id?'?item='+encodeURIComponent(id):'')}
-function inboxTag(x){if(x.what==='issue')return ['Issue',''];x=needNorm(x);if(x.kind==='lesson'&&x.suggest_retire)return ['Suggest retire','a'];return x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind]}
+function inboxTag(x){if(x.what==='issue')return ['Issue',''];x=needNorm(x);if(x.kind==='lesson'&&x.suggest_retire)return ['Suggest retire','a'];if(foremanStop(x))return FOREMAN_TAGS[x.kind];return x.spec?INBOX_TAGS.spec:INBOX_TAGS[x.kind]||[x.kind]}
 // The tag says what kind of item it is, so the title names the task: its goal, else the item's own words.
-function inboxTitle(x){if(x.what==='issue')return x.title;x=needNorm(x);if(x.kind==='lesson'&&x.lesson_text&&x.lesson_text.title)return words((x.suggest_retire?'Retire? ':'')+x.lesson_text.title);if(x.kind==='lesson'&&x.suggest_retire&&x.suggest_retire.title)return words('Retire? '+x.suggest_retire.title);if(x.goal&&(x.kind==='stale'||/^(failed|review|result)$/.test(x.kind))){const h=inboxHandoff(x);return words(taskTitleText({title:h&&h.title,goal:x.goal,issue:h&&h.issue,id:x.handoff}))}return words(x.title)}
+function inboxTitle(x){if(x.what==='issue')return x.title;x=needNorm(x);if(x.kind==='lesson'&&x.lesson_text&&x.lesson_text.title)return words((x.suggest_retire?'Retire? ':'')+x.lesson_text.title);if(x.kind==='lesson'&&x.suggest_retire&&x.suggest_retire.title)return words('Retire? '+x.suggest_retire.title);if(x.goal&&(x.kind==='stale'||/^(failed|review|result)$/.test(x.kind)||foremanStop(x)&&!foremanAsk(x))){const h=inboxHandoff(x);return words(taskTitleText({title:h&&h.title,goal:x.goal,issue:h&&h.issue,id:x.handoff}))}return words(x.title)}
 // inboxHandoff: the open (or today's done) handoff an Inbox item is about, for its title and its refs.
 function inboxHandoff(x){const id=x&&x.handoff,d=lastDash||{};return id?(d.handoff_list||[]).find(y=>y.id===id)||(x=>x?{...x,id}:null)((d.done||[]).find(y=>y.what==='handoff'&&y.ref===id)):null}
 // inboxHead: an Inbox row's title line, its task's number first (region:task-refs' taskHead).
@@ -3641,12 +3698,12 @@ function inboxRefs(raw,cls){if(raw.what==='issue')return null;const x=needNorm(r
   return taskRefs([x.handoff],[...refList(h&&h.prs),...refList(x.prs)],h?(h.issues&&h.issues.length?h.issues:h.issue):[],cls)}
 function inboxRow(raw){
   const key=inboxKey(raw),tag=inboxTag(raw),full=inboxTitle(raw),x=raw.what==='issue'?raw:needNorm(raw),on=key===inboxSel,h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff);
-  return el('article',{class:'ib-row'+(raw.what!=='issue'&&!x.read?' unread':'')+(on?' on':''),'data-id':key},
+  return el('article',{class:'ib-row'+(raw.what!=='issue'&&!x.read?' unread':'')+(on?' on':''),'data-id':key,'data-kind':raw.what!=='issue'&&foremanStop(x)?'foreman-'+x.kind:null},
     el('a',{class:'ib-pick',href:inboxHref(inboxFilter,key),'aria-current':on?'true':null,title:full,onclick:()=>{inboxPicked=true;if(raw.what!=='issue')inboxRead(x)}},
       el('span',{class:'ib-tag '+(tag[1]||'')},tag[0]),
       el('span',{class:'ib-main'},
         el('span',{class:'ib-title'},raw.what!=='issue'&&inboxUnreadDot(x)?el('span',{class:'ib-dot',role:'img','aria-label':'Unread',title:'Unread'}):null,...inboxHead(raw,full)),
-        el('span',{class:'ib-sub'},raw.what==='issue'?el('span',{},raw.ref):h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLabel(x.from)):null,x.age?el('span',{},x.age+' ago'):null))),
+        el('span',{class:'ib-sub'},raw.what==='issue'?el('span',{},raw.ref):h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLabel(x.from)):null,raw.what!=='issue'&&foremanStop(x)&&x.branch?el('code',{},x.branch):null,x.age?el('span',{},x.age+' ago'):null))),
     inboxRefs(raw,'ib-refs'))}
 // blockedHow: a blocked worker is answered in place (the answer box) or in its
 // session; the terminal command is for people at the host.
@@ -3691,10 +3748,11 @@ function inboxDetail(raw){
   if(raw.what==='issue')return [back,el('div',{},el('h3',{},raw.title),el('div',{class:'ib-dsub'},el('span',{},'Issue'),el('span',{},raw.ref),el('span',{},raw.age+' ago'),el('span',{},'reply on '+trackerName(raw.ref)))),
     el('div',{class:'kact'},el('a',{href:ghHref(raw.ref,'issue'),target:'_blank',rel:'noopener'},'Open on '+trackerName(raw.ref)))];
   const x=needNorm(raw),tag=inboxTag(raw),full=inboxTitle(raw),h=x.handoff&&((lastDash||{}).handoff_list||[]).find(y=>y.id===x.handoff),goal=h&&h.goal&&words(h.goal)!==full?words(h.goal):'';
-  const head=el('div',{},el('h3',{},x.kind==='blocked'?'Worker asks: '+cardTitle(x.worker_wait||h&&h.worker_wait||full):cardTitle(full)),
+  const head=el('div',{'data-kind':foremanStop(x)?'foreman-'+x.kind:null},el('h3',{},x.kind==='blocked'?'Worker asks: '+cardTitle(x.worker_wait||h&&h.worker_wait||full):cardTitle(full)),
     el('div',{class:'ib-dsub'},el('span',{class:'ib-tag '+(tag[1]||'')},tag[0]),goal?el('span',{},cardTitle(goal)):null,h&&projectOf(h)?el('span',{},projectOf(h)):null,x.worker?el('span',{},toolName(x.worker)):null,
       x.from?el('span',{},x.kind==='answered'?'by ':'from ',sessLink(x.from)):null,x.age?el('span',{},x.age+' ago'):null),inboxRefs(raw,'ib-drefs'));
   const ask=x.kind==='blocked'?[el('div',{class:'ib-msg'},x.worker_wait||h&&h.worker_wait||'The worker ended its turn and is waiting for a reply.'),workerReport(x)]:
+    foremanStop(x)?foremanFacts(x):
     x.approvalOnly||x.kind==='spec'?[el('div',{class:'ib-msg'},x.title),inboxReleases(x)]:
     x.kind==='lesson'&&x.lesson?[lessonFacts(x)]:
     [plainText(full)!==cardTitle(full)?el('div',{class:'ib-msg'},full):null,failureDetail(x),x.kind==='review'?openPRInboxLine(x):null,x.kind==='result'?resultInboxLine(x):null];
@@ -6527,8 +6585,9 @@ function appOpen(side){return PHONE.matches?APP.drawer===side:!!APP.sides[side]}
 // appTitle: the window title in the personal app, 'PAGE · PRODUCT' (no "Server": that is the team
 // dash's): the page over the centre, else the open task's title, else what the centre says.
 const APP_PAGE_TITLES={home:'Home',tasks:'Tasks',inbox:'Inbox',triggers:'Triggers',settings:'Settings'};
+// The window title is the task's title alone: a row's full is its title and goal, for a tooltip (region:task-refs).
 function appTitle(){if(!APP.on)return;const r=APP.task&&APPS.model&&APPS.model.byId.get(APP.task);
-  document.title=(APPS.page?APP_PAGE_TITLES[APPS.page]||word(APPS.page):APP.task?r&&r.full||APP.task:'No task open')+' · '+PRODUCT}
+  document.title=(APPS.page?APP_PAGE_TITLES[APPS.page]||word(APPS.page):APP.task?r&&(r.h&&taskTitleText(r.h)||r.full)||APP.task:'No task open')+' · '+PRODUCT}
 function appSides(){appTitle();const b=document.body;for(const s of ['left','right'])b.classList.toggle('app-'+s+'-open',APP.on&&appOpen(s));$('app-scrim').hidden=!(APP.on&&PHONE.matches&&APP.drawer);
   for(const n of document.querySelectorAll('#app-shell [data-app-action^="toggle-"]')){const s=n.dataset.appAction.slice(7);n.setAttribute('aria-expanded',String(appOpen(s)&&(s!=='right'||appRightOn())))}appEmpty()}
 // appRightOn: the right sidebar has something to show: a task is open and no page covers the centre (review m4).
@@ -7646,7 +7705,7 @@ function apDraw(d){const md=apModel(d);if(AP.hid&&!md.m.byId.has(AP.hid))AP.hid=
 function apHead(d,md){const sel=$('ap-project'),keep=document.activeElement===sel;
   sel.replaceChildren(el('option',{value:AP_ALL},'All projects'),...md.projects.map(p=>el('option',{value:p},p?p.split('/').pop():'No repository')));sel.value=md.project;sel.hidden=md.projects.length<2;if(keep)sel.focus();
   const wd=d.watchdog,n=$('ap-watchdog');n.hidden=!wd||!!wd.running;n.replaceChildren(...(wd&&!wd.running?[el('span',{},'No watchdog: offered tasks do not start. '),cliInline()?el('code',{},wd.start||CLI+' install'):cliSame(wd.start||CLI+' install',{label:'Start one from a terminal'})]:[]))}
-function apKind(x){return x.what==='issue'?'Issue':x.kind==='attention'?'Needs attention':x.approvalOnly?'Approval':x.kind==='blocked'?'Worker blocked':x.kind==='failed'?'Could not finish':x.kind==='question'?'Question':x.kind==='lesson'?'Lesson':x.kind==='spec'?'Spec approval':x.kind==='validator'?'Validator waiting':x.kind==='review'?'Ready for review':x.kind==='result'?'Report ready':x.kind==='stale'?'Expired':word(x.kind||'answered')}
+function apKind(x){return x.what==='issue'?'Issue':foremanStop(x)?FOREMAN_TAGS[x.kind][0]:x.kind==='attention'?'Needs attention':x.approvalOnly?'Approval':x.kind==='blocked'?'Worker blocked':x.kind==='failed'?'Could not finish':x.kind==='question'?'Question':x.kind==='lesson'?'Lesson':x.kind==='spec'?'Spec approval':x.kind==='validator'?'Validator waiting':x.kind==='review'?'Ready for review':x.kind==='result'?'Report ready':x.kind==='stale'?'Expired':word(x.kind||'answered')}
 // apWhere: where to act instead, with each command to copy: behind a disclosure (cliSame) unless the viewer
 // shows terminal commands inline (Settings > Terminal commands), then each as before with its Copy.
 function apWhere(key,text,cmds){if(!cliInline())return el('div',{class:'ap-where','data-where':key},el('span',{class:'ap-mute'},text.replace(/:$/,'.')),cliSame(cmds,{label:cmds.length>1?'The commands':'The command'}));
@@ -7668,13 +7727,13 @@ function apLesson(x){if(lessonCan()){const acts=lessonActs(x);for(const b of act
 // apNeedRow: one item that waits on a person, its kind and full text (never cut: an approval is read
 // whole before anyone answers it), who and when, and what can be done here. open is the attribute that
 // opens its task: the panel's data-ap-open, or data-open-task on the app's Inbox page.
-function apNeedRow(x,inTask,open){const failed=x.kind==='failed',text=failed&&x.failure?capFirst(plainText(words(x.failure))):words(x.title||'');
-  const {acts,notes}=x.approvalOnly||x.kind==='spec'&&x.approval?apAnswer(x):x.kind==='lesson'&&x.lesson?apLesson(x):{acts:[],notes:[]};
-  if(x.kind==='question'&&x.handoff&&!pageMay('handoff_answer'))notes.push(apWhere('question','The app does not answer a worker’s question. Answer it at your own terminal:',[CLI+' handoff answer '+x.handoff+' --text "..."']));
+function apNeedRow(x,inTask,open){const failed=x.kind==='failed'||x.kind==='stopped'&&foremanStop(x),text=failed&&x.failure?capFirst(plainText(words(x.failure))):words(x.title||'');
+  const {acts,notes}=foremanStop(x)?apForeman(x):x.approvalOnly||x.kind==='spec'&&x.approval?apAnswer(x):x.kind==='lesson'&&x.lesson?apLesson(x):{acts:[],notes:[]};
+  if(x.kind==='question'&&x.handoff&&!foremanStop(x)&&!pageMay('handoff_answer'))notes.push(apWhere('question','The app does not answer a worker’s question. Answer it at your own terminal:',[CLI+' handoff answer '+x.handoff+' --text "..."']));
   if(x.what==='issue')acts.push(el('a',{href:ghHref(x.ref,'issue'),target:'_blank',rel:'noopener'},'Open issue'));
   if(!inTask&&x.handoff)acts.push(el('button',{type:'button',class:'ap-btn',[open||'data-ap-open']:x.handoff},'Open task'));
   const h=!inTask&&open&&x.handoff&&lastDash&&[...(lastDash.handoff_list||[]),...(lastDash.done||[]).filter(y=>y.what==='handoff').map(y=>({...y,id:y.ref}))].find(y=>y.id===x.handoff),about=h&&(h.title||h.goal);
-  return el('div',{class:'ap-need','data-kind':x.approvalOnly?'approval':x.kind||'','data-id':x.approval||x.id||null},el('div',{class:'ap-ntext'},el('b',{},apKind(x)),' ',text),
+  return el('div',{class:'ap-need','data-kind':x.approvalOnly?'approval':foremanStop(x)?'foreman-'+x.kind:x.kind||'','data-id':x.approval||x.id||null},el('div',{class:'ap-ntext'},el('b',{},apKind(x)),' ',text),
     about&&about!==x.title?el('div',{class:'ap-mute ap-about'},'Task: '+about):null,
     x.age?el('div',{class:'ap-mute'},(x.from&&!inTask?'from '+sessLabel(x.from)+' · ':'')+x.age+' ago'):null,acts.length?el('div',{class:'ap-acts'},acts):null,...notes)}
 function apInbox(d,md){const box=$('ap-inbox'),xs=apNeeds(d).filter(x=>!AP.hid||x.handoff!==AP.hid);box.hidden=!xs.length;if(!xs.length){box.replaceChildren();return}
