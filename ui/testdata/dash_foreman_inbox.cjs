@@ -1,4 +1,4 @@
-// The foreman's human stops in the Inbox (core #94). Done when each of the four kinds the
+// The foreman's operator stops in the Inbox (core #94). Done when each of the four kinds the
 // foreman files reads as its own row kind with its own actions:
 //  1. question: the stage's question, Answer (approve with the answer as the note: the stage
 //     runs again) and Stop the item (reject);
@@ -26,7 +26,7 @@ const stopNext='libraos-engine foreman retry hof-fx (run the stage again), libra
 const inbox=[
  {id:'stopped:hof-fx:t1',kind:'stopped',title:'foreman item stopped: max_rounds: 3 implement attempts reached',failure:'max_rounds: 3 implement attempts reached',goal:'Driver upgrade',handoff:'hof-fx',foreman:'hof-fx',branch:'agentd/item-hof-fx',from:'s-alice',age:'1h',next_step:stopNext},
  {id:'question:apr-q',kind:'question',title:qText,approval:'apr-q',about:'foreman:hof-fq:hof-fq2',foreman:'hof-fq',handoff:'hof-fq',from:'s-alice',age:'2h',mine:true,next_step:'a person answers approval apr-q in the dash: approve with the answer as the note, or reject to stop the item'},
- {id:'spec:apr-s',kind:'spec',title:sText,approval:'apr-s',about:'foreman:hof-fs:hof-fs1',foreman:'hof-fs',handoff:'hof-fs',from:'s-alice',age:'2h',mine:true,next_step:'a person approves or rejects approval apr-s in the dash; a reject with a note has spec redo it'},
+ {id:'spec:apr-s',kind:'spec',title:sText,approval:'apr-s',about:'foreman:hof-fs:hof-fs1',foreman:'hof-fs',handoff:'hof-fs',from:'s-alice',age:'2h',mine:true,next_step:'the operator approves or rejects approval apr-s in the dash; a reject with a note has spec redo it'},
  {id:'ready:hof-fr:t2',kind:'ready',title:'foreman item ready for your merge: review passed',goal:'Rename flags',handoff:'hof-fr',foreman:'hof-fr',branch:'agentd/item-hof-fr',head:'0123456789abcdef0123',from:'s-alice',age:'3h',next_step:'Review and merge the item\'s branch agentd/item-hof-fr yourself (LibraOS Engine never merges it); a merged pull request linked to the item clears this, or libraos-engine foreman stop hof-fr --reason TEXT ends the item'},
  // As before: a worker's own question, and a spec approval that is no foreman's.
  {id:'question:hof-w:t3',kind:'question',title:'claude worker asks: Keep the aliases?',handoff:'hof-w',from:'s-work',claimer:'s-work',worker:'claude',age:'5m'},
